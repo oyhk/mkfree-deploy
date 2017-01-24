@@ -11,6 +11,9 @@ import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 /**
  * Created by oyhk on 17/1/22.
  *
@@ -23,6 +26,9 @@ public class Bootstrap {
         SpringApplication app = new SpringApplication(Bootstrap.class);
         app.setBannerMode(Banner.Mode.LOG);
         ApplicationContext applicationContext = app.run(args);
+
+
+
     }
 
 }

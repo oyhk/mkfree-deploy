@@ -63,10 +63,10 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             key: 'operation',
             render: (text, record) => (
                 <span className={styles.operation}>
-                    <ProjectModal record={record} onOk={editHandler.bind(null, record.id)}>
+                    <ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>
                         <a>编辑</a>
                     </ProjectModal>
-                    <Popconfirm title="Confirm to delete?" onConfirm={deleteHandler.bind(null, record.id)}>
+                    <Popconfirm title="确认删除?" onConfirm={deleteHandler.bind(null, record.id)}>
                         <a href="">删除</a>
                     </Popconfirm>
                 </span>

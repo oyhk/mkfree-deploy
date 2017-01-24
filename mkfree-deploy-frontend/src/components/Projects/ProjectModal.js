@@ -39,7 +39,7 @@ class ProjectModal extends Component {
     render() {
         const {children} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const {name, repositoryUrl} = this.props.record;
+        const {name, gitUrl,localPath} = this.props.record;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 14},
@@ -53,6 +53,7 @@ class ProjectModal extends Component {
                 <Modal
                     title={this.state.title}
                     visible={this.state.visible}
+                    width={800}
                     onOk={this.okHandler}
                     onCancel={this.hideModelHandler}
                 >
@@ -73,8 +74,18 @@ class ProjectModal extends Component {
                             label="仓库url"
                         >
                             {
-                                getFieldDecorator('repositoryUrl', {
-                                    initialValue: repositoryUrl,
+                                getFieldDecorator('gitUrl', {
+                                    initialValue: gitUrl,
+                                })(<Input />)
+                            }
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="项目路径"
+                        >
+                            {
+                                getFieldDecorator('localPath', {
+                                    initialValue: localPath,
                                 })(<Input />)
                             }
                         </FormItem>

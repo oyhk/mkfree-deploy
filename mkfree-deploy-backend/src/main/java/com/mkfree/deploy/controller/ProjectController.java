@@ -6,18 +6,19 @@ import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.Project;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import com.mkfree.deploy.repository.ProjectRepository;
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
@@ -30,6 +31,8 @@ public class ProjectController extends BaseController {
 
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
@@ -47,13 +50,13 @@ public class ProjectController extends BaseController {
                 jsonResult.errorParam("名称不能为空");
                 return;
             }
-            if (StringUtils.isBlank(dto.getRepositoryUrl())) {
+            if (StringUtils.isBlank(dto.getGitUrl())) {
                 jsonResult.errorParam("项目git仓库url不能为空");
                 return;
             }
             Project project = new Project();
             project.setName(dto.getName());
-            project.setRepositoryUrl(dto.getRepositoryUrl());
+            project.setGitUrl(dto.getGitUrl());
             projectRepository.save(project);
         };
         return doing.go(request, log);
@@ -70,8 +73,8 @@ public class ProjectController extends BaseController {
             if (StringUtils.isNotBlank(dto.getName())) {
                 project.setName(dto.getName());
             }
-            if (StringUtils.isNotBlank(dto.getRepositoryUrl())) {
-                project.setRepositoryUrl(dto.getRepositoryUrl());
+            if (StringUtils.isNotBlank(dto.getGitUrl())) {
+                project.setGitUrl(dto.getGitUrl());
             }
             projectRepository.save(project);
         };
@@ -103,22 +106,32 @@ public class ProjectController extends BaseController {
                 return;
             }
 
+            Resource resource = resourceLoader.getResource("classpath:/shell/deploy.sh");
+            this.executeShellCommand("chmod u+x " + resource.getFile().getPath());
             Project project = projectRepository.findOne(dto.getId());
-
-            this.executeCommand("chmod u+x /Users/oyhk/rockcent/project/mkfree-deploy/mkfree-deploy-backend/testshell/aa.sh");
-
-            ProcessBuilder pb = new ProcessBuilder("/Users/oyhk/rockcent/project/mkfree-deploy/mkfree-deploy-backend/testshell/aa.sh");
-            Process p = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
+            this.executeShellFile(resource.getFile().getPath(), project.getGitUrl(), project.getLocalPath());
         };
         return doing.go(request, log);
     }
 
-    private String executeCommand(String command) {
+    private void executeShellFile(String... command) {
+        try {
+            Process process = null;
+            process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String s;
+            while ((s = reader.readLine()) != null) {
+                log.info(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    private String executeShellCommand(String command) {
 
         StringBuffer output = new StringBuffer();
 
@@ -137,8 +150,6 @@ public class ProjectController extends BaseController {
         }
 
         return output.toString();
-
     }
-
 
 }
