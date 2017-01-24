@@ -14,14 +14,14 @@ public class Project extends IDEntity {
 
     @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
     private String name;
-
-
     @Column(columnDefinition = "varchar (255) comment 'git仓库地址'")
     private String gitUrl;
     @Column(columnDefinition = "varchar (255) comment '本地项目路劲'")
     private String localPath;
     @Column(columnDefinition = "text comment '分支列表'")
     private String branchList;
+    @Column(columnDefinition = "varchar (255) comment '发布分支名称，可以模糊匹配'")
+    private String publishBranch;
 
     /*******下面是 Transient 字段 start ********/
     // 项目的发布环境
@@ -68,5 +68,13 @@ public class Project extends IDEntity {
 
     public void setLocalPath(String localPath) {
         this.localPath = localPath;
+    }
+
+    public String getPublishBranch() {
+        return publishBranch;
+    }
+
+    public void setPublishBranch(String publishBranch) {
+        this.publishBranch = publishBranch;
     }
 }

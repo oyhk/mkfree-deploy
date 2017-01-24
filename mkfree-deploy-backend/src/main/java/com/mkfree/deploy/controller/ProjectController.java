@@ -109,7 +109,11 @@ public class ProjectController extends BaseController {
             Resource resource = resourceLoader.getResource("classpath:/shell/deploy.sh");
             this.executeShellCommand("chmod u+x " + resource.getFile().getPath());
             Project project = projectRepository.findOne(dto.getId());
-            this.executeShellFile(resource.getFile().getPath(), project.getGitUrl(), project.getLocalPath());
+            this.executeShellFile(resource.getFile().getPath(),
+                    project.getName(),
+                    project.getLocalPath(),
+                    project.getGitUrl(),
+                    project.getPublishBranch());
         };
         return doing.go(request, log);
     }
