@@ -44,6 +44,7 @@ if [ 'release' == ${publishBranch} ]; then
     else
         echo 'remote branch is not exist , default git checkout master'
         git checkout master
+        git pull origin master
     fi
 
 #    cp -r ${projectAllPath}/${moduleName} ${remoteProjectPath}
@@ -52,7 +53,7 @@ if [ 'release' == ${publishBranch} ]; then
     cd  ${projectAllPath}/${moduleName}
     mvn clean package
 
-    ssh -P 22222 rock@112.74.78.236 "mkdir -p /rockcent/apps/$moduleName"
+    ssh -p 22222 rock@112.74.78.236 "mkdir -p /rockcent/apps/$moduleName"
     scp -P 22222  -r ${projectAllPath}/${moduleName}/target/${deployTargetFile} rock@112.74.78.236:/rockcent/apps/${moduleName}/
     echo "scp -P 22222  -r $projectAllPath/$moduleName/target/$deployTargetFile rock@112.74.78.236:/rockcent/apps/$moduleName/"
 
