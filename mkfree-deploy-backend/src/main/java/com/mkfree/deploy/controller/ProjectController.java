@@ -76,6 +76,18 @@ public class ProjectController extends BaseController {
             if (StringUtils.isNotBlank(dto.getGitUrl())) {
                 project.setGitUrl(dto.getGitUrl());
             }
+            if(StringUtils.isNotBlank(dto.getPublishBranch())){
+                project.setPublishBranch(dto.getPublishBranch());
+            }
+            if(StringUtils.isNotBlank(dto.getRemotePath())){
+                project.setRemotePath(dto.getRemotePath());
+            }
+            if(StringUtils.isNotBlank(dto.getModuleName())){
+                project.setModuleName(dto.getModuleName());
+            }
+            if(StringUtils.isNotBlank(dto.getDeployTargetFile())){
+                project.setDeployTargetFile(dto.getDeployTargetFile());
+            }
             projectRepository.save(project);
         };
         return doing.go(request, log);
@@ -115,27 +127,34 @@ public class ProjectController extends BaseController {
                 project.setPublishBranch("master");
             }
 
-            this.executeShellFile(resource.getFile().getPath(),
+            String result = this.executeShellFile(resource.getFile().getPath(),
                     project.getName(),
                     project.getLocalPath(),
                     project.getGitUrl(),
-                    project.getPublishBranch());
+                    project.getPublishBranch(),
+                    project.getRemotePath(),
+                    project.getModuleName(),
+                    project.getDeployTargetFile());
+            jsonResult.data = result;
         };
         return doing.go(request, log);
     }
 
-    private void executeShellFile(String... command) {
+    private String executeShellFile(String... command) {
+        StringBuffer stringBuffer = new StringBuffer();
         try {
             Process process = Runtime.getRuntime().exec(command);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
             String s;
             while ((s = reader.readLine()) != null) {
                 log.info(s);
+                stringBuffer.append(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        return stringBuffer.toString();
 
     }
 

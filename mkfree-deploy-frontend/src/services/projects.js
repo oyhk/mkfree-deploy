@@ -26,4 +26,10 @@ export function remove(id) {
     });
 }
 
+export function deploy(body) {
+    return request('/api/project/structure', {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
 

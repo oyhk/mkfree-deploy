@@ -46,6 +46,12 @@ export default {
             const pageNo = yield select(state => state.projects.pageNo);
             yield put({type: 'fetch', payload: {pageNo}});
         },
+        *deploy({payload:values},{call,put}){
+            console.log("model-project",values);
+
+            yield call(projectService.deploy, values);
+            yield put({type: 'reload'});
+        }
     },
     subscriptions: {
         setup({dispatch, history}) {

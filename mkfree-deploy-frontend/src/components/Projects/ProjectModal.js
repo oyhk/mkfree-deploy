@@ -39,7 +39,7 @@ class ProjectModal extends Component {
     render() {
         const {children} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const {name, gitUrl,localPath} = this.props.record;
+        const {name, gitUrl,localPath,publishBranch,remotePath,moduleName,deployTargetFile} = this.props.record;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 14},
@@ -86,6 +86,46 @@ class ProjectModal extends Component {
                             {
                                 getFieldDecorator('localPath', {
                                     initialValue: localPath,
+                                })(<Input />)
+                            }
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="发布分支名称"
+                        >
+                            {
+                                getFieldDecorator('publishBranch', {
+                                    initialValue: publishBranch,
+                                })(<Input />)
+                            }
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="远程机器项目路劲"
+                        >
+                            {
+                                getFieldDecorator('remotePath', {
+                                    initialValue: remotePath,
+                                })(<Input />)
+                            }
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="部署的项目模块名称"
+                        >
+                            {
+                                getFieldDecorator('moduleName', {
+                                    initialValue: moduleName,
+                                })(<Input />)
+                            }
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="部署的项目模块文件或者目录"
+                        >
+                            {
+                                getFieldDecorator('deployTargetFile', {
+                                    initialValue: deployTargetFile,
                                 })(<Input />)
                             }
                         </FormItem>

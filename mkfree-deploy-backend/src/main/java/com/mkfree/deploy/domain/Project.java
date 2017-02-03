@@ -8,6 +8,7 @@ import javax.persistence.Transient;
 
 /**
  * Created by oyhk on 2017/1/23.
+ *
  */
 @Entity
 public class Project extends IDEntity {
@@ -22,6 +23,13 @@ public class Project extends IDEntity {
     private String branchList;
     @Column(columnDefinition = "varchar (255) comment '发布分支名称，可以模糊匹配'")
     private String publishBranch;
+    @Column(columnDefinition = "varchar (255) comment '远程机器项目路劲'")
+    private String remotePath;
+    @Column(columnDefinition = "varchar (255) comment '部署的项目模块名称'")
+    private String moduleName;
+    @Column(columnDefinition = "varchar (255) comment '部署的项目模块的目标文件或者目录'")
+    private String deployTargetFile;
+
 
     /*******下面是 Transient 字段 start ********/
     // 项目的发布环境
@@ -76,5 +84,29 @@ public class Project extends IDEntity {
 
     public void setPublishBranch(String publishBranch) {
         this.publishBranch = publishBranch;
+    }
+
+    public String getRemotePath() {
+        return remotePath;
+    }
+
+    public void setRemotePath(String remotePath) {
+        this.remotePath = remotePath;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public String getDeployTargetFile() {
+        return deployTargetFile;
+    }
+
+    public void setDeployTargetFile(String deployTargetFile) {
+        this.deployTargetFile = deployTargetFile;
     }
 }

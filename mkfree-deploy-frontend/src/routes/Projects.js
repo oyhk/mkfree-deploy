@@ -39,6 +39,13 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
         });
     }
 
+    function deploy(values) {
+        dispatch({
+            type: 'projects/deploy',
+            payload: values,
+        });
+    }
+
     const columns = [
         {
             title: '项目名称',
@@ -52,9 +59,9 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             key:'',
             render: (text,record)=>(
                 <span className={styles.operation}>
-                    <a>开发</a>
-                    <a>预发布</a>
-                    <a>生产</a>
+                    <a onClick={deploy.bind(null,{id:record.id,env:'DEV'})}>开发</a>
+                    <a onClick={deploy.bind(null,record.id,'UAT')}>预发布</a>
+                    <a onClick={deploy.bind(null,record.id,'PROD')}>生产</a>
                 </span>
             )
         },
