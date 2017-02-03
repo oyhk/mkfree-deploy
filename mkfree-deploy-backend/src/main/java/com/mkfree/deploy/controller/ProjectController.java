@@ -109,6 +109,12 @@ public class ProjectController extends BaseController {
             Resource resource = resourceLoader.getResource("classpath:/shell/deploy.sh");
             this.executeShellCommand("chmod u+x " + resource.getFile().getPath());
             Project project = projectRepository.findOne(dto.getId());
+
+            // 当发布分支为空时，默认为master
+            if (StringUtils.isBlank(project.getPublishBranch())) {
+                project.setPublishBranch("master");
+            }
+
             this.executeShellFile(resource.getFile().getPath(),
                     project.getName(),
                     project.getLocalPath(),
@@ -120,8 +126,7 @@ public class ProjectController extends BaseController {
 
     private void executeShellFile(String... command) {
         try {
-            Process process = null;
-            process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec(command);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s;
             while ((s = reader.readLine()) != null) {
