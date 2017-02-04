@@ -54,7 +54,7 @@ if [ 'release' == ${publishBranch} ]; then
     mvn clean package
 
     ssh -p 22222 rock@112.74.78.236 "mkdir -p /rockcent/apps/$moduleName"
-    scp -P 22222  -r ${projectAllPath}/${moduleName}/target/${deployTargetFile} rock@112.74.78.236:/rockcent/apps/${moduleName}/
+#    scp -P 22222  -r ${projectAllPath}/${moduleName}/target/${deployTargetFile} rock@112.74.78.236:/rockcent/apps/${moduleName}/
     echo "scp -P 22222  -r $projectAllPath/$moduleName/target/$deployTargetFile rock@112.74.78.236:/rockcent/apps/$moduleName/"
 
 
