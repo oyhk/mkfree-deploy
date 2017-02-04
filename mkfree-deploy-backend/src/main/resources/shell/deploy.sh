@@ -8,6 +8,10 @@ remoteProjectPath=$5 #远程机器项目路劲
 moduleName=$6 #模块名称
 deployTargetFile=$7 #部署的目的文件或者目录
 
+serverIP=$8
+serverSshUsername=$9
+serverSshPort=$10
+
 #git@git.oschina.net:kcoupon/rockcent.git 例如：截取项目名称 rockcent
 gitProjectName=${gitUrl##*/} #git项目名称
 
@@ -53,13 +57,10 @@ if [ 'release' == ${publishBranch} ]; then
     cd  ${projectAllPath}/${moduleName}
     mvn clean package
 
-    ssh -p 22222 rock@112.74.78.236 "mkdir -p /rockcent/apps/$moduleName"
-#    scp -P 22222  -r ${projectAllPath}/${moduleName}/target/${deployTargetFile} rock@112.74.78.236:/rockcent/apps/${moduleName}/
-    echo "scp -P 22222  -r $projectAllPath/$moduleName/target/$deployTargetFile rock@112.74.78.236:/rockcent/apps/$moduleName/"
-
-
+    ssh -p ${serverSshPort} ${serverSshUsername}@${serverIP} "mkdir -p $remoteProjectPath/$moduleName"
+    scp -P ${serverSshPort}  -r ${projectAllPath}/${moduleName}/target/${deployTargetFile} ${serverSshUsername}@${serverIP}:${remoteProjectPath}/${moduleName}/
+    echo "scp -P $serverSshPort  -r $projectAllPath/$moduleName/target/$deployTargetFile $serverSshUsername@$serverIP:$remoteProjectPath/$moduleName/"
 
 fi
-
 
 echo 'deploy finish !!!'

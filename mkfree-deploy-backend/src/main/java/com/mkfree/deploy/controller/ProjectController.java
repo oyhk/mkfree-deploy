@@ -6,7 +6,11 @@ import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.Project;
+import com.mkfree.deploy.domain.ProjectServerMachine;
+import com.mkfree.deploy.domain.ServerMachine;
 import com.mkfree.deploy.repository.ProjectRepository;
+import com.mkfree.deploy.repository.ProjectServerMachineRepository;
+import com.mkfree.deploy.repository.ServerMachineRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -31,6 +36,10 @@ public class ProjectController extends BaseController {
 
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectServerMachineRepository projectServerMachineRepository;
+    @Autowired
+    private ServerMachineRepository serverMachineRepository;
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -76,16 +85,16 @@ public class ProjectController extends BaseController {
             if (StringUtils.isNotBlank(dto.getGitUrl())) {
                 project.setGitUrl(dto.getGitUrl());
             }
-            if(StringUtils.isNotBlank(dto.getPublishBranch())){
+            if (StringUtils.isNotBlank(dto.getPublishBranch())) {
                 project.setPublishBranch(dto.getPublishBranch());
             }
-            if(StringUtils.isNotBlank(dto.getRemotePath())){
+            if (StringUtils.isNotBlank(dto.getRemotePath())) {
                 project.setRemotePath(dto.getRemotePath());
             }
-            if(StringUtils.isNotBlank(dto.getModuleName())){
+            if (StringUtils.isNotBlank(dto.getModuleName())) {
                 project.setModuleName(dto.getModuleName());
             }
-            if(StringUtils.isNotBlank(dto.getDeployTargetFile())){
+            if (StringUtils.isNotBlank(dto.getDeployTargetFile())) {
                 project.setDeployTargetFile(dto.getDeployTargetFile());
             }
             projectRepository.save(project);
@@ -127,15 +136,24 @@ public class ProjectController extends BaseController {
                 project.setPublishBranch("master");
             }
 
-            String result = this.executeShellFile(resource.getFile().getPath(),
-                    project.getName(),
-                    project.getLocalPath(),
-                    project.getGitUrl(),
-                    project.getPublishBranch(),
-                    project.getRemotePath(),
-                    project.getModuleName(),
-                    project.getDeployTargetFile());
-            jsonResult.data = result;
+            List<ProjectServerMachine> projectServerMachineList = projectServerMachineRepository.findByProjectId(project.getId());
+            for (ProjectServerMachine projectServerMachine : projectServerMachineList) {
+
+                ServerMachine serverMachine = serverMachineRepository.findOne(projectServerMachine.getId());
+
+                String result = this.executeShellFile(resource.getFile().getPath(),
+                        project.getName(),
+                        project.getLocalPath(),
+                        project.getGitUrl(),
+                        project.getPublishBranch(),
+                        project.getRemotePath(),
+                        project.getModuleName(),
+                        project.getDeployTargetFile(),
+                        serverMachine.getIp(),
+                        serverMachine.getUsername(),
+                        serverMachine.getPort());
+                jsonResult.data = result;
+            }
         };
         return doing.go(request, log);
     }

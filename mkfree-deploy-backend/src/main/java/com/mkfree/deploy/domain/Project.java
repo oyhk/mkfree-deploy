@@ -15,9 +15,9 @@ public class Project extends IDEntity {
 
     @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
     private String name;
-    @Column(columnDefinition = "varchar (255) comment 'git仓库地址'")
+    @Column(columnDefinition = "varchar (255) comment 'git仓库地址'",nullable = false)
     private String gitUrl;
-    @Column(columnDefinition = "varchar (255) comment '本地项目路劲'")
+    @Column(columnDefinition = "varchar (255) comment '本地项目路劲'",nullable = false)
     private String localPath;
     @Column(columnDefinition = "text comment '分支列表'")
     private String branchList;
