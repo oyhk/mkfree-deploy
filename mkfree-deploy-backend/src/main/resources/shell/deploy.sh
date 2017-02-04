@@ -47,9 +47,9 @@ if [ 'release' == ${publishBranch} ]; then
         git pull origin master
     fi
 
-
 #    cp -r ${projectAllPath}/${moduleName} ${remoteProjectPath}
 #    echo "cp -r $projectAllPath/$moduleName $remoteProjectPath"
+
     cd  ${projectAllPath}/${moduleName}
     mvn clean package
 
