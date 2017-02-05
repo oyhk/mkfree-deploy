@@ -22,6 +22,7 @@ app.use(createLoading());
 // Moved to router.js
 app.model(require('./models/users'));
 app.model(require("./models/projects"));
+app.model(require("./models/serverMachine"));
 
 // 4. Router
 app.router(require('./router'));

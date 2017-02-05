@@ -21,7 +21,7 @@ export default async function request(url, options = {}) {
     options.headers = {
         'Content-Type': 'application/json'
     };
-    url = `http://localhost:8090${url}`;
+    url = `http://192.168.3.133:8090${url}`;
     const response = await fetch(url, options);
     checkStatus(response);
     const result = await response.json();
