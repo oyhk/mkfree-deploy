@@ -4,21 +4,21 @@ import {Table, Pagination, Popconfirm, Button} from 'antd';
 import {routerRedux} from 'dva/router';
 import styles from './Projects.css';
 import {PAGE_SIZE,ROUTE_ServerMachine} from '../constants';
-import ProjectModal from '../components/ServerMachine/ServerMachineModal';
+import ServerMachineModal from '../components/ServerMachine/ServerMachineModal';
 
 
 function ServerMachine({dispatch, list: dataSource, loading, total, pageNo: current}) {
 
     function deleteHandler(id) {
         dispatch({
-            type: 'server_machine/remove',
+            type: 'serverMachine/remove',
             payload: id,
         });
     }
 
     function pageChangeHandler(pageNo) {
         dispatch(routerRedux.push({
-            pathname: '/server_machine',
+            pathname: '/serverMachine',
             query: {pageNo},
         }));
     }
@@ -26,14 +26,21 @@ function ServerMachine({dispatch, list: dataSource, loading, total, pageNo: curr
     function editHandler(id, values) {
         values.id = id;
         dispatch({
-            type: 'server_machine/patch',
+            type: 'serverMachine/patch',
             payload: values,
         });
     }
 
     function saveHandler(values) {
         dispatch({
-            type: 'server_machine/create',
+            type: 'serverMachine/create',
+            payload: values,
+        });
+    }
+
+    function deploy(values) {
+        dispatch({
+            type: 'serverMachine/deploy',
             payload: values,
         });
     }
@@ -46,13 +53,25 @@ function ServerMachine({dispatch, list: dataSource, loading, total, pageNo: curr
             render: text => <a href="">{text}</a>,
         },
         {
+            title: '发布',
+            dataIndex:'',
+            key:'',
+            render: (text,record)=>(
+                <span className={styles.operation}>
+                    <a onClick={deploy.bind(null,{id:record.id,env:'DEV'})}>开发</a>
+                    <a onClick={deploy.bind(null,record.id,'UAT')}>预发布</a>
+                    <a onClick={deploy.bind(null,record.id,'PROD')}>生产</a>
+                </span>
+            )
+        },
+        {
             title: '操作',
             key: 'operation',
             render: (text, record) => (
                 <span className={styles.operation}>
-                    <ProjectModal title="编辑服务器" record={record} onOk={editHandler.bind(null, record.id)}>
+                    <ServerMachineModal title="编辑服务器" record={record} onOk={editHandler.bind(null, record.id)}>
                         <a>编辑</a>
-                    </ProjectModal>
+                    </ServerMachineModal>
                     <Popconfirm title="确认删除?" onConfirm={deleteHandler.bind(null, record.id)}>
                         <a href="">删除</a>
                     </Popconfirm>
@@ -64,9 +83,9 @@ function ServerMachine({dispatch, list: dataSource, loading, total, pageNo: curr
         <div className={styles.normal}>
             <div>
                 <div className={styles.create}>
-                    <ProjectModal title="新建服务器" record={{}} onOk={saveHandler}>
+                    <ServerMachineModal title="新建服务器" record={{}} onOk={saveHandler}>
                         <Button type="primary">创建服务器</Button>
-                    </ProjectModal>
+                    </ServerMachineModal>
                 </div>
                 <Table
                     columns={columns}
