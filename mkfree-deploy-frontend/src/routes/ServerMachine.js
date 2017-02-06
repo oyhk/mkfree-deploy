@@ -53,18 +53,6 @@ function ServerMachine({dispatch, list: dataSource, loading, total, pageNo: curr
             render: text => <a href="">{text}</a>,
         },
         {
-            title: '发布',
-            dataIndex:'',
-            key:'',
-            render: (text,record)=>(
-                <span className={styles.operation}>
-                    <a onClick={deploy.bind(null,{id:record.id,env:'DEV'})}>开发</a>
-                    <a onClick={deploy.bind(null,record.id,'UAT')}>预发布</a>
-                    <a onClick={deploy.bind(null,record.id,'PROD')}>生产</a>
-                </span>
-            )
-        },
-        {
             title: '操作',
             key: 'operation',
             render: (text, record) => (
