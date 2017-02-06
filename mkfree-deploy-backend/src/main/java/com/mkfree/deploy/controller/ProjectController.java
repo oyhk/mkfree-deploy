@@ -70,6 +70,12 @@ public class ProjectController extends BaseController {
             }
             Project project = new Project();
             BeanUtils.copyProperties(dto, project);
+
+
+
+
+
+
             projectRepository.save(project);
         };
         return doing.go(request, log);

@@ -39,7 +39,7 @@ class ProjectModal extends Component {
     render() {
         const {children} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const {name, gitUrl,publishBranch,remotePath,moduleName,deployTargetFile} = this.props.record;
+        const {name, gitUrl, publishBranch, remotePath, moduleName, deployTargetFile} = this.props.record;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 14},
@@ -119,6 +119,21 @@ class ProjectModal extends Component {
                                 })(<Input />)
                             }
                         </FormItem>
+                        <h3>发布服务器列表</h3>
+                        {
+                            <FormItem
+                                    {...formItemLayout}
+                                    label=" "
+                                >
+                                {
+                                    getFieldDecorator('devServer', {
+                                        initialValue: '',
+                                    })(<Input />)
+                                }
+                            </FormItem>
+                        }
+                        <h3>构建前执行命令</h3>
+
                         <h3>构建后执行命令</h3>
                   </Form>
                 </Modal>

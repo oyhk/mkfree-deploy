@@ -1,6 +1,11 @@
 export const PAGE_SIZE = 3;
 
 
+export const ENV_DEV = 'DEV';
+export const ENV_UAT = 'UAT';
+export const ENV_PROD = 'PROD';
+
+
 /*** 路由变量 start*****/
 
 export const ROUTE_USERS = '/users/sign_in';

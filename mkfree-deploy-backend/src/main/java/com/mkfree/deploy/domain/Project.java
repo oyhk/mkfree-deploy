@@ -5,6 +5,7 @@ import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import java.util.List;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -15,7 +16,7 @@ public class Project extends IDEntity {
 
     @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
     private String name;
-    @Column(columnDefinition = "varchar (255) comment 'git仓库地址'",nullable = false)
+    @Column(columnDefinition = "varchar (255) comment 'git仓库地址'", nullable = false)
     private String gitUrl;
     @Column(columnDefinition = "text comment '分支列表'")
     private String branchList;
@@ -28,12 +29,13 @@ public class Project extends IDEntity {
     @Column(columnDefinition = "varchar (255) comment '部署的项目模块的目标文件或者目录'")
     private String deployTargetFile;
 
-
-
     /*******下面是 Transient 字段 start ********/
     // 项目的发布环境
     @Transient
     private ProjectEnv env;
+    // 构建前执行命令
+    @Transient
+    private List<String> structureBeforeList;
 
     /*******下面是 Transient 字段 end ********/
 
@@ -99,5 +101,13 @@ public class Project extends IDEntity {
 
     public void setDeployTargetFile(String deployTargetFile) {
         this.deployTargetFile = deployTargetFile;
+    }
+
+    public List<String> getStructureBeforeList() {
+        return structureBeforeList;
+    }
+
+    public void setStructureBeforeList(List<String> structureBeforeList) {
+        this.structureBeforeList = structureBeforeList;
     }
 }
