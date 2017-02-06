@@ -18,6 +18,8 @@ public class UserPermission extends IDEntity {
     private Long userId;
     @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
+    @Column(columnDefinition = "varchar(255) comment '项目允许发布环境列表'")
+    private String projectEnv;
     @Column(columnDefinition = "bigint comment '角色id'")
     private Long roleId;
     @Enumerated(value = EnumType.STRING)
@@ -54,5 +56,13 @@ public class UserPermission extends IDEntity {
 
     public void setType(UserPermissionType type) {
         this.type = type;
+    }
+
+    public String getProjectEnv() {
+        return projectEnv;
+    }
+
+    public void setProjectEnv(String projectEnv) {
+        this.projectEnv = projectEnv;
     }
 }

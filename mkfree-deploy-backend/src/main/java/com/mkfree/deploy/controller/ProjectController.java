@@ -135,7 +135,7 @@ public class ProjectController extends BaseController {
 
 //            String deployShellPath = resource.getFile().getPath();
             String deployShellPath = "/Users/oyhk/rockcent/project/mkfree-deploy/mkfree-deploy-backend/src/main/resources/shell/deploy.sh";
-            ShellHelper.SINGLEONE.executeShellCommand(log,"chmod u+x " + deployShellPath);
+            ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + deployShellPath);
             Project project = projectRepository.findOne(dto.getId());
             SystemConfig systemConfig = systemConfigRepository.findOne(1L);
             // 当发布分支为空时，默认为master
@@ -156,7 +156,7 @@ public class ProjectController extends BaseController {
                 // 构建前命令
                 List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.BEFORE);
                 StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
-                if(projectStructureStepBeforeList.size() > 0) {
+                if (projectStructureStepBeforeList.size() > 0) {
                     projectStructureStepBeforeList.forEach(projectStructureStep -> {
                         projectStructureStepBeforeBuilder.append(projectStructureStep.getStep()).append(";");
                     });
@@ -166,14 +166,14 @@ public class ProjectController extends BaseController {
                 // 构建后命令
                 List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.AFTER);
                 StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
-                if(projectStructureStepAfterList.size() > 0) {
+                if (projectStructureStepAfterList.size() > 0) {
                     projectStructureStepAfterList.forEach(projectStructureStep -> {
                         projectStructureStepAfterBuilder.append(projectStructureStep.getStep()).append(";");
                     });
                     projectStructureStepAfterBuilder.deleteCharAt(projectStructureStepAfterBuilder.length() - 1);
                 }
 
-                String result = ShellHelper.SINGLEONE.executeShellFile(log,deployShellPath,
+                String result = ShellHelper.SINGLEONE.executeShellFile(log, deployShellPath,
                         project.getName(),
                         systemConfig.getProjectPath(),
                         project.getGitUrl(),
@@ -191,7 +191,6 @@ public class ProjectController extends BaseController {
         };
         return doing.go(request, log);
     }
-
 
 
 }

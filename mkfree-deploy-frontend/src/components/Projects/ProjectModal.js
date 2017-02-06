@@ -58,7 +58,7 @@ class ProjectModal extends Component {
                     onCancel={this.hideModelHandler}
                 >
                     <Form horizontal onSubmit={this.okHandler}>
-
+                        <h3>基本配置</h3>
                         <FormItem
                             {...formItemLayout}
                             label="名称"
@@ -119,6 +119,7 @@ class ProjectModal extends Component {
                                 })(<Input />)
                             }
                         </FormItem>
+                        <h3>构建后执行命令</h3>
                   </Form>
                 </Modal>
               </span>
