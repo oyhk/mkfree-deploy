@@ -55,16 +55,21 @@ public class ServerMachineController extends BaseController {
                 jsonResult.errorParam("用户名不能为空");
                 return;
             }
-            if(StringUtils.isBlank(dto.getIp())){
+            if (StringUtils.isBlank(dto.getIp())) {
                 jsonResult.errorParam("ip不能为空");
                 return;
             }
-            if(StringUtils.isBlank(dto.getPort())){
+            if (StringUtils.isBlank(dto.getPort())) {
                 jsonResult.errorParam("port不能为空");
                 return;
             }
+            if (dto.getType() == null) {
+                jsonResult.errorParam("服务器类型不能为空");
+                return;
+            }
+
             ServerMachine serverMachine = new ServerMachine();
-            BeanUtils.copyProperties(dto,serverMachine);
+            BeanUtils.copyProperties(dto, serverMachine);
             serverMachineRepository.save(serverMachine);
         };
         return doing.go(request, log);
@@ -93,6 +98,9 @@ public class ServerMachineController extends BaseController {
             }
             if (StringUtils.isNotBlank(dto.getPort())) {
                 serverMachine.setPort(dto.getPort());
+            }
+            if (dto.getType() != null) {
+                serverMachine.setType(dto.getType());
             }
             serverMachineRepository.save(serverMachine);
         };

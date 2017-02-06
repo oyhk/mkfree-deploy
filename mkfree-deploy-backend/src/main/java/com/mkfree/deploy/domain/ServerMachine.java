@@ -1,7 +1,11 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.ServerMachineType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 /**
  * Created by oyhk on 2017/2/4.
@@ -20,6 +24,9 @@ public class ServerMachine extends IDEntity {
     private String username;
     @Column(columnDefinition = "varchar(50) comment '密码'")
     private String password;
+    @Column(columnDefinition = "varchar(50) comment '机器类型'")
+    @Enumerated(EnumType.STRING)
+    private ServerMachineType type;
 
     public String getIp() {
         return ip;
@@ -59,5 +66,13 @@ public class ServerMachine extends IDEntity {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public ServerMachineType getType() {
+        return type;
+    }
+
+    public void setType(ServerMachineType type) {
+        this.type = type;
     }
 }
