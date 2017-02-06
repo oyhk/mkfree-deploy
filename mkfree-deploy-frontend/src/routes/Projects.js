@@ -59,9 +59,9 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             key:'',
             render: (text,record)=>(
                 <span className={styles.operation}>
-                    <a onClick={deploy.bind(null,{id:record.id,env:ENV_DEV})}>开发</a>
-                    <a onClick={deploy.bind(null,record.id,ENV_UAT)}>预发布</a>
-                    <a onClick={deploy.bind(null,record.id,ENV_PROD)}>生产</a>
+                    <a onClick={deploy.bind(null,{id:record.id,env:ENV_DEV[0]})}>开发</a>
+                    <a onClick={deploy.bind(null,record.id,ENV_UAT[0])}>预发布</a>
+                    <a onClick={deploy.bind(null,record.id,ENV_PROD[0])}>生产</a>
                 </span>
             )
         },
