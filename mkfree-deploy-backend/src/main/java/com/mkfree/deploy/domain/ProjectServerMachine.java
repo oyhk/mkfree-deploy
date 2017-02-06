@@ -14,6 +14,7 @@ public class ProjectServerMachine extends IDEntity {
     @Column(columnDefinition = "bigint comment '服务器id'")
     private Long serverMachineId;
 
+
     public Long getProjectId() {
         return projectId;
     }

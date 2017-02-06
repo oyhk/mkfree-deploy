@@ -2,7 +2,6 @@ package com.mkfree.deploy.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
 /**
  * Created by oyhk on 2017/1/23.
