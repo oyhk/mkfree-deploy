@@ -39,7 +39,7 @@ class ProjectModal extends Component {
     render() {
         const {children} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const {name, gitUrl,localPath,publishBranch,remotePath,moduleName,deployTargetFile} = this.props.record;
+        const {name, gitUrl,publishBranch,remotePath,moduleName,deployTargetFile} = this.props.record;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 14},
@@ -81,16 +81,6 @@ class ProjectModal extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="项目路径"
-                        >
-                            {
-                                getFieldDecorator('localPath', {
-                                    initialValue: localPath,
-                                })(<Input />)
-                            }
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
                             label="发布分支名称"
                         >
                             {
@@ -101,7 +91,7 @@ class ProjectModal extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="远程机器项目路劲"
+                            label="远程机器项目根路劲"
                         >
                             {
                                 getFieldDecorator('remotePath', {

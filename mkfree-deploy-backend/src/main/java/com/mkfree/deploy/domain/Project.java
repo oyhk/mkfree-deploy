@@ -17,8 +17,6 @@ public class Project extends IDEntity {
     private String name;
     @Column(columnDefinition = "varchar (255) comment 'git仓库地址'",nullable = false)
     private String gitUrl;
-    @Column(columnDefinition = "varchar (255) comment '本地项目路劲'",nullable = false)
-    private String localPath;
     @Column(columnDefinition = "text comment '分支列表'")
     private String branchList;
     @Column(columnDefinition = "varchar (255) comment '发布分支名称，可以模糊匹配'")
@@ -29,6 +27,7 @@ public class Project extends IDEntity {
     private String moduleName;
     @Column(columnDefinition = "varchar (255) comment '部署的项目模块的目标文件或者目录'")
     private String deployTargetFile;
+
 
 
     /*******下面是 Transient 字段 start ********/
@@ -68,14 +67,6 @@ public class Project extends IDEntity {
 
     public void setEnv(ProjectEnv env) {
         this.env = env;
-    }
-
-    public String getLocalPath() {
-        return localPath;
-    }
-
-    public void setLocalPath(String localPath) {
-        this.localPath = localPath;
     }
 
     public String getPublishBranch() {

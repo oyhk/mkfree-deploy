@@ -14,4 +14,10 @@ public class Routes {
     public static final String PROJECT_UPDATE = API_PREFIX + "/project/update";
     public static final String PROJECT_DELETE = API_PREFIX + "/project/delete";
     public static final String PROJECT_STRUCTURE = API_PREFIX + "/project/structure";
+
+    public static final String SERVER_MACHINE_PAGE = API_PREFIX + "/server_machine/page";
+    public static final String SERVER_MACHINE_SAVE = API_PREFIX + "/server_machine/save";
+    public static final String SERVER_MACHINE_UPDATE = API_PREFIX + "/server_machine/update";
+    public static final String SERVER_MACHINE_DELETE = API_PREFIX + "/server_machine/delete";
+
 }

@@ -10,23 +10,23 @@ import javax.persistence.Entity;
 public class ProjectServerMachine extends IDEntity {
 
     @Column(columnDefinition = "bigint comment '项目id'")
-    private String projectId;
+    private Long projectId;
     @Column(columnDefinition = "bigint comment '服务器id'")
-    private String serverMachineId;
+    private Long serverMachineId;
 
-    public String getServerMachineId() {
-        return serverMachineId;
-    }
-
-    public void setServerMachineId(String serverMachineId) {
-        this.serverMachineId = serverMachineId;
-    }
-
-    public String getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(String projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public Long getServerMachineId() {
+        return serverMachineId;
+    }
+
+    public void setServerMachineId(Long serverMachineId) {
+        this.serverMachineId = serverMachineId;
     }
 }

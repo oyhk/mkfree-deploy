@@ -6,11 +6,14 @@ gitUrl=$3 #git仓库地址
 publishBranch=$4 #发布分支
 remoteProjectPath=$5 #远程机器项目路劲
 moduleName=$6 #模块名称
-deployTargetFile=$7 #部署的目的文件或者目录
+deployTargetFileList=$7 #部署的目的文件或者目录
 
-serverIP=$8
-serverSshUsername=$9
-serverSshPort=$10
+serverIP=$8 #远程机器的ip地址
+serverSshUsername=$9 #远程机器的ssh用户名
+serverSshPort=${10} #远程机器的ssh端口
+
+structureStepBeforeList=${11} #构建前步骤
+structureStepAfterList=${12} #构建后步骤
 
 #git@git.oschina.net:kcoupon/rockcent.git 例如：截取项目名称 rockcent
 gitProjectName=${gitUrl##*/} #git项目名称
@@ -34,7 +37,9 @@ echo "cd $projectAllPath"
 cd ${projectAllPath}
 
 git pull
-if [ 'release' == ${publishBranch} ]; then
+
+#当如果是release分支，git存在多个的时候，会自动选择最新版本的release分支发布
+if [ 'release/*' == ${publishBranch} ]; then
     # 获取git release 分支列表
     remoteBranch=$(git branch -a|grep remotes|grep release)
     # 获取release 分支 最后一个版本
@@ -50,17 +55,44 @@ if [ 'release' == ${publishBranch} ]; then
         git checkout master
         git pull origin master
     fi
-
-#    cp -r ${projectAllPath}/${moduleName} ${remoteProjectPath}
-#    echo "cp -r $projectAllPath/$moduleName $remoteProjectPath"
-
-    cd  ${projectAllPath}/${moduleName}
-    mvn clean package
-
-    ssh -p ${serverSshPort} ${serverSshUsername}@${serverIP} "mkdir -p $remoteProjectPath/$moduleName"
-    scp -P ${serverSshPort}  -r ${projectAllPath}/${moduleName}/target/${deployTargetFile} ${serverSshUsername}@${serverIP}:${remoteProjectPath}/${moduleName}/
-    echo "scp -P $serverSshPort  -r $projectAllPath/$moduleName/target/$deployTargetFile $serverSshUsername@$serverIP:$remoteProjectPath/$moduleName/"
-
+elif [ 'master' == ${publishBranch} ]; then
+    git checkout master
+    git pull origin master
+else
+    git checkout ${publishBranch}
+    git pull origin ${publishBranch}
 fi
+
+# cd 对应项目模块
+cd  ${projectAllPath}
+echo "cd $projectAllPath"
+
+################ 构建步骤 start  ############
+IFS=';' read -ra ADDR <<< "$structureStepBeforeList"
+for i in "${ADDR[@]}"; do
+    echo "$i"
+    ${i}
+done
+################ 构建步骤 end  ############
+
+######### 同步文件到指定服务器 start ############
+ssh -p ${serverSshPort} ${serverSshUsername}@${serverIP} "mkdir -p $remoteProjectPath"
+echo "ssh -p $serverSshPort $serverSshUsername@$serverIP mkdir -p $remoteProjectPath"
+# 上传指定文件或目录，如有多个文件或目录用 ; 隔开
+IFS=';' read -ra ADDR <<< "$deployTargetFileList"
+for i in "${ADDR[@]}"; do
+    echo "scp -P $serverSshPort  -r $projectAllPath/$i $serverSshUsername@$serverIP:$remoteProjectPath"
+    scp -P ${serverSshPort}  -r ${projectAllPath}/${i} ${serverSshUsername}@${serverIP}:${remoteProjectPath}
+done
+######### 同步文件到指定服务器 end #############
+
+################ 构建后执行命令 start  ############
+IFS=';' read -ra ADDR <<< "$structureStepAfterList"
+for i in "${ADDR[@]}"; do
+    echo "ssh -p ${serverSshPort} ${serverSshUsername}@${serverIP} $i"
+    ssh -p ${serverSshPort} ${serverSshUsername}@${serverIP} "$i"
+done
+################ 构建后执行命令 end  ############
+
 
 echo 'deploy finish !!!'
