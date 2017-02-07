@@ -9,6 +9,9 @@ public class Routes {
 
     public static final String USER_PAGE = API_PREFIX +"/user/page";
     public static final String USER_LOGIN = API_PREFIX +"/user/login";
+    public static final String USER_SAVE = API_PREFIX +"/user/save";
+    public static final String USER_UPDATE = API_PREFIX +"/user/update";
+
     public static final String PROJECT_PAGE = API_PREFIX + "/project/page";
     public static final String PROJECT_SAVE = API_PREFIX + "/project/save";
     public static final String PROJECT_UPDATE = API_PREFIX + "/project/update";

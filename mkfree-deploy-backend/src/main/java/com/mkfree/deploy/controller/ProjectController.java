@@ -91,7 +91,7 @@ public class ProjectController extends BaseController {
         return doing.go(request, log);
     }
 
-    @RequestMapping(value = Routes.PROJECT_UPDATE, method = RequestMethod.PATCH)
+    @RequestMapping(value = Routes.PROJECT_UPDATE, method = RequestMethod.PUT)
     public JsonResult update(@RequestBody ProjectDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (dto.getId() == null) {
