@@ -1,5 +1,4 @@
 #!/bin/sh
-JAVA_HOME="/rockcent/support/jdk1.8.0_73"
 currentRootPath=$(pwd) # 项目的跟路劲
 cd ${currentRootPath}
 git pull
@@ -9,7 +8,7 @@ APP_HOME=${currentRootPath}/mkfree-deploy-backend # 后端项目路劲
 APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
 psid=0
 checkpid() {
-   javaps=`$JAVA_HOME/bin/jps -l | grep $APP_MAINCLASS`
+   javaps=`jps -l | grep $APP_MAINCLASS`
    if [ -n "$javaps" ]; then
       psid=`echo $javaps | awk '{print $1}'`
    else
@@ -30,7 +29,7 @@ start() {
 
       echo -n "Starting $APP_MAINCLASS ..."
       cd $APP_HOME
-      nohup $JAVA_HOME/bin/java -jar $APP_HOME/target/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
+      nohup java -jar $APP_HOME/target/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
       checkpid
       if [ $psid -ne 0 ]; then
          echo "(pid=$psid) [OK]"
