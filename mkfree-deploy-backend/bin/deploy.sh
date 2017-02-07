@@ -1,7 +1,7 @@
 #!/bin/sh
 JAVA_HOME="/rockcent/support/jdk1.8.0_73"
-APP_HOME=/rockcent/apps/rockcent-job
-APP_MAINCLASS=rockcent-job-1.0.jar
+APP_HOME=/rockcent/apps/mkfree-deploy/mkfree-deploy-backend
+APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
 psid=0
 checkpid() {
    javaps=`$JAVA_HOME/bin/jps -l | grep $APP_MAINCLASS`
@@ -20,7 +20,7 @@ start() {
    else
       echo -n "Starting $APP_MAINCLASS ..."
       cd $APP_HOME
-      nohup $JAVA_HOME/bin/java -jar $APP_HOME/$APP_MAINCLASS --spring.profiles.active=dev >/dev/null 2>&1 &
+      nohup $JAVA_HOME/bin/java -jar $APP_HOME/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
 
       checkpid
       if [ $psid -ne 0 ]; then
