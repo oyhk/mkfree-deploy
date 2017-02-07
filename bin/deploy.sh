@@ -1,13 +1,11 @@
 #!/bin/sh
+JAVA_HOME="/rockcent/support/jdk1.8.0_73"
 currentRootPath=$(pwd) # 项目的跟路劲
-
 cd ${currentRootPath}
 git pull
 
-FRONTEND_HOME=${currentRootPath}/mkfree-deploy-frontend
-
-JAVA_HOME="/rockcent/support/jdk1.8.0_73"
-APP_HOME=${currentRootPath}/mkfree-deploy-backend
+FRONTEND_HOME=${currentRootPath}/mkfree-deploy-frontend # 前端项目路劲
+APP_HOME=${currentRootPath}/mkfree-deploy-backend # 后端项目路劲
 APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
 psid=0
 checkpid() {
