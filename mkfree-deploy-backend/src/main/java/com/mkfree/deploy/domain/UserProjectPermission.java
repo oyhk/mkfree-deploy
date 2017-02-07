@@ -15,7 +15,7 @@ public class UserProjectPermission extends IDEntity {
     @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
     @Column(columnDefinition = "varchar(255) comment '项目允许发布环境列表'")
-    private String projectEnv;
+    private String projectEnvList;
     @Column(columnDefinition = "varchar(255) comment '项目名称'")
     private String projectName;
 
@@ -35,12 +35,12 @@ public class UserProjectPermission extends IDEntity {
         this.projectId = projectId;
     }
 
-    public String getProjectEnv() {
-        return projectEnv;
+    public String getProjectEnvList() {
+        return projectEnvList;
     }
 
-    public void setProjectEnv(String projectEnv) {
-        this.projectEnv = projectEnv;
+    public void setProjectEnvList(String projectEnvList) {
+        this.projectEnvList = projectEnvList;
     }
 
     public String getProjectName() {

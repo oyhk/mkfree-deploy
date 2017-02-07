@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
-import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.User;
 import com.mkfree.deploy.domain.UserProjectPermission;
@@ -15,8 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -68,7 +65,7 @@ public class UserPermissionController extends BaseController{
                 UserProjectPermission permission = new UserProjectPermission();
                 permission.setProjectId(dto.getProjectId());
                 permission.setUserId(dto.getUserId());
-                permission.setProjectEnv(objectMapper.writeValueAsString(dto.getProjectEnv()));
+                permission.setProjectEnvList(objectMapper.writeValueAsString(dto.getProjectEnv()));
                 permission.setProjectName(dto.getProjectName());
                 userProjectPermissionRepository.save(permission);
             }
@@ -115,7 +112,7 @@ public class UserPermissionController extends BaseController{
                     permission.setUserId(dto.getUserId());
                 }
                 if (dto.getProjectEnv() != null && dto.getProjectEnv().size() > 0) {
-                    permission.setProjectEnv(objectMapper.writeValueAsString(dto.getProjectEnv()));
+                    permission.setProjectEnvList(objectMapper.writeValueAsString(dto.getProjectEnv()));
                 }
                 if (StringUtils.isNotBlank(dto.getProjectName())) {
                     permission.setProjectName(dto.getProjectName());
