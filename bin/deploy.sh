@@ -1,6 +1,6 @@
 #!/bin/sh
 JAVA_HOME="/rockcent/support/jdk1.8.0_73"
-APP_HOME=/rockcent/apps/mkfree-deploy/mkfree-deploy-backend/target
+APP_HOME=/rockcent/apps/mkfree-deploy/mkfree-deploy-backend
 APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
 psid=0
 
@@ -22,7 +22,7 @@ start() {
    else
       echo -n "Starting $APP_MAINCLASS ..."
       cd $APP_HOME
-      nohup $JAVA_HOME/bin/java -jar $APP_HOME/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
+      nohup $JAVA_HOME/bin/java -jar $APP_HOME/target/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
 
 
       checkpid
