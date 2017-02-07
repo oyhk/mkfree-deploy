@@ -32,7 +32,6 @@ start() {
          echo "[Failed]"
       fi
    fi
-   cd /rockcent/apps/mkfree-deploy/mkfree-deploy-frontend && nohup NODE_ENV=dev npm start >/dev/null 2>&1 &
 }
 stop() {
    checkpid

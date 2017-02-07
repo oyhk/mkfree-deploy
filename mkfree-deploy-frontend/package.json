@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "dora --plugins \"proxy?watchDirs=./mock,webpack,webpack-hmr,browser-history?index=/src/index.html\"",
-    "build": "atool-build -o",
+    "build": "atool-build",
     "test": "atool-test-mocha ./src/**/*-test.js"
   }
 }
