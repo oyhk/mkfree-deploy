@@ -17,18 +17,19 @@ public class ProjectDto extends DtoEntity {
     private String gitUrl;
     //分支列表
     private String branchList;
-    //发布分支名称，可以模糊匹配
-    private String publishBranch;
     //远程机器项目路劲
     private String remotePath;
     //部署的项目模块名称
     private String moduleName;
     //部署的项目模块的目标文件或者目录
-    private String deployTargetFile;
+    private List<String> deployTargetFileList;
     // 项目的发布环境
     private ProjectEnv env;
     // 构建前执行命令
     private List<String> structureBeforeList;
+    // 各种环境配置
+    private List<ProjectEnvConfigDto> projectEnvConfigList;
+
 
     public String getName() {
         return name;
@@ -54,14 +55,6 @@ public class ProjectDto extends DtoEntity {
         this.branchList = branchList;
     }
 
-    public String getPublishBranch() {
-        return publishBranch;
-    }
-
-    public void setPublishBranch(String publishBranch) {
-        this.publishBranch = publishBranch;
-    }
-
     public String getRemotePath() {
         return remotePath;
     }
@@ -78,12 +71,12 @@ public class ProjectDto extends DtoEntity {
         this.moduleName = moduleName;
     }
 
-    public String getDeployTargetFile() {
-        return deployTargetFile;
+    public List<String> getDeployTargetFileList() {
+        return deployTargetFileList;
     }
 
-    public void setDeployTargetFile(String deployTargetFile) {
-        this.deployTargetFile = deployTargetFile;
+    public void setDeployTargetFileList(List<String> deployTargetFileList) {
+        this.deployTargetFileList = deployTargetFileList;
     }
 
     public ProjectEnv getEnv() {
@@ -100,5 +93,13 @@ public class ProjectDto extends DtoEntity {
 
     public void setStructureBeforeList(List<String> structureBeforeList) {
         this.structureBeforeList = structureBeforeList;
+    }
+
+    public List<ProjectEnvConfigDto> getProjectEnvConfigList() {
+        return projectEnvConfigList;
+    }
+
+    public void setProjectEnvConfigList(List<ProjectEnvConfigDto> projectEnvConfigList) {
+        this.projectEnvConfigList = projectEnvConfigList;
     }
 }

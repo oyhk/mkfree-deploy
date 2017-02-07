@@ -6,7 +6,7 @@ package com.mkfree.deploy.domain.enumclass;
  */
 public enum ProjectEnv {
 
-    DEV("开发"), UAT("仿真测试"), PROD("生产");
+    DEV("开发环境"), TEST("测试环境"), UAT("仿真测试"), PROD("生产");
 
     private String text;
 

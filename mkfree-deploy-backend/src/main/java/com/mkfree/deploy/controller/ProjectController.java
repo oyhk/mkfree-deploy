@@ -1,5 +1,7 @@
 package com.mkfree.deploy.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
@@ -7,6 +9,8 @@ import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
+import com.mkfree.deploy.dto.ProjectDto;
+import com.mkfree.deploy.dto.ProjectEnvConfigDto;
 import com.mkfree.deploy.helper.ShellHelper;
 import com.mkfree.deploy.repository.*;
 import org.apache.commons.lang3.StringUtils;
@@ -20,9 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
 /**
@@ -38,15 +39,17 @@ public class ProjectController extends BaseController {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
-    private ProjectServerMachineRepository projectServerMachineRepository;
-    @Autowired
     private ServerMachineRepository serverMachineRepository;
     @Autowired
     private ProjectStructureStepRepository projectStructureStepRepository;
     @Autowired
+    private ProjectEnvConfigRepository projectEnvConfigRepository;
+    @Autowired
     private SystemConfigRepository systemConfigRepository;
     @Autowired
     private ResourceLoader resourceLoader;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
@@ -58,7 +61,7 @@ public class ProjectController extends BaseController {
     }
 
     @RequestMapping(value = Routes.PROJECT_SAVE, method = RequestMethod.POST)
-    public JsonResult save(@RequestBody Project dto, HttpServletRequest request) {
+    public JsonResult save(@RequestBody ProjectDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (StringUtils.isBlank(dto.getName())) {
                 jsonResult.errorParam("名称不能为空");
@@ -70,19 +73,26 @@ public class ProjectController extends BaseController {
             }
             Project project = new Project();
             BeanUtils.copyProperties(dto, project);
+            project.setDeployTargetFileList(objectMapper.writeValueAsString(dto.getDeployTargetFileList()));
 
-
-
-
-
-
-            projectRepository.save(project);
+            project = projectRepository.save(project);
+            List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
+            if (projectEnvConfigList != null) {
+                for (ProjectEnvConfigDto projectEnvConfigDto : projectEnvConfigList) {
+                    ProjectEnvConfig projectEnvConfig = new ProjectEnvConfig();
+                    projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
+                    projectEnvConfig.setProjectId(project.getId());
+                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIdList()));
+                    projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
+                    projectEnvConfigRepository.save(projectEnvConfig);
+                }
+            }
         };
         return doing.go(request, log);
     }
 
     @RequestMapping(value = Routes.PROJECT_UPDATE, method = RequestMethod.PATCH)
-    public JsonResult update(@RequestBody Project dto, HttpServletRequest request) {
+    public JsonResult update(@RequestBody ProjectDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (dto.getId() == null) {
                 jsonResult.errorParam("id不能为空");
@@ -95,19 +105,31 @@ public class ProjectController extends BaseController {
             if (StringUtils.isNotBlank(dto.getGitUrl())) {
                 project.setGitUrl(dto.getGitUrl());
             }
-            if (StringUtils.isNotBlank(dto.getPublishBranch())) {
-                project.setPublishBranch(dto.getPublishBranch());
-            }
             if (StringUtils.isNotBlank(dto.getRemotePath())) {
                 project.setRemotePath(dto.getRemotePath());
             }
             if (StringUtils.isNotBlank(dto.getModuleName())) {
                 project.setModuleName(dto.getModuleName());
             }
-            if (StringUtils.isNotBlank(dto.getDeployTargetFile())) {
-                project.setDeployTargetFile(dto.getDeployTargetFile());
+
+            if (dto.getDeployTargetFileList() != null) {
+                project.setDeployTargetFileList(objectMapper.writeValueAsString(dto.getDeployTargetFileList()));
             }
-            projectRepository.save(project);
+            project = projectRepository.save(project);
+            List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
+            if (projectEnvConfigList != null) {
+                for (ProjectEnvConfigDto projectEnvConfigDto : projectEnvConfigList) {
+                    ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(project.getId(), projectEnvConfigDto.getEnv());
+                    if (projectEnvConfig == null) {
+                        projectEnvConfig = new ProjectEnvConfig();
+                        projectEnvConfig.setProjectId(project.getId());
+                    }
+                    projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
+                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIdList()));
+                    projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
+                    projectEnvConfigRepository.save(projectEnvConfig);
+                }
+            }
         };
         return doing.go(request, log);
     }
@@ -126,7 +148,7 @@ public class ProjectController extends BaseController {
 
 
     @RequestMapping(value = Routes.PROJECT_STRUCTURE, method = RequestMethod.POST)
-    public JsonResult structure(@RequestBody Project dto, HttpServletRequest request) {
+    public JsonResult structure(@RequestBody ProjectDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (dto.getId() == null) {
                 jsonResult.errorParam("id不能为空");
@@ -144,22 +166,39 @@ public class ProjectController extends BaseController {
             ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + deployShellPath);
             Project project = projectRepository.findOne(dto.getId());
             SystemConfig systemConfig = systemConfigRepository.findOne(1L);
-            // 当发布分支为空时，默认为master
-            if (StringUtils.isBlank(project.getPublishBranch())) {
-                project.setPublishBranch("master");
+
+
+            ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(project.getId(), dto.getEnv());
+            if (projectEnvConfig == null) {
+                jsonResult.remind("发布环境不存在", log);
+                return;
             }
 
-            List<ProjectServerMachine> projectServerMachineList = projectServerMachineRepository.findByProjectId(project.getId());
-
-            if (projectServerMachineList.size() == 0) {
+            if (StringUtils.isBlank(projectEnvConfig.getServerMachineList())) {
                 jsonResult.remind("没有配置发布机器", log);
                 return;
             }
-            for (ProjectServerMachine projectServerMachine : projectServerMachineList) {
 
-                ServerMachine serverMachine = serverMachineRepository.findOne(projectServerMachine.getServerMachineId());
+            List<Long> serverMachineIdList = objectMapper.readValue(projectEnvConfig.getServerMachineList(), new TypeReference<List<Long>>() {
+            });
+            if (serverMachineIdList == null || serverMachineIdList.size() == 0) {
+                jsonResult.remind("没有配置发布机器", log);
+                return;
+            }
 
-                // 构建前命令
+            List<String> deployTargetFileList = objectMapper.readValue(project.getDeployTargetFileList(), new TypeReference<List<String>>() {});
+            StringBuilder shellDeployTargetFileList = new StringBuilder();
+            if(deployTargetFileList.size()>0){
+                deployTargetFileList.forEach(s -> {
+                    shellDeployTargetFileList.append(s).append(";");
+                });
+                shellDeployTargetFileList.deleteCharAt(shellDeployTargetFileList.length() - 1);
+            }
+
+
+            List<ServerMachine> serverMachineList = serverMachineRepository.findByIdIn(serverMachineIdList);
+            for (ServerMachine serverMachine : serverMachineList) {
+                //构建前命令
                 List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.BEFORE);
                 StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
                 if (projectStructureStepBeforeList.size() > 0) {
@@ -183,10 +222,10 @@ public class ProjectController extends BaseController {
                         project.getName(),
                         systemConfig.getProjectPath(),
                         project.getGitUrl(),
-                        project.getPublishBranch(),
+                        projectEnvConfig.getPublicBranch(),
                         project.getRemotePath(),
                         project.getModuleName(),
-                        project.getDeployTargetFile(),
+                        shellDeployTargetFileList.toString(),
                         serverMachine.getIp(),
                         serverMachine.getUsername(),
                         serverMachine.getPort(),
