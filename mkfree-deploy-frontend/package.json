@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "dora --plugins \"proxy?watchDirs=./mock,webpack,webpack-hmr,browser-history?index=/src/index.html\"",
-    "build": "atool-build -o /rockcent/apps/rockcent-frontend-assets/site --publicPath /rockcent-frontend-assets/site/",
+    "build": "atool-build -o ../mkfree-deploy-backend/src/main/resources/templates",
     "test": "atool-test-mocha ./src/**/*-test.js"
   }
 }
