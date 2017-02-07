@@ -10,8 +10,9 @@ function Header({location}) {
     return (
         <Menu
             selectedKeys={[location.pathname]}
-            mode="horizontal"
-            theme="dark"
+            mode="inline "
+            theme="light"
+            style={{width:'200'}}
         >
             <Menu.Item key={ROUTE_ADMIN_USERS}>
                 <Link to={ROUTE_ADMIN_USERS}><Icon type="bars"/>用户管理</Link>

@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {Modal, Form, Input} from 'antd';
+import {Modal, Form, Input, Select} from 'antd';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 class ServerMachineModal extends Component {
 
@@ -39,7 +40,7 @@ class ServerMachineModal extends Component {
     render() {
         const {children} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const {ip, name,port,username,password} = this.props.record;
+        const {ip, type, name,port,username,password} = this.props.record;
         const formItemLayout = {
             labelCol: {span: 6},
             wrapperCol: {span: 14},
@@ -67,6 +68,22 @@ class ServerMachineModal extends Component {
                                 getFieldDecorator('ip', {
                                     initialValue: ip,
                                 })(<Input />)
+                            }
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="类型"
+                        >
+                            {
+                                getFieldDecorator('type', {
+                                    initialValue: type,
+                                })(
+                                  <Select placeholder="请选择服务器类型">
+                                    <Option value="DEV">开发</Option>
+                                    <Option value="UAT">仿真测试</Option>
+                                    <Option value="PROD">生产</Option>
+                                  </Select>
+                                )
                             }
                         </FormItem>
                         <FormItem
