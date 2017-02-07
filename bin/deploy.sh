@@ -1,10 +1,15 @@
 #!/bin/sh
-JAVA_HOME="/rockcent/support/jdk1.8.0_73"
-APP_HOME=/rockcent/apps/mkfree-deploy/mkfree-deploy-backend
-APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
-psid=0
+currentRootPath=$(pwd) # 项目的跟路劲
+
+cd ${currentRootPath}
 git pull
 
+FRONTEND_HOME=${currentRootPath}/mkfree-deploy-frontend
+
+JAVA_HOME="/rockcent/support/jdk1.8.0_73"
+APP_HOME=${currentRootPath}/mkfree-deploy-backend
+APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
+psid=0
 checkpid() {
    javaps=`$JAVA_HOME/bin/jps -l | grep $APP_MAINCLASS`
    if [ -n "$javaps" ]; then
@@ -20,11 +25,14 @@ start() {
       echo "warn: $APP_MAINCLASS already started! (pid=$psid)"
       echo "================================"
    else
+      # 构建 react
+      cd FRONTEND_HOME && npm run build
+      # 构建 java
+      cd $APP_HOME && /rockcent/apps/jenkins-project/tools/hudson.tasks.Maven_MavenInstallation/maven/bin/mvn clean package
+
       echo -n "Starting $APP_MAINCLASS ..."
       cd $APP_HOME
       nohup $JAVA_HOME/bin/java -jar $APP_HOME/target/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
-
-
       checkpid
       if [ $psid -ne 0 ]; then
          echo "(pid=$psid) [OK]"
@@ -52,9 +60,6 @@ stop() {
       echo "================================"
    fi
 }
-
-cd $APP_HOME && /rockcent/apps/jenkins-project/tools/hudson.tasks.Maven_MavenInstallation/maven/bin/mvn clean package
-
 case "$1" in
    'start')
       start
