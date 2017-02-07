@@ -1,6 +1,6 @@
 #!/bin/sh
 JAVA_HOME="/rockcent/support/jdk1.8.0_73"
-APP_HOME=/rockcent/apps/mkfree-deploy/mkfree-deploy-backend
+APP_HOME=/rockcent/apps/mkfree-deploy/mkfree-deploy-backend/target
 APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
 psid=0
 checkpid() {
@@ -49,6 +49,9 @@ stop() {
       echo "================================"
    fi
 }
+
+/rockcent/apps/jenkins-project/tools/hudson.tasks.Maven_MavenInstallation/maven/bin/mvn clean package
+
 case "$1" in
    'start')
       start
