@@ -99,7 +99,9 @@ public class UserController extends BaseController {
             }
             if (StringUtils.isNotBlank(user.getUsername())) {
                 user.setUsername(dto.getUsername());
-                return;
+            }
+            if(StringUtils.isNotBlank(dto.getUsername())){
+                user.setUsername(dto.getUsername());
             }
             if (StringUtils.isNotBlank(dto.getPassword())) {
                 user.setPassword(UserHelper.SINGLEONE.getMd5Password(new Date().getTime() + "", dto.getPassword()));
