@@ -254,8 +254,9 @@ public class ProjectController extends BaseController {
 
             List<ServerMachine> serverMachineList = serverMachineRepository.findByIdIn(serverMachineIdList);
             for (ServerMachine serverMachine : serverMachineList) {
+
                 //构建前命令
-                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.BEFORE);
+                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE,projectEnvConfig.getId());
                 StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
                 if (projectStructureStepBeforeList.size() > 0) {
                     projectStructureStepBeforeList.forEach(projectStructureStep -> {
@@ -265,7 +266,7 @@ public class ProjectController extends BaseController {
                 }
 
                 // 构建后命令
-                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.AFTER);
+                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER,projectEnvConfig.getId());
                 StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
                 if (projectStructureStepAfterList.size() > 0) {
                     projectStructureStepAfterList.forEach(projectStructureStep -> {
