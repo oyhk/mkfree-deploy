@@ -19,6 +19,10 @@ export function userUpdate(values) {
   });
 }
 
+export function projectPage(values) {
+  return request(`/api/project/page?${qs.stringify(values)}`);
+}
+
 export function userProjectPermissionUpdate(values) {
   return request('/api/user/project/permission/update', {
     method: 'PUT',
