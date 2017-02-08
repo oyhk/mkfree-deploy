@@ -12,6 +12,11 @@ public class Routes {
     public static final String USER_SAVE = API_PREFIX +"/user/save";
     public static final String USER_UPDATE = API_PREFIX +"/user/update";
 
+    public static final String USER_PROJECT_PERMISSION_SAVE = API_PREFIX + "/user/project/permission/save";
+    public static final String USER_PROJECT_PERMISSION_DELETE = API_PREFIX + "/user/project/permission/delete";
+    public static final String USER_PROJECT_PERMISSION_UPDATE = API_PREFIX + "/user/project/permission/update";
+    public static final String USER_PROJECT_PERMISSION_LIST = API_PREFIX + "/user/project/permission/list";
+
     public static final String PROJECT_PAGE = API_PREFIX + "/project/page";
     public static final String PROJECT_SAVE = API_PREFIX + "/project/save";
     public static final String PROJECT_UPDATE = API_PREFIX + "/project/update";
@@ -23,9 +28,6 @@ public class Routes {
     public static final String SERVER_MACHINE_UPDATE = API_PREFIX + "/server_machine/update";
     public static final String SERVER_MACHINE_DELETE = API_PREFIX + "/server_machine/delete";
 
-    public static final String USER_PROJECT_PERMISSION_SAVE = API_PREFIX + "/user/project/permission/save";
-    public static final String USER_PROJECT_PERMISSION_DELETE = API_PREFIX + "/user/project/permission/delete";
-    public static final String USER_PROJECT_PERMISSION_UPDATE = API_PREFIX + "/user/project/permission/update";
-    public static final String USER_PROJECT_PERMISSION_LIST = API_PREFIX + "/user/project/permission/list";
+
 
 }
