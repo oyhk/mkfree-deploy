@@ -6,6 +6,8 @@ import com.mkfree.deploy.dto.ProjectEnvConfigDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Created by oyhk on 2017/1/23.
  */
@@ -13,4 +15,5 @@ import org.springframework.stereotype.Repository;
 public interface ProjectEnvConfigRepository extends JpaRepository<ProjectEnvConfig, Long> {
 
     ProjectEnvConfig findByProjectIdAndEnv(Long projectId,ProjectEnv env);
+    List<ProjectEnvConfig> findByProjectId(Long projectId);
 }

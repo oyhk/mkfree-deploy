@@ -25,10 +25,6 @@ public class ProjectDto extends DtoEntity {
     private List<String> deployTargetFileList;
     // 项目的发布环境
     private ProjectEnv env;
-    // 构建前执行命令
-    private List<String> structureBeforeList;
-    // 构建后命令
-    private List<String> structureAfterList;
     // 各种环境配置
     private List<ProjectEnvConfigDto> projectEnvConfigList;
 
@@ -89,13 +85,6 @@ public class ProjectDto extends DtoEntity {
         this.env = env;
     }
 
-    public List<String> getStructureBeforeList() {
-        return structureBeforeList;
-    }
-
-    public void setStructureBeforeList(List<String> structureBeforeList) {
-        this.structureBeforeList = structureBeforeList;
-    }
 
     public List<ProjectEnvConfigDto> getProjectEnvConfigList() {
         return projectEnvConfigList;
@@ -105,11 +94,4 @@ public class ProjectDto extends DtoEntity {
         this.projectEnvConfigList = projectEnvConfigList;
     }
 
-    public List<String> getStructureAfterList() {
-        return structureAfterList;
-    }
-
-    public void setStructureAfterList(List<String> structureAfterList) {
-        this.structureAfterList = structureAfterList;
-    }
 }

@@ -19,6 +19,10 @@ public class ProjectEnvConfigDto extends IDEntity {
     private List<Long> serverMachineIdList;
     //发布分支名称
     private String publicBranch;
+    // 构建前执行命令
+    private List<String> structureBeforeList;
+    // 构建后命令
+    private List<String> structureAfterList;
 
     public ProjectEnv getEnv() {
         return env;
@@ -50,5 +54,21 @@ public class ProjectEnvConfigDto extends IDEntity {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public List<String> getStructureBeforeList() {
+        return structureBeforeList;
+    }
+
+    public void setStructureBeforeList(List<String> structureBeforeList) {
+        this.structureBeforeList = structureBeforeList;
+    }
+
+    public List<String> getStructureAfterList() {
+        return structureAfterList;
+    }
+
+    public void setStructureAfterList(List<String> structureAfterList) {
+        this.structureAfterList = structureAfterList;
     }
 }

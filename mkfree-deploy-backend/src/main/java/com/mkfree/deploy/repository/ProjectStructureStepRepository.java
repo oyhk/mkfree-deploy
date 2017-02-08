@@ -15,4 +15,7 @@ import java.util.List;
 public interface ProjectStructureStepRepository extends JpaRepository<ProjectStructureStep, Long> {
 
     List<ProjectStructureStep> findByProjectIdAndType(Long projectId, ProjectStructureStepType type);
+    List<ProjectStructureStep> findByProjectId(Long projectId);
+
+    List<ProjectStructureStep> findByProjectIdAndTypeAndProjectEnvConfigId(Long projectId, ProjectStructureStepType type,Long projectEnvConfigId);
 }
