@@ -1,6 +1,7 @@
 #!/bin/sh
 currentRootPath=$(pwd) # 项目的跟路劲
 cd ${currentRootPath}
+git checkout .
 git pull
 
 FRONTEND_HOME=${currentRootPath}/mkfree-deploy-frontend # 前端项目路劲
