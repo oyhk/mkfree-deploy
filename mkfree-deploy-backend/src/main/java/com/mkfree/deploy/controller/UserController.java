@@ -20,7 +20,6 @@ import com.mkfree.deploy.helper.UserHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -77,6 +76,16 @@ public class UserController extends BaseController {
 
             user.setUserToken(UserHelper.SINGLEONE.getUserToken(user.getId(), user.getUsername()));
             userRepository.save(user);
+
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setUsername(user.getUsername());
+            userDto.setRoleType(user.getRoleType());
+
+            // 项目权限
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            userDto.setUserProjectPermissionList(UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
+            request.getSession().setAttribute(User.LOGIN_USER, userDto);
 
             jsonResult.data = user.getUserToken();
         };
@@ -190,22 +199,9 @@ public class UserController extends BaseController {
             userDto.setUsername(user.getUsername());
 
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-            List<UserProjectPermissionDto> userProjectPermissionDtoList = userProjectPermissionList.stream().map(userProjectPermission -> {
-                UserProjectPermissionDto userProjectPermissionDto = new UserProjectPermissionDto();
-                userProjectPermissionDto.setId(userProjectPermission.getId());
-                userProjectPermissionDto.setProjectName(userProjectPermission.getProjectName());
-                userProjectPermissionDto.setProjectId(userProjectPermission.getProjectId());
-                try {
-                    userProjectPermissionDto.setProjectEnv(objectMapper.readValue(userProjectPermission.getProjectEnvList(), new TypeReference<List<String>>() {
-                    }));
-                } catch (IOException e) {
-                    log.info(e.getMessage());
-                }
-                return userProjectPermissionDto;
-            }).collect(Collectors.toList());
-            userDto.setUserProjectPermissionList(userProjectPermissionDtoList);
+            userDto.setUserProjectPermissionList(UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
 
-            jsonResult.data  = userDto;
+            jsonResult.data = userDto;
         };
         return doing.go(request, log);
     }

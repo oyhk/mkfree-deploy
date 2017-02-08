@@ -1,6 +1,7 @@
 package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
+import com.mkfree.deploy.domain.enumclass.RoleType;
 
 import javax.persistence.Column;
 import java.util.List;
@@ -21,6 +22,8 @@ public class UserDto extends DtoEntity {
     private String passwordSalt;
     //登录后的userToken
     private String userToken;
+    // 角色类型
+    private RoleType roleType;
     // 用户项目权限列表
     private List<UserProjectPermissionDto> userProjectPermissionList;
 
@@ -62,5 +65,13 @@ public class UserDto extends DtoEntity {
 
     public void setUserProjectPermissionList(List<UserProjectPermissionDto> userProjectPermissionList) {
         this.userProjectPermissionList = userProjectPermissionList;
+    }
+
+    public RoleType getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(RoleType roleType) {
+        this.roleType = roleType;
     }
 }
