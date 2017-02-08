@@ -61,9 +61,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
     <div className={styles.normal}>
       <div>
         <div className={styles.create}>
-          <UserModal record={{}} onOk={createHandler}>
-            <Button type="primary">创建用户</Button>
-          </UserModal>
+          <Button type="primary" onClick={()=> browserHistory.push(`${ROUTE_ADMIN_USERS_INFO}/create`)}>创建用户</Button>
         </div>
         <Table
           columns={columns}
