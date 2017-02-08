@@ -11,7 +11,7 @@ module.exports = function (webpackConfig, env) {
         webpackConfig.babel.plugins.push('dev-expression');
     }
 
-    // Don't extract common.js and common.css
+    // Don't extract common.js and common.less
     webpackConfig.plugins = webpackConfig.plugins.filter(function (plugin) {
         return !(plugin instanceof webpack.optimize.CommonsChunkPlugin);
     });

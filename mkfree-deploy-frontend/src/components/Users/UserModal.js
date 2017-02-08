@@ -5,92 +5,118 @@ const FormItem = Form.Item;
 
 class UserEditModal extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            visible: false,
-        };
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+    };
+  }
 
-    showModelHandler = (e) => {
-        if (e) e.stopPropagation();
-        this.setState({
-            visible: true,
-        });
+  showModelHandler = (e) => {
+    if (e) e.stopPropagation();
+    this.setState({
+      visible: true,
+    });
+  };
+
+  hideModelHandler = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
+  okHandler = () => {
+    const { onOk } = this.props;
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        onOk(values);
+        this.hideModelHandler();
+      }
+    });
+  };
+
+  render() {
+    const { children, visible, dispatch } = this.props;
+    const { getFieldDecorator } = this.props.form;
+    const { name, email, id } = this.props.record;
+
+    const formItemLayout = {
+      labelCol: {span: 6},
+      wrapperCol: {span: 14},
     };
 
-    hideModelHandler = () => {
-        this.setState({
-            visible: false,
-        });
+    const showModelHandler = (e)=> {
+      if (e) e.stopPropagation();
+      dispatch({
+        type: 'users/changeState',
+        payload: {
+          visible: true,
+        }
+      })
     };
 
-    okHandler = () => {
-        const { onOk } = this.props;
-        this.props.form.validateFields((err, values) => {
-            if (!err) {
-                onOk(values);
-                this.hideModelHandler();
-            }
-        });
+    const hideModelHandler = () => {
+      dispatch({
+        type: 'users/changeState',
+        payload: {
+          visible: false,
+        }
+      })
     };
 
-    render() {
-        const { children } = this.props;
-        const { getFieldDecorator } = this.props.form;
-        const { name, email, website } = this.props.record;
-        const formItemLayout = {
-            labelCol: { span: 6 },
-            wrapperCol: { span: 14 },
-        };
+    const okHandler = () => {
+      this.props.form.validateFields((err, values) => {
+        dispatch({
+          type: 'users/userUpdate',
+          payload: {
+            id,
+            username: values.username,
+            password: values.password,
+          }
+        });
+        if (!err) {
+          hideModelHandler();
+        }
+      });
+    };
 
-        return (
-            <span>
-        <span onClick={this.showModelHandler}>
+    return (
+      <span>
+        <span onClick={(e)=> showModelHandler(e)}>
           { children }
         </span>
         <Modal
-            title="Edit User"
-            visible={this.state.visible}
-            onOk={this.okHandler}
-            onCancel={this.hideModelHandler}
+          title="Edit User"
+          visible={visible}
+          onOk={()=> okHandler()}
+          onCancel={()=> hideModelHandler()}
         >
-          <Form horizontal onSubmit={this.okHandler}>
+          <Form horizontal onSubmit={()=> okHandler()}>
             <FormItem
-                {...formItemLayout}
-                label="Name"
+              {...formItemLayout}
+              label="账户"
             >
               {
-                  getFieldDecorator('name', {
-                      initialValue: name,
-                  })(<Input />)
+                getFieldDecorator('username', {
+                  initialValue: name,
+                })(<Input />)
               }
             </FormItem>
             <FormItem
-                {...formItemLayout}
-                label="Email"
+              {...formItemLayout}
+              label="密码"
             >
               {
-                  getFieldDecorator('email', {
-                      initialValue: email,
-                  })(<Input />)
-              }
-            </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="Website"
-            >
-              {
-                  getFieldDecorator('website', {
-                      initialValue: website,
-                  })(<Input />)
+                getFieldDecorator('password', {
+                  initialValue: email,
+                })(<Input />)
               }
             </FormItem>
           </Form>
         </Modal>
       </span>
-        );
-    }
+    );
+  }
 }
 
 export default Form.create()(UserEditModal);
