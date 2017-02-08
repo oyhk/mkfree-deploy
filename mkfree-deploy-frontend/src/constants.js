@@ -1,9 +1,10 @@
 export const PAGE_SIZE = 3;
 
 
-export const ENV_DEV = ['DEV','开发'];
-export const ENV_UAT = ['UAT','仿真测试'];
-export const ENV_PROD = ['PROD','生产'];
+export const ENV_DEV = ['DEV', '开发'];
+export const ENV_TEST = ['TEST', '测试'];
+export const ENV_UAT = ['UAT', '仿真测试'];
+export const ENV_PROD = ['PROD', '生产'];
 
 
 /*** 路由变量 start*****/

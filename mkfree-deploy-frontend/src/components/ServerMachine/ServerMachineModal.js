@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Modal, Form, Input, Select} from 'antd';
 
+import {ENV_DEV,ENV_TEST,ENV_UAT,ENV_PROD} from '../../constants';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -79,9 +81,10 @@ class ServerMachineModal extends Component {
                                     initialValue: type,
                                 })(
                                   <Select placeholder="请选择服务器类型">
-                                    <Option value="DEV">开发</Option>
-                                    <Option value="UAT">仿真测试</Option>
-                                    <Option value="PROD">生产</Option>
+                                    <Option value={ENV_DEV[0]}>{ENV_DEV[1]}</Option>
+                                    <Option value={ENV_TEST[0]}>{ENV_TEST[1]}</Option>
+                                    <Option value={ENV_UAT[0]}>{ENV_UAT[1]}</Option>
+                                    <Option value={ENV_PROD[0]}>{ENV_PROD[1]}</Option>
                                   </Select>
                                 )
                             }
