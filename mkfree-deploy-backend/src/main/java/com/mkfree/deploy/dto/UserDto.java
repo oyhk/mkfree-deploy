@@ -21,6 +21,8 @@ public class UserDto extends DtoEntity {
     private String passwordSalt;
     //登录后的userToken
     private String userToken;
+    // 用户项目权限列表
+    private List<UserProjectPermissionDto> userProjectPermissionList;
 
     public String getUsername() {
         return username;
@@ -52,5 +54,13 @@ public class UserDto extends DtoEntity {
 
     public void setUserToken(String userToken) {
         this.userToken = userToken;
+    }
+
+    public List<UserProjectPermissionDto> getUserProjectPermissionList() {
+        return userProjectPermissionList;
+    }
+
+    public void setUserProjectPermissionList(List<UserProjectPermissionDto> userProjectPermissionList) {
+        this.userProjectPermissionList = userProjectPermissionList;
     }
 }

@@ -1,9 +1,16 @@
 package com.mkfree.deploy.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.PageResult;
+import com.mkfree.deploy.domain.Project;
+import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.dto.UserDto;
+import com.mkfree.deploy.dto.UserProjectPermissionDto;
+import com.mkfree.deploy.helper.UserProjectPermissionHelper;
+import com.mkfree.deploy.repository.ProjectRepository;
+import com.mkfree.deploy.repository.UserProjectPermissionRepository;
 import com.mkfree.deploy.repository.UserRepository;
 import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.RestDoing;
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -34,6 +42,12 @@ public class UserController extends BaseController {
     private final Logger log = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private UserProjectPermissionRepository userProjectPermissionRepository;
 
     @RequestMapping(value = Routes.USER_LOGIN, method = RequestMethod.POST)
     public JsonResult login(@RequestBody User dto, HttpServletRequest request) {
@@ -78,8 +92,21 @@ public class UserController extends BaseController {
                 return;
             }
             User user = new User();
-            BeanUtils.copyProperties(dto, user);
-            userRepository.save(user);
+            user.setUsername(dto.getUsername());
+            String passwordSalt = new Date().getTime() + "";
+            user.setPassword(UserHelper.SINGLEONE.getMd5Password(passwordSalt, dto.getPassword()));
+            user.setPasswordSalt(passwordSalt);
+            user = userRepository.save(user);
+            if (dto.getUserProjectPermissionList() != null) {
+                for (UserProjectPermissionDto userProjectPermissionDto : dto.getUserProjectPermissionList()) {
+                    Project project = projectRepository.findOne(userProjectPermissionDto.getProjectId());
+                    if (project == null) {
+                        continue;
+                    }
+                    userProjectPermissionRepository.save(UserProjectPermissionHelper.SINGLEONE.create(objectMapper.writeValueAsString(userProjectPermissionDto.getProjectEnv()), project.getId(), project.getName(), user.getId()));
+                }
+            }
+
         };
         return doing.go(request, log);
     }
@@ -100,11 +127,22 @@ public class UserController extends BaseController {
             if (StringUtils.isNotBlank(user.getUsername())) {
                 user.setUsername(dto.getUsername());
             }
-            if(StringUtils.isNotBlank(dto.getUsername())){
-                user.setUsername(dto.getUsername());
-            }
             if (StringUtils.isNotBlank(dto.getPassword())) {
-                user.setPassword(UserHelper.SINGLEONE.getMd5Password(new Date().getTime() + "", dto.getPassword()));
+                String passwordSalt = new Date().getTime() + "";
+                user.setPassword(UserHelper.SINGLEONE.getMd5Password(passwordSalt, dto.getPassword()));
+                user.setPasswordSalt(passwordSalt);
+            }
+
+            if (dto.getUserProjectPermissionList() != null) {
+                List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+                userProjectPermissionRepository.delete(userProjectPermissionList);
+                for (UserProjectPermissionDto userProjectPermissionDto : dto.getUserProjectPermissionList()) {
+                    Project project = projectRepository.findOne(userProjectPermissionDto.getProjectId());
+                    if (project == null) {
+                        continue;
+                    }
+                    userProjectPermissionRepository.save(UserProjectPermissionHelper.SINGLEONE.create(objectMapper.writeValueAsString(userProjectPermissionDto.getProjectEnv()), project.getId(), project.getName(), user.getId()));
+                }
             }
             userRepository.save(user);
         };
