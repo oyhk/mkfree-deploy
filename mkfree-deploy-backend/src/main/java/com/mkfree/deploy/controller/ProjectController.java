@@ -11,6 +11,7 @@ import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.ProjectEnvConfigDto;
+import com.mkfree.deploy.helper.ProjectStructureStepHelper;
 import com.mkfree.deploy.helper.ShellHelper;
 import com.mkfree.deploy.repository.*;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +77,20 @@ public class ProjectController extends BaseController {
             project.setDeployTargetFileList(objectMapper.writeValueAsString(dto.getDeployTargetFileList()));
 
             project = projectRepository.save(project);
+
+            // 项目构建前命令
+            if (dto.getStructureBeforeList() != null) {
+                for (String command : dto.getStructureBeforeList()) {
+                    projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, project.getId()));
+                }
+            }
+            // 项目构建后命令
+            if (dto.getStructureAfterList() != null) {
+                for (String command : dto.getStructureAfterList()) {
+                    projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, project.getId()));
+                }
+            }
+            // 项目环境配置
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
             if (projectEnvConfigList != null) {
                 for (ProjectEnvConfigDto projectEnvConfigDto : projectEnvConfigList) {
@@ -116,6 +131,26 @@ public class ProjectController extends BaseController {
                 project.setDeployTargetFileList(objectMapper.writeValueAsString(dto.getDeployTargetFileList()));
             }
             project = projectRepository.save(project);
+
+            // 项目构建前命令
+            if (dto.getStructureBeforeList() != null) {
+
+                List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.BEFORE);
+                projectStructureStepRepository.delete(projectStructureStepList);
+                for (String command : dto.getStructureBeforeList()) {
+                    projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, project.getId()));
+                }
+            }
+            // 项目构建后命令
+            if (dto.getStructureAfterList() != null) {
+                List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.AFTER);
+                projectStructureStepRepository.delete(projectStructureStepList);
+                for (String command : dto.getStructureAfterList()) {
+                    projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, project.getId()));
+                }
+            }
+
+            // 项目环境配置
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
             if (projectEnvConfigList != null) {
                 for (ProjectEnvConfigDto projectEnvConfigDto : projectEnvConfigList) {
@@ -186,9 +221,10 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            List<String> deployTargetFileList = objectMapper.readValue(project.getDeployTargetFileList(), new TypeReference<List<String>>() {});
+            List<String> deployTargetFileList = objectMapper.readValue(project.getDeployTargetFileList(), new TypeReference<List<String>>() {
+            });
             StringBuilder shellDeployTargetFileList = new StringBuilder();
-            if(deployTargetFileList.size()>0){
+            if (deployTargetFileList.size() > 0) {
                 deployTargetFileList.forEach(s -> {
                     shellDeployTargetFileList.append(s).append(";");
                 });
