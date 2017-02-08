@@ -3,7 +3,7 @@ import fetch from 'dva/fetch';
 
 const apiDomains = {
     dev: 'http://192.168.1.210:8090',
-    prod: ''
+    prod: ''//当为空时，api就是相对路径
 };
 
 function checkStatus(response) {
@@ -32,7 +32,7 @@ export default async function request(url, options = {}) {
     const response = await fetch(url, options);
     checkStatus(response);
     const result = await response.json();
-    if(result.code != 1){
+    if (result.code != 1) {
         throw new Error(`请求 url : ${url},返回结果 : ${result.desc}`);
     }
     return result.data;
