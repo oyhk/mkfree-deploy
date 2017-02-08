@@ -217,8 +217,9 @@ public class ProjectController extends BaseController {
             Resource resource = resourceLoader.getResource("classpath:/shell/deploy.sh");
 
             log.info(resource.getFilename());
+            log.info(resource.getFile().toString());
             String deployShellPath = resource.getFile().getPath();
-            
+
 //            String deployShellPath = "/Users/oyhk/rockcent/project/mkfree-deploy/mkfree-deploy-backend/src/main/resources/shell/deploy.sh";
             ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + deployShellPath);
             Project project = projectRepository.findOne(dto.getId());
