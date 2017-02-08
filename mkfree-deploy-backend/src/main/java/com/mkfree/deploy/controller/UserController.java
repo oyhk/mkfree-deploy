@@ -149,6 +149,25 @@ public class UserController extends BaseController {
         return doing.go(request, log);
     }
 
+    @RequestMapping(value = Routes.USER_DELETE, method = RequestMethod.DELETE)
+    public JsonResult delete(@RequestBody UserDto dto, HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+            if (dto.getId() == null) {
+                jsonResult.errorParam(User.CHECK_IDENTIFIER_IS_NOT_NULL, log);
+                return;
+            }
+            // 删除用户项目权限
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(dto.getId());
+            userProjectPermissionRepository.delete(userProjectPermissionList);
+
+            // 删除用户
+            User user = userRepository.findOne(dto.getId());
+            userRepository.delete(user);
+
+        };
+        return doing.go(request, log);
+    }
+
 
     @RequestMapping(value = Routes.USER_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
