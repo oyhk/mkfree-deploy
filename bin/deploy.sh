@@ -23,7 +23,7 @@ start() {
       echo "================================"
    else
       # 构建 react
-      cd ${FRONTEND_HOME} && npm run build
+      cd ${FRONTEND_HOME} && NODE_ENV=prod npm run build
       # 构建 java
       cd $APP_HOME && /rockcent/apps/jenkins-project/tools/hudson.tasks.Maven_MavenInstallation/maven/bin/mvn clean package
 

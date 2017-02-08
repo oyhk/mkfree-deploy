@@ -1,5 +1,11 @@
 import fetch from 'dva/fetch';
 
+
+const apiDomains = {
+    dev: 'http://192.168.1.210:8090',
+    prod: 'http://127.0.0.1:8090'
+};
+
 function checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
         return response;
@@ -21,7 +27,8 @@ export default async function request(url, options = {}) {
     options.headers = {
         'Content-Type': 'application/json'
     };
-    url = `http://192.168.3.133:8090${url}`;
+    const env = process.env.NODE_ENV || 'dev';
+    url = `${apiDomains[env]}${url}`;
     const response = await fetch(url, options);
     checkStatus(response);
     const result = await response.json();
