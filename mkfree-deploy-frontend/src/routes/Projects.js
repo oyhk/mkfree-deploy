@@ -3,7 +3,7 @@ import {connect} from 'dva';
 import {Table, Pagination, Popconfirm, Button} from 'antd';
 import {routerRedux} from 'dva/router';
 import styles from './Projects.css';
-import {PAGE_SIZE, ROUTE_PROJECTS,ENV_DEV,ENV_UAT,ENV_PROD} from '../constants';
+import {PAGE_SIZE, ROUTE_PROJECTS, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD} from '../constants';
 import ProjectModal from '../components/Projects/ProjectModal';
 
 
@@ -55,13 +55,14 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
         },
         {
             title: '发布',
-            dataIndex:'',
-            key:'',
-            render: (text,record)=>(
+            dataIndex: '',
+            key: '',
+            render: (text, record)=>(
                 <span className={styles.operation}>
-                    <a onClick={deploy.bind(null,{id:record.id,env:ENV_DEV[0]})}>开发</a>
-                    <a onClick={deploy.bind(null,record.id,ENV_UAT[0])}>预发布</a>
-                    <a onClick={deploy.bind(null,record.id,ENV_PROD[0])}>生产</a>
+                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_DEV[0]})}>{ENV_DEV[1]}</a>
+                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_TEST[0]})}>{ENV_TEST[1]}</a>
+                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_UAT[0]})}>{ENV_UAT[1]}</a>
+                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_PROD[0]})}>{ENV_PROD[1]}</a>
                 </span>
             )
         },
