@@ -12,6 +12,7 @@ public class Routes {
     public static final String USER_SAVE = API_PREFIX +"/user/save";
     public static final String USER_UPDATE = API_PREFIX +"/user/update";
     public static final String USER_DELETE = API_PREFIX +"/user/delete";
+    public static final String USER_INFO = API_PREFIX +"/user/info";
 
     public static final String USER_PROJECT_PERMISSION_SAVE = API_PREFIX + "/user/project/permission/save";
     public static final String USER_PROJECT_PERMISSION_DELETE = API_PREFIX + "/user/project/permission/delete";

@@ -1,5 +1,6 @@
 package com.mkfree.deploy.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
@@ -29,8 +30,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -164,6 +167,45 @@ public class UserController extends BaseController {
             User user = userRepository.findOne(dto.getId());
             userRepository.delete(user);
 
+        };
+        return doing.go(request, log);
+    }
+
+    @RequestMapping(value = Routes.USER_INFO, method = RequestMethod.GET)
+    public JsonResult info(Long id, HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+            if (id == null) {
+                jsonResult.errorParam(User.CHECK_IDENTIFIER_IS_NOT_NULL, log);
+                return;
+            }
+
+            User user = userRepository.findOne(id);
+            if (user == null) {
+                jsonResult.remind(User.REMIND_RECORD_IS_NOT_EXIST, log);
+                return;
+            }
+
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setUsername(user.getUsername());
+
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            List<UserProjectPermissionDto> userProjectPermissionDtoList = userProjectPermissionList.stream().map(userProjectPermission -> {
+                UserProjectPermissionDto userProjectPermissionDto = new UserProjectPermissionDto();
+                userProjectPermissionDto.setId(userProjectPermission.getId());
+                userProjectPermissionDto.setProjectName(userProjectPermission.getProjectName());
+                userProjectPermissionDto.setProjectId(userProjectPermission.getProjectId());
+                try {
+                    userProjectPermissionDto.setProjectEnv(objectMapper.readValue(userProjectPermission.getProjectEnvList(), new TypeReference<List<String>>() {
+                    }));
+                } catch (IOException e) {
+                    log.info(e.getMessage());
+                }
+                return userProjectPermissionDto;
+            }).collect(Collectors.toList());
+            userDto.setUserProjectPermissionList(userProjectPermissionDtoList);
+
+            jsonResult.data  = userDto;
         };
         return doing.go(request, log);
     }
