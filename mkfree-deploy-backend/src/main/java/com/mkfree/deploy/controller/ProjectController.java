@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -214,11 +215,7 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            Resource resource = resourceLoader.getResource("classpath*:/shell/deploy.sh");
-
-            log.info(resource.getFilename());
-            log.info(resource.getFile().toString());
-            String deployShellPath = resource.getFile().getPath();
+            String deployShellPath = new File("").getAbsolutePath() + "/src/main/resources/shell/deploy.sh";
 
 //            String deployShellPath = "/Users/oyhk/rockcent/project/mkfree-deploy/mkfree-deploy-backend/src/main/resources/shell/deploy.sh";
             ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + deployShellPath);
@@ -259,7 +256,7 @@ public class ProjectController extends BaseController {
             for (ServerMachine serverMachine : serverMachineList) {
 
                 //构建前命令
-                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE,projectEnvConfig.getId());
+                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                 StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
                 if (projectStructureStepBeforeList.size() > 0) {
                     projectStructureStepBeforeList.forEach(projectStructureStep -> {
@@ -269,7 +266,7 @@ public class ProjectController extends BaseController {
                 }
 
                 // 构建后命令
-                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER,projectEnvConfig.getId());
+                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                 StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
                 if (projectStructureStepAfterList.size() > 0) {
                     projectStructureStepAfterList.forEach(projectStructureStep -> {
