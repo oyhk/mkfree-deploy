@@ -15,6 +15,7 @@ public class User extends IDEntity {
     public static final String SSO_PASSWORD_ENCODE_KEY = "13fkljsldf324safd123slkdfj";
 
     public static final String LOGIN_USER = "login_user";
+    public static final String LOGIN_USER_TOKEN = "user_token";
 
     @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
     private String username;

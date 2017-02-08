@@ -76,16 +76,8 @@ public class UserController extends BaseController {
 
             user.setUserToken(UserHelper.SINGLEONE.getUserToken(user.getId(), user.getUsername()));
             userRepository.save(user);
-
-            UserDto userDto = new UserDto();
-            userDto.setId(user.getId());
-            userDto.setUsername(user.getUsername());
-            userDto.setRoleType(user.getRoleType());
-
-            // 项目权限
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-            userDto.setUserProjectPermissionList(UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
-            request.getSession().setAttribute(User.LOGIN_USER, userDto);
+            UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
 
             jsonResult.data = user.getUserToken();
         };
@@ -103,7 +95,14 @@ public class UserController extends BaseController {
                 jsonResult.errorParam("密码不能为空", log);
                 return;
             }
-            User user = new User();
+
+            User user = userRepository.findByUsername(dto.getUsername());
+            if(user != null){
+                jsonResult.remind("用户名已存在");
+                return;
+            }
+
+            user = new User();
             user.setUsername(dto.getUsername());
             String passwordSalt = new Date().getTime() + "";
             user.setPassword(UserHelper.SINGLEONE.getMd5Password(passwordSalt, dto.getPassword()));
