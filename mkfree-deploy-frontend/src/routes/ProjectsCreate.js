@@ -9,9 +9,9 @@ import {PAGE_SIZE, ROUTE_PROJECTS, ENV_DEV, ENV_UAT, ENV_PROD} from '../constant
 
 const FormItem = Form.Item;
 
-function ProjectsCreate({dispatch, list: dataSource, loading, total, pageNo: current}) {
+function ProjectsCreate({dispatch, list: dataInfo, sList: servarData, loading, total, pageNo: current}) {
 
-
+  console.log(dataInfo)
   function deleteHandler(id) {
     dispatch({
       type: 'projects/remove',
@@ -50,7 +50,7 @@ function ProjectsCreate({dispatch, list: dataSource, loading, total, pageNo: cur
 
   return (
     <div>
-      <ProjectsCentont record={{}} onOk={saveHandler}/>
+      <ProjectsCentont record={dataInfo} servarData={servarData} onOk={saveHandler}/>
     </div>
   );
 }
@@ -61,8 +61,7 @@ class ProjectsCentont extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: this.props.title,
-      visible: false,
+      visible: true,
 
       DEVConfig :{
         "env": "DEV",
@@ -96,28 +95,32 @@ class ProjectsCentont extends Component {
         "structureAfterList": [""],
       },
 
-      preBuild1: [""],
-      postBuild1: [""],
-      preBuild2: [""],
-      postBuild2: [""],
-      preBuild3: [""],
-      postBuild3: [""],
-      preBuild4: [""],
-      postBuild4: [""],
-
-      serverMachineIdList1 : [],
-      serverMachineIdList2 : [],
-      serverMachineIdList3 : [],
-      serverMachineIdList4 : [],
-
-      publicBranch1 : "",
-      publicBranch2 : "",
-      publicBranch3 : "",
-      publicBranch4 : "",
 
     };
   }
 
+  componentDidMount(){
+    if(this.props.record && this.props.record.projectEnvConfigList ){
+      this.setState({
+        DEVConfig:this.props.record.projectEnvConfigList[0],
+        TESTConfig:this.props.record.projectEnvConfigList[1],
+        UATConfig:this.props.record.projectEnvConfigList[2],
+        PRODConfig:this.props.record.projectEnvConfigList[3],
+      })
+    }
+  }
+  componentWillReceiveProps(nextProps){
+    if(this.props.record && this.props.record.projectEnvConfigList && this.state.visible){
+      this.setState({
+        DEVConfig:this.props.record.projectEnvConfigList[0],
+        TESTConfig:this.props.record.projectEnvConfigList[1],
+        UATConfig:this.props.record.projectEnvConfigList[2],
+        PRODConfig:this.props.record.projectEnvConfigList[3],
+        visible:false
+      })
+    }
+    console.log(this.state)
+  }
   showModelHandler = (e) => {
     if (e) e.stopPropagation();
     this.setState({
@@ -131,31 +134,38 @@ class ProjectsCentont extends Component {
     });
   };
 
-  okHandler = () => {
+  okHandler = (e) => {
+    e.preventDefault();
     const {onOk} = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        values["projectEnvConfigList"] = [
+          this.state.DEVConfig,
+          this.state.TESTConfig,
+          this.state.UATConfig,
+          this.state.PRODConfig,
+        ]
         // const projectEnvConfigList= [];
-        // onOk(values);
-        // this.hideModelHandler();
-        console.log(this.state)
+        onOk(values);
+        console.log(values)
       }
     });
   };
   onSubmitAll = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
+
         // onOk(values);
         // this.hideModelHandler();
-        // console.log(values)
-
+        console.log(values)
+        return;
       }
     });
   }
   revampList = (env , after, index, type, value) => {
     const Build = JSON.parse(JSON.stringify(this.state[env]));
 
-    (type == "add" ) && (Build[after][index] = value);
+    (type == "add" ) && (Build[after].push(""));
 
     (type == "delete" && Build[after].length > 1) && (Build[after].splice(index, 1));
 
@@ -163,17 +173,7 @@ class ProjectsCentont extends Component {
 
     (type == "revamp" && index == -1) && (Build[after] = value);
 
-    console.log(Build[after])
-
     this.setState({[env]: Build});
-  }
-
-  revampList1 = ( after, index, type, e) => {
-    const Build = this.state[after].concat();
-    (type == "add" ) && (Build[index] = e.target.value);
-    (type == "delete" && Build.length > 1) && (Build.splice(index, 1));
-    console.log(after, index, type, e.target.value)
-    this.setState({[after]: Build});
   }
 
   render() {
@@ -184,9 +184,15 @@ class ProjectsCentont extends Component {
       labelCol: {span: 6},
       wrapperCol: {span: 8},
     };
-     const
+    console.log(this.props.record)
+    const
       _state = this.state,
-      preList1 = _state.DEVConfig.structureBeforeList.map((item, index) => {
+      mockData = [],
+      DEVTargetKeys = _state.DEVConfig.serverMachineIdList,
+      TESTTargetKeys = _state.TESTConfig.serverMachineIdList,
+      UATTargetKeys = _state.UATConfig.serverMachineIdList,
+      PRODTargetKeys = _state.PRODConfig.serverMachineIdList,
+      DEVStructureB = _state.DEVConfig.structureBeforeList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
           this.revampList("DEVConfig", "structureBeforeList", index, "revamp", e.target.value)
         }} addonAfter={
@@ -195,327 +201,366 @@ class ProjectsCentont extends Component {
           }}/>
         }/></div>;
       }),
-      postList1 = _state.postBuild1.map((item, index) => {
+      DEVStructureA = _state.DEVConfig.structureAfterList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList("DEVConfig" , "structureAfterList", index, "add", e.tatget.value)
+          this.revampList("DEVConfig", "structureAfterList", index, "revamp", e.target.value)
         }} addonAfter={
           <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList("DEVConfig" , "structureAfterList", index, "delete", e)
+            this.revampList("DEVConfig", "structureAfterList", index, "delete", e)
+          }}/>
+        }/></div>
+      }),
+      TESTStructureB = _state.TESTConfig.structureBeforeList.map((item, index) => {
+        return <div key={index}><Input value={item} onChange={(e) => {
+          this.revampList("TESTConfig", "structureBeforeList", index, "revamp", e.target.value)
+        }} addonAfter={
+          <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
+            this.revampList("TESTConfig", "structureBeforeList", index, "delete", e)
           }}/>
         }/></div>;
       }),
-      preList2 = _state.preBuild2.map((item, index) => {
+      TESTStructureA = _state.TESTConfig.structureAfterList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList1("preBuild2", index, "add", e)
+          this.revampList("TESTConfig", "structureAfterList", index, "revamp", e.target.value)
         }} addonAfter={
           <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList1("preBuild2", index, "delete", e)
+            this.revampList("TESTConfig", "structureAfterList", index, "delete", e)
+          }}/>
+        }/></div>
+      }),
+      UATStructureB = _state.UATConfig.structureBeforeList.map((item, index) => {
+        return <div key={index}><Input value={item} onChange={(e) => {
+          this.revampList("UATConfig", "structureBeforeList", index, "revamp", e.target.value)
+        }} addonAfter={
+          <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
+            this.revampList("UATConfig", "structureBeforeList", index, "delete", e)
           }}/>
         }/></div>;
       }),
-      postList2 = _state.postBuild2.map((item, index) => {
+      UATStructureA = _state.UATConfig.structureAfterList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList1("postBuild2", index, "add", e)
+          this.revampList("UATConfig", "structureAfterList", index, "revamp", e.target.value)
         }} addonAfter={
           <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList1("postBuild2", index, "delete", e)
+            this.revampList("UATConfig", "structureAfterList", index, "delete", e)
           }}/>
         }/></div>;
       }),
-      preList3 = _state.preBuild3.map((item, index) => {
+      PRODStructureB = _state.PRODConfig.structureBeforeList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList1("preBuild3", index, "add", e)
+          this.revampList("PRODConfig", "structureBeforeList", index, "revamp", e.target.value)
         }} addonAfter={
           <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList1("preBuild3", index, "delete", e)
+            this.revampList("PRODConfig", "structureBeforeList", index, "delete", e)
           }}/>
         }/></div>;
       }),
-      postList3 = _state.postBuild3.map((item, index) => {
+      PRODStructureA = _state.PRODConfig.structureAfterList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList1("postBuild3", index, "add", e)
+          this.revampList("PRODConfig", "structureAfterList", index, "revamp", e.target.value)
         }} addonAfter={
           <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList1("postBuild3", index, "delete", e)
+            this.revampList("PRODConfig", "structureAfterList", index, "delete", e)
           }}/>
         }/></div>;
-      }),
-      preList4 = _state.preBuild4.map((item, index) => {
-        return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList1("preBuild4", index, "add", e)
-        }} addonAfter={
-          <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList1("preBuild4", index, "delete", e)
-          }}/>
-        }/></div>;
-      }),
-      postList4 = _state.postBuild4.map((item, index) => {
-        return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList1("postBuild4", index, "add", e)
-        }} addonAfter={
-          <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-            this.revampList1("postBuild4", index, "delete", e)
-          }}/>
-        }/></div>;
+
+
+
       });
-    return (
-      <div className={styles.projectsCenton}>
-        <Form horizontal onSubmit={this.okHandler}>
-          <div>
-            <h3>基本配置</h3>
-            <FormItem
-              {...formItemLayout}
-              label="名称"
-            >
-              {
-                getFieldDecorator('name', {
-                  initialValue: name,
-                })(<Input />)
-              }
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="仓库url"
-            >
-              {
-                getFieldDecorator('gitUrl', {
-                  initialValue: gitUrl,
-                })(<Input />)
-              }
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="远程机器项目根路径"
-            >
-              {
-                getFieldDecorator('remotePath', {
-                  initialValue: remotePath,
-                })(<Input />)
-              }
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="部署的项目模块名称"
-            >
-              {
-                getFieldDecorator('moduleName', {
-                  initialValue: moduleName,
-                })(<Input />)
-              }
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="部署的项目模块文件或者目录"
-            >
-              {
-                getFieldDecorator('deployTargetFile', {
-                  initialValue: deployTargetFile,
-                })(<Input />)
-              }
-            </FormItem>
-          </div>
-          <div className={styles.seaverMachine}>
-            <h3>发布服务器列表</h3>
-            <div className={styles.seaverList}>
-              <div>
-                <h4>开发</h4>
-                <div className={styles.list}>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>服务器列表：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
+
+    if(this.props.servarData.length > 0){
+      this.props.servarData.map((item,index)=>{
+        mockData.push({
+          key: item.id,
+          title: item.name,
+          description: index,
+        });
+      });
+    }
+
+
+
+
+
+
+            return (
+              <div className={styles.projectsCenton}>
+                <Form horizontal onSubmit={this.okHandler}>
+                  <div>
+                    <h3>基本配置</h3>
+                    <FormItem
+                      {...formItemLayout}
+                      label="名称"
+                    >
+                      {
+                        getFieldDecorator('name', {
+                          initialValue: name,
+                        })(<Input />)
+                      }
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="仓库url"
+                    >
+                      {
+                        getFieldDecorator('gitUrl', {
+                          initialValue: gitUrl,
+                        })(<Input />)
+                      }
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="远程机器项目根路径"
+                    >
+                      {
+                        getFieldDecorator('remotePath', {
+                          initialValue: remotePath,
+                        })(<Input />)
+                      }
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="部署的项目模块名称"
+                    >
+                      {
+                        getFieldDecorator('moduleName', {
+                          initialValue: moduleName,
+                        })(<Input />)
+                      }
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="部署的项目模块文件或者目录"
+                    >
+                      {
+                        getFieldDecorator('deployTargetFile', {
+                          initialValue: deployTargetFile,
+                        })(<Input />)
+                      }
+                    </FormItem>
                   </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>发布分支名：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
+                  <div className={styles.seaverMachine}>
+                    <h3>发布服务器列表</h3>
+                    <div className={styles.seaverList}>
+                      <div>
+                        <h4>开发</h4>
+                        <div className={styles.list}>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>服务器列表：</label></div>
+                            <div className="ant-col-18">
+                              <Transfer
+                                dataSource={mockData}
+                                titles={['Source', 'Target']}
+                                targetKeys={DEVTargetKeys}
+                                selectedKeys={_state.selectedKeys}
+                                onChange={(nextTargetKeys)=>{
+                                  this.revampList("DEVConfig", "serverMachineIdList", -1, "revamp", nextTargetKeys);
+                                }}
+                                render={item => item.title}
+                              />
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>发布分支名：</label></div>
+                            <div className="ant-col-16">
+                              <Input onChange={(e)=>this.revampList("DEVConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建前命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {DEVStructureB}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("DEVConfig", "structureBeforeList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建后命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {DEVStructureA}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("DEVConfig" , "structureAfterList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4>测试</h4>
+                        <div className={styles.list}>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>服务器列表：</label></div>
+                            <div className="ant-col-18">
+                              <Transfer
+                                dataSource={mockData}
+                                titles={['Source', 'Target']}
+                                targetKeys={TESTTargetKeys}
+                                selectedKeys={_state.selectedKeys}
+                                onChange={(nextTargetKeys)=>{
+                                  this.revampList("TESTConfig", "serverMachineIdList", -1, "revamp", nextTargetKeys);
+                                }}
+                                render={item => item.title}
+                              />
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>发布分支名：</label></div>
+                            <div className="ant-col-16">
+                              <Input onChange={(e)=>this.revampList("TESTConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建前命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {TESTStructureB}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("TESTConfig", "structureBeforeList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建后命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {TESTStructureA}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("TESTConfig" , "structureAfterList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
+                    <div className={styles.seaverList}>
+                      <div>
+                        <h4>仿真测试</h4>
+                        <div className={styles.list}>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>服务器列表：</label></div>
+                            <div className="ant-col-18">
+                              <Transfer
+                                dataSource={mockData}
+                                titles={['Source', 'Target']}
+                                targetKeys={UATTargetKeys}
+                                selectedKeys={_state.selectedKeys}
+                                onChange={(nextTargetKeys)=>{
+                                  this.revampList("UATConfig", "serverMachineIdList", -1, "revamp", nextTargetKeys);
+                                }}
+                                render={item => item.title}
+                              />
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>发布分支名：</label></div>
+                            <div className="ant-col-16">
+                              <Input onChange={(e)=>this.revampList("UATConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建前命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {UATStructureB}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("UATConfig", "structureBeforeList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建后命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {UATStructureA}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("UATConfig" , "structureAfterList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4>生产</h4>
+                        <div className={styles.list}>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>服务器列表：</label></div>
+                            <div className="ant-col-18">
+                              <Transfer
+                                dataSource={mockData}
+                                titles={['Source', 'Target']}
+                                targetKeys={PRODTargetKeys}
+                                selectedKeys={_state.selectedKeys}
+                                onChange={(nextTargetKeys)=>{
+                                  this.revampList("PRODConfig", "serverMachineIdList", -1, "revamp", nextTargetKeys);
+                                }}
+                                render={item => item.title}
+                              />
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>发布分支名：</label></div>
+                            <div className="ant-col-16">
+                              <Input onChange={(e)=>this.revampList("PRODConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建前命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {PRODStructureB}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("PRODConfig", "structureBeforeList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                          <div className="ant-row">
+                            <div className="ant-col-6"><label>构建后命令：</label></div>
+                            <div className={`ant-col-16 ${styles.addMore}`}>
+                              {PRODStructureA}
+                            </div>
+                            <div className="ant-col-2" style={{textAlign: "center"}}>
+                              <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
+                                this.revampList("PRODConfig" , "structureAfterList", 0, "add", "")
+                              }}/></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建前命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {preList1}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const preBuild1 = _state.preBuild1.concat();
-                        preBuild1.push("");
-                        this.setState({preBuild1});
-                      }}/></a>
-                    </div>
+                  <div style={{paddingLeft:430,marginBottom:20}}>
+                    <Button type="primary" htmlType="submit">保存</Button>
                   </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建后命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {postList1}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const postBuild1 = _state.postBuild1.concat();
-                        postBuild1.push("");
-                        this.setState({postBuild1});
-                      }}/></a>
-                    </div>
-                  </div>
-                </div>
+                </Form>
               </div>
+            );
+          }
+      }
 
-              <div>
-                <h4>测试</h4>
-                <div className={styles.list}>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>服务器列表：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>发布分支名：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建前命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {preList2}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const preBuild2 = _state.preBuild2.concat();
-                        preBuild2.push("");
-                        this.setState({preBuild2});
-                      }}/></a>
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建后命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {postList2}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const postBuild2 = _state.postBuild2.concat();
-                        postBuild2.push("");
-                        this.setState({postBuild2});
-                      }}/></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    function mapStateToProps(state) {
+      const {list, sList, total, pageNo} = state.projectsCreate;
+      return {
+        loading: state.loading.models.projectsCreate,
+        list,
+        sList,
+        total,
+        pageNo,
+      };
+    }
 
-            </div>
-
-            <div className={styles.seaverList}>
-              <div>
-                <h4>仿真测试</h4>
-                <div className={styles.list}>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>服务器列表：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>发布分支名：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建前命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {preList3}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const preBuild3 = _state.preBuild3.concat();
-                        preBuild3.push("");
-                        this.setState({preBuild3});
-                      }}/></a>
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建后命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {postList3}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const postBuild3 = _state.postBuild3.concat();
-                        postBuild3.push("");
-                        this.setState({postBuild3});
-                      }}/></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4>生产</h4>
-                <div className={styles.list}>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>服务器列表：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>发布分支名：</label></div>
-                    <div className="ant-col-16">
-                      <Input />
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建前命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {preList4}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const preBuild4 = _state.preBuild4.concat();
-                        preBuild4.push("");
-                        this.setState({preBuild4});
-                      }}/></a>
-                    </div>
-                  </div>
-                  <div className="ant-row">
-                    <div className="ant-col-6"><label>构建后命令：</label></div>
-                    <div className={`ant-col-16 ${styles.addMore}`}>
-                      {postList4}
-                    </div>
-                    <div className="ant-col-2" style={{textAlign: "center"}}>
-                      <a style={{lineHeight: "28px"}}><Icon type="plus-circle-o" onClick={() => {
-                        const postBuild4 = _state.postBuild4.concat();
-                        postBuild4.push("");
-                        this.setState({postBuild4});
-                      }}/></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <div style={{paddingLeft:430,marginBottom:20}}>
-              <Button type="primary" htmlType="submit">保存</Button>
-          </div>
-        </Form>
-      </div>
-    );
-  }
-}
-
-function mapStateToProps(state) {
-  const {list, total, pageNo} = state.projects;
-  return {
-    loading: state.loading.models.projects,
-    list,
-    total,
-    pageNo,
-  };
-}
-
-ProjectsCentont = Form.create()(ProjectsCentont);
-export default connect(mapStateToProps)(ProjectsCreate);
+    ProjectsCentont = Form.create()(ProjectsCentont);
+    export default connect(mapStateToProps)(ProjectsCreate);

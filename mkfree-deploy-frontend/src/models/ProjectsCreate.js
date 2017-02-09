@@ -1,27 +1,35 @@
-import * as projectService from '../services/projects';
-import {ROUTE_PROJECTS} from '../constants';
+import * as projectService from '../services/projectsCreate';
+import {ROUTE_PROJECTS_CREATE,ROUTE_PROJECTS_INFO} from '../constants';
 
 export default {
-    namespace: 'ProjectsCreate',
+    namespace: 'projectsCreate',
     state: {
         list: [],
+        sList: [],
         total: null,
         pageNo: null,
     },
     reducers: {
-        save(state, {payload: {data: list, total, pageNo}}) {
-            return {...state, list, total, pageNo};
+        save(state, {payload: {data: list,data: sList, total, pageNo}}) {
+            return {...state, list, sList, total, pageNo};
         },
     },
     effects: {
-        *fetch({payload: {pageNo = 1}}, {call, put}) {
-            const result = yield call(projectService.fetch, {pageNo});
+        *fetch({payload: {projectsId = 0}}, {call, put}) {
+            const result = yield call(projectService.fetch, {projectsId});
+            yield put({
+                type: 'save',
+                payload: {
+                    data: result,
+                },
+            });
+        },
+        *seaverFetch({payload: {pageNo = 0}}, {call, put}) {
+            const result = yield call(projectService.seaverFetch, {pageNo});
             yield put({
                 type: 'save',
                 payload: {
                     data: result.list,
-                    total: result.totalCount,
-                    pageNo: result.pageNo,
                 },
             });
         },
@@ -56,8 +64,14 @@ export default {
     subscriptions: {
         setup({dispatch, history}) {
             return history.listen(({pathname, query}) => {
-                if (pathname === ROUTE_PROJECTS) {
-                    dispatch({type: 'fetch', payload: query});
+                const projectsId = pathname.split('/')[3];
+                if(projectsId){
+                  dispatch({type: 'fetch', payload: {
+                    projectsId
+                  }});
+                }
+                if (pathname === ROUTE_PROJECTS_CREATE || pathname.indexOf(ROUTE_PROJECTS_INFO) > -1 ) {
+                    dispatch({type: 'seaverFetch', payload: query});
                 }
             });
         },

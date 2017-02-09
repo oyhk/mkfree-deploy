@@ -1,9 +1,9 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Table, Pagination, Popconfirm, Button} from 'antd';
-import {routerRedux} from 'dva/router';
+import {Link, browserHistory ,routerRedux} from 'dva/router';
 import styles from './Projects.css';
-import {PAGE_SIZE, ROUTE_PROJECTS, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD} from '../constants';
+import {PAGE_SIZE, ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD} from '../constants';
 import ProjectModal from '../components/Projects/ProjectModal';
 
 
@@ -71,9 +71,10 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             key: 'operation',
             render: (text, record) => (
                 <span className={styles.operation}>
-                    <ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>
-                        <a>编辑</a>
-                    </ProjectModal>
+                    <Link to={`${ROUTE_PROJECTS_INFO}/${record.id}`}>编辑</Link>
+                    {/*<ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>*/}
+                        {/*<a>编辑</a>*/}
+                    {/*</ProjectModal>*/}
                     <Popconfirm title="确认删除?" onConfirm={deleteHandler.bind(null, record.id)}>
                         <a href="">删除</a>
                     </Popconfirm>
@@ -85,9 +86,10 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
         <div className={styles.normal}>
             <div>
                 <div className={styles.create}>
-                    <ProjectModal title="新建项目" record={{}} onOk={saveHandler}>
-                        <Button type="primary">创建项目</Button>
-                    </ProjectModal>
+                    <Button type="primary" onClick={()=> browserHistory.push(`${ROUTE_PROJECTS_CREATE}`)}>创建用户</Button>
+                    {/*<ProjectModal title="新建项目" record={{}} onOk={saveHandler}>*/}
+                        {/*<Button type="primary">创建项目</Button>*/}
+                    {/*</ProjectModal>*/}
                 </div>
                 <Table
                     columns={columns}
