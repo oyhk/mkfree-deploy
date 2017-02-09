@@ -1,6 +1,7 @@
 package com.mkfree.deploy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mkfree.deploy.interceptor.ProjectInterceptor;
 import com.mkfree.deploy.interceptor.RoleInterceptor;
 import com.mkfree.deploy.interceptor.UserInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     private UserInterceptor userInterceptor;
     @Autowired
     private RoleInterceptor roleInterceptor;
+    @Autowired
+    private ProjectInterceptor projectInterceptor;
 
     /**
      * 配置react 路由
@@ -61,8 +64,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         super.addInterceptors(registry);
-        registry.addInterceptor(userInterceptor).addPathPatterns("/api/**");
-        registry.addInterceptor(roleInterceptor).addPathPatterns("/api/user/**", "/api/server_machine/**");
+        registry.addInterceptor(userInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/user/login");
+        registry.addInterceptor(roleInterceptor).addPathPatterns("/api/user/**", "/api/server_machine/**").excludePathPatterns("/api/user/login");
+        registry.addInterceptor(projectInterceptor).addPathPatterns("/api/project/structure");
     }
 
 

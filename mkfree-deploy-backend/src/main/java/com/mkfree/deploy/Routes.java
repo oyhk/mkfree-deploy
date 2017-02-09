@@ -22,6 +22,7 @@ public class Routes {
     public static final String PROJECT_PAGE = API_PREFIX + "/project/page";
     public static final String PROJECT_SAVE = API_PREFIX + "/project/save";
     public static final String PROJECT_UPDATE = API_PREFIX + "/project/update";
+    public static final String PROJECT_INFO = API_PREFIX + "/project/info";
     public static final String PROJECT_DELETE = API_PREFIX + "/project/delete";
     public static final String PROJECT_STRUCTURE = API_PREFIX + "/project/structure";
 

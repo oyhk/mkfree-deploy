@@ -4,6 +4,8 @@ import com.mkfree.deploy.domain.enumclass.RoleType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -26,6 +28,7 @@ public class User extends IDEntity {
     @Column(columnDefinition = "varchar (100) comment '登录后的userToken'")
     private String userToken;
     @Column(columnDefinition = "varchar(100) comment '角色类型 SUPER_ADMIN(\"超级管理员\"), ADMIN(\"管理员\"), COMMON(\"普通成员\")'")
+    @Enumerated(EnumType.STRING)
     private RoleType roleType;
 
 
@@ -68,4 +71,5 @@ public class User extends IDEntity {
     public void setRoleType(RoleType roleType) {
         this.roleType = roleType;
     }
+
 }

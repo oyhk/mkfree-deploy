@@ -8,6 +8,7 @@
     "dva": "^1.2.1",
     "dva-loading": "^0.2.0",
     "react": "^15.3.2",
+    "react-cookie": "^1.0.4",
     "react-dom": "^15.3.2"
   },
   "devDependencies": {

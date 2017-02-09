@@ -5,12 +5,14 @@ import Users from './routes/Users';
 import Projects from './routes/Projects';
 import ServerMachine from './routes/ServerMachine';
 import UsersInfo from './routes/UserInfo';
-import { ROUTE_ADMIN_USERS, ROUTE_PROJECTS, ROUTE_ServerMachine, ROUTE_ADMIN_USERS_INFO} from './constants';
+import SsoIndex from './routes/SsoIndex';
+import { ROUTE_ADMIN_USERS, ROUTE_PROJECTS, ROUTE_ServerMachine, ROUTE_ADMIN_USERS_INFO,ROUTE_SSO_SIGNIN,ROUTE_SSO_REGISTER} from './constants';
 
 export default function ({history}) {
     return (
         <Router history={history}>
             <Route path="/">
+                <IndexRoute component={SsoIndex}/>
                 <Route path="/admin" component={MainLayout}>
                     <Route path={ROUTE_ADMIN_USERS} component={Users}/>
                     <Route path={ROUTE_ADMIN_USERS_INFO + '/:id'} component={UsersInfo}/>

@@ -24,6 +24,7 @@ app.model(require('./models/users'));
 app.model(require('./models/userInfo'));
 app.model(require("./models/projects"));
 app.model(require("./models/serverMachine"));
+app.model(require("./models/sso"));
 
 // 4. Router
 app.router(require('./router'));
