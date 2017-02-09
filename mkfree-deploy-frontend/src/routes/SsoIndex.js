@@ -3,7 +3,6 @@ import {connect} from "dva";
 import {browserHistory} from "dva/router";
 import cookie from "react-cookie";
 import {Row, Col, Icon, Menu, Dropdown} from "antd";
-import Register from '../components/Sso/Register';
 import SignIn from '../components/Sso/SignIn';
 class SsoIndex extends Component {
   constructor(props) {
@@ -12,12 +11,9 @@ class SsoIndex extends Component {
   }
   
   render() {
-    const {type}=this.props;
     return (
         <div>
-          {type=='SIGNIN'?
-            <SignIn/>:
-            <Register/>}
+            <SignIn/>
         </div>
   
     );
@@ -28,7 +24,7 @@ SsoIndex.propTypes = {
   location: PropTypes.object,
 };
 
-export default connect(({sso}) => {
-  const {type}=sso;
+export default connect(({users}) => {
+  const {type}=users;
   return {type}
 })(SsoIndex);

@@ -6,7 +6,7 @@ import Projects from './routes/Projects';
 import ServerMachine from './routes/ServerMachine';
 import UsersInfo from './routes/UserInfo';
 import SsoIndex from './routes/SsoIndex';
-import { ROUTE_ADMIN_USERS, ROUTE_PROJECTS, ROUTE_ServerMachine, ROUTE_ADMIN_USERS_INFO,ROUTE_SSO_SIGNIN,ROUTE_SSO_REGISTER} from './constants';
+import { ROUTE_ADMIN_USERS, ROUTE_PROJECTS, ROUTE_ServerMachine, ROUTE_ADMIN_USERS_INFO,ROUTE_USERS} from './constants';
 
 export default function ({history}) {
     return (
@@ -24,6 +24,7 @@ export default function ({history}) {
                 <Route path="/serverMachine" component={MainLayout}>
                     <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
                 </Route>
+                <Route path={ROUTE_USERS} component={SsoIndex} />
             </Route>
         </Router>
     );

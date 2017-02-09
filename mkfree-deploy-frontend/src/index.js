@@ -20,11 +20,17 @@ app.use(createLoading());
 
 // 3. Model
 // Moved to router.js
-app.model(require('./models/users'));
-app.model(require('./models/userInfo'));
-app.model(require("./models/projects"));
-app.model(require("./models/serverMachine"));
-app.model(require("./models/sso"));
+const models = [
+  'users',
+  'userInfo',
+  'projects',
+  'serverMachine',
+];
+
+models.map((modelSrc) => {
+  app.model(require('./models/' + modelSrc));
+});
+
 
 // 4. Router
 app.router(require('./router'));
