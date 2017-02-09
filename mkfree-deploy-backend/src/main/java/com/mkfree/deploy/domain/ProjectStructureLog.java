@@ -28,6 +28,9 @@ public class ProjectStructureLog extends IDEntity {
     @Column(columnDefinition = "bigint comment '构建序列号，递增'")
     private Long seqNo;
 
+    @Column(columnDefinition = "longtext comment '用户id'")
+    private String description;
+
     public Long getUserId() {
         return userId;
     }
@@ -74,5 +77,13 @@ public class ProjectStructureLog extends IDEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
