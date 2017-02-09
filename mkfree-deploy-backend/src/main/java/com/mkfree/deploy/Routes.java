@@ -31,6 +31,7 @@ public class Routes {
     public static final String SERVER_MACHINE_UPDATE = API_PREFIX + "/server_machine/update";
     public static final String SERVER_MACHINE_DELETE = API_PREFIX + "/server_machine/delete";
 
+    public static final String PROJECT_STRUCTURE_LOG_LIST = API_PREFIX + "/project_structure_log/list";
 
 
 }

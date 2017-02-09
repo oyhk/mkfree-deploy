@@ -279,13 +279,15 @@ public class ProjectController extends BaseController {
             SystemConfig systemConfig = systemConfigRepository.findOne(1L);
 
 
-            ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(project.getId(), dto.getEnv());
+            Long projectId = project.getId();
+            ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, dto.getEnv());
             if (projectEnvConfig == null) {
                 jsonResult.remind("发布环境不存在", log);
                 return;
             }
 
-            if (StringUtils.isBlank(projectEnvConfig.getServerMachineList())) {
+            String serverMachineList1 = projectEnvConfig.getServerMachineList();
+            if (StringUtils.isBlank(serverMachineList1)) {
                 jsonResult.remind("没有配置发布机器", log);
                 return;
             }
@@ -312,7 +314,7 @@ public class ProjectController extends BaseController {
             for (ServerMachine serverMachine : serverMachineList) {
 
                 //构建前命令
-                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
+                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                 StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
                 if (projectStructureStepBeforeList.size() > 0) {
                     projectStructureStepBeforeList.forEach(projectStructureStep -> {
@@ -322,7 +324,7 @@ public class ProjectController extends BaseController {
                 }
 
                 // 构建后命令
-                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
+                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                 StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
                 if (projectStructureStepAfterList.size() > 0) {
                     projectStructureStepAfterList.forEach(projectStructureStep -> {
@@ -331,13 +333,19 @@ public class ProjectController extends BaseController {
                     projectStructureStepAfterBuilder.deleteCharAt(projectStructureStepAfterBuilder.length() - 1);
                 }
 
+                String projectName = project.getName();
+                String systemConfigProjectPath = systemConfig.getProjectPath();
+                String projectGitUrl = project.getGitUrl();
+                String projectEnvConfigPublicBranch = projectEnvConfig.getPublicBranch();
+                String remotePath = project.getRemotePath();
+                String moduleName = project.getModuleName();
                 String result = ShellHelper.SINGLEONE.executeShellFile(log, deployShellPath,
-                        project.getName(),
-                        systemConfig.getProjectPath(),
-                        project.getGitUrl(),
-                        projectEnvConfig.getPublicBranch(),
-                        project.getRemotePath(),
-                        project.getModuleName(),
+                        projectName,
+                        systemConfigProjectPath,
+                        projectGitUrl,
+                        projectEnvConfigPublicBranch,
+                        remotePath,
+                        moduleName,
                         shellDeployTargetFileList.toString(),
                         serverMachine.getIp(),
                         serverMachine.getUsername(),
