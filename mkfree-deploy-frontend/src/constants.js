@@ -8,8 +8,6 @@ export const ENV_PROD = ['PROD', '生产'];
 
 
 /*** 路由变量 start*****/
-export const ROUTE_SSO_SIGNIN= 'sign_in';
-export const ROUTE_SSO_REGISTER= 'register';
 
 
 export const ROUTE_USERS = '/users/sign_in';
