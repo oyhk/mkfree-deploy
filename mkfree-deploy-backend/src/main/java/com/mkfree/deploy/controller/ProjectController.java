@@ -49,8 +49,6 @@ public class ProjectController extends BaseController {
     @Autowired
     private SystemConfigRepository systemConfigRepository;
     @Autowired
-    private ResourceLoader resourceLoader;
-    @Autowired
     private ObjectMapper objectMapper;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)

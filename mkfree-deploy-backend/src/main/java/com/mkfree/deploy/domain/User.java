@@ -1,5 +1,7 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.RoleType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
@@ -13,8 +15,9 @@ public class User extends IDEntity {
     public static final String SSO_PASSWORD_ENCODE_KEY = "13fkljsldf324safd123slkdfj";
 
     public static final String LOGIN_USER = "login_user";
+    public static final String LOGIN_USER_TOKEN = "user_token";
 
-    @Column(columnDefinition = "varchar (100) comment '用户名'",unique = true)
+    @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
     private String username;
     @Column(columnDefinition = "varchar (100) comment '密码'")
     private String password;
@@ -22,10 +25,9 @@ public class User extends IDEntity {
     private String passwordSalt;
     @Column(columnDefinition = "varchar (100) comment '登录后的userToken'")
     private String userToken;
+    @Column(columnDefinition = "varchar(100) comment '角色类型 SUPER_ADMIN(\"超级管理员\"), ADMIN(\"管理员\"), COMMON(\"普通成员\")'")
+    private RoleType roleType;
 
-    /*******下面是 Transient 字段 start ********/
-
-    /*******下面是 Transient 字段 end ********/
 
     public String getUsername() {
         return username;
@@ -57,5 +59,13 @@ public class User extends IDEntity {
 
     public void setPasswordSalt(String passwordSalt) {
         this.passwordSalt = passwordSalt;
+    }
+
+    public RoleType getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(RoleType roleType) {
+        this.roleType = roleType;
     }
 }
