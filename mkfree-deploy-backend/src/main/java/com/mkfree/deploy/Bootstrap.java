@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,6 +21,7 @@ import java.io.InputStreamReader;
  */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = {FreeMarkerAutoConfiguration.class, WebSocketAutoConfiguration.class, GsonAutoConfiguration.class, JmxAutoConfiguration.class})
+@EnableWebSocket
 public class Bootstrap {
 
     public static void main(String[] args) throws Exception {
