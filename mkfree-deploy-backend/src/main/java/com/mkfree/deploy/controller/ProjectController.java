@@ -11,6 +11,7 @@ import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.ProjectEnvConfigDto;
+import com.mkfree.deploy.helper.ObjectMapperHelper;
 import com.mkfree.deploy.helper.ProjectStructureStepHelper;
 import com.mkfree.deploy.helper.ShellHelper;
 import com.mkfree.deploy.repository.*;
@@ -19,13 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -200,6 +200,64 @@ public class ProjectController extends BaseController {
         return doing.go(request, log);
     }
 
+
+    @RequestMapping(value = Routes.PROJECT_INFO, method = RequestMethod.GET)
+    public JsonResult info(Long id, HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+            if (id == null) {
+                jsonResult.errorParam("id不能为空");
+                return;
+            }
+            Project project = projectRepository.findOne(id);
+            if (project == null) {
+                jsonResult.remind(Project.REMIND_RECORD_IS_NOT_EXIST);
+                return;
+            }
+
+            ProjectDto projectDto = new ProjectDto();
+            projectDto.setId(project.getId());
+            projectDto.setGitUrl(project.getGitUrl());
+            projectDto.setModuleName(project.getModuleName());
+            projectDto.setDeployTargetFileList(ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, project.getDeployTargetFileList()));
+            projectDto.setName(project.getName());
+            projectDto.setRemotePath(project.getRemotePath());
+
+            // 项目配置环境
+            List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
+            List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
+            for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
+                ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
+                projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
+                projectEnvConfigDto.setServerMachineIdList(ObjectMapperHelper.SINGLEONE.jsonToListLong(objectMapper, projectEnvConfig.getServerMachineList()));
+                projectEnvConfigDto.setPublicBranch(projectEnvConfig.getPublicBranch());
+
+
+                // 项目配置环境构建前步骤
+                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
+                for (ProjectStructureStep projectStructureStep : projectStructureStepBeforeList) {
+                    if(projectEnvConfigDto.getStructureBeforeList() == null){
+                        projectEnvConfigDto.setStructureBeforeList(new ArrayList<>());
+                    }
+                    projectEnvConfigDto.getStructureBeforeList().add(projectStructureStep.getStep());
+                }
+
+                // 项目配置环境构建后步骤
+                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
+                for (ProjectStructureStep projectStructureStep : projectStructureStepAfterList) {
+                    if(projectEnvConfigDto.getStructureAfterList() == null){
+                        projectEnvConfigDto.setStructureAfterList(new ArrayList<>());
+                    }
+                    projectEnvConfigDto.getStructureAfterList().add(projectStructureStep.getStep());
+                }
+
+                projectEnvConfigDtoList.add(projectEnvConfigDto);
+            }
+            projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
+            jsonResult.data = projectDto;
+
+        };
+        return doing.go(request, log);
+    }
 
     @RequestMapping(value = Routes.PROJECT_STRUCTURE, method = RequestMethod.POST)
     public JsonResult structure(@RequestBody ProjectDto dto, HttpServletRequest request) {

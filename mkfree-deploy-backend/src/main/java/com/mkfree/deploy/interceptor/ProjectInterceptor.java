@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
@@ -41,20 +42,25 @@ public class ProjectInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
-        String requestBody = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 
-        ProjectDto projectDto = objectMapper.readValue(requestBody, new TypeReference<ProjectDto>() {
-        });
+        // 用户不是超级管理员时，需要判断是否存在发布权限
+        if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
 
-        // 查找是否有权限发布
-        long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), projectDto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(projectDto.getEnv().toString())).count();
-        if (count == 0) {
-            if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
-                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10021", "没有此项目发布权限")));
-                response.getWriter().close();
-                return false;
-            }
+            ServletInputStream servletInputStream = request.getInputStream();
+
+            String requestBody = IOUtils.toString(servletInputStream, StandardCharsets.UTF_8);
+//            ProjectDto projectDto = objectMapper.readValue(requestBody, new TypeReference<ProjectDto>() {
+//            });
+//
+//            // 查找是否有权限发布
+//            long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), projectDto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(projectDto.getEnv().toString())).count();
+//            if (count == 0) {
+//                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10021", "没有此项目发布权限")));
+//                response.getWriter().close();
+//                return false;
+//            }
         }
+
 
         return super.preHandle(request, response, handler);
     }
