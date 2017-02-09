@@ -12,6 +12,13 @@ export function userSave(values) {
   });
 }
 
+export function userLogin(values) {
+  return request('/api/user/login', {
+    method: 'POST',
+    body: JSON.stringify(values),
+  });
+}
+
 export function userUpdate(values) {
   return request('/api/user/update', {
     method: 'PUT',

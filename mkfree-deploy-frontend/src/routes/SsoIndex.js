@@ -1,30 +1,31 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "dva";
 import {browserHistory} from "dva/router";
-import cookie from "react-cookie";
-import {Row, Col, Icon, Menu, Dropdown} from "antd";
-import SignIn from '../components/Sso/SignIn';
-class SsoIndex extends Component {
-  constructor(props) {
-    super(props);
+import {Row, Col, Icon, Menu, Dropdown,Card} from "antd";
+import SignIn from '../components/LoginForm';
+import  styles from './SsoIndex.less';
+
+
+
+function SsoIndex({dispatch, users}) {
   
-  }
+  return (
+    <div className={styles.page_warp}>
+      <Card className={styles.sign_in}>
+        <h3>mkfree-deploy</h3>
+        <SignIn dispatch={dispatch} users={users}  styles={styles}/>
+      </Card>
+    </div>
+    
+  );
   
-  render() {
-    return (
-        <div>
-            <SignIn/>
-        </div>
-  
-    );
-  }
 }
 
-SsoIndex.propTypes = {
+SignIn.propTypes = {
   location: PropTypes.object,
 };
 
-export default connect(({users}) => {
-  const {type}=users;
-  return {type}
+export default connect(
+  ({users}) => {
+  return {users}
 })(SsoIndex);

@@ -13,7 +13,6 @@ export default function ({history}) {
     return (
         <Router history={history}>
             <Route path="/">
-                <IndexRoute component={SsoIndex}/>
                 <Route path="/admin" component={MainLayout}>
                     <Route path={ROUTE_ADMIN_USERS} component={Users}/>
                     <Route path={ROUTE_ADMIN_USERS_INFO + '/:id'} component={UsersInfo}/>

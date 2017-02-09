@@ -59,13 +59,13 @@ export default {
             }
           });
         } else {
-          dispatch({
-            type: 'projectPage',
-            payload: {
-              pageNo: 0,
-              pageSize: 100
-            }
-          });
+          // dispatch({
+          //   type: 'projectPage',
+          //   payload: {
+          //     pageNo: 0,
+          //     pageSize: 100
+          //   }
+          // });
         }
       });
     },

@@ -1,5 +1,5 @@
-import * as usersService from '../services/users';
-import {ROUTE_ADMIN_USERS} from '../constants';
+import * as usersService from "../services/users";
+import {ROUTE_ADMIN_USERS} from "../constants";
 
 export default {
   namespace: 'users',
@@ -10,6 +10,7 @@ export default {
     //用户信息的元素
     id: '',
     username: '',
+    loading: false,
     password: '',
     visible: false,
   },
@@ -53,6 +54,10 @@ export default {
     *userSave({payload: values}, {call, put}) {
       yield call(usersService.userSave, values);
       yield put({type: 'reload'});
+    },
+    *userLogin({payload: values, callBack}, {call, put}) {
+      const result=yield call(usersService.userLogin, values);
+      callBack(result)
     },
     *userUpdate({payload: values}, {call, put}) {
       yield call(usersService.userUpdate, values);
