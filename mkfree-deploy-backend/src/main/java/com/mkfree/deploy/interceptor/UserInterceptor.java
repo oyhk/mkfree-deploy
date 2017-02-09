@@ -38,7 +38,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        response.addHeader("Access-Control-Allow-Origin","*");
+
         if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())){
             UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
             if (userDto != null) {
@@ -46,6 +46,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
             }
             String userToken = request.getHeader(User.LOGIN_USER_TOKEN);
             if (StringUtils.isBlank(userToken)) {
+                response.addHeader("Access-Control-Allow-Origin","*");
                 response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10001", "user_token 不能为空")));
                 response.getWriter().close();
                 return false;
@@ -53,6 +54,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
             User user = userInfoIdRepository.findByUserToken(userToken);
             if (user == null) {
+                response.addHeader("Access-Control-Allow-Origin","*");
                 response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10002", "user_token 无效")));
                 response.getWriter().close();
                 return false;
