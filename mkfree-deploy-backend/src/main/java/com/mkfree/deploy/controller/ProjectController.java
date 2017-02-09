@@ -14,6 +14,7 @@ import com.mkfree.deploy.dto.ProjectEnvConfigDto;
 import com.mkfree.deploy.helper.ProjectStructureStepHelper;
 import com.mkfree.deploy.helper.ShellHelper;
 import com.mkfree.deploy.repository.*;
+import com.mkfree.deploy.srv.ProjectStructureLogSrv;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,8 @@ public class ProjectController extends BaseController {
     private SystemConfigRepository systemConfigRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ProjectStructureLogSrv projectStructureLogSrv;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
@@ -294,6 +297,7 @@ public class ProjectController extends BaseController {
                         serverMachine.getPort(),
                         projectStructureStepBeforeBuilder.toString(),
                         projectStructureStepAfterBuilder.toString());
+                projectStructureLogSrv.add(projectName,result);
                 jsonResult.data = result;
             }
         };
