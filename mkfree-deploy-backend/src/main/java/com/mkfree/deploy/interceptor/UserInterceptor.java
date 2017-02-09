@@ -38,7 +38,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
+        response.addHeader("Access-Control-Allow-Origin","*");
         if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())){
             UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
             if (userDto != null) {
