@@ -1,4 +1,4 @@
-import request from '../utils/request';
+import {request,requestResult} from '../utils/request';
 import qs from 'qs';
 
 export function fetch({pageNo=0}) {
@@ -13,7 +13,7 @@ export function userSave(values) {
 }
 
 export function userLogin(values) {
-  return request('/api/user/login', {
+  return requestResult('/api/user/login', {
     method: 'POST',
     body: JSON.stringify(values),
   });

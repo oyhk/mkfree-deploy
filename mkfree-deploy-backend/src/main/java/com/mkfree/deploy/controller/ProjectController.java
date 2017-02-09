@@ -11,9 +11,11 @@ import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.ProjectEnvConfigDto;
+import com.mkfree.deploy.dto.UserDto;
 import com.mkfree.deploy.helper.ObjectMapperHelper;
 import com.mkfree.deploy.helper.ProjectStructureStepHelper;
 import com.mkfree.deploy.helper.ShellHelper;
+import com.mkfree.deploy.helper.UserHelper;
 import com.mkfree.deploy.repository.*;
 import com.mkfree.deploy.service.ProjectStructureLogService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -238,7 +241,7 @@ public class ProjectController extends BaseController {
                 // 项目配置环境构建前步骤
                 List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                 for (ProjectStructureStep projectStructureStep : projectStructureStepBeforeList) {
-                    if(projectEnvConfigDto.getStructureBeforeList() == null){
+                    if (projectEnvConfigDto.getStructureBeforeList() == null) {
                         projectEnvConfigDto.setStructureBeforeList(new ArrayList<>());
                     }
                     projectEnvConfigDto.getStructureBeforeList().add(projectStructureStep.getStep());
@@ -247,7 +250,7 @@ public class ProjectController extends BaseController {
                 // 项目配置环境构建后步骤
                 List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                 for (ProjectStructureStep projectStructureStep : projectStructureStepAfterList) {
-                    if(projectEnvConfigDto.getStructureAfterList() == null){
+                    if (projectEnvConfigDto.getStructureAfterList() == null) {
                         projectEnvConfigDto.setStructureAfterList(new ArrayList<>());
                     }
                     projectEnvConfigDto.getStructureAfterList().add(projectStructureStep.getStep());
@@ -264,6 +267,9 @@ public class ProjectController extends BaseController {
 
     @RequestMapping(value = Routes.PROJECT_STRUCTURE, method = RequestMethod.POST)
     public JsonResult structure(@RequestBody ProjectDto dto, HttpServletRequest request) {
+
+        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
+
         RestDoing doing = jsonResult -> {
             if (dto.getId() == null) {
                 jsonResult.errorParam("id不能为空");
@@ -271,6 +277,12 @@ public class ProjectController extends BaseController {
             }
             if (dto.getEnv() == null) {
                 jsonResult.errorParam("发布环境不能为空");
+                return;
+            }
+
+            long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv().toString())).count();
+            if (count == 0) {
+                jsonResult.custom("10021", "没有此项目发布权限", log);
                 return;
             }
 
@@ -355,7 +367,7 @@ public class ProjectController extends BaseController {
                         serverMachine.getPort(),
                         projectStructureStepBeforeBuilder.toString(),
                         projectStructureStepAfterBuilder.toString());
-                projectStructureLogSrv.add(projectId,result);
+                projectStructureLogSrv.add(projectId, result);
                 jsonResult.data = result;
             }
         };
