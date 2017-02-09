@@ -1,6 +1,10 @@
 
-:global {
+/*:global {*/
   html, body, #root {
     height: 100%;
   }
+/*}*/
+
+body{
+    font-size:14px !important;
 }
