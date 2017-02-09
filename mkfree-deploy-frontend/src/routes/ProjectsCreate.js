@@ -50,7 +50,7 @@ function ProjectsCreate({dispatch, list: dataSource, loading, total, pageNo: cur
 
   return (
     <div>
-      {/*<ProjectsCentont record={{}} onOk={saveHandler}/>*/}
+      <ProjectsCentont record={{}} onOk={saveHandler}/>
     </div>
   );
 }
@@ -153,7 +153,7 @@ class ProjectsCentont extends Component {
     });
   }
   revampList = (env , after, index, type, value) => {
-    const Build = this.state[env].concat();
+    const Build = JSON.parse(JSON.stringify(this.state[env]));
 
     (type == "add" ) && (Build[after][index] = value);
 
@@ -163,9 +163,9 @@ class ProjectsCentont extends Component {
 
     (type == "revamp" && index == -1) && (Build[after] = value);
 
+    console.log(Build[after])
 
-    console.log(after, index, type, e.target.value)
-    this.setState({[after]: Build});
+    this.setState({[env]: Build});
   }
 
   revampList1 = ( after, index, type, e) => {
@@ -186,9 +186,9 @@ class ProjectsCentont extends Component {
     };
      const
       _state = this.state,
-      preList1 = _state.preBuild1.map((item, index) => {
+      preList1 = _state.DEVConfig.structureBeforeList.map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
-          this.revampList("DEVConfig", "structureBeforeList", index, "add", e.tatget.value)
+          this.revampList("DEVConfig", "structureBeforeList", index, "revamp", e.target.value)
         }} addonAfter={
           <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
             this.revampList("DEVConfig", "structureBeforeList", index, "delete", e)
