@@ -9,6 +9,7 @@ import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
+import com.mkfree.deploy.domain.enumclass.RoleType;
 import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.ProjectEnvConfigDto;
 import com.mkfree.deploy.dto.UserDto;
@@ -280,10 +281,12 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv().toString())).count();
-            if (count == 0) {
-                jsonResult.custom("10021", "没有此项目发布权限", log);
-                return;
+            if(userDto.getRoleType() != RoleType.SUPER_ADMIN) {
+                long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv().toString())).count();
+                if (count == 0) {
+                    jsonResult.custom("10021", "没有此项目发布权限", log);
+                    return;
+                }
             }
 
             String deployShellPath = new File("").getAbsolutePath() + "/src/main/resources/shell/deploy.sh";
