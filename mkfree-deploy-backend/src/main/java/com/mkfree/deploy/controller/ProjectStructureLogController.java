@@ -4,7 +4,8 @@ import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.RestDoing;
-import com.mkfree.deploy.srv.ProjectStructureLogSrv;
+import com.mkfree.deploy.domain.ProjectStructureLog;
+import com.mkfree.deploy.service.ProjectStructureLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +24,25 @@ public class ProjectStructureLogController extends BaseController {
 
     private final Logger log = LoggerFactory.getLogger(ProjectStructureLogController.class);
     @Autowired
-    private ProjectStructureLogSrv projectStructureLogSrv;
+    private ProjectStructureLogService projectStructureLogSrv;
 
     /**
      * 查询项目的构建历史列表
      *
-     * @param projectName 项目名
+     * @param projectId 项目名
      * @param request
      * @return
      */
     @RequestMapping(value = Routes.PROJECT_STRUCTURE_LOG_LIST, method = RequestMethod.GET)
-    public JsonResult page(String projectName, HttpServletRequest request) {
+    public JsonResult list(Long projectId, HttpServletRequest request) {
+
+
         RestDoing doing = jsonResult -> {
-            List list = projectStructureLogSrv.findAll(projectName);
+            if (projectId == null) {
+                jsonResult.remind("项目id为空", log);
+                return;
+            }
+            List list = projectStructureLogSrv.findAll(projectId);
             jsonResult.data = list;
         };
         return doing.go(request, log);
@@ -43,16 +50,20 @@ public class ProjectStructureLogController extends BaseController {
 
 
     /**
-     * @param projectName
+     * @param projectId
      * @param name
      * @param request
      * @return
      */
-    @RequestMapping(value = Routes.PROJECT_STRUCTURE_LOG_LIST, method = RequestMethod.GET)
-    public JsonResult page(String projectName, String name, HttpServletRequest request) {
+    @RequestMapping(value = Routes.PROJECT_STRUCTURE_LOG_INFO, method = RequestMethod.GET)
+    public JsonResult info(Long projectId, String name, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
-            List list = projectStructureLogSrv.findAll(projectName);
-            jsonResult.data = list;
+            if (projectId == null) {
+                jsonResult.remind("项目id为空", log);
+                return;
+            }
+            ProjectStructureLog info = projectStructureLogSrv.info(projectId, name);
+            jsonResult.data = info;
         };
         return doing.go(request, log);
     }

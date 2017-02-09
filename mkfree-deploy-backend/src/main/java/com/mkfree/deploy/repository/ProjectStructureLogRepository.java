@@ -1,7 +1,6 @@
 package com.mkfree.deploy.repository;
 
 import com.mkfree.deploy.domain.ProjectStructureLog;
-import com.mkfree.deploy.domain.ProjectStructureLogDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
@@ -24,27 +23,28 @@ public interface ProjectStructureLogRepository extends JpaRepository<ProjectStru
     ProjectStructureLog findOne(Long id);
 
     /**
-     * 根据项目名查询所有的构建历史列表
+     * 根据项目查询所有的构建历史列表
      *
-     * @param projectName 项目名
+     * @param projectId 项目id
      * @return
      */
-    List<ProjectStructureLogDetail> findByProjectName(String projectName);
+    List<ProjectStructureLog> findByProjectId(Long projectId);
 
     /**
      * 查找项目最新的部署信息
      *
-     * @param projectName 项目名
+     * @param projectId 项目id
      * @return
      */
-    ProjectStructureLog findTop1ByProjectNameOrderByIdDesc(String projectName);
+    ProjectStructureLog findTop1ByProjectIdOrderByIdDesc(Long projectId);
 
     /**
      * 查找指定构建版本的日志信息
      *
-     * @param projectName 项目名
-     * @param name        构建名
+     * @param projectId 项目id
+     * @param name      构建名
      * @return
      */
-    ProjectStructureLogDetail findTop1ByProjectNameAndNameOrderByIdDesc(String projectName, String name);
+    ProjectStructureLog findTop1ByProjectIdAndNameOrderByIdDesc(Long projectId, String name);
+
 }

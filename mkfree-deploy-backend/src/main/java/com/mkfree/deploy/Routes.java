@@ -34,4 +34,5 @@ public class Routes {
     public static final String PROJECT_STRUCTURE_LOG_LIST = API_PREFIX + "/project_structure_log/list";
 
 
+    public static final String PROJECT_STRUCTURE_LOG_INFO =  API_PREFIX + "/project_structure_log/info";
 }

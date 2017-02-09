@@ -15,7 +15,7 @@ import com.mkfree.deploy.helper.ObjectMapperHelper;
 import com.mkfree.deploy.helper.ProjectStructureStepHelper;
 import com.mkfree.deploy.helper.ShellHelper;
 import com.mkfree.deploy.repository.*;
-import com.mkfree.deploy.srv.ProjectStructureLogSrv;
+import com.mkfree.deploy.service.ProjectStructureLogService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class ProjectController extends BaseController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private ProjectStructureLogSrv projectStructureLogSrv;
+    private ProjectStructureLogService projectStructureLogSrv;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
@@ -355,7 +355,7 @@ public class ProjectController extends BaseController {
                         serverMachine.getPort(),
                         projectStructureStepBeforeBuilder.toString(),
                         projectStructureStepAfterBuilder.toString());
-                projectStructureLogSrv.add(projectName,result);
+                projectStructureLogSrv.add(projectId,result);
                 jsonResult.data = result;
             }
         };
