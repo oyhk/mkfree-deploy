@@ -5,6 +5,8 @@ import com.mkfree.deploy.helper.ProjectStructureLogHelper;
 import com.mkfree.deploy.repository.ProjectStructureLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class ProjectStructureLogService {
      * @param projectId
      * @param desc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public void add(Long projectId, String desc) {
 
         ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(projectId);
