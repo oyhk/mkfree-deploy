@@ -3,7 +3,7 @@ import cookie from "react-cookie";
 
 
 const apiDomains = {
-    dev: 'http://192.168.1.210:8090',
+    dev: 'http://192.168.3.133:8090',
     prod: ''//当为空时，api就是相对路径
 };
 
@@ -29,7 +29,7 @@ class Headers {
 
     getHeaders() {
         this.headers = {
-            // user_token: cookie.load('user_token'),
+            user_token: cookie.load('user_token'),
             'Content-Type': 'application/json'
         };
 

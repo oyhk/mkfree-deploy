@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,12 +35,14 @@ public class RoleInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
+        if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())) {
+            UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
 
-        if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
-            response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10011", "没有权限访问，此模块")));
-            response.getWriter().close();
-            return false;
+            if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
+                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10011", "没有权限访问，此模块")));
+                response.getWriter().close();
+                return false;
+            }
         }
 
         return super.preHandle(request, response, handler);
