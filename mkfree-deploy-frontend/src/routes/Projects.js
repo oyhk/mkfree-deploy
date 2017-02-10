@@ -86,7 +86,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
         <div className={styles.normal}>
             <div>
                 <div className={styles.create}>
-                    <Button type="primary" onClick={()=> browserHistory.push(`${ROUTE_PROJECTS_CREATE}`)}>创建用户</Button>
+                    <Button type="primary" onClick={()=> browserHistory.push(`${ROUTE_PROJECTS_CREATE}`)}>创建项目</Button>
                     {/*<ProjectModal title="新建项目" record={{}} onOk={saveHandler}>*/}
                         {/*<Button type="primary">创建项目</Button>*/}
                     {/*</ProjectModal>*/}
