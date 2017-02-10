@@ -1,7 +1,7 @@
 import {request} from '../utils/request';
 
-export function fetch({pageNo = 0}) {
-    return request(`/api/project/page?pageNo=${pageNo}`);
+export function fetch({projectsId = 0}) {
+    return request(`/api/project/info?id=${projectsId}`);
 }
 
 export function seaverFetch({pageNo = 0}) {

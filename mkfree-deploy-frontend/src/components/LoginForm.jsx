@@ -29,7 +29,8 @@ function SignInForm({dispatch, users, styles, form: {getFieldDecorator, validate
             maxAge: 30 * 24 * 60 * 60
           }
           cookie.save('user_token', data, Options);
-          browserHistory.push('/admin/users')
+          disPatch('changeState', {username: '',password:''})
+          browserHistory.push('/projects')
         } else if (code == 3) {
           setFields({
             userName: {
