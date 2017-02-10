@@ -24,7 +24,7 @@ const models = [
   'users',
   'userInfo',
   'projects',
-  'projectsCreate',
+  'ProjectsCreate',
   'serverMachine',
 ];
 
