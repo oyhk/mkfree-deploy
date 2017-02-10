@@ -12,6 +12,9 @@
   background: #ffffff;
   color: #108ee9;
 }
+.logo>h1{
+  float: left;
+}
 
 .normal {
     margin: 20px 48px;
