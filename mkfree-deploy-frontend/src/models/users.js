@@ -1,4 +1,5 @@
 import * as usersService from "../services/users";
+import {Link, browserHistory} from 'dva/router';
 import {
   ROUTE_ADMIN_USERS,
   ROUTE_USERS_SIGN_IN,
@@ -66,26 +67,23 @@ export default {
     },
     *userLogin({payload: values, callBack}, {call, put}) {
       const result = yield call(usersService.userLogin, values);
-      callBack(result)
+      callBack(result);
     },
-    *loginUserToken({payload, callBack}, {call, put}) {
-      const {code}=yield call(usersService.loginUserToken, payload);
-      if (code == 1) {
-        browserHistory.push(ROUTE_PROJECTS)
-      }else {
-        cookie.remove('user_token');
-        cookie.remove('username');
-      }
+    *userUpdate({payload: values, callBack}, {call, put}) {
+      const result = yield call(usersService.userUpdate, values);
+      callBack(result);
     },
-    *userUpdate({payload: values}, {call, put}) {
-      yield call(usersService.userUpdate, values);
-      yield put({type: 'reload'});
+    *userSave({payload: values, callBack}, {call, put}) {
+      const result = yield call(usersService.userSave, values);
+      callBack(result);
     },
-    *userSave({payload: values}, {call, put}) {
-      yield call(usersService.userSave, values);
+    *userUpdate({payload: values, callBack}, {call, put}) {
+      const result = yield call(usersService.userUpdate, values);
+      callBack(result);
     },
-    *userUpdate({payload: values}, {call, put}) {
-      yield call(usersService.userUpdate, values);
+    *userDelete({payload: values, callBack}, {call, put}) {
+      const result = yield call(usersService.userDelete, values);
+      callBack(result);
     },
     *userInfo({payload: values}, {call, put}) {
       const result = yield call(usersService.userInfo, values);
@@ -102,7 +100,7 @@ export default {
     *projectPage({payload: values}, {call, put}) {
       const result = yield call(usersService.projectPage, values);
       let listData = [];
-      
+
       if (result.list.length > 0) {
         result.list.map((dt) => {
           listData.push({
@@ -112,7 +110,7 @@ export default {
           })
         });
       }
-      
+
       yield put({
         type: 'changeState',
         payload: {

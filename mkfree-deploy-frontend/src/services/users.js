@@ -6,7 +6,7 @@ export function fetch({pageNo=0}) {
 }
 
 export function userSave(values) {
-  return request('/api/user/save', {
+  return requestResult('/api/user/save', {
     method: 'POST',
     body: JSON.stringify(values),
   });
@@ -31,8 +31,15 @@ export function userInfo(values) {
 }
 
 export function userUpdate(values) {
-  return request('/api/user/update', {
+  return requestResult('/api/user/update', {
     method: 'PUT',
+    body: JSON.stringify(values),
+  });
+}
+
+export function userDelete(values) {
+  return requestResult('/api/user/delete', {
+    method: 'DELETE',
     body: JSON.stringify(values),
   });
 }

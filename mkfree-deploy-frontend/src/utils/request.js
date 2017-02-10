@@ -4,12 +4,11 @@ import {ROUTE_USERS_SIGN_IN} from "../constants";
 import {browserHistory} from "dva/router";
 
 
-
 const apiDomains = {
-  dev: 'http://192.168.3.133:8090',
+  //dev: 'http://192.168.1.210:8090',
+  dev: 'http://192.168.3.133:8090', // HK 电脑
   prod: ''//当为空时，api就是相对路径
 };
-
 
 function parseJSON(response) {
   return response.json();
@@ -29,13 +28,13 @@ class Headers {
   constructor() {
     this.headers = {};
   }
-  
+
   getHeaders() {
     this.headers = {
       user_token: cookie.load('user_token'),
       'Content-Type': 'application/json'
     };
-    
+
     return this.headers;
   }
 }
@@ -51,17 +50,17 @@ export async function requestResult(url, options = {}) {
   const env = process.env.NODE_ENV || 'dev';
   let Header = new Headers();
   options.headers = Header.getHeaders();
-  
+
   url = `${apiDomains[env]}${url}`;
-  
+
   const response = await fetch(url, options);
   checkStatus(response);
   const result = await response.json();
-  
+
   if (result.code == 105 || result.code == 104) {
     browserHistory.push(ROUTE_USERS_SIGN_IN)
   }
-  
+
   return result;
 }
 

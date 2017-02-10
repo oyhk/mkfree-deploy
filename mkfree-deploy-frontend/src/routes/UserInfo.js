@@ -4,7 +4,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Form, Input, Button, Checkbox} from 'antd';
+import { Form, Input, Button, Checkbox, message, Popconfirm } from 'antd';
 import styles from '../routes/Users.less'
 
 import {
@@ -19,11 +19,14 @@ function UserInfo({dispatch, users, form, params}) {
 
   const { username, password, result, listData } = users;
   const { validateFields, getFieldDecorator } = form;
+  let deleteUserLock = false;
+  let submitLock = false;
 
   const submit = (e) => {
     e.preventDefault();
     validateFields((err, values) => {
       let payload = {};
+
       if (location.pathname.includes('create')) {
         payload = {
           username: values.username,
@@ -39,14 +42,52 @@ function UserInfo({dispatch, users, form, params}) {
         };
       }
 
-      dispatch({
-        type: `userInfo/${location.pathname.includes('create') ? 'userSave' : 'userUpdate'}`,
-        payload,
-      });
+      if (!submitLock) {
+        submitLock = true;
+        dispatch({
+          type: `users/${location.pathname.includes('create') ? 'userSave' : 'userUpdate'}`,
+          payload,
+          callBack: (result)=> {
+            if (result.code === '1') {
+              console.log('callBack');
+              message.success('保存成功');
+              history.back();
+            } else {
+              message.warning('请勿连续点击按钮');
+              submitLock = false;
+            }
+          }
+        });
+      } else {
+        message.warning('请勿连续点击按钮', 2);
+      }
+
       if (!err) {
 
       }
     });
+  };
+
+  const deleteUser = ()=> {
+    if (!deleteUserLock) {
+      deleteUserLock = true;
+      dispatch({
+        type: `users/userDelete`,
+        payload: {
+          id: params.id,
+        },
+        callBack: (result)=> {
+          if (result.code === '1') {
+            message.success('删除成功');
+            history.back();
+          } else {
+            deleteUserLock = false;
+          }
+        }
+      });
+    } else {
+      message.warning('请勿连续点击按钮');
+    }
   };
 
   const formItemLayout = {
@@ -64,40 +105,26 @@ function UserInfo({dispatch, users, form, params}) {
   const permissionName = ['DEV', 'UAT', 'TEST', 'PROD'];
   let _listData = [];
 
-  //const changeListData = ()=> {
-  //  if (params.id) {
-  //    listData = result.data.userProjectPermissionList;
-  //  } else {
-  //    const userProjectPermissionList = result.list;
-  //    if (userProjectPermissionList && userProjectPermissionList.length > 0) {
-  //      userProjectPermissionList.map((dt, index)=> {
-  //        listData.push({
-  //          projectId: dt.id,
-  //          projectName: dt.name,
-  //          projectEnv: [],
-  //        })
-  //      })
-  //    }
-  //  }
-  //};
-  //
   const permissionSubmit = (value, index)=> {
     _listData = listData;
     _listData[index].projectEnv = value;
     dispatch({
-      type: `userInfo/changeState`,
-      payload: listData
+      type: `users/changeState`,
+      payload: {
+        listData: _listData,
+      }
     });
   };
-
 
   const permissionList = ()=> {
     if (listData && listData.length > 0) {
       return listData.map((dt, index)=> {
         return (
           <FormItem key={index} {...formItemLayout} label={dt.projectName}>
-            <CheckboxGroup options={permissionName} value={dt.projectEnv}
-                           onChange={(value)=> permissionSubmit(value, index)}/>
+            <CheckboxGroup
+              options={permissionName} value={dt.projectEnv}
+              onChange={(value)=> permissionSubmit(value, index)}
+            />
           </FormItem>
         )
       });
@@ -117,7 +144,7 @@ function UserInfo({dispatch, users, form, params}) {
             }
           </FormItem>
           {
-            location.hostname.includes(ROUTE_ADMIN_USERS_CREATE) ?
+            location.href.includes(ROUTE_ADMIN_USERS_CREATE) ?
               <FormItem {...formItemLayout} label="密码">
                 {
                   getFieldDecorator('password', {
@@ -136,7 +163,12 @@ function UserInfo({dispatch, users, form, params}) {
           }
           <FormItem {...tailFormItemLayout}>
             <Button type="primary" htmlType="submit">确定</Button>
-            <Button size="large">删除</Button>
+            {
+              location.href.includes(ROUTE_ADMIN_USERS_CREATE) ? '' :
+                <Popconfirm title="确认删除?" onConfirm={deleteUser}>
+                  <Button size="large">删除</Button>
+                </Popconfirm>
+            }
           </FormItem>
         </Form>
       </div>
