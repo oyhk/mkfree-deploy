@@ -19,6 +19,7 @@ function UserInfo({dispatch, users, form, params}) {
 
   const { username, password, result, listData } = users;
   const { validateFields, getFieldDecorator } = form;
+  const isCreate = location.href.includes(ROUTE_ADMIN_USERS_CREATE);
   let deleteUserLock = false;
   let submitLock = false;
 
@@ -139,16 +140,16 @@ function UserInfo({dispatch, users, form, params}) {
           <FormItem {...formItemLayout} label="账户">
             {
               getFieldDecorator('username', {
-                initialValue: result.username,
+                initialValue: isCreate ? '' : result.username,
               })(<Input />)
             }
           </FormItem>
           {
-            location.href.includes(ROUTE_ADMIN_USERS_CREATE) ?
+            isCreate ?
               <FormItem {...formItemLayout} label="密码">
                 {
                   getFieldDecorator('password', {
-                    initialValue: result.password,
+                    initialValue: isCreate ? '' : result.password,
                   })(<Input />)
                 }
               </FormItem> : ''
@@ -164,7 +165,7 @@ function UserInfo({dispatch, users, form, params}) {
           <FormItem {...tailFormItemLayout}>
             <Button type="primary" htmlType="submit">确定</Button>
             {
-              location.href.includes(ROUTE_ADMIN_USERS_CREATE) ? '' :
+              isCreate ? '' :
                 <Popconfirm title="确认删除?" onConfirm={deleteUser}>
                   <Button size="large">删除</Button>
                 </Popconfirm>

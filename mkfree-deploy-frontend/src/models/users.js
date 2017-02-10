@@ -1,5 +1,4 @@
 import * as usersService from "../services/users";
-import {Link, browserHistory} from 'dva/router';
 import {
   ROUTE_ADMIN_USERS,
   ROUTE_USERS_SIGN_IN,
