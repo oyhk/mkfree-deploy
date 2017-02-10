@@ -3,7 +3,7 @@ import styles from './MainLayout.css';
 import Header from './Header';
 import cookie from "react-cookie";
 import {browserHistory} from "dva/router";
-import {ROUTE_USERS} from '../../constants';
+import {ROUTE_USERS_SIGN_IN} from '../../constants';
 import { Icon, Dropdown,Menu} from "antd";
 
 
@@ -19,7 +19,7 @@ function MainLayout({children, location}) {
            onClick={() => {
              cookie.remove('user_token');
              cookie.remove('username');
-             browserHistory.push(ROUTE_USERS);
+             browserHistory.push(ROUTE_USERS_SIGN_IN);
            }}>退出</a>
       </Menu.Item>
     </Menu>

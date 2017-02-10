@@ -1,7 +1,7 @@
 import * as usersService from "../services/users";
 import {
   ROUTE_ADMIN_USERS,
-  ROUTE_USERS,
+  ROUTE_USERS_SIGN_IN,
   ROUTE_ADMIN_USERS_INFO,
   ROUTE_ADMIN_USERS_CREATE,
   ROUTE_PROJECTS
@@ -156,7 +156,7 @@ export default {
             type: 'projectPage',
           });
         }
-        if (pathname === ROUTE_USERS && userToken) {
+        if (pathname === ROUTE_USERS_SIGN_IN && userToken) {
           dispatch({type: 'loginUserToken', payload: {userToken}});
         }
       });

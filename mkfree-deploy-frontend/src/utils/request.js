@@ -1,6 +1,6 @@
 import fetch from "dva/fetch";
 import cookie from "react-cookie";
-import {ROUTE_USERS} from "../constants";
+import {ROUTE_USERS_SIGN_IN} from "../constants";
 import {browserHistory} from "dva/router";
 
 
@@ -59,7 +59,7 @@ export async function requestResult(url, options = {}) {
   const result = await response.json();
   
   if (result.code == 105 || result.code == 104) {
-    browserHistory.push(ROUTE_USERS)
+    browserHistory.push(ROUTE_USERS_SIGN_IN)
   }
   
   return result;
@@ -82,7 +82,7 @@ export async function request(url, options = {}) {
   const result = await response.json();
   if (result.code != 1) {
     if (result.code == 105 || result.code == 104) {
-      browserHistory.push(ROUTE_USERS)
+      browserHistory.push(ROUTE_USERS_SIGN_IN)
     }
     throw new Error(`请求 url : ${url},返回结果 : ${result.desc}`);
   }

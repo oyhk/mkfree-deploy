@@ -10,7 +10,7 @@ export const ENV_PROD = ['PROD', '生产'];
 /*** 路由变量 start*****/
 
 
-export const ROUTE_USERS = '/users/sign_in';
+export const ROUTE_USERS_SIGN_IN = '/users/sign_in';
 export const ROUTE_PROJECTS = '/projects';
 export const ROUTE_PROJECTS_CREATE = '/projects/create';
 export const ROUTE_PROJECTS_INFO = '/projects/info';
