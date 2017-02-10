@@ -30,7 +30,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger log = LoggerFactory.getLogger(UserInterceptor.class);
     @Autowired
-    private UserRepository userInfoIdRepository;
+    private UserRepository userRepository;
     @Autowired
     private UserProjectPermissionRepository userProjectPermissionRepository;
     @Autowired
@@ -47,15 +47,15 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
             String userToken = request.getHeader(User.LOGIN_USER_TOKEN);
             if (StringUtils.isBlank(userToken)) {
                 response.addHeader("Access-Control-Allow-Origin","*");
-                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10001", "user_token 不能为空")));
+                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD104[0],JsonResult.CD104[1])));
                 response.getWriter().close();
                 return false;
             }
 
-            User user = userInfoIdRepository.findByUserToken(userToken);
+            User user = userRepository.findByUserToken(userToken);
             if (user == null) {
                 response.addHeader("Access-Control-Allow-Origin","*");
-                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10002", "user_token 无效")));
+                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD105[0],JsonResult.CD105[1])));
                 response.getWriter().close();
                 return false;
             }

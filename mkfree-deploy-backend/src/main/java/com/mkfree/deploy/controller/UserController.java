@@ -55,22 +55,22 @@ public class UserController extends BaseController {
     public JsonResult login(@RequestBody User dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (StringUtils.isBlank(dto.getUsername())) {
-                jsonResult.errorParam("用户名不能为空", log);
+                jsonResult.custom(JsonResult.CD106[0],JsonResult.CD106[1], log);
                 return;
             }
             if (StringUtils.isBlank(dto.getPassword())) {
-                jsonResult.errorParam("密码不能为空", log);
+                jsonResult.custom(JsonResult.CD107[0],JsonResult.CD107[1], log);
                 return;
             }
             User user = userRepository.findByUsername(dto.getUsername());
             if (user == null) {
-                jsonResult.remind("用户不存在", log);
+                jsonResult.custom(JsonResult.CD101[0],JsonResult.CD101[1], log);
                 return;
             }
 
             String MD5Password = UserHelper.SINGLEONE.getMd5Password(user.getPasswordSalt(), dto.getPassword());
             if (!user.getPassword().equals(MD5Password)) {
-                jsonResult.remind("密码错误", log);
+                jsonResult.custom(JsonResult.CD103[0],JsonResult.CD103[1], log);
                 return;
             }
 
