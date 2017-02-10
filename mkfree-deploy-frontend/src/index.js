@@ -23,7 +23,6 @@ app.use(createLoading());
 const models = [
   'users',
   'projects',
-  'ProjectsCreate',
   'serverMachine',
 ];
 
