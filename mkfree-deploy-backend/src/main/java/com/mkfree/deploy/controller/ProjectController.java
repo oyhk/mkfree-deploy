@@ -372,7 +372,7 @@ public class ProjectController extends BaseController {
                         serverMachine.getPort(),
                         projectStructureStepBeforeBuilder.toString(),
                         projectStructureStepAfterBuilder.toString());
-                projectStructureLogSrv.add(projectId, result);
+//                projectStructureLogSrv.add(projectId, result);
                 jsonResult.data = result;
             }
         };
