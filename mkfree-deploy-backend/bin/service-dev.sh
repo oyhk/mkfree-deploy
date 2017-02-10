@@ -1,6 +1,6 @@
 #!/bin/sh
 JAVA_HOME="/rockcent/support/jdk1.8.0_73"
-APP_HOME=/rockcent/apps/mkfree-deploy-backend
+APP_HOME=/rockcent/apps/mkfree-deploy-backend-api
 APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
 psid=0
 checkpid() {
