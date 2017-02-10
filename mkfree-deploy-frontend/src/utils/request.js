@@ -57,6 +57,11 @@ export async function requestResult(url, options = {}) {
   const response = await fetch(url, options);
   checkStatus(response);
   const result = await response.json();
+  
+  if (result.code == 105 || result.code == 104) {
+    browserHistory.push(ROUTE_USERS)
+  }
+  
   return result;
 }
 
