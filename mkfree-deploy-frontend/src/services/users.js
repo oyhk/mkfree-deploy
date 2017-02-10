@@ -13,9 +13,11 @@ export function userSave(values) {
 }
 
 export function userLogin(values) {
-  return requestResult('/api/user/login', {method: 'POST',
-  body: JSON.stringify(values),
-});
+  return requestResult('/api/user/login', {
+    method: 'POST',
+    body: JSON.stringify(values),
+  });
+}
 
 export function userInfo(values) {
   return request('/api/user/info', {
