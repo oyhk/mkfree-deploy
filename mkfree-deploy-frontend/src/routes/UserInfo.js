@@ -12,31 +12,35 @@ const CheckboxGroup = Checkbox.Group;
 
 function UserInfo({dispatch, userInfo, form, params}) {
 
-  const { id, username, password, result } = userInfo;
+  const { username, password, result, listData } = userInfo;
   const { validateFields, getFieldDecorator } = form;
 
-  const BaseInfoSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
     validateFields((err, values) => {
-      dispatch({
-        type: 'userInfo/userUpdate',
-        payload: {
+      let payload = {};
+      if (location.pathname.includes('create')) {
+        payload = {
+          username: values.username,
+          password: values.password,
+          userProjectPermissionList: listData,
+        };
+      } else {
+        payload = {
           id: params.id,
           username: values.username,
           password: values.password,
-        }
+          userProjectPermissionList: listData,
+        };
+      }
+
+      dispatch({
+        type: `userInfo/${location.pathname.includes('create') ? 'userSave' : 'userUpdate'}`,
+        payload,
       });
       if (!err) {
 
       }
-    });
-  };
-
-  const permissionSubmit = (value, index)=> {
-    listData[index].projectEnv = value;
-    dispatch({
-      type: 'userInfo/userProjectPermissionUpdate',
-      payload: listData
     });
   };
 
@@ -53,48 +57,38 @@ function UserInfo({dispatch, userInfo, form, params}) {
   };
 
   const permissionName = ['DEV', 'UAT', 'TEST', 'PROD'];
-  let listData = [];
-  const changeListData = ()=> {
-    if (params.includes('create')) {
-      if (result.data.list || result.data.listlength > 0) {
-        result.data.list.map((dt, index)=> {
-          listData.push({
-            projectId: dt.id,
-            projectName: dt.name,
-          })
-        })
-      }
-    } else {
-      listData = result;
-    }
+  let _listData = [];
+
+  //const changeListData = ()=> {
+  //  if (params.id) {
+  //    listData = result.data.userProjectPermissionList;
+  //  } else {
+  //    const userProjectPermissionList = result.list;
+  //    if (userProjectPermissionList && userProjectPermissionList.length > 0) {
+  //      userProjectPermissionList.map((dt, index)=> {
+  //        listData.push({
+  //          projectId: dt.id,
+  //          projectName: dt.name,
+  //          projectEnv: [],
+  //        })
+  //      })
+  //    }
+  //  }
+  //};
+  //
+  const permissionSubmit = (value, index)=> {
+    _listData = listData;
+    _listData[index].projectEnv = value;
+    dispatch({
+      type: `userInfo/changeState`,
+      payload: listData
+    });
   };
 
-  //const listData = [
-  //  {
-  //    id: 6,
-  //    projectId: 505,
-  //    projectName: "test-api",
-  //    //userId: 123,
-  //    projectEnv: [
-  //      "DEV",
-  //      "UAT",
-  //    ]
-  //  },
-  //  {
-  //    id: 5,
-  //    projectId: 53,
-  //    projectName: "UAT-api",
-  //    //userId: 34,
-  //    projectEnv: [
-  //      "DEV",
-  //      "PROD",
-  //    ]
-  //  }
-  //];
 
   const permissionList = ()=> {
-    if (result || result.length > 0) {
-      result.map((dt, index)=> {
+    if (listData && listData.length > 0) {
+      return listData.map((dt, index)=> {
         return (
           <FormItem key={index} {...formItemLayout} label={dt.projectName}>
             <CheckboxGroup options={permissionName} value={dt.projectEnv}
@@ -109,7 +103,7 @@ function UserInfo({dispatch, userInfo, form, params}) {
     <div className={styles.userInfo}>
       <div className={styles.baseInfo}>
         <h2>1.基本信息</h2>
-        <Form onSubmit={(e)=> BaseInfoSubmit(e)}>
+        <Form onSubmit={(e)=> submit(e)}>
           <FormItem {...formItemLayout} label="账户">
             {
               getFieldDecorator('username', {
@@ -124,15 +118,18 @@ function UserInfo({dispatch, userInfo, form, params}) {
               })(<Input />)
             }
           </FormItem>
-          <FormItem {...tailFormItemLayout}>
-            <Button type="primary" htmlType="submit">确定</Button>
-          </FormItem>
         </Form>
       </div>
       <div className={styles.permission}>
         <h2>2.项目权限</h2>
-        <Form>
-          {permissionList}
+        <Form onSubmit={(e)=> submit(e)}>
+          {
+            permissionList()
+          }
+          <FormItem {...tailFormItemLayout}>
+            <Button type="primary" htmlType="submit">确定</Button>
+            <Button size="large">删除</Button>
+          </FormItem>
         </Form>
       </div>
     </div>

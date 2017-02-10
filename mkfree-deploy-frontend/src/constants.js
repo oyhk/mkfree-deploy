@@ -18,6 +18,7 @@ export const ROUTE_ServerMachine = '/server_machine';
 
 export const ROUTE_ADMIN_USERS = '/admin/users';
 export const ROUTE_ADMIN_USERS_INFO = '/admin/users/info';
+export const ROUTE_ADMIN_USERS_CREATE = '/admin/users/create';
 
 /*** 路由变量 end*****/
 
