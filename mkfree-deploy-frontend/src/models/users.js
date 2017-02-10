@@ -65,7 +65,7 @@ export default {
       yield put({type: 'reload'});
     },
     *userLogin({payload: values, callBack}, {call, put}) {
-      const result=yield call(usersService.userLogin, values);
+      const result = yield call(usersService.userLogin, values);
       callBack(result)
     },
     *loginUserToken({payload, callBack}, {call, put}) {
@@ -99,9 +99,9 @@ export default {
     *projectPage({payload: values}, {call, put}) {
       const result = yield call(usersService.projectPage, values);
       let listData = [];
-
+      
       if (result.list.length > 0) {
-        result.list.map((dt)=> {
+        result.list.map((dt) => {
           listData.push({
             projectId: dt.id,
             projectName: dt.name,
@@ -109,7 +109,7 @@ export default {
           })
         });
       }
-
+      
       yield put({
         type: 'changeState',
         payload: {
@@ -122,6 +122,7 @@ export default {
   subscriptions: {
     setup({dispatch, history}) {
       return history.listen(({pathname, query}) => {
+        const userToken = cookie.load('user_token');
         if (pathname === ROUTE_ADMIN_USERS) {
           dispatch({
             type: 'fetch',
@@ -152,8 +153,8 @@ export default {
             type: 'projectPage',
           });
         }
-        if(pathname ===ROUTE_USERS){
-          dispatch({type: 'loginUserToken', payload: {userToken: cookie.load('user_token')}});
+        if (pathname === ROUTE_USERS && userToken) {
+          dispatch({type: 'loginUserToken', payload: {userToken}});
         }
       });
     },
