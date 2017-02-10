@@ -1,4 +1,4 @@
-import request from '../utils/request';
+import {request,requestResult} from '../utils/request';
 import qs from 'qs';
 
 export function fetch({pageNo=0}) {
@@ -7,6 +7,18 @@ export function fetch({pageNo=0}) {
 
 export function userSave(values) {
   return request('/api/user/save', {
+    method: 'POST',
+    body: JSON.stringify(values),
+  });
+}
+
+export function userLogin(values) {
+  return requestResult('/api/user/login', {method: 'POST',
+  body: JSON.stringify(values),
+});
+
+export function userInfo(values) {
+  return request('/api/user/info', {
     method: 'POST',
     body: JSON.stringify(values),
   });
@@ -23,7 +35,7 @@ export function projectPage(values) {
   return request(`/api/project/page?${qs.stringify(values)}`);
 }
 
-export function userProjectPermissionUpdate(values) {
+/*export function userProjectPermissionUpdate(values) {
   return request('/api/user/project/permission/update', {
     method: 'PUT',
     body: JSON.stringify(values),
@@ -31,5 +43,5 @@ export function userProjectPermissionUpdate(values) {
 }
 
 export function projectPermissionList(values) {
-  return request(`/api/user/project/permission/list?${qs.stringify(values)}`);
-}
+  return request(`/api/user/project/permission/list?${qs.stringify(values)}`);*!/
+}*/

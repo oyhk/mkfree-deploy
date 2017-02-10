@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,26 +39,30 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
-        if (userDto != null) {
-            return true;
-        }
-        String userToken = request.getHeader(User.LOGIN_USER_TOKEN);
-        if (StringUtils.isBlank(userToken)) {
-            response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10001", "user_token 不能为空")));
-            response.getWriter().close();
-            return false;
-        }
+        if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())){
+            UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
+            if (userDto != null) {
+                return true;
+            }
+            String userToken = request.getHeader(User.LOGIN_USER_TOKEN);
+            if (StringUtils.isBlank(userToken)) {
+                response.addHeader("Access-Control-Allow-Origin","*");
+                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10001", "user_token 不能为空")));
+                response.getWriter().close();
+                return false;
+            }
 
-        User user = userInfoIdRepository.findByUserToken(userToken);
-        if (user == null) {
-            response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10002", "user_token 无效")));
-            response.getWriter().close();
-            return false;
-        }
+            User user = userInfoIdRepository.findByUserToken(userToken);
+            if (user == null) {
+                response.addHeader("Access-Control-Allow-Origin","*");
+                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10002", "user_token 无效")));
+                response.getWriter().close();
+                return false;
+            }
 
-        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-        UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
+        }
 
         return super.preHandle(request, response, handler);
     }

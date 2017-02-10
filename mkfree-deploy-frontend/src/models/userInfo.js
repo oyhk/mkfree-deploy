@@ -10,7 +10,8 @@ export default {
     id: '',
     username: '',
     password: '',
-    result: [],
+    result: {},
+    listData: [],
   },
   reducers: {
     changeState(state, action) {
@@ -25,24 +26,36 @@ export default {
     *userUpdate({payload: values}, {call, put}) {
       yield call(usersService.userUpdate, values);
     },
-    *userProjectPermissionUpdate({payload: values}, {call, put}) {
-      yield call(usersService.userProjectPermissionUpdate, values);
-    },
-    *projectPermissionList({payload: values}, {call, put}) {
-      const result = yield call(usersService.projectPermissionList, values);
+    *userInfo({payload: values}, {call, put}) {
+      const result = yield call(usersService.userInfo, values);
       yield put({
         type: 'changeState',
         payload: {
-          result: result.list,
+          result: result,
+          username: result.data.username,
+          password: result.data.password,
         }
       });
     },
     *projectPage({payload: values}, {call, put}) {
       const result = yield call(usersService.projectPage, values);
+      let listData = [];
+
+      if (result.list.length > 0) {
+        result.list.map((dt)=> {
+          listData.push({
+            projectId: dt.id,
+            projectName: dt.name,
+            projectEnv: [],
+          })
+        });
+      }
+
       yield put({
         type: 'changeState',
         payload: {
-          result: result.list,
+          result,
+          listData,
         }
       });
     },
@@ -53,19 +66,19 @@ export default {
         const userId = pathname.split('/')[4];
         if (pathname.includes(ROUTE_ADMIN_USERS_INFO) && userId !== 'create') {
           dispatch({
-            type: 'projectPermissionList',
+            type: 'userInfo',
             payload: {
               userId
             }
           });
         } else {
-          dispatch({
-            type: 'projectPage',
-            payload: {
-              pageNo: 0,
-              pageSize: 100
-            }
-          });
+          // dispatch({
+          //   type: 'projectPage',
+          //   payload: {
+          //     pageNo: 0,
+          //     pageSize: 100
+          //   }
+          // });
         }
       });
     },

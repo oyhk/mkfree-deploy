@@ -9,3 +9,40 @@
 .operation a {
     margin: 0 .5em;
 }
+
+.projectsCenton {
+  /*font-size:16px;*/
+}
+.seaverMachine{
+
+}
+
+.seaverList {
+    margin-top: 10px;
+}
+.addMore>div{
+  margin-bottom: 10px;
+}
+.seaverList{
+  overflow: hidden;
+}
+.seaverList>div{
+    display: inline-block;
+    float: left;
+    width:600px;
+    margin-left: 40px;
+    margin-bottom: 20px;
+    padding:10px;
+    border:1px solid #d2d2d2;
+    border-radius:4px;
+}
+.seaverList>div>p{
+    font-weight: bold;
+}
+.seaverList .list>div{
+    padding:10px 0;
+}
+.seaverList .list>div>div:first-child {
+    text-align: right;
+    line-height:28px;
+}

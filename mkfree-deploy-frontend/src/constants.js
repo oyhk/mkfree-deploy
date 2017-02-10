@@ -12,10 +12,13 @@ export const ENV_PROD = ['PROD', '生产'];
 
 export const ROUTE_USERS = '/users/sign_in';
 export const ROUTE_PROJECTS = '/projects';
+export const ROUTE_PROJECTS_CREATE = '/projects/create';
+export const ROUTE_PROJECTS_INFO = '/projects/info';
 export const ROUTE_ServerMachine = '/server_machine';
 
 export const ROUTE_ADMIN_USERS = '/admin/users';
 export const ROUTE_ADMIN_USERS_INFO = '/admin/users/info';
+export const ROUTE_ADMIN_USERS_CREATE = '/admin/users/create';
 
 /*** 路由变量 end*****/
 

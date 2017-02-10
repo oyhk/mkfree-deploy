@@ -23,8 +23,8 @@ public enum UserHelper {
      * @param request
      * @return
      */
-    public User getSession(HttpServletRequest request) {
-        return (User) request.getSession().getAttribute(User.LOGIN_USER);
+    public UserDto getSession(HttpServletRequest request) {
+        return (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
     }
 
     /**

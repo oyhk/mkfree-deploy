@@ -1,4 +1,4 @@
-import request from '../utils/request';
+import {request} from '../utils/request';
 
 export function fetch({pageNo = 0}) {
   return request(`/api/server_machine/page?pageNo=${pageNo}`);

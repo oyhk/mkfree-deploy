@@ -1,7 +1,11 @@
 import {request} from '../utils/request';
 
-export function fetch({pageNo = 0}) {
-    return request(`/api/project/page?pageNo=${pageNo}`);
+export function fetch({projectsId = 0}) {
+    return request(`/api/project/info?id=${projectsId}`);
+}
+
+export function seaverFetch({pageNo = 0}) {
+  return request(`/api/server_machine/page?pageNo=${pageNo}&pageSize=10000`);
 }
 
 export function save(values) {
@@ -13,7 +17,7 @@ export function save(values) {
 
 export function update(values) {
     return request('/api/project/update', {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify(values),
     });
 }
