@@ -26,7 +26,7 @@ function UserInfo({dispatch, users, form, params}) {
     const submit = (e) => {
         e.preventDefault();
         validateFields((err, values) => {
-            if (!err) {
+            if (err) {
                 return false;
             }
 
