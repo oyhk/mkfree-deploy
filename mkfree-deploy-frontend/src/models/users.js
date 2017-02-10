@@ -1,9 +1,14 @@
 import * as usersService from "../services/users";
 import {
   ROUTE_ADMIN_USERS,
+  ROUTE_USERS,
   ROUTE_ADMIN_USERS_INFO,
   ROUTE_ADMIN_USERS_CREATE,
+  ROUTE_PROJECTS
 } from "../constants";
+import cookie from "react-cookie";
+import {browserHistory} from "dva/router";
+
 
 export default {
   namespace: 'users',
@@ -11,19 +16,19 @@ export default {
     list: [],
     total: null,
     pageNo: null,
-    //用户信息页面的元素
+    //用户信息的元素
     id: '',
     username: '',
+    loading: false,
     password: '',
-    result: {},
-    listData: [],
+    visible: false,
   },
   reducers: {
     save(state, {payload: {data: list, total, pageNo}}) {
       return {...state, list, total, pageNo};
     },
     changeState(state, action) {
-      const { payload } = action;
+      const {payload}=action
       return {...state, ...payload};
     },
   },
@@ -55,9 +60,19 @@ export default {
       yield call(usersService.create, values);
       yield put({type: 'reload'});
     },
+    *userSave({payload: values}, {call, put}) {
+      yield call(usersService.userSave, values);
+      yield put({type: 'reload'});
+    },
     *userLogin({payload: values, callBack}, {call, put}) {
       const result=yield call(usersService.userLogin, values);
       callBack(result)
+    },
+    *loginUserToken({payload, callBack}, {call, put}) {
+      const {code}=yield call(usersService.loginUserToken, payload);
+      if (code == 1) {
+        browserHistory.push(ROUTE_PROJECTS)
+      }
     },
     *userUpdate({payload: values}, {call, put}) {
       yield call(usersService.userUpdate, values);
@@ -136,6 +151,9 @@ export default {
           dispatch({
             type: 'projectPage',
           });
+        }
+        if(pathname ===ROUTE_USERS){
+          dispatch({type: 'loginUserToken', payload: {userToken: cookie.load('user_token')}});
         }
       });
     },
