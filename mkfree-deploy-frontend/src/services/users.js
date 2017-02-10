@@ -20,10 +20,7 @@ export function userLogin(values) {
 }
 
 export function userInfo(values) {
-  return request('/api/user/info', {
-    method: 'GET',
-    body: JSON.stringify(values),
-  });
+  return request(`/api/user/info?${qs.stringify(values)}`);
 }
 
 export function userUpdate(values) {

@@ -3,7 +3,11 @@ import {connect} from 'dva';
 import {Table, Pagination, Popconfirm, Button} from 'antd';
 import {Link, browserHistory, routerRedux} from 'dva/router';
 import styles from './Users.less';
-import {PAGE_SIZE, ROUTE_ADMIN_USERS_INFO} from '../constants';
+import {
+  PAGE_SIZE,
+  ROUTE_ADMIN_USERS_INFO,
+  ROUTE_ADMIN_USERS_CREATE,
+} from '../constants';
 import UserModal from '../components/Users/UserModal';
 
 function Users({dispatch, list: dataSource, loading, total, pageNo: current, visible}) {
@@ -61,7 +65,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
     <div className={styles.normal}>
       <div>
         <div className={styles.create}>
-          <Button type="primary" onClick={()=> browserHistory.push(`${ROUTE_ADMIN_USERS_INFO}/create`)}>创建用户</Button>
+          <Button type="primary" onClick={()=> browserHistory.push(ROUTE_ADMIN_USERS_CREATE)}>创建用户</Button>
         </div>
         <Table
           columns={columns}

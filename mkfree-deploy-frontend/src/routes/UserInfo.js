@@ -7,6 +7,11 @@ import {Link, browserHistory} from 'dva/router';
 import {Form, Input, Button, Checkbox} from 'antd';
 import styles from '../routes/Users.less'
 
+import {
+  ROUTE_ADMIN_USERS_INFO,
+  ROUTE_ADMIN_USERS_CREATE,
+} from "../constants";
+
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
 
@@ -107,17 +112,20 @@ function UserInfo({dispatch, users, form, params}) {
           <FormItem {...formItemLayout} label="账户">
             {
               getFieldDecorator('username', {
-                initialValue: username,
+                initialValue: result.username,
               })(<Input />)
             }
           </FormItem>
-          <FormItem {...formItemLayout} label="密码">
-            {
-              getFieldDecorator('password', {
-                initialValue: password,
-              })(<Input />)
-            }
-          </FormItem>
+          {
+            location.hostname.includes(ROUTE_ADMIN_USERS_CREATE) ?
+              <FormItem {...formItemLayout} label="密码">
+                {
+                  getFieldDecorator('password', {
+                    initialValue: result.password,
+                  })(<Input />)
+                }
+              </FormItem> : ''
+          }
         </Form>
       </div>
       <div className={styles.permission}>

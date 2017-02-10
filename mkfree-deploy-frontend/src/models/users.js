@@ -75,8 +75,9 @@ export default {
         type: 'changeState',
         payload: {
           result: result,
-          username: result.data.username,
-          password: result.data.password,
+          username: result.username,
+          password: result.password,
+          listData: result.userProjectPermissionList,
         }
       });
     },
@@ -107,11 +108,34 @@ export default {
     setup({dispatch, history}) {
       return history.listen(({pathname, query}) => {
         if (pathname === ROUTE_ADMIN_USERS) {
-          dispatch({type: 'fetch', payload: query});
+          dispatch({
+            type: 'fetch',
+            payload: query
+          });
         } else if (pathname.includes(ROUTE_ADMIN_USERS_INFO)) {
-          console.log(pathname)
+          dispatch({
+            type: 'changeState',
+            payload: {
+              listData: [],
+            }
+          });
+          const id = pathname.split('/')[4];
+          dispatch({
+            type: 'userInfo',
+            payload: {
+              id
+            }
+          });
         } else if (pathname === ROUTE_ADMIN_USERS_CREATE) {
-
+          dispatch({
+            type: 'changeState',
+            payload: {
+              listData: [],
+            }
+          });
+          dispatch({
+            type: 'projectPage',
+          });
         }
       });
     },
