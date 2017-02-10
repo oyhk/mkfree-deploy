@@ -19,6 +19,13 @@ export function userLogin(values) {
   });
 }
 
+export function loginUserToken(values) {
+  return requestResult('/api/user/login_user_token', {
+    method: 'POST',
+    body: JSON.stringify(values),
+  });
+}
+
 export function userInfo(values) {
   return request(`/api/user/info?${qs.stringify(values)}`);
 }
@@ -34,7 +41,7 @@ export function projectPage(values) {
   return request(`/api/project/page?${qs.stringify(values)}`);
 }
 
-/*export function userProjectPermissionUpdate(values) {
+export function userProjectPermissionUpdate(values) {
   return request('/api/user/project/permission/update', {
     method: 'PUT',
     body: JSON.stringify(values),
@@ -42,5 +49,5 @@ export function projectPage(values) {
 }
 
 export function projectPermissionList(values) {
-  return request(`/api/user/project/permission/list?${qs.stringify(values)}`);*!/
-}*/
+  return request(`/api/user/project/permission/list?${qs.stringify(values)}`);
+}
