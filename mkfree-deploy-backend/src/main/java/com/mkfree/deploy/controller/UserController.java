@@ -84,6 +84,26 @@ public class UserController extends BaseController {
         return doing.go(request, log);
     }
 
+    @RequestMapping(value = Routes.USER_LOGIN_USER_TOKEN, method = RequestMethod.POST)
+    public JsonResult loginUserToken(@RequestBody UserDto dto, HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+            if (StringUtils.isBlank(dto.getUserToken())) {
+                jsonResult.errorParam("用户名不能为空", log);
+                return;
+            }
+            User user = userRepository.findByUserToken(dto.getUserToken());
+            if (user == null) {
+                jsonResult.remind("userToken 无效", log);
+                return;
+            }
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
+            jsonResult.data = user.getUserToken();
+        };
+        return doing.go(request, log);
+    }
+
+
     @RequestMapping(value = Routes.USER_SAVE, method = RequestMethod.POST)
     public JsonResult save(@RequestBody UserDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
@@ -97,7 +117,7 @@ public class UserController extends BaseController {
             }
 
             User user = userRepository.findByUsername(dto.getUsername());
-            if(user != null){
+            if (user != null) {
                 jsonResult.remind("用户名已存在");
                 return;
             }
