@@ -550,9 +550,9 @@ class ProjectsCentont extends Component {
 }
 
 function mapStateToProps(state) {
-  const {list, sList, total, pageNo} = state.projectsCreate;
+  const {list, sList, total, pageNo} = state.projects;
   return {
-    loading: state.loading.models.projectsCreate,
+    loading: state.loading.models.projects,
     list,
     sList,
     total,

@@ -5,12 +5,13 @@ export default {
     namespace: 'projects',
     state: {
         list: [],
+        sList: [],
         total: null,
         pageNo: null,
     },
     reducers: {
-        save(state, {payload: {data: list, total, pageNo}}) {
-            return {...state, list, total, pageNo};
+        save(state, {payload: {data: list,data: sList, total, pageNo}}) {
+            return {...state, list, sList, total, pageNo};
         },
     },
     effects: {
@@ -43,6 +44,46 @@ export default {
         },
         *deploy({payload:values},{call,put}){
             yield call(projectService.deploy, values);
+            yield put({type: 'reload'});
+        },
+    
+    
+        *projectFetch({payload: {projectsId = 0}}, {call, put}) {
+            const result = yield call(projectService.projectFetch, {projectsId});
+            yield put({
+                type: 'save',
+                payload: {
+                    data: result,
+                },
+            });
+        },
+        *seaverFetch({payload: {pageNo = 0}}, {call, put}) {
+            const result = yield call(projectService.seaverFetch, {pageNo});
+            yield put({
+                type: 'save',
+                payload: {
+                    data: result.list,
+                },
+            });
+        },
+        *projectUpdate({payload: values}, {call, put}) {
+            yield call(projectService.projectUpdate, values);
+            yield put({type: 'reload'});
+        },
+        *projectRemove({payload: values}, {call, put}) {
+            yield call(projectService.projectRemove, values);
+            yield put({type: 'reload'});
+        },
+        *projectSave({payload: values}, {call, put}) {
+            yield call(projectService.projectSave, values);
+            yield put({type: 'reload'});
+        },
+        *reload(action, {put, select}) {
+            const pageNo = yield select(state => state.projects.pageNo);
+            yield put({type: 'fetch', payload: {pageNo}});
+        },
+        *projectDeploy({payload:values}, {call,put}){
+            yield call(projectService.projectDeploy, values);
             yield put({type: 'reload'});
         }
     },
