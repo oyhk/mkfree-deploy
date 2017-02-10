@@ -14,9 +14,9 @@ export default function ({history}) {
         <Router history={history}>
             <Route path="/">
                 <Route path="/admin" component={MainLayout}>
-                  <Route path={ROUTE_ADMIN_USERS} component={Users}/>
-                  <Route path={ROUTE_ADMIN_USERS_CREATE} component={UsersInfo}/>
-                  <Route path={ROUTE_ADMIN_USERS_INFO + '/:id'} component={UsersInfo}/>
+                    <Route path={ROUTE_ADMIN_USERS} component={Users}/>
+                    <Route path={ROUTE_ADMIN_USERS_CREATE} component={UsersInfo}/>
+                    <Route path={ROUTE_ADMIN_USERS_INFO + '/:id'} component={UsersInfo}/>
                 </Route>
                 <Route path="/project" component={MainLayout}>
                     <Route path={ROUTE_PROJECTS} component={Projects}/>
@@ -26,7 +26,7 @@ export default function ({history}) {
                 <Route path="/serverMachine" component={MainLayout}>
                     <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
                 </Route>
-                <Route path={ROUTE_USERS_SIGN_IN} component={SsoIndex} />
+                <Route path={ROUTE_USERS_SIGN_IN} component={SsoIndex}/>
             </Route>
         </Router>
     );

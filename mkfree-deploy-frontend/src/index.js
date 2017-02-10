@@ -21,13 +21,13 @@ app.use(createLoading());
 // 3. Model
 // Moved to router.js
 const models = [
-  'users',
-  'projects',
-  'serverMachine',
+    'users',
+    'projects',
+    'serverMachine',
 ];
 
 models.map((modelSrc) => {
-  app.model(require('./models/' + modelSrc));
+    app.model(require('./models/' + modelSrc));
 });
 
 
