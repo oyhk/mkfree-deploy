@@ -140,7 +140,7 @@ function UserInfo({dispatch, users, form, params}) {
           <FormItem {...formItemLayout} label="账户">
             {
               getFieldDecorator('username', {
-                initialValue: isCreate ? '' : result.username,
+                initialValue: isCreate ? '' : username,
               })(<Input />)
             }
           </FormItem>
@@ -149,7 +149,7 @@ function UserInfo({dispatch, users, form, params}) {
               <FormItem {...formItemLayout} label="密码">
                 {
                   getFieldDecorator('password', {
-                    initialValue: isCreate ? '' : result.password,
+                    initialValue: isCreate ? '' : password,
                   })(<Input />)
                 }
               </FormItem> : ''
