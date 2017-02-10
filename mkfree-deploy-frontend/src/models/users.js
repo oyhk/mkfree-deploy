@@ -1,10 +1,10 @@
 import * as usersService from "../services/users";
 import {
-    ROUTE_ADMIN_USERS,
-    ROUTE_USERS_SIGN_IN,
-    ROUTE_ADMIN_USERS_INFO,
-    ROUTE_ADMIN_USERS_CREATE,
-    ROUTE_PROJECTS
+  ROUTE_ADMIN_USERS,
+  ROUTE_USERS_SIGN_IN,
+  ROUTE_ADMIN_USERS_INFO,
+  ROUTE_ADMIN_USERS_CREATE,
+  ROUTE_PROJECTS
 } from "../constants";
 import cookie from "react-cookie";
 import {browserHistory} from "dva/router";
@@ -68,9 +68,14 @@ export default {
             const result = yield call(usersService.userLogin, values);
             callBack(result);
         },
-        *userUpdate({payload: values, callBack}, {call, put}) {
-            const result = yield call(usersService.userUpdate, values);
-            callBack(result);
+        *loginUserToken({payload, callBack}, {call, put}) {
+            const {code}=yield call(usersService.loginUserToken, payload);
+            if (code == 1) {
+                browserHistory.push(ROUTE_PROJECTS)
+            } else {
+                cookie.remove('user_token');
+                cookie.remove('username');
+            }
         },
         *userSave({payload: values, callBack}, {call, put}) {
             const result = yield call(usersService.userSave, values);
@@ -99,7 +104,7 @@ export default {
         *projectPage({payload: values}, {call, put}) {
             const result = yield call(usersService.projectPage, values);
             let listData = [];
-
+            
             if (result.list.length > 0) {
                 result.list.map((dt) => {
                     listData.push({
@@ -109,7 +114,7 @@ export default {
                     })
                 });
             }
-
+            
             yield put({
                 type: 'changeState',
                 payload: {
