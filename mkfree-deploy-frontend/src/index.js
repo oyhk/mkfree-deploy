@@ -22,7 +22,6 @@ app.use(createLoading());
 // Moved to router.js
 const models = [
   'users',
-  'userInfo',
   'projects',
   'ProjectsCreate',
   'serverMachine',

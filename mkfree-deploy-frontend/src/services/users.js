@@ -21,7 +21,7 @@ export function userLogin(values) {
 
 export function userInfo(values) {
   return request('/api/user/info', {
-    method: 'POST',
+    method: 'GET',
     body: JSON.stringify(values),
   });
 }

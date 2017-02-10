@@ -10,9 +10,9 @@ import styles from '../routes/Users.less'
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
 
-function UserInfo({dispatch, userInfo, form, params}) {
+function UserInfo({dispatch, users, form, params}) {
 
-  const { username, password, result, listData } = userInfo;
+  const { username, password, result, listData } = users;
   const { validateFields, getFieldDecorator } = form;
 
   const submit = (e) => {
@@ -136,6 +136,6 @@ function UserInfo({dispatch, userInfo, form, params}) {
   )
 }
 
-export default connect(({userInfo}) => {
-  return {userInfo}
+export default connect(({users}) => {
+  return {users}
 })(Form.create()(UserInfo));
