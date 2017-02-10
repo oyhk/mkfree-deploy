@@ -72,6 +72,9 @@ export default {
       const {code}=yield call(usersService.loginUserToken, payload);
       if (code == 1) {
         browserHistory.push(ROUTE_PROJECTS)
+      }else {
+        cookie.remove('user_token');
+        cookie.remove('username');
       }
     },
     *userUpdate({payload: values}, {call, put}) {
