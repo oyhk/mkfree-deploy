@@ -1,32 +1,16 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {Input, Form, Icon, Button, Transfer} from 'antd';
-import {routerRedux} from 'dva/router';
 
 import styles from './Projects.css';
 
-import {PAGE_SIZE, ROUTE_PROJECTS, ENV_DEV, ENV_UAT, ENV_PROD} from '../constants';
+import {PAGE_SIZE, ROUTE_PROJECTS, ENV_DEV, ENV_UAT, ENV_PROD ,ROUTE_PROJECTS_INFO} from '../constants';
 
 const FormItem = Form.Item;
 
-function ProjectsCreate({dispatch, list: dataInfo, sList: servarData, loading, total, pageNo: current}) {
-
-  function deleteHandler(id) {
-    dispatch({
-      type: 'projects/remove',
-      payload: id,
-    });
-  }
-
-  function pageChangeHandler(pageNo) {
-    dispatch(routerRedux.push({
-      pathname: '/projects',
-      query: {pageNo},
-    }));
-  }
-
-  function editHandler(id, values) {
-    values.id = id;
+function ProjectsCreate({dispatch, pList: projectInfo, sList: servarData, loading}) {
+  function editHandler(values) {
+    values.id = projectInfo.id;
     dispatch({
       type: 'projects/patch',
       payload: values,
@@ -40,16 +24,9 @@ function ProjectsCreate({dispatch, list: dataInfo, sList: servarData, loading, t
     });
   }
 
-  function deploy(values) {
-    dispatch({
-      type: 'projects/deploy',
-      payload: values,
-    });
-  }
-
   return (
     <div>
-      <ProjectsCentont record={dataInfo} servarData={servarData} onOk={saveHandler}/>
+      <ProjectsCentont record={projectInfo||[]} servarData={servarData||[]}  onOk={location.pathname.includes(ROUTE_PROJECTS_INFO)?editHandler:saveHandler}/>
     </div>
   );
 }
@@ -109,16 +86,15 @@ class ProjectsCentont extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.record && this.props.record.projectEnvConfigList && this.state.visible) {
+    if (nextProps.record && nextProps.record.projectEnvConfigList && this.state.visible) {
       this.setState({
-        DEVConfig: this.props.record.projectEnvConfigList[0],
-        TESTConfig: this.props.record.projectEnvConfigList[1],
-        UATConfig: this.props.record.projectEnvConfigList[2],
-        PRODConfig: this.props.record.projectEnvConfigList[3],
+        DEVConfig: nextProps.record.projectEnvConfigList[0],
+        TESTConfig: nextProps.record.projectEnvConfigList[1],
+        UATConfig: nextProps.record.projectEnvConfigList[2],
+        PRODConfig: nextProps.record.projectEnvConfigList[3],
         visible: false
       })
     }
-    console.log(this.state)
   }
 
   showModelHandler = (e) => {
@@ -144,21 +120,10 @@ class ProjectsCentont extends Component {
           this.state.TESTConfig,
           this.state.UATConfig,
           this.state.PRODConfig,
-        ]
-        // const projectEnvConfigList= [];
-        onOk(values);
-        console.log(values)
-      }
-    });
-  };
-  onSubmitAll = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
+        ];
 
-        // onOk(values);
-        // this.hideModelHandler();
-        console.log(values)
-        return;
+        onOk(values);
+
       }
     });
   };
@@ -191,7 +156,7 @@ class ProjectsCentont extends Component {
       TESTTargetKeys = _state.TESTConfig.serverMachineIdList,
       UATTargetKeys = _state.UATConfig.serverMachineIdList,
       PRODTargetKeys = _state.PRODConfig.serverMachineIdList,
-      DEVStructureB = _state.DEVConfig.structureBeforeList.map((item, index) => {
+      DEVStructureB = (_state.DEVConfig.structureBeforeList || [] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -200,7 +165,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      DEVStructureA = _state.DEVConfig.structureAfterList.map((item, index) => {
+      DEVStructureA = (_state.DEVConfig.structureAfterList || []).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -209,7 +174,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>
       }),
-      TESTStructureB = _state.TESTConfig.structureBeforeList.map((item, index) => {
+      TESTStructureB = (_state.TESTConfig.structureBeforeList || [] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("TESTConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -218,7 +183,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      TESTStructureA = _state.TESTConfig.structureAfterList.map((item, index) => {
+      TESTStructureA = (_state.TESTConfig.structureAfterList || []).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("TESTConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -227,7 +192,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>
       }),
-      UATStructureB = _state.UATConfig.structureBeforeList.map((item, index) => {
+      UATStructureB = (_state.UATConfig.structureBeforeList || [] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("UATConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -236,7 +201,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      UATStructureA = _state.UATConfig.structureAfterList.map((item, index) => {
+      UATStructureA = (_state.UATConfig.structureAfterList || []).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("UATConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -245,7 +210,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      PRODStructureB = _state.PRODConfig.structureBeforeList.map((item, index) => {
+      PRODStructureB = (_state.PRODConfig.structureBeforeList || [] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("PRODConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -254,7 +219,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      PRODStructureA = _state.PRODConfig.structureAfterList.map((item, index) => {
+      PRODStructureA = (_state.PRODConfig.structureAfterList || []).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("PRODConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -275,7 +240,6 @@ class ProjectsCentont extends Component {
         });
       });
     }
-
 
     return (
       <div className={styles.projectsCenton}>
@@ -357,8 +321,7 @@ class ProjectsCentont extends Component {
                   <div className="ant-row">
                     <div className="ant-col-6"><label>发布分支名：</label></div>
                     <div className="ant-col-16">
-                      <Input
-                        onChange={(e)=>this.revampList("DEVConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                      <Input value={_state.DEVConfig.publicBranch||""} onChange={(e)=>this.revampList("DEVConfig", "publicBranch", -1, "revamp", e.target.value)}/>
                     </div>
                   </div>
                   <div className="ant-row">
@@ -407,8 +370,7 @@ class ProjectsCentont extends Component {
                   <div className="ant-row">
                     <div className="ant-col-6"><label>发布分支名：</label></div>
                     <div className="ant-col-16">
-                      <Input
-                        onChange={(e)=>this.revampList("TESTConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                      <Input value={_state.TESTConfig.publicBranch||""} onChange={(e)=>this.revampList("TESTConfig", "publicBranch", -1, "revamp", e.target.value)}/>
                     </div>
                   </div>
                   <div className="ant-row">
@@ -459,8 +421,7 @@ class ProjectsCentont extends Component {
                   <div className="ant-row">
                     <div className="ant-col-6"><label>发布分支名：</label></div>
                     <div className="ant-col-16">
-                      <Input
-                        onChange={(e)=>this.revampList("UATConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                      <Input value={_state.UATConfig.publicBranch||""} onChange={(e)=>this.revampList("UATConfig", "publicBranch", -1, "revamp", e.target.value)}/>
                     </div>
                   </div>
                   <div className="ant-row">
@@ -509,8 +470,7 @@ class ProjectsCentont extends Component {
                   <div className="ant-row">
                     <div className="ant-col-6"><label>发布分支名：</label></div>
                     <div className="ant-col-16">
-                      <Input
-                        onChange={(e)=>this.revampList("PRODConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                      <Input value={_state.PRODConfig.publicBranch||""} onChange={(e)=>this.revampList("PRODConfig", "publicBranch", -1, "revamp", e.target.value)}/>
                     </div>
                   </div>
                   <div className="ant-row">
@@ -550,13 +510,11 @@ class ProjectsCentont extends Component {
 }
 
 function mapStateToProps(state) {
-  const {list, sList, total, pageNo} = state.projects;
+  const {pList, sList} = state.projects;
   return {
     loading: state.loading.models.projects,
-    list,
+    pList,
     sList,
-    total,
-    pageNo,
   };
 }
 

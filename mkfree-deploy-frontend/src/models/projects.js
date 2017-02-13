@@ -1,10 +1,14 @@
 import * as projectService from '../services/projects';
-import {ROUTE_PROJECTS} from '../constants';
+
+import {browserHistory } from 'dva/router';
+
+import {ROUTE_PROJECTS,ROUTE_PROJECTS_CREATE,ROUTE_PROJECTS_INFO} from '../constants';
 
 export default {
     namespace: 'projects',
     state: {
         list: [],
+        pList: [],
         sList: [],
         total: null,
         pageNo: null,
@@ -12,6 +16,13 @@ export default {
     reducers: {
         save(state, {payload: {data: list,data: sList, total, pageNo}}) {
             return {...state, list, sList, total, pageNo};
+        },
+        // Info(state,{payload:{pList , sList}}){
+        //     return {...state ,pList , sList}
+        // },
+        Info(state, action) {
+            const {payload}=action;
+            return {...state, ...payload};
         },
     },
     effects: {
@@ -28,7 +39,7 @@ export default {
         },
         *patch({payload: values}, {call, put}) {
             yield call(projectService.update, values);
-            yield put({type: 'reload'});
+            browserHistory.push(`${ROUTE_PROJECTS}`);
         },
         *remove({payload: values}, {call, put}) {
             yield call(projectService.remove, values);
@@ -36,7 +47,7 @@ export default {
         },
         *create({payload: values}, {call, put}) {
             yield call(projectService.save, values);
-            yield put({type: 'reload'});
+            browserHistory.push(`${ROUTE_PROJECTS}`);
         },
         *reload(action, {put, select}) {
             const pageNo = yield select(state => state.projects.pageNo);
@@ -46,23 +57,23 @@ export default {
             yield call(projectService.deploy, values);
             yield put({type: 'reload'});
         },
-    
-    
+
+
         *projectFetch({payload: {projectsId = 0}}, {call, put}) {
             const result = yield call(projectService.projectFetch, {projectsId});
             yield put({
-                type: 'save',
+                type: 'Info',
                 payload: {
-                    data: result,
+                    pList: result,
                 },
             });
         },
         *seaverFetch({payload: {pageNo = 0}}, {call, put}) {
             const result = yield call(projectService.seaverFetch, {pageNo});
             yield put({
-                type: 'save',
+                type: 'Info',
                 payload: {
-                    data: result.list,
+                    sList: result.list,
                 },
             });
         },
@@ -92,6 +103,23 @@ export default {
             return history.listen(({pathname, query}) => {
                 if (pathname === ROUTE_PROJECTS) {
                     dispatch({type: 'fetch', payload: query});
+                }
+                //创建
+                dispatch({type: 'Info', payload: {
+                    pList:[],
+                }});
+                if (pathname === ROUTE_PROJECTS_CREATE) {
+
+
+                    dispatch({type: 'seaverFetch', payload: query});
+                }
+                //编辑
+                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
+
+                    dispatch({type: 'projectFetch', payload: {
+                        projectsId:pathname.split('/')[3]}
+                    });
+                    dispatch({type: 'seaverFetch', payload: query});
                 }
             });
         },

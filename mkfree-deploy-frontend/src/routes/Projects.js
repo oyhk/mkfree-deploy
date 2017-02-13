@@ -72,9 +72,9 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             render: (text, record) => (
                 <span className={styles.operation}>
                     <Link to={`${ROUTE_PROJECTS_INFO}/${record.id}`}>编辑</Link>
-                    {/*<ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>*/}
-                        {/*<a>编辑</a>*/}
-                    {/*</ProjectModal>*/}
+                    <ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>
+                        <a>编辑</a>
+                    </ProjectModal>
                     <Popconfirm title="确认删除?" onConfirm={deleteHandler.bind(null, record.id)}>
                         <a href="">删除</a>
                     </Popconfirm>
