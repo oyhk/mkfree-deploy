@@ -13,7 +13,7 @@ export function save(values) {
 
 export function update(values) {
     return request('/api/project/update', {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify(values),
     });
 }
