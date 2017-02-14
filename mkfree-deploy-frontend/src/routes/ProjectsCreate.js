@@ -8,9 +8,9 @@ import {PAGE_SIZE, ROUTE_PROJECTS, ENV_DEV, ENV_UAT, ENV_PROD ,ROUTE_PROJECTS_IN
 
 const FormItem = Form.Item;
 
-function ProjectsCreate({dispatch, pList: projectInfo, sList: servarData, loading}) {
+function ProjectsCreate({dispatch, pList, sList, loading}) {
   function editHandler(values) {
-    values.id = projectInfo.id;
+    values.id = pList.id;
     dispatch({
       type: 'projects/patch',
       payload: values,
@@ -23,10 +23,10 @@ function ProjectsCreate({dispatch, pList: projectInfo, sList: servarData, loadin
       payload: values,
     });
   }
-
+    console.log("pList",pList,"sList",sList)
   return (
     <div>
-      <ProjectsCentont record={projectInfo||[]} servarData={servarData||[]}  onOk={location.pathname.includes(ROUTE_PROJECTS_INFO)?editHandler:saveHandler}/>
+      <ProjectsCentont record={pList||[]} servarData={sList||[]}  onOk={location.pathname.includes(ROUTE_PROJECTS_INFO)?editHandler:saveHandler}/>
     </div>
   );
 }
