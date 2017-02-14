@@ -27,7 +27,7 @@ if [ ! -d "$projectAllPath" ]; then
     cd ${projectPath}
     echo "git clone $gitUrl"
     echo 'git clone start . . .'
-    git clone ${gitUrl}
+    echo -e $(git clone ${gitUrl})
     echo "git clone $gitUrl"
     echo 'git clone success . . .'
 fi
