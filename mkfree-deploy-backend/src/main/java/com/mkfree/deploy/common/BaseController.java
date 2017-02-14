@@ -28,7 +28,27 @@ public class BaseController {
         if (size == null || size < 0) {
             size = 10;
         }
-        return new PageRequest(page, size, Sort.Direction.DESC,"id");
+        return new PageRequest(page, size, Sort.Direction.DESC, "id");
+    }
+
+    /**
+     * 获取分页类
+     *
+     * @param page
+     * @param size
+     * @return
+     */
+    protected PageRequest getPageRequest(Integer page, Integer size, Sort.Direction direction, String fieldName) {
+        if (page == null || page <= 0) {
+            page = 0;
+        } else {
+            page = page - 1;
+        }
+
+        if (size == null || size < 0) {
+            size = 10;
+        }
+        return new PageRequest(page, size, direction, fieldName);
     }
 
     protected PageRequest getJpaPageRequest() {

@@ -5,8 +5,8 @@ import {browserHistory} from "dva/router";
 
 
 const apiDomains = {
-  dev: 'http://192.168.1.210:8091',
-  // dev: 'http://192.168.3.133:8090', // HK 电脑
+  // dev: 'http://192.168.1.210:8091',
+  dev: 'http://192.168.3.133:8090', // HK 电脑
   prod: ''//当为空时，api就是相对路径
 };
 
