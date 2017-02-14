@@ -1,7 +1,7 @@
 import {request} from '../utils/request';
 
 export function fetch({pageNo = 0}) {
-    return request(`/api/project/page?pageNo=${pageNo}`);
+    return request(`/api/project/page?pageNo=${pageNo}&pageSize=20`);
 }
 
 export function save(values) {
