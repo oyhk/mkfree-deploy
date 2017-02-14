@@ -23,7 +23,6 @@ function ProjectsCreate({dispatch, pList, sList, loading}) {
       payload: values,
     });
   }
-    console.log("pList",pList,"sList",sList)
   return (
     <div>
       <ProjectsCentont record={pList||[]} servarData={sList||[]}  onOk={location.pathname.includes(ROUTE_PROJECTS_INFO)?editHandler:saveHandler}/>
