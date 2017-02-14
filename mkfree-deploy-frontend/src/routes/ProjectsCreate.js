@@ -156,7 +156,7 @@ class ProjectsCentont extends Component {
       TESTTargetKeys = _state.TESTConfig.serverMachineIdList,
       UATTargetKeys = _state.UATConfig.serverMachineIdList,
       PRODTargetKeys = _state.PRODConfig.serverMachineIdList,
-      DEVStructureB = (_state.DEVConfig.structureBeforeList || [] ).map((item, index) => {
+      DEVStructureB = (_state.DEVConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -165,7 +165,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      DEVStructureA = (_state.DEVConfig.structureAfterList || []).map((item, index) => {
+      DEVStructureA = (_state.DEVConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -174,7 +174,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>
       }),
-      TESTStructureB = (_state.TESTConfig.structureBeforeList || [] ).map((item, index) => {
+      TESTStructureB = (_state.TESTConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("TESTConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -183,7 +183,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      TESTStructureA = (_state.TESTConfig.structureAfterList || []).map((item, index) => {
+      TESTStructureA = (_state.TESTConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("TESTConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -192,7 +192,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>
       }),
-      UATStructureB = (_state.UATConfig.structureBeforeList || [] ).map((item, index) => {
+      UATStructureB = (_state.UATConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("UATConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -201,7 +201,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      UATStructureA = (_state.UATConfig.structureAfterList || []).map((item, index) => {
+      UATStructureA = (_state.UATConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("UATConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -210,7 +210,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      PRODStructureB = (_state.PRODConfig.structureBeforeList || [] ).map((item, index) => {
+      PRODStructureB = (_state.PRODConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("PRODConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -219,7 +219,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      PRODStructureA = (_state.PRODConfig.structureAfterList || []).map((item, index) => {
+      PRODStructureA = (_state.PRODConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("PRODConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
