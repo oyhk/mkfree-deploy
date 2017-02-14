@@ -23,7 +23,6 @@ function ProjectsCreate({dispatch, pList, sList, loading}) {
       payload: values,
     });
   }
-    console.log("pList",pList,"sList",sList)
   return (
     <div>
       <ProjectsCentont record={pList||[]} servarData={sList||[]}  onOk={location.pathname.includes(ROUTE_PROJECTS_INFO)?editHandler:saveHandler}/>
@@ -75,23 +74,39 @@ class ProjectsCentont extends Component {
 
   componentDidMount() {
     if (this.props.record && this.props.record.projectEnvConfigList) {
-      this.setState({
-        DEVConfig: this.props.record.projectEnvConfigList[0],
-        TESTConfig: this.props.record.projectEnvConfigList[1],
-        UATConfig: this.props.record.projectEnvConfigList[2],
-        PRODConfig: this.props.record.projectEnvConfigList[3],
-      })
+        const
+            projectEnvConfigList = this.props.record.projectEnvConfigList,
+            {DEVConfig , TESTConfig , UATConfig , PRODConfig} = this.state;
+        projectEnvConfigList.map((item)=>{
+            switch (item.env){
+                case "DEV" :this.setState({DEVConfig:item});break;
+                case "TEST" :this.setState({TESTConfig:item});break;
+                case "UAT" :this.setState({UATConfig:item});break;
+                case "PROD" :this.setState({PRODConfig:item});break;
+            }
+        });
     }
       this.setState({style:{width:document.body.offsetWidth - 336}});
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.record && nextProps.record.projectEnvConfigList && this.state.visible) {
+      const
+          projectEnvConfigList = nextProps.record.projectEnvConfigList,
+          {DEVConfig , TESTConfig , UATConfig , PRODConfig} = this.state;
+          projectEnvConfigList.map((item)=>{
+              switch (item.env){
+                case "DEV" :this.setState({DEVConfig:item});break;
+                case "TEST" :this.setState({TESTConfig:item});break;
+                case "UAT" :this.setState({UATConfig:item});break;
+                case "PROD" :this.setState({PRODConfig:item});break;
+              }
+          });
       this.setState({
-        DEVConfig: nextProps.record.projectEnvConfigList[0],
-        TESTConfig: nextProps.record.projectEnvConfigList[1],
-        UATConfig: nextProps.record.projectEnvConfigList[2],
-        PRODConfig: nextProps.record.projectEnvConfigList[3],
+        // DEVConfig: nextProps.record.projectEnvConfigList[0],
+        // TESTConfig: nextProps.record.projectEnvConfigList[1],
+        // UATConfig: nextProps.record.projectEnvConfigList[2],
+        // PRODConfig: nextProps.record.projectEnvConfigList[3],
         deployTargetFileList: nextProps.record.deployTargetFileList || [""],
         visible: false
       })
