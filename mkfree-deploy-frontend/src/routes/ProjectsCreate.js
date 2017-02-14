@@ -37,7 +37,8 @@ class ProjectsCentont extends Component {
     super(props);
     this.state = {
       visible: true,
-
+      style:{width:"auto"},
+      deployTargetFileList:[],
       DEVConfig: {
         "env": "DEV",
         "serverMachineIdList": [], /*选中服务器列表*/
@@ -47,7 +48,7 @@ class ProjectsCentont extends Component {
       },
 
       TESTConfig: {
-        "env": "DEV",
+        "env": "TEST",
         "serverMachineIdList": [],
         "publicBranch": "",
         "structureBeforeList": [""],
@@ -55,7 +56,7 @@ class ProjectsCentont extends Component {
       },
 
       UATConfig: {
-        "env": "DEV",
+        "env": "UAT",
         "serverMachineIdList": [],
         "publicBranch": "",
         "structureBeforeList": [""],
@@ -63,14 +64,12 @@ class ProjectsCentont extends Component {
       },
 
       PRODConfig: {
-        "env": "DEV",
+        "env": "PROD",
         "serverMachineIdList": [],
         "publicBranch": "",
         "structureBeforeList": [""],
         "structureAfterList": [""],
       },
-
-
     };
   }
 
@@ -83,6 +82,7 @@ class ProjectsCentont extends Component {
         PRODConfig: this.props.record.projectEnvConfigList[3],
       })
     }
+      this.setState({style:{width:document.body.offsetWidth - 336}});
   }
 
   componentWillReceiveProps(nextProps) {
@@ -140,11 +140,20 @@ class ProjectsCentont extends Component {
 
     this.setState({[env]: Build});
   };
+  revampDeployTarget = (index,value)=>{
+      const Build = JSON.parse(JSON.stringify(this.props.record["deployTargetFileList"]));
+      Build[index] = value;
+      this.setState({
+          deployTargetFileList : Build
+      });
+  }
+
 
   render() {
     const {children} = this.props;
     const {getFieldDecorator} = this.props.form;
-    const {name, gitUrl, publishBranch, remotePath, moduleName, deployTargetFile} = this.props.record;
+    const {name, gitUrl, publishBranch, remotePath, moduleName, deployTargetFileList} = this.props.record;
+    const deployTargetFile = (deployTargetFileList || [""])[0];
     const formItemLayout = {
       labelCol: {span: 6},
       wrapperCol: {span: 8},
@@ -229,6 +238,17 @@ class ProjectsCentont extends Component {
                 }/></div>;
 
 
+      }),
+      deployTargetFiles = (deployTargetFileList || [""]).map((item, index) => {
+        if( index > 0 ) {
+            return <div key={index}><Input value={item} onChange={(e) => {
+                this.revampList("PRODConfig", "structureAfterList", index, "revamp", e.target.value)
+            }} addonAfter={
+                <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
+                    this.revampList("PRODConfig", "structureAfterList", index, "delete", e)
+                }}/>
+            }/></div>;
+        }
       });
 
     if (this.props.servarData.length > 0) {
@@ -241,8 +261,10 @@ class ProjectsCentont extends Component {
       });
     }
 
+
+
     return (
-      <div className={styles.projectsCenton}>
+      <div className={styles.projectsCenton} style={this.state.style}>
         <Form horizontal onSubmit={this.okHandler}>
           <div>
             <h3>基本配置</h3>
@@ -293,8 +315,10 @@ class ProjectsCentont extends Component {
               {
                 getFieldDecorator('deployTargetFile', {
                   initialValue: deployTargetFile,
-                })(<Input />)
+                })(<Input addonAfter={<Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {}}/>}/>)
               }
+              <a style={{position: "absolute",top:0,right:"-18px"}}><Icon type="plus-circle-o" onClick={() => {}}/></a>
+
             </FormItem>
           </div>
           <div className={styles.seaverMachine}>
