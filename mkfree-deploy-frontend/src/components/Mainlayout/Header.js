@@ -2,6 +2,7 @@ import React from 'react';
 import {Menu, Icon} from 'antd';
 import {Link} from 'dva/router';
 import {ROUTE_ADMIN_USERS, ROUTE_PROJECTS, ROUTE_ServerMachine} from '../../constants';
+import styles from './MainLayout.css';
 
 
 function Header({location}) {
@@ -12,7 +13,7 @@ function Header({location}) {
             selectedKeys={[location.pathname]}
             mode="inline "
             theme="light"
-            style={{width:200}}
+            className={styles.header}
         >
             <Menu.Item key={ROUTE_ADMIN_USERS}>
                 <Link to={ROUTE_ADMIN_USERS}><Icon type="bars"/>用户管理</Link>

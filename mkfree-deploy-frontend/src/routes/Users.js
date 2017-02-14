@@ -100,7 +100,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
                 <Pagination
                     className="ant-table-pagination"
                     total={total}
-                    current={current}
+                    current={current+1}
                     pageSize={PAGE_SIZE}
                     onChange={pageChangeHandler}
                 />

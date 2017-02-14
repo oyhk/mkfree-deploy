@@ -5,6 +5,14 @@
   overflow: hidden;
 }
 
+.header{
+    width: 200px;
+}
+
+.header>li{
+    font-size: 16px !important;
+}
+
 .logo{
   height:79px;
   line-height: 79px;

@@ -6,8 +6,10 @@ import {browserHistory} from "dva/router";
 import {ROUTE_USERS_SIGN_IN} from '../../constants';
 import { Icon, Dropdown,Menu} from "antd";
 
-
-
+let Options = {
+    path: '/',
+    maxAge: 30 * 24 * 60 * 60
+}
 
 function MainLayout({children, location}) {
   
@@ -17,8 +19,8 @@ function MainLayout({children, location}) {
         <a target="_blank"
            rel="noopener noreferrer"
            onClick={() => {
-             cookie.remove('user_token');
-             cookie.remove('username');
+             cookie.remove('user_token',Options);
+             cookie.remove('username',Options);
              browserHistory.push(ROUTE_USERS_SIGN_IN);
            }}>退出</a>
       </Menu.Item>
@@ -41,7 +43,7 @@ function MainLayout({children, location}) {
           
         </div>
         <div className={styles.normal}>
-          <Header location={location} className={styles.header}/>
+          <Header location={location} />
           <div className={styles.content}>
             <div className={styles.main}>
               {children}

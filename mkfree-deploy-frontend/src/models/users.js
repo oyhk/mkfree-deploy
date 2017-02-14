@@ -73,8 +73,12 @@ export default {
             if (code == 1) {
                 browserHistory.push(ROUTE_PROJECTS)
             } else {
-                cookie.remove('user_token');
-                cookie.remove('username');
+                let Options = {
+                    path: '/',
+                    maxAge: 30 * 24 * 60 * 60
+                }
+                cookie.remove('user_token',Options );
+                cookie.remove('username',Options );
             }
         },
         *userSave({payload: values, callBack}, {call, put}) {
