@@ -92,6 +92,7 @@ class ProjectsCentont extends Component {
         TESTConfig: nextProps.record.projectEnvConfigList[1],
         UATConfig: nextProps.record.projectEnvConfigList[2],
         PRODConfig: nextProps.record.projectEnvConfigList[3],
+        deployTargetFileList: nextProps.record.deployTargetFileList || [""],
         visible: false
       })
     }
@@ -115,12 +116,18 @@ class ProjectsCentont extends Component {
     const {onOk} = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        let
+          deployTargetFileList = this.state.deployTargetFileList;
+          deployTargetFileList[0] = values.deployTargetFile;
         values["projectEnvConfigList"] = [
           this.state.DEVConfig,
           this.state.TESTConfig,
           this.state.UATConfig,
           this.state.PRODConfig,
         ];
+        values["deployTargetFileList"] = deployTargetFileList;
+
+        delete  values.deployTargetFile;
 
         onOk(values);
 
@@ -140,9 +147,19 @@ class ProjectsCentont extends Component {
 
     this.setState({[env]: Build});
   };
-  revampDeployTarget = (index,value)=>{
-      const Build = JSON.parse(JSON.stringify(this.props.record["deployTargetFileList"]));
-      Build[index] = value;
+  revampDeployTarget = (index,type,value)=>{
+      const Build = (this.state.deployTargetFileList || [] ).concat();
+
+      (type == "add" ) && (Build.push(""));
+
+      (type == "revamp" ) && (Build[index] = value);
+
+      (type == "delete" ) && (Build.splice(index , 1));
+
+      (Build.length == 0 ) && (Build.push(""));
+
+      (type == "delete" && index == 0) && (this.props.form.setFieldsValue({"deployTargetFile":Build[0]}));
+
       this.setState({
           deployTargetFileList : Build
       });
@@ -153,7 +170,7 @@ class ProjectsCentont extends Component {
     const {children} = this.props;
     const {getFieldDecorator} = this.props.form;
     const {name, gitUrl, publishBranch, remotePath, moduleName, deployTargetFileList} = this.props.record;
-    const deployTargetFile = (deployTargetFileList || [""])[0];
+    const deployTargetFile = (this.state.deployTargetFileList || [""])[0];
     const formItemLayout = {
       labelCol: {span: 6},
       wrapperCol: {span: 8},
@@ -161,10 +178,10 @@ class ProjectsCentont extends Component {
     const
       _state = this.state,
       mockData = [],
-      DEVTargetKeys = _state.DEVConfig.serverMachineIdList,
-      TESTTargetKeys = _state.TESTConfig.serverMachineIdList,
-      UATTargetKeys = _state.UATConfig.serverMachineIdList,
-      PRODTargetKeys = _state.PRODConfig.serverMachineIdList,
+      DEVTargetKeys = _state.DEVConfig.serverMachineIdList || [],
+      TESTTargetKeys = _state.TESTConfig.serverMachineIdList || [],
+      UATTargetKeys = _state.UATConfig.serverMachineIdList || [],
+      PRODTargetKeys = _state.PRODConfig.serverMachineIdList || [],
       DEVStructureB = (_state.DEVConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureBeforeList", index, "revamp", e.target.value)
@@ -239,13 +256,13 @@ class ProjectsCentont extends Component {
 
 
       }),
-      deployTargetFiles = (deployTargetFileList || [""]).map((item, index) => {
+      deployTargetFiles = (_state.deployTargetFileList || [""]).map((item, index) => {
         if( index > 0 ) {
-            return <div key={index}><Input value={item} onChange={(e) => {
-                this.revampList("PRODConfig", "structureAfterList", index, "revamp", e.target.value)
+            return <div key={index} style={{marginTop:10}}><Input value={item} onChange={(e) => {
+                this.revampDeployTarget(index,"revamp", e.target.value)
             }} addonAfter={
                 <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
-                    this.revampList("PRODConfig", "structureAfterList", index, "delete", e)
+                    this.revampDeployTarget( index, "delete", e)
                 }}/>
             }/></div>;
         }
@@ -315,9 +332,10 @@ class ProjectsCentont extends Component {
               {
                 getFieldDecorator('deployTargetFile', {
                   initialValue: deployTargetFile,
-                })(<Input addonAfter={<Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {}}/>}/>)
+                })(<Input addonAfter={<Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {this.revampDeployTarget( 0, "delete", e)}}/>}/>)
               }
-              <a style={{position: "absolute",top:0,right:"-18px"}}><Icon type="plus-circle-o" onClick={() => {}}/></a>
+                {deployTargetFiles}
+              <a style={{position: "absolute",top:0,right:"-18px"}}><Icon type="plus-circle-o" onClick={(e) => {this.revampDeployTarget( -1, "add", "")}}/></a>
 
             </FormItem>
           </div>
