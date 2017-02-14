@@ -3,7 +3,7 @@ import {browserHistory} from "dva/router";
 import cookie from "react-cookie";
 import {Button, Form, Icon, Input} from "antd";
 const FormItem = Form.Item;
-import {ROUTE_PROJECTS} from '../constants';
+import {ROUTE_PROJECTS,COOKIE_OPTIONS} from '../constants';
 
 
 function SignInForm({dispatch, users, styles, form: {getFieldDecorator, validateFields, setFields, setFieldsValue}}) {
@@ -26,12 +26,8 @@ function SignInForm({dispatch, users, styles, form: {getFieldDecorator, validate
       }, (result) => {
         const {code, data}=result;
         if (code == 1) {
-          let Options = {
-            path: '/',
-            maxAge: 30 * 24 * 60 * 60
-          }
-          cookie.save('user_token', data, Options);
-          cookie.save('username', username, Options);
+          cookie.save('user_token', data, COOKIE_OPTIONS);
+          cookie.save('username', username, COOKIE_OPTIONS);
           disPatch('changeState', {username: '',password:''})
           browserHistory.push(ROUTE_PROJECTS)
         } else if (code == 101) {

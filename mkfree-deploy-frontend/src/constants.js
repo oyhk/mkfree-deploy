@@ -1,4 +1,8 @@
 export const PAGE_SIZE = 10;
+export const COOKIE_OPTIONS = {
+    path: '/',
+    maxAge: 30 * 24 * 60 * 60
+};
 
 
 export const ENV_DEV = ['DEV', '开发'];

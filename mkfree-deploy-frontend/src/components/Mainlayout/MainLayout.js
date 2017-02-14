@@ -3,13 +3,8 @@ import styles from './MainLayout.css';
 import Header from './Header';
 import cookie from "react-cookie";
 import {browserHistory} from "dva/router";
-import {ROUTE_USERS_SIGN_IN} from '../../constants';
+import {ROUTE_USERS_SIGN_IN,COOKIE_OPTIONS} from '../../constants';
 import { Icon, Dropdown,Menu} from "antd";
-
-let Options = {
-    path: '/',
-    maxAge: 30 * 24 * 60 * 60
-}
 
 function MainLayout({children, location}) {
   
@@ -19,8 +14,8 @@ function MainLayout({children, location}) {
         <a target="_blank"
            rel="noopener noreferrer"
            onClick={() => {
-             cookie.remove('user_token',Options);
-             cookie.remove('username',Options);
+             cookie.remove('user_token',COOKIE_OPTIONS);
+             cookie.remove('username',COOKIE_OPTIONS);
              browserHistory.push(ROUTE_USERS_SIGN_IN);
            }}>退出</a>
       </Menu.Item>

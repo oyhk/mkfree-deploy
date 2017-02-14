@@ -1,10 +1,11 @@
 import * as usersService from "../services/users";
 import {
-  ROUTE_ADMIN_USERS,
-  ROUTE_USERS_SIGN_IN,
-  ROUTE_ADMIN_USERS_INFO,
-  ROUTE_ADMIN_USERS_CREATE,
-  ROUTE_PROJECTS
+    ROUTE_ADMIN_USERS,
+    ROUTE_USERS_SIGN_IN,
+    ROUTE_ADMIN_USERS_INFO,
+    ROUTE_ADMIN_USERS_CREATE,
+    ROUTE_PROJECTS,
+    COOKIE_OPTIONS
 } from "../constants";
 import cookie from "react-cookie";
 import {browserHistory} from "dva/router";
@@ -73,12 +74,8 @@ export default {
             if (code == 1) {
                 browserHistory.push(ROUTE_PROJECTS)
             } else {
-                let Options = {
-                    path: '/',
-                    maxAge: 30 * 24 * 60 * 60
-                }
-                cookie.remove('user_token',Options );
-                cookie.remove('username',Options );
+                cookie.remove('user_token', COOKIE_OPTIONS);
+                cookie.remove('username', COOKIE_OPTIONS);
             }
         },
         *userSave({payload: values, callBack}, {call, put}) {
