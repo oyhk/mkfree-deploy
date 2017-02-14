@@ -17,14 +17,15 @@ checkpid() {
    fi
 }
 start() {
+   # 构建 react
+   cd ${FRONTEND_HOME} && NODE_ENV=prod npm run build
+   
    checkpid
    if [ $psid -ne 0 ]; then
       echo "================================"
       echo "warn: $APP_MAINCLASS already started! (pid=$psid)"
       echo "================================"
    else
-      # 构建 react
-      cd ${FRONTEND_HOME} && NODE_ENV=prod npm run build
       # 构建 java
       cd $APP_HOME && /rockcent/apps/jenkins-project/tools/hudson.tasks.Maven_MavenInstallation/maven/bin/mvn clean package
 
