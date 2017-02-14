@@ -82,7 +82,7 @@ echo "ssh -p $serverSshPort $serverSshUsername@$serverIP mkdir -p $remoteProject
 IFS=';' read -ra ADDR <<< "$deployTargetFileList"
 for i in "${ADDR[@]}"; do
     echo "scp -P $serverSshPort  -r $projectAllPath/$i $serverSshUsername@$serverIP:$remoteProjectPath"
-    scp -P ${serverSshPort}  -r ${projectAllPath}/${i} ${serverSshUsername}@${serverIP}:${remoteProjectPath}
+    echo $(scp -P ${serverSshPort}  -r ${projectAllPath}/${i} ${serverSshUsername}@${serverIP}:${remoteProjectPath})
 done
 ######### 同步文件到指定服务器 end #############
 
