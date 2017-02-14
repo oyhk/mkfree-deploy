@@ -251,7 +251,7 @@ public class ProjectController extends BaseController {
                 }
 
                 // 项目配置环境构建后步骤
-                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
+                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                 for (ProjectStructureStep projectStructureStep : projectStructureStepAfterList) {
                     if (projectEnvConfigDto.getStructureAfterList() == null) {
                         projectEnvConfigDto.setStructureAfterList(new ArrayList<>());
