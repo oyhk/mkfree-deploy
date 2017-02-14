@@ -37,7 +37,8 @@ class ProjectsCentont extends Component {
     super(props);
     this.state = {
       visible: true,
-
+      style:{width:"auto"},
+      deployTargetFileList:[],
       DEVConfig: {
         "env": "DEV",
         "serverMachineIdList": [], /*选中服务器列表*/
@@ -47,7 +48,7 @@ class ProjectsCentont extends Component {
       },
 
       TESTConfig: {
-        "env": "DEV",
+        "env": "TEST",
         "serverMachineIdList": [],
         "publicBranch": "",
         "structureBeforeList": [""],
@@ -55,7 +56,7 @@ class ProjectsCentont extends Component {
       },
 
       UATConfig: {
-        "env": "DEV",
+        "env": "UAT",
         "serverMachineIdList": [],
         "publicBranch": "",
         "structureBeforeList": [""],
@@ -63,14 +64,12 @@ class ProjectsCentont extends Component {
       },
 
       PRODConfig: {
-        "env": "DEV",
+        "env": "PROD",
         "serverMachineIdList": [],
         "publicBranch": "",
         "structureBeforeList": [""],
         "structureAfterList": [""],
       },
-
-
     };
   }
 
@@ -83,6 +82,7 @@ class ProjectsCentont extends Component {
         PRODConfig: this.props.record.projectEnvConfigList[3],
       })
     }
+      this.setState({style:{width:document.body.offsetWidth - 336}});
   }
 
   componentWillReceiveProps(nextProps) {
@@ -92,6 +92,7 @@ class ProjectsCentont extends Component {
         TESTConfig: nextProps.record.projectEnvConfigList[1],
         UATConfig: nextProps.record.projectEnvConfigList[2],
         PRODConfig: nextProps.record.projectEnvConfigList[3],
+        deployTargetFileList: nextProps.record.deployTargetFileList || [""],
         visible: false
       })
     }
@@ -115,12 +116,18 @@ class ProjectsCentont extends Component {
     const {onOk} = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        let
+          deployTargetFileList = this.state.deployTargetFileList;
+          deployTargetFileList[0] = values.deployTargetFile;
         values["projectEnvConfigList"] = [
           this.state.DEVConfig,
           this.state.TESTConfig,
           this.state.UATConfig,
           this.state.PRODConfig,
         ];
+        values["deployTargetFileList"] = deployTargetFileList;
+
+        delete  values.deployTargetFile;
 
         onOk(values);
 
@@ -140,11 +147,30 @@ class ProjectsCentont extends Component {
 
     this.setState({[env]: Build});
   };
+  revampDeployTarget = (index,type,value)=>{
+      const Build = (this.state.deployTargetFileList || [] ).concat();
+
+      (type == "add" ) && (Build.push(""));
+
+      (type == "revamp" ) && (Build[index] = value);
+
+      (type == "delete" ) && (Build.splice(index , 1));
+
+      (Build.length == 0 ) && (Build.push(""));
+
+      (type == "delete" && index == 0) && (this.props.form.setFieldsValue({"deployTargetFile":Build[0]}));
+
+      this.setState({
+          deployTargetFileList : Build
+      });
+  }
+
 
   render() {
     const {children} = this.props;
     const {getFieldDecorator} = this.props.form;
-    const {name, gitUrl, publishBranch, remotePath, moduleName, deployTargetFile} = this.props.record;
+    const {name, gitUrl, publishBranch, remotePath, moduleName, deployTargetFileList} = this.props.record;
+    const deployTargetFile = (this.state.deployTargetFileList || [""])[0];
     const formItemLayout = {
       labelCol: {span: 6},
       wrapperCol: {span: 8},
@@ -152,11 +178,11 @@ class ProjectsCentont extends Component {
     const
       _state = this.state,
       mockData = [],
-      DEVTargetKeys = _state.DEVConfig.serverMachineIdList,
-      TESTTargetKeys = _state.TESTConfig.serverMachineIdList,
-      UATTargetKeys = _state.UATConfig.serverMachineIdList,
-      PRODTargetKeys = _state.PRODConfig.serverMachineIdList,
-      DEVStructureB = (_state.DEVConfig.structureBeforeList || [] ).map((item, index) => {
+      DEVTargetKeys = _state.DEVConfig.serverMachineIdList || [],
+      TESTTargetKeys = _state.TESTConfig.serverMachineIdList || [],
+      UATTargetKeys = _state.UATConfig.serverMachineIdList || [],
+      PRODTargetKeys = _state.PRODConfig.serverMachineIdList || [],
+      DEVStructureB = (_state.DEVConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -165,7 +191,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      DEVStructureA = (_state.DEVConfig.structureAfterList || []).map((item, index) => {
+      DEVStructureA = (_state.DEVConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("DEVConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -174,7 +200,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>
       }),
-      TESTStructureB = (_state.TESTConfig.structureBeforeList || [] ).map((item, index) => {
+      TESTStructureB = (_state.TESTConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("TESTConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -183,7 +209,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      TESTStructureA = (_state.TESTConfig.structureAfterList || []).map((item, index) => {
+      TESTStructureA = (_state.TESTConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("TESTConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -192,7 +218,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>
       }),
-      UATStructureB = (_state.UATConfig.structureBeforeList || [] ).map((item, index) => {
+      UATStructureB = (_state.UATConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("UATConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -201,7 +227,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      UATStructureA = (_state.UATConfig.structureAfterList || []).map((item, index) => {
+      UATStructureA = (_state.UATConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("UATConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -210,7 +236,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      PRODStructureB = (_state.PRODConfig.structureBeforeList || [] ).map((item, index) => {
+      PRODStructureB = (_state.PRODConfig.structureBeforeList || [""] ).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("PRODConfig", "structureBeforeList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -219,7 +245,7 @@ class ProjectsCentont extends Component {
                     }}/>
                 }/></div>;
       }),
-      PRODStructureA = (_state.PRODConfig.structureAfterList || []).map((item, index) => {
+      PRODStructureA = (_state.PRODConfig.structureAfterList || [""]).map((item, index) => {
         return <div key={index}><Input value={item} onChange={(e) => {
                     this.revampList("PRODConfig", "structureAfterList", index, "revamp", e.target.value)
                 }} addonAfter={
@@ -229,6 +255,17 @@ class ProjectsCentont extends Component {
                 }/></div>;
 
 
+      }),
+      deployTargetFiles = (_state.deployTargetFileList || [""]).map((item, index) => {
+        if( index > 0 ) {
+            return <div key={index} style={{marginTop:10}}><Input value={item} onChange={(e) => {
+                this.revampDeployTarget(index,"revamp", e.target.value)
+            }} addonAfter={
+                <Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {
+                    this.revampDeployTarget( index, "delete", e)
+                }}/>
+            }/></div>;
+        }
       });
 
     if (this.props.servarData.length > 0) {
@@ -241,8 +278,10 @@ class ProjectsCentont extends Component {
       });
     }
 
+
+
     return (
-      <div className={styles.projectsCenton}>
+      <div className={styles.projectsCenton} style={this.state.style}>
         <Form horizontal onSubmit={this.okHandler}>
           <div>
             <h3>基本配置</h3>
@@ -293,8 +332,11 @@ class ProjectsCentont extends Component {
               {
                 getFieldDecorator('deployTargetFile', {
                   initialValue: deployTargetFile,
-                })(<Input />)
+                })(<Input addonAfter={<Icon style={{cursor: "pointer"}} type="minus" onClick={(e) => {this.revampDeployTarget( 0, "delete", e)}}/>}/>)
               }
+                {deployTargetFiles}
+              <a style={{position: "absolute",top:0,right:"-18px"}}><Icon type="plus-circle-o" onClick={(e) => {this.revampDeployTarget( -1, "add", "")}}/></a>
+
             </FormItem>
           </div>
           <div className={styles.seaverMachine}>
