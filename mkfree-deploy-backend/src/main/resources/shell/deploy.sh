@@ -83,7 +83,7 @@ IFS=';' read -ra ADDR <<< "$deployTargetFileList"
 for i in "${ADDR[@]}"; do
 
     IFS=',' read -ra ADDR1 <<< "$i"
-    echo "scp -P $serverSshPort  -r $projectAllPath/$($ADDR1[0]) $serverSshUsername@$serverIP:$remoteProjectPath/$($ADDR1[1])"
+    echo "scp -P $serverSshPort  -r $projectAllPath/($ADDR1[0]) $serverSshUsername@$serverIP:$remoteProjectPath/($ADDR1[1])"
     echo $(scp -P ${serverSshPort}  -r ${projectAllPath}/${ADDR1[0]} ${serverSshUsername}@${serverIP}:${remoteProjectPath}/${ADDR1[1]})
 done
 ######### 同步文件到指定服务器 end #############
