@@ -1,5 +1,6 @@
 package com.mkfree.deploy.dto;
 
+import com.mkfree.deploy.domain.ProjectDeployFile;
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.List;
@@ -22,12 +23,11 @@ public class ProjectDto extends DtoEntity {
     //部署的项目模块名称
     private String moduleName;
     //部署的项目模块的目标文件或者目录
-    private List<String> deployTargetFileList;
+    private List<ProjectDeployFileDto> deployTargetFileList;
     // 项目的发布环境
     private ProjectEnv env;
     // 各种环境配置
     private List<ProjectEnvConfigDto> projectEnvConfigList;
-
 
     public String getName() {
         return name;
@@ -69,14 +69,6 @@ public class ProjectDto extends DtoEntity {
         this.moduleName = moduleName;
     }
 
-    public List<String> getDeployTargetFileList() {
-        return deployTargetFileList;
-    }
-
-    public void setDeployTargetFileList(List<String> deployTargetFileList) {
-        this.deployTargetFileList = deployTargetFileList;
-    }
-
     public ProjectEnv getEnv() {
         return env;
     }
@@ -94,4 +86,11 @@ public class ProjectDto extends DtoEntity {
         this.projectEnvConfigList = projectEnvConfigList;
     }
 
+    public List<ProjectDeployFileDto> getDeployTargetFileList() {
+        return deployTargetFileList;
+    }
+
+    public void setDeployTargetFileList(List<ProjectDeployFileDto> deployTargetFileList) {
+        this.deployTargetFileList = deployTargetFileList;
+    }
 }

@@ -20,8 +20,6 @@ public class Project extends IDEntity {
     private String remotePath;
     @Column(columnDefinition = "varchar (255) comment '部署的项目模块名称'")
     private String moduleName;
-    @Column(columnDefinition = "text comment '部署的项目模块的目标文件或者目录'")
-    private String deployTargetFileList;
 
     public String getGitUrl() {
         return gitUrl;
@@ -61,14 +59,6 @@ public class Project extends IDEntity {
 
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
-    }
-
-    public String getDeployTargetFileList() {
-        return deployTargetFileList;
-    }
-
-    public void setDeployTargetFileList(String deployTargetFileList) {
-        this.deployTargetFileList = deployTargetFileList;
     }
 
 }

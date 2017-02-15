@@ -10,13 +10,11 @@ import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.domain.enumclass.RoleType;
+import com.mkfree.deploy.dto.ProjectDeployFileDto;
 import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.ProjectEnvConfigDto;
 import com.mkfree.deploy.dto.UserDto;
-import com.mkfree.deploy.helper.ObjectMapperHelper;
-import com.mkfree.deploy.helper.ProjectStructureStepHelper;
-import com.mkfree.deploy.helper.ShellHelper;
-import com.mkfree.deploy.helper.UserHelper;
+import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
 import com.mkfree.deploy.service.ProjectStructureLogService;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -59,11 +58,13 @@ public class ProjectController extends BaseController {
     private ObjectMapper objectMapper;
     @Autowired
     private ProjectStructureLogService projectStructureLogSrv;
+    @Autowired
+    private ProjectDeployFileRepository projectDeployFileRepository;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
-            Page page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC,"name"));
+            Page page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
             jsonResult.data = new PageResult(page, Routes.PROJECT_PAGE);
         };
         return doing.go(request, log);
@@ -90,9 +91,16 @@ public class ProjectController extends BaseController {
 
             project = new Project();
             BeanUtils.copyProperties(dto, project);
-            project.setDeployTargetFileList(objectMapper.writeValueAsString(dto.getDeployTargetFileList()));
-
             project = projectRepository.save(project);
+
+            List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
+            if (projectDeployFileDtoList != null) {
+                for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
+                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId());
+                    projectDeployFileRepository.save(projectDeployFile);
+                }
+            }
+
 
             // 项目环境配置
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
@@ -144,8 +152,17 @@ public class ProjectController extends BaseController {
                 project.setModuleName(dto.getModuleName());
             }
 
-            if (dto.getDeployTargetFileList() != null) {
-                project.setDeployTargetFileList(objectMapper.writeValueAsString(dto.getDeployTargetFileList()));
+            List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
+            if (projectDeployFileDtoList != null) {
+
+                // 删除之前的数据，再添加
+                List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(project.getId());
+                projectDeployFileRepository.delete(projectDeployFileList);
+
+                for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
+                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId());
+                    projectDeployFileRepository.save(projectDeployFile);
+                }
             }
             project = projectRepository.save(project);
 
@@ -227,7 +244,19 @@ public class ProjectController extends BaseController {
             projectDto.setId(project.getId());
             projectDto.setGitUrl(project.getGitUrl());
             projectDto.setModuleName(project.getModuleName());
-            projectDto.setDeployTargetFileList(ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, project.getDeployTargetFileList()));
+
+
+            // 上传部署文件或目录
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(project.getId());
+            List<ProjectDeployFileDto> projectDeployFileDtoList = projectDeployFileList.stream().map(projectDeployFile -> {
+                ProjectDeployFileDto projectDeployFileDto = new ProjectDeployFileDto();
+                projectDeployFileDto.setIsEnable(projectDeployFile.getIsEnable());
+                projectDeployFileDto.setLocalFilePath(projectDeployFile.getLocalFilePath());
+                projectDeployFileDto.setRemoteFilePath(projectDeployFile.getRemoteFilePath());
+                return projectDeployFileDto;
+            }).collect(Collectors.toList());
+            projectDto.setDeployTargetFileList(projectDeployFileDtoList);
+
             projectDto.setName(project.getName());
             projectDto.setRemotePath(project.getRemotePath());
 
@@ -284,7 +313,7 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            if(userDto.getRoleType() != RoleType.SUPER_ADMIN) {
+            if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
                 long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv().toString())).count();
                 if (count == 0) {
                     jsonResult.custom("10021", "没有此项目发布权限", log);
@@ -320,12 +349,13 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            List<String> deployTargetFileList = objectMapper.readValue(project.getDeployTargetFileList(), new TypeReference<List<String>>() {
-            });
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
+
+
             StringBuilder shellDeployTargetFileList = new StringBuilder();
-            if (deployTargetFileList.size() > 0) {
-                deployTargetFileList.forEach(s -> {
-                    shellDeployTargetFileList.append(s).append(";");
+            if (projectDeployFileList.size() > 0) {
+                projectDeployFileList.forEach(projectDeployFile -> {
+                    shellDeployTargetFileList.append(projectDeployFile.getLocalFilePath()).append(",").append(projectDeployFile.getRemoteFilePath()).append(";");
                 });
                 shellDeployTargetFileList.deleteCharAt(shellDeployTargetFileList.length() - 1);
             }
