@@ -213,6 +213,10 @@ public class ProjectController extends BaseController {
                 return;
             }
 
+            // 删除项目部署文件或目录
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(dto.getId());
+            projectDeployFileRepository.delete(projectDeployFileList);
+
             // 删除构建步骤
             List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectId(dto.getId());
             projectStructureStepRepository.delete(projectStructureStepList);
