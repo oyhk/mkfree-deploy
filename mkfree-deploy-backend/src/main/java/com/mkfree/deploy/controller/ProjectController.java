@@ -10,6 +10,7 @@ import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.domain.enumclass.RoleType;
+import com.mkfree.deploy.domain.enumclass.Whether;
 import com.mkfree.deploy.dto.ProjectDeployFileDto;
 import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.ProjectEnvConfigDto;
@@ -349,8 +350,7 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
-
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(projectId, Whether.YES);
 
             StringBuilder shellDeployTargetFileList = new StringBuilder();
             if (projectDeployFileList.size() > 0) {
