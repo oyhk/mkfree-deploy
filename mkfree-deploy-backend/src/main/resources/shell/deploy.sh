@@ -81,8 +81,8 @@ echo "ssh -p $serverSshPort $serverSshUsername@$serverIP mkdir -p $remoteProject
 # 上传指定文件或目录，如有多个文件或目录用 ; 隔开
 IFS=';' read -ra ADDR <<< "$deployTargetFileList"
 for i in "${ADDR[@]}"; do
-
     IFS=',' read -ra ADDR1 <<< "$i"
+    echo "ADDR1=$ADDR1"
     echo "scp -P $serverSshPort  -r $projectAllPath/${ADDR1[0]} $serverSshUsername@$serverIP:$remoteProjectPath/${ADDR1[1]}"
     echo $(scp -P ${serverSshPort}  -r ${projectAllPath}/${ADDR1[0]} ${serverSshUsername}@${serverIP}:${remoteProjectPath}/${ADDR1[1]})
 done
