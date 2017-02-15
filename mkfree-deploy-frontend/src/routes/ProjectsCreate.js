@@ -150,13 +150,16 @@ class ProjectsCentont extends Component {
     });
   };
   revampList = (env, after, index, type, value) => {
+
     const Build = JSON.parse(JSON.stringify(this.state[env]));
 
     (type == "add" ) && (Build[after].push(""));
 
     (type == "delete" && Build[after].length > 1) && (Build[after].splice(index, 1));
 
-    (type == "revamp" && index > -1) && (Build[after][index] = value);
+    (type == "revamp" && index > -1 && Build[after]) && (Build[after][index] = value);
+
+    (type == "revamp" && index > -1 && !( Build[after])) && (Build[after] = [value]);
 
     (type == "revamp" && index == -1) && (Build[after] = value);
 
