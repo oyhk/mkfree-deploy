@@ -17,7 +17,7 @@ const CheckboxGroup = Checkbox.Group;
 
 function UserInfo({dispatch, users, form, params}) {
 
-    const { username, password, result, listData } = users;
+    const { username, password, result, listData, listDataProject } = users;
     const { validateFields, getFieldDecorator } = form;
     const isCreate = location.href.includes(ROUTE_ADMIN_USERS_CREATE);
     let deleteUserLock = false;
@@ -36,14 +36,14 @@ function UserInfo({dispatch, users, form, params}) {
                 payload = {
                     username: values.username,
                     password: values.password,
-                    userProjectPermissionList: listData,
+                    userProjectPermissionList: listDataProject,
                 };
             } else {
                 payload = {
                     id: params.id,
                     username: values.username,
                     password: values.password,
-                    userProjectPermissionList: listData,
+                    userProjectPermissionList: listDataProject,
                 };
             }
 
@@ -103,22 +103,37 @@ function UserInfo({dispatch, users, form, params}) {
     };
 
     const permissionName = ['DEV', 'UAT', 'TEST', 'PROD'];
-    let _listData = [];
 
-    const permissionSubmit = (value, index)=> {
-        _listData = listData;
-        _listData[index].projectEnv = value;
+    const permissionSubmit = (value, index, dt1)=> {
+        listDataProject[index].projectEnv = value;
+
         dispatch({
             type: `users/changeState`,
             payload: {
-                listData: _listData,
+                listDataProject,
             }
         });
     };
 
     const permissionList = ()=> {
-        if (listData && listData.length > 0) {
-            return listData.map((dt, index)=> {
+        if (listDataProject && listDataProject.length > 0) {
+            return listDataProject.map((dt1, index1)=> {
+                return (
+                    <FormItem key={index1} {...formItemLayout} label={dt1.projectName}>
+                        <CheckboxGroup
+                            options={permissionName}
+                            value={dt1.projectEnv}
+                            onChange={(value)=> permissionSubmit(value, index1, dt1)}
+                        />
+                    </FormItem>
+                )
+            });
+        }
+    };
+
+    const projectList = ()=> {
+        if (listDataProject && listDataProject.length > 0) {
+            return listDataProject.map((dt, index)=> {
                 return (
                     <FormItem key={index} {...formItemLayout} label={dt.projectName}>
                         <CheckboxGroup
@@ -161,7 +176,7 @@ function UserInfo({dispatch, users, form, params}) {
                 <h2>2.项目权限</h2>
                 <Form onSubmit={(e)=> submit(e)}>
                     {
-                        permissionList()
+                        /*listData && listData.length > 0 ? */permissionList()/* : projectList()*/
                     }
                     <FormItem {...tailFormItemLayout}>
                         <Button type="primary" htmlType="submit">确定</Button>
