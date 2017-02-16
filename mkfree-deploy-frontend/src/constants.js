@@ -1,4 +1,4 @@
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 20;
 export const COOKIE_OPTIONS = {
     path: '/',
     maxAge: 30 * 24 * 60 * 60
