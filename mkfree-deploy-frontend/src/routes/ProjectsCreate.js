@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "dva";
-import {Input, Form, Icon, Button, Transfer, Col, Checkbox} from "antd";
+import {Input, Form, Icon, Button, Transfer, Col,Switch} from "antd";
 import styles from "./Projects.css";
 import {ROUTE_PROJECTS_INFO} from "../constants";
 const InputGroup = Input.Group;
@@ -298,37 +298,27 @@ class ProjectsCentont extends Component {
             }),
             deployTargetFiles = (_state.deployTargetFileList).map((item, index) => {
                 const {localFilePath, remoteFilePath, isEnable}=item;
-                return <InputGroup size="large" key={index} style={{marginBottom: '10px'}}>
-                    <Col span="9">
+                return <InputGroup size="large" key={index} style={{marginBottom: '20px'}}>
+                    <Col span="20" style={{marginBottom: '10px'}}>
                         <Input
                             placeholder="本地路径"
                             onChange={(e) => {
-                                item.localFilePath=e.target.value
+                                item.localFilePath = e.target.value
                                 this.revampDeployTarget(index, "revamp", item)
                             }}
                             value={localFilePath}/>
                     </Col>
-                    <Col span="9">
-                        <Input
+                    <Col span="3">
+                        <Switch
+                            checkedChildren={'启用'}
+                            unCheckedChildren={'停用'}
                             onChange={(e) => {
-                                item.remoteFilePath=e.target.value
+                                item.isEnable = e? 'YES' : 'NO';
                                 this.revampDeployTarget(index, "revamp", item)
                             }}
-                            placeholder="远程路径"
-                            value={remoteFilePath}/>
+                            checked={isEnable == 'YES'}/>
                     </Col>
-                    <Col span="4">
-                        <Checkbox
-                            onChange={(e) => {
-                                item.isEnable=e.target.checked?'YES':'NO';
-                                this.revampDeployTarget(index, "revamp", item)
-                            }}
-                            checked={isEnable == 'YES'}
-                        >
-                            是否启用
-                        </Checkbox>
-                    </Col>
-                    <Col span="2">
+                    <Col span="1">
                         <Icon
                             className={styles.dynamic}
                             type="minus-circle-o"
@@ -337,6 +327,15 @@ class ProjectsCentont extends Component {
                                 this.revampDeployTarget(index, "delete", e)
                             }}
                         />
+                    </Col>
+                    <Col span="20">
+                        <Input
+                            onChange={(e) => {
+                                item.remoteFilePath = e.target.value
+                                this.revampDeployTarget(index, "revamp", item)
+                            }}
+                            placeholder="远程路径"
+                            value={remoteFilePath}/>
                     </Col>
                 </InputGroup>;
             });

@@ -23,7 +23,7 @@
     transition: all .3s;
 }
 .dynamic:hover {
-    color: #777;
+    color: #f04134;
 }
 .dynamic[disabled] {
     cursor: not-allowed;
