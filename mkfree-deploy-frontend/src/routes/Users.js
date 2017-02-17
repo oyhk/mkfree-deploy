@@ -44,7 +44,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
 
     function pageChangeHandler(pageNo) {
         dispatch(routerRedux.push({
-            pathname: '/users',
+            pathname: '/admin/users',
             query: {pageNo},
         }));
     }
@@ -84,8 +84,19 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
         },
     ];
 
+    const pageObj = {
+        total,
+        size: PAGE_SIZE,
+        current: current + 1,
+        showQuickJumper: true,
+        showTotal: (total) => `共 ${total} 条`,
+        onChange: (value)=> {
+            pageChangeHandler(value);
+        }
+    };
+
     return (
-        <div className={styles.normal}>
+        <div className={styles.norma}>
             <div>
                 <div className={styles.create}>
                     <Button type="primary" onClick={()=> browserHistory.push(ROUTE_ADMIN_USERS_CREATE)}>创建用户</Button>
@@ -95,14 +106,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
                     dataSource={dataSource}
                     loading={loading}
                     rowKey={record => record.id}
-                    pagination={false}
-                />
-                <Pagination
-                    className="ant-table-pagination"
-                    total={total}
-                    current={current+1}
-                    pageSize={PAGE_SIZE}
-                    onChange={pageChangeHandler}
+                    pagination={pageObj}
                 />
             </div>
         </div>

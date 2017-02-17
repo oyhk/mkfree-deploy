@@ -57,8 +57,6 @@ export default {
             yield call(projectService.deploy, values);
             yield put({type: 'reload'});
         },
-
-
         *projectFetch({payload: {projectsId = 0}}, {call, put}) {
             const result = yield call(projectService.projectFetch, {projectsId});
             yield put({
