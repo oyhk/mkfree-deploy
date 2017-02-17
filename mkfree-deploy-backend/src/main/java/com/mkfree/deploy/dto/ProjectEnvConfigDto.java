@@ -28,6 +28,13 @@ public class ProjectEnvConfigDto extends IDEntity {
         return env;
     }
 
+    public String getEnvText() {
+        if (this.env != null) {
+            return this.env.getText();
+        }
+        return null;
+    }
+
     public void setEnv(ProjectEnv env) {
         this.env = env;
     }

@@ -12,4 +12,6 @@ import java.util.List;
 @Repository
 public interface UserProjectPermissionRepository extends JpaRepository<UserProjectPermission, Long> {
     List<UserProjectPermission> findByUserId(Long userId);
+
+    List<UserProjectPermission> findByProjectId(Long projectId);
 }

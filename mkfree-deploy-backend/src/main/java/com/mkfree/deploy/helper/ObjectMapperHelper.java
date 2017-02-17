@@ -18,8 +18,13 @@ public enum ObjectMapperHelper {
         });
     }
 
-    public List<Long> jsonToListLong(ObjectMapper objectMapper, String value) throws IOException {
-        return objectMapper.readValue(value, new TypeReference<List<Long>>() {
-        });
+    public List<Long> jsonToListLong(ObjectMapper objectMapper, String value)  {
+        try {
+            return objectMapper.readValue(value, new TypeReference<List<Long>>() {
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

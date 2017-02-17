@@ -11,10 +11,7 @@ import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.domain.enumclass.RoleType;
 import com.mkfree.deploy.domain.enumclass.Whether;
-import com.mkfree.deploy.dto.ProjectDeployFileDto;
-import com.mkfree.deploy.dto.ProjectDto;
-import com.mkfree.deploy.dto.ProjectEnvConfigDto;
-import com.mkfree.deploy.dto.UserDto;
+import com.mkfree.deploy.dto.*;
 import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
 import com.mkfree.deploy.service.ProjectStructureLogService;
@@ -32,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -61,12 +59,54 @@ public class ProjectController extends BaseController {
     private ProjectStructureLogService projectStructureLogSrv;
     @Autowired
     private ProjectDeployFileRepository projectDeployFileRepository;
+    @Autowired
+    private UserProjectPermissionRepository userProjectPermissionRepository;
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
+        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
+
+
+        Map<Long, UserProjectPermissionDto> userProjectPermissionDtoMap = userDto.getUserProjectPermissionList().stream().collect(Collectors.toMap(UserProjectPermissionDto::getProjectId, userProjectPermissionDto -> userProjectPermissionDto));
+
         RestDoing doing = jsonResult -> {
-            Page page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
-            jsonResult.data = new PageResult(page, Routes.PROJECT_PAGE);
+
+
+            List<ProjectDto> projectDtoList = new ArrayList<>();
+
+            Page<Project> page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+            page.getContent().forEach(project -> {
+
+                ProjectDto projectDto = new ProjectDto();
+                projectDto.setName(project.getName());
+                projectDto.setId(project.getId());
+
+
+                List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
+                projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineList().equals("[]")).collect(Collectors.toList());
+
+                UserProjectPermissionDto userProjectPermissionDto = userProjectPermissionDtoMap.get(project.getId());
+                if (userProjectPermissionDto == null) {
+                    projectEnvConfigList = null;
+                } else {
+                    projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv().toString())).collect(Collectors.toList());
+                }
+
+                List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
+                if(projectEnvConfigList != null) {
+                    projectEnvConfigList.forEach(projectEnvConfig -> {
+                        ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
+                        projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
+                        projectEnvConfigDto.setServerMachineIdList(ObjectMapperHelper.SINGLEONE.jsonToListLong(objectMapper, projectEnvConfig.getServerMachineList()));
+                        projectEnvConfigDtoList.add(projectEnvConfigDto);
+                    });
+                }
+                projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
+                projectDtoList.add(projectDto);
+            });
+
+
+            jsonResult.data =new PageResult<>(page.getNumber(),page.getSize(),page.getTotalElements(),projectDtoList, Routes.PROJECT_PAGE);
         };
         return doing.go(request, log);
     }
@@ -217,6 +257,10 @@ public class ProjectController extends BaseController {
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(dto.getId());
             projectDeployFileRepository.delete(projectDeployFileList);
 
+            // 删除对应项目用户分配权限
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(dto.getId());
+            userProjectPermissionRepository.delete(userProjectPermissionList);
+
             // 删除构建步骤
             List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectId(dto.getId());
             projectStructureStepRepository.delete(projectStructureStepList);
@@ -341,19 +385,27 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            String serverMachineList1 = projectEnvConfig.getServerMachineList();
-            if (StringUtils.isBlank(serverMachineList1)) {
+            String serverMachineStrIdList = projectEnvConfig.getServerMachineList();
+            if (StringUtils.isBlank(serverMachineStrIdList)) {
                 jsonResult.remind("没有配置发布机器", log);
                 return;
             }
 
-            List<Long> serverMachineIdList = objectMapper.readValue(projectEnvConfig.getServerMachineList(), new TypeReference<List<Long>>() {
+            // 需要发布的机器id列表
+            List<Long> publicServerMachineIdList = dto.getServerMachineIdList();
+
+            // 默认全部环境发布的id列表
+            List<Long> serverMachineIdAllList = objectMapper.readValue(serverMachineStrIdList, new TypeReference<List<Long>>() {
             });
-            if (serverMachineIdList == null || serverMachineIdList.size() == 0) {
+            if (serverMachineIdAllList == null || serverMachineIdAllList.size() == 0) {
                 jsonResult.remind("没有配置发布机器", log);
                 return;
             }
+            if (publicServerMachineIdList == null) {
+                publicServerMachineIdList = serverMachineIdAllList;
+            }
 
+            // 部署目标模块文件或者目录
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(projectId, Whether.YES);
 
             StringBuilder shellDeployTargetFileList = new StringBuilder();
@@ -365,7 +417,7 @@ public class ProjectController extends BaseController {
             }
 
 
-            List<ServerMachine> serverMachineList = serverMachineRepository.findByIdIn(serverMachineIdList);
+            List<ServerMachine> serverMachineList = serverMachineRepository.findByIdIn(publicServerMachineIdList);
             for (ServerMachine serverMachine : serverMachineList) {
 
                 //构建前命令

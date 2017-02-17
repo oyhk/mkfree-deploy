@@ -1,6 +1,5 @@
 package com.mkfree.deploy.dto;
 
-import com.mkfree.deploy.domain.ProjectDeployFile;
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.List;
@@ -28,6 +27,17 @@ public class ProjectDto extends DtoEntity {
     private ProjectEnv env;
     // 各种环境配置
     private List<ProjectEnvConfigDto> projectEnvConfigList;
+
+    // 发布机器id列表
+    private List<Long> serverMachineIdList;
+
+    public List<Long> getServerMachineIdList() {
+        return serverMachineIdList;
+    }
+
+    public void setServerMachineIdList(List<Long> serverMachineIdList) {
+        this.serverMachineIdList = serverMachineIdList;
+    }
 
     public String getName() {
         return name;
