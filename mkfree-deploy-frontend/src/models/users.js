@@ -161,6 +161,9 @@ export default {
                         callBack: ()=> {
                             dispatch({
                                 type: 'projectPage',
+                                payload: {
+                                    pageSize: 100,
+                                }
                             });
                         }
                     });
@@ -173,6 +176,9 @@ export default {
                     });
                     dispatch({
                         type: 'projectPage',
+                        payload: {
+                            pageSize: 100,
+                        }
                     });
                 }
                 if (pathname === ROUTE_USERS_SIGN_IN && userToken) {
