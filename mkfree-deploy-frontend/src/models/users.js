@@ -29,7 +29,7 @@ export default {
             return {...state, list, total, pageNo};
         },
         changeState(state, action) {
-            const {payload}=action
+            const {payload} = action;
             return {...state, ...payload};
         },
     },
@@ -90,7 +90,7 @@ export default {
             const result = yield call(usersService.userDelete, values);
             callBack(result);
         },
-        *userInfo({payload: values}, {call, put}) {
+        *userInfo({payload: values, callBack}, {call, put}) {
             const result = yield call(usersService.userInfo, values);
             yield put({
                 type: 'changeState',
@@ -99,28 +99,39 @@ export default {
                     username: result.username,
                     password: result.password,
                     listData: result.userProjectPermissionList,
-                }
+                },
             });
+            callBack(result);
+
         },
-        *projectPage({payload: values}, {call, put}) {
+        *projectPage({payload: values}, {call, put, select}) {
             const result = yield call(usersService.projectPage, values);
-            let listData = [];
-            
+            let listDataProject = [];
+
             if (result.list.length > 0) {
                 result.list.map((dt) => {
-                    listData.push({
+                    listDataProject.push({
                         projectId: dt.id,
                         projectName: dt.name,
                         projectEnv: [],
-                    })
+                    });
                 });
             }
-            
+
+            const listData = yield select(state => state.users.listData);
+            if (listData && listData.length > 0) {
+                listDataProject.map((dt1, index1)=> {
+                    listData.map((dt2)=> {
+                        dt2.projectId === dt1.projectId ? listDataProject[index1].projectEnv = dt2.projectEnv : [];
+                    });
+                });
+            }
+
             yield put({
                 type: 'changeState',
                 payload: {
                     result,
-                    listData,
+                    listDataProject,
                 }
             });
         },
@@ -146,6 +157,11 @@ export default {
                         type: 'userInfo',
                         payload: {
                             id
+                        },
+                        callBack: ()=> {
+                            dispatch({
+                                type: 'projectPage',
+                            });
                         }
                     });
                 } else if (pathname === ROUTE_ADMIN_USERS_CREATE) {
