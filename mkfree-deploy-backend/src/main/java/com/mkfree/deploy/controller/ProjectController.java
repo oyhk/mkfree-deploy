@@ -66,11 +66,10 @@ public class ProjectController extends BaseController {
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
 
-
+        // 首先把用户可发布的项目权限分组
         Map<Long, UserProjectPermissionDto> userProjectPermissionDtoMap = userDto.getUserProjectPermissionList().stream().collect(Collectors.toMap(UserProjectPermissionDto::getProjectId, userProjectPermissionDto -> userProjectPermissionDto));
 
         RestDoing doing = jsonResult -> {
-
 
             List<ProjectDto> projectDtoList = new ArrayList<>();
 
@@ -81,32 +80,39 @@ public class ProjectController extends BaseController {
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
 
-
+                // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
                 projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineList().equals("[]")).collect(Collectors.toList());
 
                 UserProjectPermissionDto userProjectPermissionDto = userProjectPermissionDtoMap.get(project.getId());
-                if (userProjectPermissionDto == null) {
-                    projectEnvConfigList = null;
-                } else {
+                if (userProjectPermissionDto != null) {
                     projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv().toString())).collect(Collectors.toList());
+                    List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
+                    if (projectEnvConfigList != null) {
+                        projectEnvConfigList.forEach(projectEnvConfig -> {
+                            ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
+                            projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
+                            List<Long> serverMachineIdList = ObjectMapperHelper.SINGLEONE.jsonToListLong(objectMapper, projectEnvConfig.getServerMachineList());
+
+                            List<ServerMachineDto> serverMachineDtoList = serverMachineRepository.findByIdIn(serverMachineIdList).stream().map(serverMachine -> {
+                                ServerMachineDto serverMachineDto = new ServerMachineDto();
+                                serverMachineDto.setId(serverMachine.getId());
+                                serverMachineDto.setName(serverMachine.getName());
+                                return serverMachineDto;
+                            }).collect(Collectors.toList());
+                            projectEnvConfigDto.setServerMachineList(serverMachineDtoList);
+                            projectEnvConfigDtoList.add(projectEnvConfigDto);
+                        });
+                    }
+                    projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
+                    projectDtoList.add(projectDto);
                 }
 
-                List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
-                if(projectEnvConfigList != null) {
-                    projectEnvConfigList.forEach(projectEnvConfig -> {
-                        ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
-                        projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-                        projectEnvConfigDto.setServerMachineIdList(ObjectMapperHelper.SINGLEONE.jsonToListLong(objectMapper, projectEnvConfig.getServerMachineList()));
-                        projectEnvConfigDtoList.add(projectEnvConfigDto);
-                    });
-                }
-                projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
-                projectDtoList.add(projectDto);
+
             });
 
 
-            jsonResult.data =new PageResult<>(page.getNumber(),page.getSize(),page.getTotalElements(),projectDtoList, Routes.PROJECT_PAGE);
+            jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectDtoList, Routes.PROJECT_PAGE);
         };
         return doing.go(request, log);
     }

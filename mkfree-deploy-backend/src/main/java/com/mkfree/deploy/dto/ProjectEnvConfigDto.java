@@ -1,6 +1,7 @@
 package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.IDEntity;
+import com.mkfree.deploy.domain.ServerMachine;
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.List;
@@ -15,8 +16,10 @@ public class ProjectEnvConfigDto extends IDEntity {
     private Long projectId;
     //环境类型
     private ProjectEnv env;
-    //需要发布的服务机器列表
+    //需要发布的服务机器id列表
     private List<Long> serverMachineIdList;
+    //需要发布的服务机器列表
+    private List<ServerMachineDto> serverMachineList;
     //发布分支名称
     private String publicBranch;
     // 构建前执行命令
@@ -77,5 +80,13 @@ public class ProjectEnvConfigDto extends IDEntity {
 
     public void setStructureAfterList(List<String> structureAfterList) {
         this.structureAfterList = structureAfterList;
+    }
+
+    public List<ServerMachineDto> getServerMachineList() {
+        return serverMachineList;
+    }
+
+    public void setServerMachineList(List<ServerMachineDto> serverMachineList) {
+        this.serverMachineList = serverMachineList;
     }
 }
