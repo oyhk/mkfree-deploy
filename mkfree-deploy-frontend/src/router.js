@@ -7,7 +7,16 @@ import ProjectsCreate from './routes/ProjectsCreate';
 import ServerMachine from './routes/ServerMachine';
 import UsersInfo from './routes/UserInfo';
 import SsoIndex from './routes/SsoIndex';
-import { ROUTE_ADMIN_USERS, ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ROUTE_ServerMachine, ROUTE_ADMIN_USERS_INFO, ROUTE_USERS_SIGN_IN, ROUTE_ADMIN_USERS_CREATE} from './constants';
+import {
+    ROUTE_ADMIN_USERS,
+    ROUTE_PROJECTS,
+    ROUTE_PROJECTS_CREATE,
+    ROUTE_PROJECTS_INFO, 
+    ROUTE_ServerMachine,
+    ROUTE_ADMIN_USERS_INFO,
+    ROUTE_USERS_SIGN_IN,
+    ROUTE_ADMIN_USERS_CREATE
+} from './constants';
 
 export default function ({history}) {
     return (
