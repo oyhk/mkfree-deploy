@@ -3,7 +3,7 @@ import {connect} from 'dva';
 import {Table, Pagination, Popconfirm, Button} from 'antd';
 import {Link, browserHistory ,routerRedux} from 'dva/router';
 import styles from './Projects.css';
-import {PAGE_SIZE, ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD} from '../constants';
+import {PAGE_SIZE, ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD ,ROUTE_PROJECT_STRUCTURE_LOGS} from '../constants';
 import ProjectModal from '../components/Projects/ProjectModal';
 
 
@@ -51,19 +51,37 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             title: '项目名称',
             dataIndex: 'name',
             key: 'name',
-            render: text => <a href="">{text}</a>,
+            render: (text,record) => <a href={ROUTE_PROJECT_STRUCTURE_LOGS +"/"+record.id}>{text}</a>,
         },
         {
             title: '发布',
-            dataIndex: '',
-            key: '',
+            dataIndex: 'projectEnvConfigList',
+            key: 'projectEnvConfigList',
             render: (text, record)=>(
                 <span className={styles.operation}>
-                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_DEV[0]})}>{ENV_DEV[1]}</a>
-                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_TEST[0]})}>{ENV_TEST[1]}</a>
-                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_UAT[0]})}>{ENV_UAT[1]}</a>
-                    <a onClick={deploy.bind(null, {id: record.id, env: ENV_PROD[0]})}>{ENV_PROD[1]}</a>
+                    {
+                        (record.projectEnvConfigList||[]).map((item,index)=>{
+                            switch (item.env){
+                                case  "DEV" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_DEV[0]})}>{ENV_DEV[1]}</a>;
+                                case  "TEST" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_TEST[0]})}>{ENV_TEST[1]}</a>;
+                                case  "UAT" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_UAT[0]})}>{ENV_UAT[1]}</a>;
+                                case  "PROD" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_PROD[0]})}>{ENV_PROD[1]}</a>;
+                            }
+                        })
+                    }
+
+
+
+
                 </span>
+            )
+        },
+        {
+            title: '最近发布时间',
+            dataIndex: 'updatedAt',
+            key: 'updatedAt',
+            render: (text, record)=>(
+                <span>{text}</span>
             )
         },
         {
@@ -96,14 +114,15 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
                     dataSource={dataSource}
                     loading={loading}
                     rowKey={record => record.id}
-                    pagination={false}
-                />
-                <Pagination
-                    className="ant-table-pagination"
-                    total={total}
-                    current={current+1}
-                    pageSize={PAGE_SIZE}
-                    onChange={pageChangeHandler}
+                    pagination={{
+                        className : "ant-table-pagination",
+                        total : total,
+                        current : current+1,
+                        pageSize : PAGE_SIZE,
+                        showTotal :total => `共 ${total} 条`,
+                        onChange : pageChangeHandler,
+                    }}
+
                 />
             </div>
         </div>
