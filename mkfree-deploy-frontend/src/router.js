@@ -11,11 +11,13 @@ import {
     ROUTE_ADMIN_USERS,
     ROUTE_PROJECTS,
     ROUTE_PROJECTS_CREATE,
-    ROUTE_PROJECTS_INFO, 
+    ROUTE_PROJECTS_INFO,
     ROUTE_ServerMachine,
     ROUTE_ADMIN_USERS_INFO,
     ROUTE_USERS_SIGN_IN,
-    ROUTE_ADMIN_USERS_CREATE
+    ROUTE_ADMIN_USERS_CREATE,
+    ROUTE_PROJECT_STRUCTURE_LOGS,
+    ROUTE_PROJECT_STRUCTURE_LOGS_INFO
 } from './constants';
 
 export default function ({history}) {
@@ -31,6 +33,8 @@ export default function ({history}) {
                     <Route path={ROUTE_PROJECTS} component={Projects}/>
                     <Route path={ROUTE_PROJECTS_CREATE} component={ProjectsCreate}/>
                     <Route path={ROUTE_PROJECTS_INFO + '/:id'} component={ProjectsCreate}/>
+                    <Route path={ROUTE_PROJECT_STRUCTURE_LOGS+ '/:id'} component={StructureLogs}/>
+                    {/*<Route path={ROUTE_PROJECT_STRUCTURE_LOGS_INFO+ '/:id'} component={StructureLogsINFO}/>*/}
                 </Route>
                 <Route path="/serverMachine" component={MainLayout}>
                     <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
