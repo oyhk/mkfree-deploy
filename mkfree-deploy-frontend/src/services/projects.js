@@ -1,5 +1,5 @@
 import {request} from '../utils/request';
-
+import {stringify} from 'qs'
 export function fetch({pageNo = 0}) {
     return request(`/api/project/page?pageNo=${pageNo}&pageSize=20`);
 }
@@ -72,5 +72,8 @@ export function projectDeploy(body) {
     });
 }
 
+export function projectStructureLogList(values) {
+    return request(`/api/project_structure_log/list?${stringify(values)}`);
+}
 
 

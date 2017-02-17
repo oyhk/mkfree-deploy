@@ -1,29 +1,37 @@
-import React from 'react';
-import {connect} from 'dva';
-import {Table, Pagination, Popconfirm, Button} from 'antd';
-import {Link, browserHistory ,routerRedux} from 'dva/router';
-import styles from './Projects.css';
-import {PAGE_SIZE, ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD ,ROUTE_PROJECT_STRUCTURE_LOGS} from '../constants';
-import ProjectModal from '../components/Projects/ProjectModal';
+import React from "react";
+import {connect} from "dva";
+import {Table, Popconfirm, Button} from "antd";
+import {Link, browserHistory, routerRedux} from "dva/router";
+import styles from "./Projects.css";
+import {
+    PAGE_SIZE,
+    ROUTE_JOB,
+    ROUTE_PROJECTS_CREATE,
+    ROUTE_PROJECTS_INFO,
+    ENV_DEV,
+    ENV_TEST,
+    ENV_UAT,
+    ENV_PROD
+} from "../constants";
 
 
 function Projects({dispatch, list: dataSource, loading, total, pageNo: current}) {
-
-
+    
+    
     function deleteHandler(id) {
         dispatch({
             type: 'projects/remove',
             payload: id,
         });
     }
-
+    
     function pageChangeHandler(pageNo) {
         dispatch(routerRedux.push({
             pathname: '/projects',
             query: {pageNo},
         }));
     }
-
+    
     function editHandler(id, values) {
         values.id = id;
         dispatch({
@@ -31,48 +39,56 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             payload: values,
         });
     }
-
+    
     function saveHandler(values) {
         dispatch({
             type: 'projects/create',
             payload: values,
         });
     }
-
+    
     function deploy(values) {
         dispatch({
             type: 'projects/deploy',
             payload: values,
         });
     }
-
+    
     const columns = [
         {
             title: '项目名称',
             dataIndex: 'name',
             key: 'name',
-            render: (text,record) => <a href={ROUTE_PROJECT_STRUCTURE_LOGS +"/"+record.id}>{text}</a>,
+            render: (text, record) => <a href={ROUTE_JOB + "/" + record.id}>{text}</a>,
         },
         {
             title: '发布',
             dataIndex: 'projectEnvConfigList',
             key: 'projectEnvConfigList',
-            render: (text, record)=>(
+            render: (text, record) => (
                 <span className={styles.operation}>
                     {
-                        (record.projectEnvConfigList||[]).map((item,index)=>{
-                            switch (item.env){
-                                case  "DEV" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_DEV[0]})}>{ENV_DEV[1]}</a>;
-                                case  "TEST" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_TEST[0]})}>{ENV_TEST[1]}</a>;
-                                case  "UAT" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_UAT[0]})}>{ENV_UAT[1]}</a>;
-                                case  "PROD" :return <a onClick={deploy.bind(null, {id: record.id, env: ENV_PROD[0]})}>{ENV_PROD[1]}</a>;
+                        (record.projectEnvConfigList || []).map((item, index) => {
+                            switch (item.env) {
+                                case  "DEV" :
+                                    return <a
+                                        onClick={deploy.bind(null, {id: record.id, env: ENV_DEV[0]})}>{ENV_DEV[1]}</a>;
+                                case  "TEST" :
+                                    return <a onClick={deploy.bind(null, {
+                                        id: record.id,
+                                        env: ENV_TEST[0]
+                                    })}>{ENV_TEST[1]}</a>;
+                                case  "UAT" :
+                                    return <a
+                                        onClick={deploy.bind(null, {id: record.id, env: ENV_UAT[0]})}>{ENV_UAT[1]}</a>;
+                                case  "PROD" :
+                                    return <a onClick={deploy.bind(null, {
+                                        id: record.id,
+                                        env: ENV_PROD[0]
+                                    })}>{ENV_PROD[1]}</a>;
                             }
                         })
                     }
-
-
-
-
                 </span>
             )
         },
@@ -80,7 +96,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
             title: '最近发布时间',
             dataIndex: 'updatedAt',
             key: 'updatedAt',
-            render: (text, record)=>(
+            render: (text, record) => (
                 <span>{text}</span>
             )
         },
@@ -91,7 +107,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
                 <span className={styles.operation}>
                     <Link to={`${ROUTE_PROJECTS_INFO}/${record.id}`}>编辑</Link>
                     {/*<ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>*/}
-                        {/*<a>编辑</a>*/}
+                    {/*<a>编辑</a>*/}
                     {/*</ProjectModal>*/}
                     <Popconfirm title="确认删除?" onConfirm={deleteHandler.bind(null, record.id)}>
                         <a href="">删除</a>
@@ -104,9 +120,9 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
         <div className={styles.normal}>
             <div>
                 <div className={styles.create}>
-                    <Button type="primary" onClick={()=> browserHistory.push(`${ROUTE_PROJECTS_CREATE}`)}>创建项目</Button>
+                    <Button type="primary" onClick={() => browserHistory.push(`${ROUTE_PROJECTS_CREATE}`)}>创建项目</Button>
                     {/*<ProjectModal title="新建项目" record={{}} onOk={saveHandler}>*/}
-                        {/*<Button type="primary">创建项目</Button>*/}
+                    {/*<Button type="primary">创建项目</Button>*/}
                     {/*</ProjectModal>*/}
                 </div>
                 <Table
@@ -115,14 +131,14 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
                     loading={loading}
                     rowKey={record => record.id}
                     pagination={{
-                        className : "ant-table-pagination",
-                        total : total,
-                        current : current+1,
-                        pageSize : PAGE_SIZE,
-                        showTotal :total => `共 ${total} 条`,
-                        onChange : pageChangeHandler,
+                        className: "ant-table-pagination",
+                        total: total,
+                        current: current + 1,
+                        pageSize: PAGE_SIZE,
+                        showTotal: total => `共 ${total} 条`,
+                        onChange: pageChangeHandler,
                     }}
-
+                
                 />
             </div>
         </div>

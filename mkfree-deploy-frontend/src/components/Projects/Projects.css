@@ -1,27 +1,27 @@
 
 .page_wrapper{
-    background: #ECECEC;
-    min-height: 100%;
-    overflow: hidden;
+  background: #ECECEC;
+  min-height: 100%;
+  overflow: hidden;
 }
 
 .header{
-    width: 200px;
+    width: 300px;
 }
 
-.header>li{
+.header li{
     font-size: 16px !important;
 }
 
 .logo{
-    height:79px;
-    line-height: 79px;
-    padding: 0 48px;
-    background: #ffffff;
-    color: #108ee9;
+  height:79px;
+  line-height: 79px;
+  padding: 0 48px;
+  background: #ffffff;
+  color: #108ee9;
 }
 .logo>h1{
-    float: left;
+  float: left;
 }
 
 .normal {
