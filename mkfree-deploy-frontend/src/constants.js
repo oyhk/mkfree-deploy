@@ -24,5 +24,9 @@ export const ROUTE_ADMIN_USERS = '/admin/users';
 export const ROUTE_ADMIN_USERS_INFO = '/admin/users/info';
 export const ROUTE_ADMIN_USERS_CREATE = '/admin/users/create';
 
+export const ROUTE_PROJECT_STRUCTURE_LOGS = '/project_structure_log/list';
+export const ROUTE_PROJECT_STRUCTURE_LOGS_INFO = '/project_structure_log/info';
+
+
 /*** 路由变量 end*****/
 
