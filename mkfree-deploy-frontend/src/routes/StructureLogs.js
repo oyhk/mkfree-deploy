@@ -82,9 +82,9 @@ function StructureLogs({dispatch, list: dataSource, loading, total, pageNo: curr
 }
 
 function mapStateToProps(state) {
-    const {list, total, pageNo} = state.project_log_lists;
+    const {list, total, pageNo} = state.projects;
     return {
-        loading: state.loading.models.project_log_lists,
+        loading: state.loading.models.projects,
         list,
         total,
         pageNo,

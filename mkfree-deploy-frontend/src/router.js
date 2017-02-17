@@ -7,6 +7,7 @@ import ProjectsCreate from './routes/ProjectsCreate';
 import ServerMachine from './routes/ServerMachine';
 import UsersInfo from './routes/UserInfo';
 import SsoIndex from './routes/SsoIndex';
+import StructureLogs from './routes/StructureLogs';
 import {
     ROUTE_ADMIN_USERS,
     ROUTE_PROJECTS,
