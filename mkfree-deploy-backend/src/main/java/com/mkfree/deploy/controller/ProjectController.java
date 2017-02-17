@@ -407,6 +407,7 @@ public class ProjectController extends BaseController {
                 jsonResult.remind("没有配置发布机器", log);
                 return;
             }
+            // 当没有指定的发布机器列表是，会发布对应环境的所有机器列表
             if (publicServerMachineIdList == null) {
                 publicServerMachineIdList = serverMachineIdAllList;
             }
