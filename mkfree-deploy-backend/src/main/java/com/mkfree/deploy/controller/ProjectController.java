@@ -105,9 +105,9 @@ public class ProjectController extends BaseController {
                         });
                     }
                     projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
-                    projectDtoList.add(projectDto);
-                }
 
+                }
+                projectDtoList.add(projectDto);
 
             });
 
