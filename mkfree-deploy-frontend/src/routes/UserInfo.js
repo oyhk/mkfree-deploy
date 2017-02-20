@@ -8,8 +8,8 @@ import { Form, Input, Button, Checkbox, message, Popconfirm } from 'antd';
 import styles from '../routes/Users.less'
 
 import {
-    ROUTE_ADMIN_USERS_INFO,
-    ROUTE_ADMIN_USERS_CREATE,
+    ROUTE_USERS_INFO,
+    ROUTE_USERS_CREATE,
 } from "../constants";
 
 const FormItem = Form.Item;
@@ -19,7 +19,7 @@ function UserInfo({dispatch, users, form, params}) {
 
     const { username, password, result, listData, listDataProject } = users;
     const { validateFields, getFieldDecorator } = form;
-    const isCreate = location.href.includes(ROUTE_ADMIN_USERS_CREATE);
+    const isCreate = location.href.includes(ROUTE_USERS_CREATE);
     let deleteUserLock = false;
     let submitLock = false;
 

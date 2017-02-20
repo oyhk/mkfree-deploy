@@ -21,12 +21,8 @@ public class IndexController {
         return "index";
     }
 
-    /**
-     * 配置react路由
-     * @return
-     */
     @RequestMapping(value = "/websocket",method = RequestMethod.GET)
     public String websocket() {
-        return "stomp";
+        return "websocket-stomp";
     }
 }

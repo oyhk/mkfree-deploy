@@ -5,8 +5,8 @@ import { Link, browserHistory, routerRedux } from 'dva/router';
 import styles from './Users.less';
 import {
     PAGE_SIZE,
-    ROUTE_ADMIN_USERS_INFO,
-    ROUTE_ADMIN_USERS_CREATE,
+    ROUTE_USERS_INFO,
+    ROUTE_USERS_CREATE,
 } from '../constants';
 import UserModal from '../components/Users/UserModal';
 
@@ -75,7 +75,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
             key: 'operation',
             render: (text, record) => (
                 <span className={styles.operation}>
-          <Link to={`${ROUTE_ADMIN_USERS_INFO}/${record.id}`}>编辑</Link>
+          <Link to={`${ROUTE_USERS_INFO}/${record.id}`}>编辑</Link>
           <Popconfirm title="Confirm to delete?" onConfirm={()=> deleteUser(record.id)}>
               <a href="">删除</a>
           </Popconfirm>
@@ -99,7 +99,7 @@ function Users({dispatch, list: dataSource, loading, total, pageNo: current, vis
         <div className={styles.norma}>
             <div>
                 <div className={styles.create}>
-                    <Button type="primary" onClick={()=> browserHistory.push(ROUTE_ADMIN_USERS_CREATE)}>创建用户</Button>
+                    <Button type="primary" onClick={()=> browserHistory.push(ROUTE_USERS_CREATE)}>创建用户</Button>
                 </div>
                 <Table
                     columns={columns}

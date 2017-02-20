@@ -1,9 +1,9 @@
 import * as usersService from "../services/users";
 import {
-    ROUTE_ADMIN_USERS,
+    ROUTE_USERS,
     ROUTE_USERS_SIGN_IN,
-    ROUTE_ADMIN_USERS_INFO,
-    ROUTE_ADMIN_USERS_CREATE,
+    ROUTE_USERS_INFO,
+    ROUTE_USERS_CREATE,
     ROUTE_PROJECTS,
     COOKIE_OPTIONS
 } from "../constants";
@@ -140,12 +140,12 @@ export default {
         setup({dispatch, history}) {
             return history.listen(({pathname, query}) => {
                 const userToken = cookie.load('user_token');
-                if (pathname === ROUTE_ADMIN_USERS) {
+                if (pathname === ROUTE_USERS) {
                     dispatch({
                         type: 'fetch',
                         payload: query
                     });
-                } else if (pathname.includes(ROUTE_ADMIN_USERS_INFO)) {
+                } else if (pathname.includes(ROUTE_USERS_INFO)) {
                     dispatch({
                         type: 'changeState',
                         payload: {
@@ -167,7 +167,7 @@ export default {
                             });
                         }
                     });
-                } else if (pathname === ROUTE_ADMIN_USERS_CREATE) {
+                } else if (pathname === ROUTE_USERS_CREATE) {
                     dispatch({
                         type: 'changeState',
                         payload: {

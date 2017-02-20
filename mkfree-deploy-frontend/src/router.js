@@ -10,15 +10,15 @@ import ServerMachine from "./routes/ServerMachine";
 import UsersInfo from "./routes/UserInfo";
 import SsoIndex from "./routes/SsoIndex";
 import {
-    ROUTE_ADMIN_USERS,
+    ROUTE_USERS,
     ROUTE_PROJECTS,
     ROUTE_PROJECTS_CREATE,
     ROUTE_PROJECTS_INFO,
     ROUTE_ServerMachine,
-    ROUTE_ADMIN_USERS_INFO,
+    ROUTE_USERS_INFO,
     ROUTE_USERS_SIGN_IN,
     ROUTE_JOB,
-    ROUTE_ADMIN_USERS_CREATE
+    ROUTE_USERS_CREATE
 } from "./constants";
 
 export default function ({history}) {
@@ -28,9 +28,9 @@ export default function ({history}) {
                 <IndexRedirect to={ROUTE_PROJECTS}/>
                 <Route path="/" component={Header}>
                     {/*admin*/}
-                    <Route path={ROUTE_ADMIN_USERS} component={Users}/>
-                    <Route path={ROUTE_ADMIN_USERS_CREATE} component={UsersInfo}/>
-                    <Route path={ROUTE_ADMIN_USERS_INFO + '/:id'} component={UsersInfo}/>
+                    <Route path={ROUTE_USERS} component={Users}/>
+                    <Route path={ROUTE_USERS_CREATE} component={UsersInfo}/>
+                    <Route path={ROUTE_USERS_INFO + '/:id'} component={UsersInfo}/>
                     {/*project*/}
                     <Route path={ROUTE_PROJECTS} component={Projects}/>
                     <Route path={ROUTE_PROJECTS_CREATE} component={ProjectsCreate}/>

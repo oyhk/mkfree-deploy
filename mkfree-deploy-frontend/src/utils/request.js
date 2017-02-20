@@ -1,11 +1,11 @@
 import fetch from "dva/fetch";
 import cookie from "react-cookie";
-import {ROUTE_USERS_SIGN_IN} from "../constants";
+import {ROUTE_PREFIX,ROUTE_USERS_SIGN_IN} from "../constants";
 import {browserHistory} from "dva/router";
 
 
 const apiDomains = {
-  dev: 'http://192.168.1.210:8091',
+  dev: `http://192.168.1.210:8091`,
   // dev: 'http://192.168.3.133:8090', // HK 电脑
   prod: ''//当为空时，api就是相对路径
 };

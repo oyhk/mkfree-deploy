@@ -13,20 +13,21 @@ export const ENV_PROD = ['PROD', '生产'];
 
 /*** 路由变量 start*****/
 
+export const ROUTE_PREFIX = '/deploy';
 
-export const ROUTE_USERS_SIGN_IN = '/users/sign_in';
-export const ROUTE_PROJECTS = '/projects';
-export const ROUTE_JOB = '/job';
-export const ROUTE_PROJECTS_CREATE = '/projects/create';
-export const ROUTE_PROJECTS_INFO = '/projects/info';
-export const ROUTE_ServerMachine = '/server_machine';
+export const ROUTE_USERS_SIGN_IN = ROUTE_PREFIX+'/users/sign_in';
+export const ROUTE_PROJECTS = ROUTE_PREFIX+'/projects';
+export const ROUTE_JOB = ROUTE_PREFIX+'/job';
+export const ROUTE_PROJECTS_CREATE = ROUTE_PREFIX+'/projects/create';
+export const ROUTE_PROJECTS_INFO = ROUTE_PREFIX+'/projects/info';
+export const ROUTE_ServerMachine = ROUTE_PREFIX+'/server_machine';
 
-export const ROUTE_ADMIN_USERS = '/admin/users';
-export const ROUTE_ADMIN_USERS_INFO = '/admin/users/info';
-export const ROUTE_ADMIN_USERS_CREATE = '/admin/users/create';
+export const ROUTE_USERS = ROUTE_PREFIX+'/users';
+export const ROUTE_USERS_INFO = ROUTE_PREFIX+'/users/info';
+export const ROUTE_USERS_CREATE = ROUTE_PREFIX+'/users/create';
 
-export const ROUTE_PROJECT_STRUCTURE_LOGS = '/project_structure_log/list';
-export const ROUTE_PROJECT_STRUCTURE_LOGS_INFO = '/project_structure_log/info';
+export const ROUTE_PROJECT_STRUCTURE_LOGS = ROUTE_PREFIX+'/project_structure_log/list';
+export const ROUTE_PROJECT_STRUCTURE_LOGS_INFO = ROUTE_PREFIX+'/project_structure_log/info';
 
 
 /*** 路由变量 end*****/
