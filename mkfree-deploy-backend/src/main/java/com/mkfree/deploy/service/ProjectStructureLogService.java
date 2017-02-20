@@ -37,9 +37,6 @@ public class ProjectStructureLogService {
     public void add(Long projectId, String desc) {
 
         ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(projectId);
-//        if (null != projectStructureLog) {
-//            projectStructureLog = projectStructureLogRepository.findOne(projectStructureLog.getId());
-//        }
         Long nextSeqNo = ProjectStructureLogHelper.SINGLETONE.getNextSeqNo(projectStructureLog);
         ProjectStructureLog newLog = new ProjectStructureLog();
         newLog.setName("#" + nextSeqNo);

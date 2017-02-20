@@ -2,6 +2,7 @@ package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mkfree.deploy.Bootstrap;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
@@ -22,15 +23,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -56,11 +56,16 @@ public class ProjectController extends BaseController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private ProjectStructureLogService projectStructureLogSrv;
+    private ProjectStructureLogRepository projectStructureLogRepository;
     @Autowired
     private ProjectDeployFileRepository projectDeployFileRepository;
     @Autowired
     private UserProjectPermissionRepository userProjectPermissionRepository;
+    @Autowired
+    private ExecutorService commonExecutorService;
+    @Autowired
+    private SimpMessagingTemplate template;
+
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
@@ -424,51 +429,88 @@ public class ProjectController extends BaseController {
             }
 
 
-            List<ServerMachine> serverMachineList = serverMachineRepository.findByIdIn(publicServerMachineIdList);
-            for (ServerMachine serverMachine : serverMachineList) {
+            // 异步线程构建发布项目
+            List<Long> finalPublicServerMachineIdList = publicServerMachineIdList;
+            commonExecutorService.execute(() -> {
+                List<ServerMachine> serverMachineList = serverMachineRepository.findByIdIn(finalPublicServerMachineIdList);
+                for (ServerMachine serverMachine : serverMachineList) {
 
-                //构建前命令
-                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
-                StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
-                if (projectStructureStepBeforeList.size() > 0) {
-                    projectStructureStepBeforeList.forEach(projectStructureStep -> {
-                        projectStructureStepBeforeBuilder.append(projectStructureStep.getStep()).append(";");
+                    //构建前命令
+                    List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
+                    StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
+                    if (projectStructureStepBeforeList.size() > 0) {
+                        projectStructureStepBeforeList.forEach(projectStructureStep -> {
+                            projectStructureStepBeforeBuilder.append(projectStructureStep.getStep()).append(";");
+                        });
+                        projectStructureStepBeforeBuilder.deleteCharAt(projectStructureStepBeforeBuilder.length() - 1);
+                    }
+
+                    // 构建后命令
+                    List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.AFTER, projectEnvConfig.getId());
+                    StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
+                    if (projectStructureStepAfterList.size() > 0) {
+                        projectStructureStepAfterList.forEach(projectStructureStep -> {
+                            projectStructureStepAfterBuilder.append(projectStructureStep.getStep()).append(";");
+                        });
+                        projectStructureStepAfterBuilder.deleteCharAt(projectStructureStepAfterBuilder.length() - 1);
+                    }
+
+                    String projectName = project.getName();
+                    String systemConfigProjectPath = systemConfig.getProjectPath();
+                    String projectGitUrl = project.getGitUrl();
+                    String projectEnvConfigPublicBranch = projectEnvConfig.getPublicBranch();
+                    String remotePath = project.getRemotePath();
+                    String moduleName = project.getModuleName();
+
+                    ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(projectId);
+                    Long nextSeqNo = ProjectStructureLogHelper.SINGLETONE.getNextSeqNo(projectStructureLog);
+                    ProjectStructureLog newLog = new ProjectStructureLog();
+                    newLog.setName("#" + nextSeqNo);
+                    newLog.setProjectId(projectId);
+                    newLog.setSeqNo(nextSeqNo);
+                    newLog = projectStructureLogRepository.save(newLog);
+
+
+//                    String logMapKey = project.getName() + "#" + newLog.getSeqNo();
+                    String logMapKey = "log1";
+                    Bootstrap.logStringBufferMap.put(project.getName() + "#" + newLog.getSeqNo(), new StringBuffer());
+                    Bootstrap.logQueueMap.put(project.getName() + "#" + newLog.getSeqNo(), new LinkedList<>());
+
+
+
+                    ShellHelper.SINGLEONE.executeShellFile(log, logMapKey, deployShellPath,
+                            projectName,
+                            systemConfigProjectPath,
+                            projectGitUrl,
+                            projectEnvConfigPublicBranch,
+                            remotePath,
+                            moduleName,
+                            shellDeployTargetFileList.toString(),
+                            serverMachine.getIp(),
+                            serverMachine.getUsername(),
+                            serverMachine.getPort(),
+                            projectStructureStepBeforeBuilder.toString(),
+                            projectStructureStepAfterBuilder.toString());
+
+
+                    // 异步线程向客户端推送构建中日志
+                    commonExecutorService.execute(() -> {
+                        Date date = new Date();
+                        while (true) {
+                            Date currentDate = new Date();
+                            // 当构建时间超过5分钟构建线程就结束
+                            if (currentDate.getTime() - date.getTime() > 5 * 60 * 1000) {
+                                break;
+                            }
+                            if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
+                                template.convertAndSend("/log/"+logMapKey, new ProjectStructureLog());
+                            }
+                        }
                     });
-                    projectStructureStepBeforeBuilder.deleteCharAt(projectStructureStepBeforeBuilder.length() - 1);
-                }
 
-                // 构建后命令
-                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.AFTER, projectEnvConfig.getId());
-                StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
-                if (projectStructureStepAfterList.size() > 0) {
-                    projectStructureStepAfterList.forEach(projectStructureStep -> {
-                        projectStructureStepAfterBuilder.append(projectStructureStep.getStep()).append(";");
-                    });
-                    projectStructureStepAfterBuilder.deleteCharAt(projectStructureStepAfterBuilder.length() - 1);
                 }
+            });
 
-                String projectName = project.getName();
-                String systemConfigProjectPath = systemConfig.getProjectPath();
-                String projectGitUrl = project.getGitUrl();
-                String projectEnvConfigPublicBranch = projectEnvConfig.getPublicBranch();
-                String remotePath = project.getRemotePath();
-                String moduleName = project.getModuleName();
-                String result = ShellHelper.SINGLEONE.executeShellFile(log, deployShellPath,
-                        projectName,
-                        systemConfigProjectPath,
-                        projectGitUrl,
-                        projectEnvConfigPublicBranch,
-                        remotePath,
-                        moduleName,
-                        shellDeployTargetFileList.toString(),
-                        serverMachine.getIp(),
-                        serverMachine.getUsername(),
-                        serverMachine.getPort(),
-                        projectStructureStepBeforeBuilder.toString(),
-                        projectStructureStepAfterBuilder.toString());
-                projectStructureLogSrv.add(projectId, result);
-                jsonResult.data = result;
-            }
         };
         return doing.go(request, log);
     }

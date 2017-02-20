@@ -10,27 +10,33 @@ import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * Created by oyhk on 17/1/22.
  *
  */
 @SpringBootApplication
-@EnableAutoConfiguration(exclude = {FreeMarkerAutoConfiguration.class, WebSocketAutoConfiguration.class, GsonAutoConfiguration.class, JmxAutoConfiguration.class})
-@EnableWebSocket
+@EnableAutoConfiguration
+@EnableScheduling
 public class Bootstrap {
+
+    // 已经构建生成的日志
+    public static Map<String, Queue<String>> logQueueMap = new HashMap<>();
+    // 构建日志队列
+    public static Map<String, StringBuffer> logStringBufferMap = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(Bootstrap.class);
         app.setBannerMode(Banner.Mode.LOG);
         ApplicationContext applicationContext = app.run(args);
-
-
-
     }
 
 }

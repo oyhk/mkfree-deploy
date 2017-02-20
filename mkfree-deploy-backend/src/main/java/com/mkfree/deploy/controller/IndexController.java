@@ -16,8 +16,17 @@ public class IndexController {
      * 配置react路由
      * @return
      */
-    @RequestMapping(value = "/**",method = RequestMethod.GET)
+    @RequestMapping(value = {"/deploy/**","/**.js","/**.css"},method = RequestMethod.GET)
     public String index() {
         return "index";
+    }
+
+    /**
+     * 配置react路由
+     * @return
+     */
+    @RequestMapping(value = "/websocket",method = RequestMethod.GET)
+    public String websocket() {
+        return "stomp";
     }
 }

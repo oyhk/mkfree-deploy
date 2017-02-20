@@ -1,5 +1,6 @@
 package com.mkfree.deploy.helper;
 
+import com.mkfree.deploy.Bootstrap;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -10,6 +11,7 @@ import java.io.InputStreamReader;
  * Created by oyhk on 2017/2/3.
  */
 public enum ShellHelper {
+
     SINGLEONE;
 
     /**
@@ -17,8 +19,8 @@ public enum ShellHelper {
      * @param log
      * @param command
      */
-    public String executeShellFile(Logger log,String... command) {
-        StringBuilder stringBuffer = new StringBuilder();
+    public void executeShellFile(Logger log, String logMapKey, String... command) {
+
         try {
             Process process = Runtime.getRuntime().exec(command);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -26,15 +28,14 @@ public enum ShellHelper {
             String s;
             while ((s = reader.readLine()) != null) {
                 log.info(s);
-                stringBuffer.append(s);
+                Bootstrap.logStringBufferMap.get(logMapKey).append(s).append("\n");
+                Bootstrap.logQueueMap.get(logMapKey).add(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return stringBuffer.toString();
 
     }
-
 
 
     /**
@@ -43,7 +44,7 @@ public enum ShellHelper {
      * @param command
      * @return
      */
-    public String executeShellCommand(Logger log,String command) {
+    public String executeShellCommand(Logger log, String command) {
 
         StringBuilder output = new StringBuilder();
 
