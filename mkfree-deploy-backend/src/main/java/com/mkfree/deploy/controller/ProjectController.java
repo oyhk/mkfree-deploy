@@ -474,10 +474,41 @@ public class ProjectController extends BaseController {
 
 //                    String logMapKey = project.getName() + "#" + newLog.getSeqNo();
                     String logMapKey = "log1";
-                    Bootstrap.logStringBufferMap.put(project.getName() + "#" + newLog.getSeqNo(), new StringBuffer());
-                    Bootstrap.logQueueMap.put(project.getName() + "#" + newLog.getSeqNo(), new LinkedList<>());
+                    Bootstrap.logStringBufferMap.put(logMapKey, new StringBuffer());
+                    Bootstrap.logQueueMap.put(logMapKey, new LinkedList<>());
 
+                    // 异步线程向客户端推送构建中日志
+                    commonExecutorService.execute(() -> {
+                        log.info("push structure log start ...");
+                        Date date = new Date();
+                        while (true) {
+                            Date currentDate = new Date();
+                            // 当构建时间超过5分钟构建线程就结束
+                            if (currentDate.getTime() - date.getTime() > 5 * 60 * 1000) {
+                                log.info("push structure log end ...");
+                                break;
+                            }
 
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            log.info("Bootstrap.logQueueMap.get(logMapKey).size() : {}", Bootstrap.logQueueMap.get(logMapKey).size());
+
+                            if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
+                                while (true) {
+                                    String value = Bootstrap.logQueueMap.get(logMapKey).poll();
+                                    log.info("push structure log content : {} ", value);
+                                    template.convertAndSend("/log/" + logMapKey, new Greeting(value));
+                                    if (Bootstrap.logQueueMap.get(logMapKey).size() == 0) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
 
                     ShellHelper.SINGLEONE.executeShellFile(log, logMapKey, deployShellPath,
                             projectName,
@@ -493,25 +524,6 @@ public class ProjectController extends BaseController {
                             projectStructureStepBeforeBuilder.toString(),
                             projectStructureStepAfterBuilder.toString());
 
-
-                    // 异步线程向客户端推送构建中日志
-                    commonExecutorService.execute(() -> {
-                        log.info("push structure log start ...");
-                        Date date = new Date();
-                        while (true) {
-                            Date currentDate = new Date();
-                            // 当构建时间超过5分钟构建线程就结束
-                            if (currentDate.getTime() - date.getTime() > 5 * 60 * 1000) {
-                                log.info("push structure log end ...");
-                                break;
-                            }
-                            if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
-                                String value = Bootstrap.logQueueMap.get(logMapKey).poll();
-                                log.info("push structure log content : {} ",value);
-                                template.convertAndSend("/log/"+logMapKey, new Greeting(value));
-                            }
-                        }
-                    });
 
                 }
             });

@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Created by oyhk on 2017/2/3.
@@ -28,8 +30,17 @@ public enum ShellHelper {
             String s;
             while ((s = reader.readLine()) != null) {
                 log.info(s);
-                Bootstrap.logStringBufferMap.get(logMapKey).append(s).append("\n");
-                Bootstrap.logQueueMap.get(logMapKey).add(s);
+                StringBuffer stringBuffer = Bootstrap.logStringBufferMap.get(logMapKey);
+                if(stringBuffer== null){
+                    stringBuffer  = new StringBuffer();
+                }
+                stringBuffer.append(s).append("\n");
+
+                Queue<String> strings = Bootstrap.logQueueMap.get(logMapKey);
+                if(strings == null){
+                    strings = new LinkedList<>();
+                }
+                strings.add(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
