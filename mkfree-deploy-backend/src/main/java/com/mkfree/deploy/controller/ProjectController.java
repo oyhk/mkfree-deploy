@@ -3,6 +3,7 @@ package com.mkfree.deploy.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Bootstrap;
+import com.mkfree.deploy.Greeting;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
@@ -495,17 +496,19 @@ public class ProjectController extends BaseController {
 
                     // 异步线程向客户端推送构建中日志
                     commonExecutorService.execute(() -> {
+                        log.info("push structure log start ...");
                         Date date = new Date();
                         while (true) {
                             Date currentDate = new Date();
                             // 当构建时间超过5分钟构建线程就结束
                             if (currentDate.getTime() - date.getTime() > 5 * 60 * 1000) {
+                                log.info("push structure log end ...");
                                 break;
                             }
                             if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
-                                ProjectStructureLog pushProjectStructureLog = new ProjectStructureLog();
-                                pushProjectStructureLog.setDescription(Bootstrap.logQueueMap.get(logMapKey).poll());
-                                template.convertAndSend("/log/"+logMapKey, pushProjectStructureLog);
+                                String value = Bootstrap.logQueueMap.get(logMapKey).poll();
+                                log.info("push structure log content : {} ",value);
+                                template.convertAndSend("/log/"+logMapKey, new Greeting(value));
                             }
                         }
                     });
