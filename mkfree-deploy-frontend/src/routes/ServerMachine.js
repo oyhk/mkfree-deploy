@@ -18,7 +18,7 @@ function ServerMachine({dispatch, list: dataSource, loading, total, pageNo: curr
 
     function pageChangeHandler(pageNo) {
         dispatch(routerRedux.push({
-            pathname: '/serverMachine',
+            pathname: '/deploy/server_machine',
             query: {pageNo},
         }));
     }

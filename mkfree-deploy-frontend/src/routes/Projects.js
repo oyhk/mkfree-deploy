@@ -27,7 +27,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current})
     
     function pageChangeHandler(pageNo) {
         dispatch(routerRedux.push({
-            pathname: '/projects',
+            pathname: '/deploy/projects',
             query: {pageNo},
         }));
     }
