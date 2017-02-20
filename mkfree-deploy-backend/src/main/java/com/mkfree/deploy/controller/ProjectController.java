@@ -503,7 +503,9 @@ public class ProjectController extends BaseController {
                                 break;
                             }
                             if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
-                                template.convertAndSend("/log/"+logMapKey, new ProjectStructureLog());
+                                ProjectStructureLog pushProjectStructureLog = new ProjectStructureLog();
+                                pushProjectStructureLog.setDescription(Bootstrap.logQueueMap.get(logMapKey).poll());
+                                template.convertAndSend("/log/"+logMapKey, pushProjectStructureLog);
                             }
                         }
                     });
