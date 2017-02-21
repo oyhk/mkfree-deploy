@@ -40,12 +40,12 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
 
     function deploy(values) {
         console.log(values)
-        changeState({serverMachineIdList:[]})
-
-        // dispatch({
-        //     type: 'projects/deploy',
-        //     payload: values,
-        // });
+        // changeState({serverMachineIdList:[]})
+        //
+        dispatch({
+            type: 'projects/deploy',
+            payload: values,
+        });
     }
     function  changeState(obj) {
         dispatch({
