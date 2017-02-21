@@ -1,6 +1,8 @@
-import * as projectService from "../services/projects";
-import {browserHistory} from "dva/router";
-import {ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO} from "../constants";
+import * as projectService from '../services/projects';
+
+import {browserHistory } from 'dva/router';
+
+import {ROUTE_PROJECTS,ROUTE_PROJECTS_CREATE,ROUTE_PROJECTS_INFO} from '../constants';
 
 export default {
     namespace: 'projects',
@@ -10,15 +12,25 @@ export default {
         sList: [],
         total: null,
         pageNo: null,
+
+        visible_more: false,
+        recordID:0,
+        envType:['DEV', '开发'],
+        serverMachineList:[],
+        serverMachineIdList:[],
         structureLogList: [],
     },
     reducers: {
-        save(state, {payload: {data: list, data: sList, total, pageNo}}) {
-            return {...state, list, sList, total, pageNo};
-        },
+        // save(state, {payload: {data: list,data: sList, total, pageNo ,visible_more, recordID, envType, serverMachineList, serverMachineIdList}}) {
+        //     return {...state, list, sList, total, pageNo ,visible_more, recordID, envType, serverMachineList, serverMachineIdList};
+        // },
         // Info(state,{payload:{pList , sList}}){
         //     return {...state ,pList , sList}
         // },
+        save(state, action) {
+            const {payload}=action;
+            return {...state, ...payload};
+        },
         Info(state, action) {
             const {payload}=action;
             return {...state, ...payload};
@@ -30,7 +42,7 @@ export default {
             yield put({
                 type: 'save',
                 payload: {
-                    data: result.list,
+                    list: result.list,
                     total: result.totalCount,
                     pageNo: result.pageNo,
                 },
