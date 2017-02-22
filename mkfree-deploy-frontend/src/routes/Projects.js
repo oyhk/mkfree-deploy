@@ -85,28 +85,28 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                                 if((item.serverMachineList || []).length>1) {
                                     return <a key={index} onClick={() => {
                                         change(ENV_DEV);
-                                    }}>{ENV_DEV[1]}123</a>;
+                                    }}>{ENV_DEV[1]}.</a>;
                                 }
                                 return <a key={index} onClick={deploy.bind(null, {id: record.id, env: ENV_DEV[0]})}>{ENV_DEV[1]}</a>;
                             case  "TEST" :
                                 if((item.serverMachineList || []).length>1) {
                                     return <a key={index} onClick={() => {
                                         change(ENV_TEST);
-                                    }}>{ENV_TEST[1]}123</a>;
+                                    }}>{ENV_TEST[1]}.</a>;
                                 }
                                 return <a key={index} onClick={deploy.bind(null, {id: record.id, env: ENV_TEST[0]})}>{ENV_TEST[1]}</a>;
                             case  "UAT" :
                                 if((item.serverMachineList || []).length>1) {
                                     return <a key={index} onClick={() => {
                                         change(ENV_UAT);
-                                    }}>{ENV_UAT[1]}123</a>;
+                                    }}>{ENV_UAT[1]}.</a>;
                                 }
                                 return <a key={index} onClick={deploy.bind(null, {id: record.id, env: ENV_UAT[0]})}>{ENV_UAT[1]}</a>;
                             case  "PROD" :
                                 if((item.serverMachineList || []).length>1) {
                                     return <a key={index} onClick={() => {
                                         change(ENV_PROD);
-                                    }}>{ENV_PROD[1]}123</a>;
+                                    }}>{ENV_PROD[1]}.</a>;
                                 }
                                 return <a key={index} onClick={deploy.bind(null, {id: record.id, env: ENV_PROD[0]})}>{ENV_PROD[1]}</a>;
                         }
