@@ -123,24 +123,25 @@ export default {
                         pList: [],
                     }
                 });
+                //编辑
                 if (pathname === ROUTE_PROJECTS_CREATE) {
                     dispatch({type: 'seaverFetch', payload: query});
                 }
-                //编辑
+                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
+                    dispatch({
+                        type: 'projectFetch', payload: {
+                            projectsId: pathname.split('/')[4]
+                        }
+                    });
+                    dispatch({type: 'seaverFetch', payload: query});
+                }
+
                 if (pathname.includes('job')) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
                             projectId: pathname.split('/')[2]
                         }
                     });
-                }
-                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
-                    dispatch({
-                        type: 'projectFetch', payload: {
-                            projectsId: pathname.split('/')[3]
-                        }
-                    });
-                    dispatch({type: 'seaverFetch', payload: query});
                 }
             });
         },
