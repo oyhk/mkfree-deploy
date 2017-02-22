@@ -1,13 +1,13 @@
-import React from 'react';
+import React, {Component}  from 'react';
 import {connect} from 'dva';
-import {Table, Pagination, Popconfirm, Button,Checkbox , Modal} from 'antd';
+import {Table, notification, Popconfirm, Button,Checkbox , Modal} from 'antd';
 import {Link, browserHistory ,routerRedux} from 'dva/router';
 import styles from './Projects.css';
 import {PAGE_SIZE, ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ENV_DEV, ENV_TEST, ENV_UAT, ENV_PROD ,ROUTE_PROJECT_STRUCTURE_LOGS} from '../constants';
 
 const CheckboxGroup = Checkbox.Group;
 
-function Projects({dispatch, list: dataSource, loading, total, pageNo: current, visible_more, recordID, envType, serverMachineList, serverMachineIdList}) {
+function Projects({dispatch, list: dataSource, loading, total, pageNo: current, visible_more, recordID, envType, serverMachineList}) {
 
     function deleteHandler(id) {
         dispatch({
@@ -40,8 +40,6 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
 
     function deploy(values) {
         console.log(values)
-        // changeState({serverMachineIdList:[]})
-        //
         dispatch({
             type: 'projects/deploy',
             payload: values,
@@ -51,6 +49,12 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
         dispatch({
             type: 'projects/Info',
             payload: obj,
+        });
+    }
+    function NotificationWindow(type,message,description){
+        notification[type]({
+            message,
+            description,
         });
     }
     const
@@ -144,7 +148,6 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                 ),
             },
         ];
-    console.log("Modal",visible_more, recordID, envType, serverMachineList ,serverMachineIdList)
     return (
         <div className={styles.normal}>
             <div>
@@ -169,6 +172,35 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                     }}
                 />
                 {visible_more?
+                    <Modal_more
+                        visible_more={visible_more}
+                        envType={envType}
+                        recordID={recordID}
+                        changeState={changeState}
+                        serverMachineList={serverMachineList}
+                        deploy={deploy}
+                        NotificationWindow={NotificationWindow}
+                    />
+                :null}
+            </div>
+        </div>
+    );
+}
+class Modal_more extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            serverMachineIdList:[],
+            indeterminate:false,
+            checkAll:false,
+        }
+    }
+    render(){
+        const
+            {serverMachineIdList , indeterminate , checkAll} = this.state,
+            {visible_more, recordID, envType, changeState, serverMachineList, deploy, NotificationWindow} = this.props;
+        return (
+            <div>
                 <Modal
                     title={"选中发布服务器:" + envType[1]}
                     visible={visible_more}
@@ -184,6 +216,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                             })
                             changeState({visible_more:false});
                         }else{
+                            NotificationWindow("warning","","请选中一个服务器再进行发布！")
                             return false;
                         }
                     }}
@@ -191,11 +224,15 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                     <div>
                         <div style={{ borderBottom: '1px solid #E9E9E9' }}>
                             <Checkbox
-                                indeterminate={false}
-                                onChange={(checkedList)=>{
-                                    changeState({serverMachineIdList:checkedList})
+                                indeterminate={indeterminate}
+                                checked={checkAll}
+                                onChange={(e)=>{
+                                    this.setState({
+                                        serverMachineIdList: e.target.checked ? serverMachineList.map((item)=>{return item.value}) : [],
+                                        indeterminate: false,
+                                        checkAll: e.target.checked,
+                                    });
                                 }}
-                                checked={serverMachineIdList}
                             >
                                 Check all
                             </Checkbox>
@@ -205,21 +242,24 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                             className={styles.antCheckbox}
                             options={serverMachineList}
                             value={serverMachineIdList}
-                            onChange={(checkedList)=>{
-                                changeState({serverMachineIdList:checkedList})
+                            onChange={(serverMachineIdList)=>{
+                                this.setState({
+                                    serverMachineIdList,
+                                    indeterminate: !!serverMachineIdList.length && (serverMachineIdList.length < serverMachineList.length),
+                                    checkAll: serverMachineIdList.length === serverMachineList.length,
+                                });
+                                //changeState({serverMachineIdList:checkedList})
                             }}
                         />
 
                     </div>
                 </Modal>
-                :null}
             </div>
-        </div>
-    );
+        )
+    }
 }
-
 function mapStateToProps(state) {
-    const {list, total, pageNo ,visible_more, recordID, envType, serverMachineList,serverMachineIdList} = state.projects;
+    const {list, total, pageNo ,visible_more, recordID, envType, serverMachineList} = state.projects;
     return {
         loading: state.loading.models.projects,
         list,
@@ -229,7 +269,6 @@ function mapStateToProps(state) {
         recordID,
         envType,
         serverMachineList,
-        serverMachineIdList,
     };
 }
 

@@ -17,12 +17,11 @@ export default {
         recordID:0,
         envType:['DEV', '开发'],
         serverMachineList:[],
-        serverMachineIdList:[],
         structureLogList: [],
     },
     reducers: {
-        // save(state, {payload: {data: list,data: sList, total, pageNo ,visible_more, recordID, envType, serverMachineList, serverMachineIdList}}) {
-        //     return {...state, list, sList, total, pageNo ,visible_more, recordID, envType, serverMachineList, serverMachineIdList};
+        // save(state, {payload: {data: list,data: sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists}}) {
+        //     return {...state, list, sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists};
         // },
         // Info(state,{payload:{pList , sList}}){
         //     return {...state ,pList , sList}
