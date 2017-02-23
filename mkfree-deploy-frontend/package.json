@@ -9,7 +9,8 @@
     "dva-loading": "^0.2.0",
     "react": "^15.3.2",
     "react-cookie": "^1.0.4",
-    "react-dom": "^15.3.2"
+    "react-dom": "^15.3.2",
+    "react-websocket": "^1.1.6"
   },
   "devDependencies": {
     "atool-build": "^0.9.0",

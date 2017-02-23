@@ -9,6 +9,7 @@ import ProjectsCreate from "./routes/ProjectsCreate";
 import ServerMachine from "./routes/ServerMachine";
 import UsersInfo from "./routes/UserInfo";
 import SsoIndex from "./routes/SsoIndex";
+import StructureLogs from  './routes/StructureLogs';
 import {
     ROUTE_USERS,
     ROUTE_PROJECTS,
@@ -18,7 +19,8 @@ import {
     ROUTE_USERS_INFO,
     ROUTE_USERS_SIGN_IN,
     ROUTE_JOB,
-    ROUTE_USERS_CREATE
+    ROUTE_USERS_CREATE,
+    ROUTE_PROJECT_STRUCTURE_LOGS
 } from "./constants";
 
 export default function ({history}) {
@@ -37,8 +39,12 @@ export default function ({history}) {
                     <Route path={ROUTE_PROJECTS_INFO + '/:id'} component={ProjectsCreate}/>
                     {/*serverMachine*/}
                     <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
+
+                    {/*projectStructureLog*/}
+                    <Route path={ROUTE_PROJECT_STRUCTURE_LOGS} component={StructureLogs}/>
+
                 </Route>
-                <Route path={ROUTE_JOB+'/:id'} component={ProjectsHeader}>
+                <Route path={ROUTE_JOB + '/:id'} component={ProjectsHeader}>
                 </Route>
             </Route>
             <Route path={ROUTE_USERS_SIGN_IN} component={SsoIndex}/>
