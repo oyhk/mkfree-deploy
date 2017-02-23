@@ -1,7 +1,11 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.ProjectStructureLogStatus;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 /**
  * 项目构建历史
@@ -21,6 +25,9 @@ public class ProjectStructureLog extends IDEntity {
 
     @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
+    @Column(columnDefinition = "varchar (100) comment '构建日志状态'")
+    @Enumerated(EnumType.STRING)
+    private ProjectStructureLogStatus status = ProjectStructureLogStatus.PROCESSING;
 
     @Column(columnDefinition = "varchar (100) comment '项目名'")
     private String projectName;
@@ -85,5 +92,13 @@ public class ProjectStructureLog extends IDEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ProjectStructureLogStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProjectStructureLogStatus status) {
+        this.status = status;
     }
 }

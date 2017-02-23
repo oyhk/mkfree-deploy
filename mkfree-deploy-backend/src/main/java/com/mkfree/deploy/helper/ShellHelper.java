@@ -44,6 +44,7 @@ public enum ShellHelper {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            log.error(e.getMessage());
         }
 
     }
@@ -71,6 +72,7 @@ public enum ShellHelper {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            log.error(e.getMessage());
         }
 
         return output.toString();

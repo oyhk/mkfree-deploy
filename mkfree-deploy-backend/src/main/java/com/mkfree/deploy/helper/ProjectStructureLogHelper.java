@@ -18,4 +18,9 @@ public enum ProjectStructureLogHelper {
         }
         return nextSeqNo;
     }
+
+    public String getLogKey(ProjectStructureLog projectStructureLog) {
+        return String.format("%s#%d", projectStructureLog.getName(), projectStructureLog.getSeqNo());
+
+    }
 }

@@ -1,10 +1,14 @@
 package com.mkfree.deploy.controller;
 
+import com.mkfree.deploy.Bootstrap;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.ProjectStructureLog;
+import com.mkfree.deploy.domain.enumclass.ProjectStructureLogStatus;
+import com.mkfree.deploy.helper.ProjectStructureLogHelper;
+import com.mkfree.deploy.repository.ProjectStructureLogRepository;
 import com.mkfree.deploy.service.ProjectStructureLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +21,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * Created by zhangjh on 2017/2/8.
+ * Created by oyhk on 2017/2/8.
  */
 @RestController
 public class ProjectStructureLogController extends BaseController {
 
     private final Logger log = LoggerFactory.getLogger(ProjectStructureLogController.class);
     @Autowired
-    private ProjectStructureLogService projectStructureLogSrv;
+    private ProjectStructureLogRepository projectStructureLogRepository;
 
     /**
      * 查询项目的构建历史列表
@@ -35,15 +39,13 @@ public class ProjectStructureLogController extends BaseController {
      */
     @RequestMapping(value = Routes.PROJECT_STRUCTURE_LOG_LIST, method = RequestMethod.GET)
     public JsonResult list(Long projectId, HttpServletRequest request) {
-
-
         RestDoing doing = jsonResult -> {
             if (projectId == null) {
                 jsonResult.remind("项目id为空", log);
                 return;
             }
-            List list = projectStructureLogSrv.findAll(projectId);
-            jsonResult.data = list;
+            jsonResult.data = projectStructureLogRepository.findByProjectId(projectId);
+
         };
         return doing.go(request, log);
     }
@@ -51,19 +53,35 @@ public class ProjectStructureLogController extends BaseController {
 
     /**
      * @param projectId
-     * @param name
      * @param request
      * @return
      */
     @RequestMapping(value = Routes.PROJECT_STRUCTURE_LOG_INFO, method = RequestMethod.GET)
-    public JsonResult info(Long projectId, String name, HttpServletRequest request) {
+    public JsonResult info(Long projectId, Long logId, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (projectId == null) {
-                jsonResult.remind("项目id为空", log);
+                jsonResult.errorParam("项目id不能为空", log);
                 return;
             }
-            ProjectStructureLog info = projectStructureLogSrv.info(projectId, name);
-            jsonResult.data = info;
+            if (logId == null) {
+                jsonResult.errorParam("日志id不能为空", log);
+                return;
+            }
+            ProjectStructureLog projectStructureLog = projectStructureLogRepository.findByIdAndProjectId(logId, projectId);
+            if (projectStructureLog == null) {
+                jsonResult.remind(ProjectStructureLog.REMIND_RECORD_IS_NOT_EXIST);
+                return;
+            }
+
+
+            if (projectStructureLog.getStatus() == ProjectStructureLogStatus.PROCESSING) {
+                String logKey = ProjectStructureLogHelper.SINGLETONE.getLogKey(projectStructureLog);
+                jsonResult.data = Bootstrap.logStringBufferMap.get(logKey).toString();
+            }
+            if (projectStructureLog.getStatus() == ProjectStructureLogStatus.SUCCESS) {
+                jsonResult.data = projectStructureLog.getDescription();
+            }
+
         };
         return doing.go(request, log);
     }

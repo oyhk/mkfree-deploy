@@ -96,4 +96,4 @@ done
 ################ 构建后执行命令 end  ############
 
 
-echo 'deploy finish !!!'
+echo 'deploy success !!!'

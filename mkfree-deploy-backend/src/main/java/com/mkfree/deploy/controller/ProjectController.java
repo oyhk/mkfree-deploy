@@ -10,6 +10,7 @@ import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.*;
+import com.mkfree.deploy.domain.enumclass.ProjectStructureLogStatus;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import com.mkfree.deploy.domain.enumclass.RoleType;
 import com.mkfree.deploy.domain.enumclass.Whether;
@@ -472,21 +473,32 @@ public class ProjectController extends BaseController {
                     newLog = projectStructureLogRepository.save(newLog);
 
 
-//                    String logMapKey = project.getName() + "#" + newLog.getSeqNo();
-                    String logMapKey = "log1";
+                    String logMapKey = project.getName() + "#" + newLog.getSeqNo();
+//                    String logMapKey = "log1";
                     Bootstrap.logStringBufferMap.put(logMapKey, new StringBuffer());
                     Bootstrap.logQueueMap.put(logMapKey, new LinkedList<>());
 
                     // 异步线程向客户端推送构建中日志
+                    ProjectStructureLog finalNewLog = newLog;
                     commonExecutorService.execute(() -> {
                         log.info("push structure log start ...");
                         Date date = new Date();
+
+
+                        boolean isSuccessUpdate = false; //是否成功更新日志状态
+                        boolean isFailUpdate = false; //是否失败更新日志状态
+                        boolean isSuccess = false; //构建成功
+                        boolean isFail = false; //构建失败
+
+                        // 无论成功 还是 失败 最终都会构建完成
+                        boolean isProcessed = false; // 构建完成
+
                         while (true) {
                             Date currentDate = new Date();
                             // 当构建时间超过5分钟构建线程就结束
                             if (currentDate.getTime() - date.getTime() > 5 * 60 * 1000) {
                                 log.info("push structure log end ...");
-                                break;
+                                isProcessed = true;
                             }
 
                             try {
@@ -495,18 +507,43 @@ public class ProjectController extends BaseController {
                                 e.printStackTrace();
                             }
 
-                            log.info("Bootstrap.logQueueMap.get(logMapKey).size() : {}", Bootstrap.logQueueMap.get(logMapKey).size());
-
                             if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
                                 while (true) {
                                     String value = Bootstrap.logQueueMap.get(logMapKey).poll();
                                     log.info("push structure log content : {} ", value);
                                     template.convertAndSend("/log/" + logMapKey, new Greeting(value));
+
+                                    if (value.contains("deploy success")) {
+                                        isSuccess = true;
+                                        isProcessed = true;
+                                    } else if (value.contains("ERROR")) {
+                                        isFail = true;
+                                    }
+
                                     if (Bootstrap.logQueueMap.get(logMapKey).size() == 0) {
                                         break;
                                     }
                                 }
                             }
+
+                            if (isSuccess && !isSuccessUpdate) {
+                                ProjectStructureLog updateProjectStructureLog = projectStructureLogRepository.findOne(finalNewLog.getId());
+                                updateProjectStructureLog.setStatus(ProjectStructureLogStatus.SUCCESS);
+                                projectStructureLogRepository.save(updateProjectStructureLog);
+                                isSuccessUpdate = true;
+                            }
+                            if (isFail && !isFailUpdate) {
+                                ProjectStructureLog updateProjectStructureLog = projectStructureLogRepository.findOne(finalNewLog.getId());
+                                updateProjectStructureLog.setStatus(ProjectStructureLogStatus.FAIL);
+                                projectStructureLogRepository.save(updateProjectStructureLog);
+
+                                isFailUpdate = true;
+                            }
+
+                            if (isProcessed) {
+                                break;
+                            }
+
                         }
                     });
 

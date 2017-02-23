@@ -19,7 +19,6 @@ public interface ProjectStructureLogRepository extends JpaRepository<ProjectStru
      * @param id
      * @return
      */
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     ProjectStructureLog findOne(Long id);
 
     /**
@@ -29,6 +28,7 @@ public interface ProjectStructureLogRepository extends JpaRepository<ProjectStru
      * @return
      */
     List<ProjectStructureLog> findByProjectId(Long projectId);
+    ProjectStructureLog findByIdAndProjectId(Long id,Long projectId);
 
     /**
      * 查找项目最新的部署信息
