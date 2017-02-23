@@ -1,11 +1,14 @@
 package com.mkfree.deploy.dto;
 
+import com.mkfree.deploy.domain.enumclass.OptionType;
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
+
 import java.util.List;
 
 /**
  * Created by DK on 17/2/6.
  */
-public class UserProjectPermissionDto extends DtoEntity{
+public class UserProjectPermissionDto extends DtoEntity {
 
     //用户id
     private Long userId;
@@ -14,7 +17,9 @@ public class UserProjectPermissionDto extends DtoEntity{
     private Long projectId;
 
     //项目允许发布环境列表
-    private List<String> projectEnv;
+    private List<ProjectEnv> projectEnv;
+    // 项目 可操作权限
+    private List<OptionType> optionTypeList;
 
     //项目名称
     private String projectName;
@@ -35,13 +40,6 @@ public class UserProjectPermissionDto extends DtoEntity{
         this.projectId = projectId;
     }
 
-    public List<String> getProjectEnv() {
-        return projectEnv;
-    }
-
-    public void setProjectEnv(List<String> projectEnv) {
-        this.projectEnv = projectEnv;
-    }
 
     public String getProjectName() {
         return projectName;
@@ -49,5 +47,21 @@ public class UserProjectPermissionDto extends DtoEntity{
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public List<ProjectEnv> getProjectEnv() {
+        return projectEnv;
+    }
+
+    public void setProjectEnv(List<ProjectEnv> projectEnv) {
+        this.projectEnv = projectEnv;
+    }
+
+    public List<OptionType> getOptionTypeList() {
+        return optionTypeList;
+    }
+
+    public void setOptionTypeList(List<OptionType> optionTypeList) {
+        this.optionTypeList = optionTypeList;
     }
 }
