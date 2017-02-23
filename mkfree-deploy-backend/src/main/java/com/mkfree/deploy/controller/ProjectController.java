@@ -541,6 +541,9 @@ public class ProjectController extends BaseController {
                             }
 
                             if (isProcessed) {
+                                ProjectStructureLog updateProjectStructureLog = projectStructureLogRepository.findOne(finalNewLog.getId());
+                                updateProjectStructureLog.setDescription(Bootstrap.logStringBufferMap.get(logMapKey).toString());
+                                projectStructureLogRepository.save(updateProjectStructureLog);
                                 break;
                             }
 
