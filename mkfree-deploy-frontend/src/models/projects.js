@@ -1,6 +1,8 @@
-import * as projectService from "../services/projects";
-import {browserHistory} from "dva/router";
-import {ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO} from "../constants";
+import * as projectService from '../services/projects';
+
+import {browserHistory } from 'dva/router';
+
+import {ROUTE_PROJECTS,ROUTE_PROJECTS_CREATE,ROUTE_PROJECTS_INFO} from '../constants';
 
 export default {
     namespace: 'projects',
@@ -10,15 +12,24 @@ export default {
         sList: [],
         total: null,
         pageNo: null,
+
+        visible_more: false,
+        recordID:0,
+        envType:['DEV', '开发'],
+        serverMachineList:[],
         structureLogList: [],
     },
     reducers: {
-        save(state, {payload: {data: list, data: sList, total, pageNo}}) {
-            return {...state, list, sList, total, pageNo};
-        },
+        // save(state, {payload: {data: list,data: sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists}}) {
+        //     return {...state, list, sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists};
+        // },
         // Info(state,{payload:{pList , sList}}){
         //     return {...state ,pList , sList}
         // },
+        save(state, action) {
+            const {payload}=action;
+            return {...state, ...payload};
+        },
         Info(state, action) {
             const {payload}=action;
             return {...state, ...payload};
@@ -30,7 +41,7 @@ export default {
             yield put({
                 type: 'save',
                 payload: {
-                    data: result.list,
+                    list: result.list,
                     total: result.totalCount,
                     pageNo: result.pageNo,
                 },
@@ -111,24 +122,25 @@ export default {
                         pList: [],
                     }
                 });
+                //编辑
                 if (pathname === ROUTE_PROJECTS_CREATE) {
                     dispatch({type: 'seaverFetch', payload: query});
                 }
-                //编辑
+                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
+                    dispatch({
+                        type: 'projectFetch', payload: {
+                            projectsId: pathname.split('/')[4]
+                        }
+                    });
+                    dispatch({type: 'seaverFetch', payload: query});
+                }
+
                 if (pathname.includes('job')) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
                             projectId: pathname.split('/')[2]
                         }
                     });
-                }
-                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
-                    dispatch({
-                        type: 'projectFetch', payload: {
-                            projectsId: pathname.split('/')[3]
-                        }
-                    });
-                    dispatch({type: 'seaverFetch', payload: query});
                 }
             });
         },
