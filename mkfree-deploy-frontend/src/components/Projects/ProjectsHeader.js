@@ -28,7 +28,7 @@ function Header({children, location}) {
                         <Link ><Icon type="folder-open"/>工作空间</Link>
                     </Menu.Item>
                 </Menu>
-                <BuildHistory />
+                <BuildHistory location={location}/>
             </div>
             <div className={styles.content}>
                 <div className={styles.main}>

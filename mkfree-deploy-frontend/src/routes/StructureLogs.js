@@ -1,25 +1,11 @@
-import React from 'react';
-import {connect} from 'dva';
-import {Table, Pagination, Popconfirm, Button} from 'antd';
-import {Link, browserHistory, routerRedux} from 'dva/router';
-import styles from './Projects.css';
-
-import {
-    PAGE_SIZE,
-    ROUTE_PROJECTS,
-    ROUTE_PROJECTS_CREATE,
-    ROUTE_PROJECTS_INFO,
-    ENV_DEV,
-    ENV_TEST,
-    ENV_UAT,
-    ENV_PROD
-} from '../constants';
-import ProjectModal from '../components/Projects/ProjectModal';
+import React from "react";
+import {connect} from "dva";
+import styles from "./Projects.css";
 
 
 function StructureLogs({dispatch}) {
-
-
+    
+    
     function websocket() {
         var socket = new SockJS('/websocket/init');
         const stompClient = Stomp.over(socket);
@@ -30,9 +16,9 @@ function StructureLogs({dispatch}) {
             });
         });
     }
-
+    
     return (
-
+        
         <div className={styles.normal}>
             <button onClick={websocket}>
                 websocket
@@ -41,4 +27,18 @@ function StructureLogs({dispatch}) {
     );
 }
 
-export default connect()(StructureLogs);
+
+function mapStateToProps(state) {
+    const {list, total, pageNo, visible_more, recordID, envType, serverMachineList} = state.projects;
+    return {
+        loading: state.loading.models.projects,
+        list,
+        total,
+        pageNo,
+        visible_more,
+        recordID,
+        envType,
+        serverMachineList,
+    };
+}
+export default connect(mapStateToProps)(StructureLogs);

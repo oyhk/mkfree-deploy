@@ -40,12 +40,11 @@ export default function ({history}) {
                     <Route path={ROUTE_PROJECTS_INFO + '/:id'} component={ProjectsCreate}/>
                     {/*serverMachine*/}
                     <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
-                    
                     {/*projectStructureLog*/}
                     <Route path={ROUTE_PROJECT_STRUCTURE_LOGS} component={StructureLogs}/>
                 </Route>
                 <Route path={ROUTE_PROJECT_STRUCTURE_LOGS + '/:id'} component={ProjectsHeader}>
-                    <Route path={LOGS_LIST}/>
+                    <Route path={LOGS_LIST+'/:info_id'} component={StructureLogs}/>
                 </Route>
             </Route>
             <Route path={ROUTE_USERS_SIGN_IN} component={SsoIndex}/>

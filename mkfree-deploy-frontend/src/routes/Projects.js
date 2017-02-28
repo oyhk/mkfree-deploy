@@ -77,8 +77,9 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                 dataIndex: 'name',
                 key: 'name',
                 render: (text, record) => <a
-                    href={`${ROUTE_PROJECT_STRUCTURE_LOGS }/${record.id }/${LOGS_LIST}`}>{text}</a>,
+                    href={`${ROUTE_PROJECT_STRUCTURE_LOGS }/${record.id }`}>{text}</a>,
             },
+            // ${LOGS_LIST}
             {
                 title: '发布',
                 dataIndex: 'projectEnvConfigList',

@@ -1,6 +1,12 @@
 import * as projectService from "../services/projects";
 import {browserHistory} from "dva/router";
-import {ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ROUTE_PROJECT_STRUCTURE_LOGS} from "../constants";
+import {
+    ROUTE_PROJECTS,
+    ROUTE_PROJECTS_CREATE,
+    ROUTE_PROJECTS_INFO,
+    ROUTE_PROJECT_STRUCTURE_LOGS,
+    LOGS_LIST
+} from "../constants";
 
 export default {
     namespace: 'projects',
@@ -106,6 +112,10 @@ export default {
         *projectStructureLogList({payload:values}, {call, put}){
             const structureLogList = yield call(projectService.projectStructureLogList, values);
             yield put({type: 'Info', payload: {structureLogList}});
+        },
+        *projectStructureLogInfo({payload:values}, {call, put}){
+            const structureLogInfo = yield call(projectService.projectStructureLogInfo, values);
+            yield put({type: 'Info', payload: {structureLogInfo}});
         }
     },
     subscriptions: {
@@ -134,10 +144,18 @@ export default {
                 }
                 
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
-                    console.log(pathname)
                     dispatch({
                         type: 'projectStructureLogList', payload: {
                             projectId: pathname.split('/')[3]
+                        }
+                    });
+                }
+                
+                if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(LOGS_LIST)) {
+                    dispatch({
+                        type: 'projectStructureLogInfo', payload: {
+                            projectId: pathname.split('/')[3],
+                            logId: pathname.split('/')[5]
                         }
                     });
                 }
