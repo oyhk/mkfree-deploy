@@ -1,8 +1,6 @@
-import * as projectService from '../services/projects';
-
-import {browserHistory } from 'dva/router';
-
-import {ROUTE_PROJECTS,ROUTE_PROJECTS_CREATE,ROUTE_PROJECTS_INFO} from '../constants';
+import * as projectService from "../services/projects";
+import {browserHistory} from "dva/router";
+import {ROUTE_PROJECTS, ROUTE_PROJECTS_CREATE, ROUTE_PROJECTS_INFO, ROUTE_PROJECT_STRUCTURE_LOGS} from "../constants";
 
 export default {
     namespace: 'projects',
@@ -12,11 +10,11 @@ export default {
         sList: [],
         total: null,
         pageNo: null,
-
+        loading: false,
         visible_more: false,
-        recordID:0,
-        envType:['DEV', '开发'],
-        serverMachineList:[],
+        recordID: 0,
+        envType: ['DEV', '开发'],
+        serverMachineList: [],
         structureLogList: [],
     },
     reducers: {
@@ -134,11 +132,12 @@ export default {
                     });
                     dispatch({type: 'seaverFetch', payload: query});
                 }
-
-                if (pathname.includes('job')) {
+                
+                if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
+                    console.log(pathname)
                     dispatch({
                         type: 'projectStructureLogList', payload: {
-                            projectId: pathname.split('/')[2]
+                            projectId: pathname.split('/')[3]
                         }
                     });
                 }
