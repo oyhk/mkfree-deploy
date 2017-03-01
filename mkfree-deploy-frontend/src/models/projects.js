@@ -140,6 +140,7 @@ export default {
                 if (pathname === ROUTE_PROJECTS_CREATE) {
                     dispatch({type: 'seaverFetch', payload: query});
                 }
+                
                 if (pathname.includes(ROUTE_PROJECTS_INFO)) {
                     dispatch({
                         type: 'projectFetch', payload: {

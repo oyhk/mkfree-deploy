@@ -1,7 +1,8 @@
 
 .normal {
     width: 100%;
-    word-wrap:break-word;
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .create {
@@ -13,10 +14,10 @@
 }
 
 .projectsCenton {
-  /*font-size:16px;*/
+    /*font-size:16px;*/
 }
 
-.dynamic{
+.dynamic {
     cursor: pointer;
     position: relative;
     top: 4px;
@@ -24,43 +25,52 @@
     color: #999;
     transition: all .3s;
 }
+
 .dynamic:hover {
     color: #f04134;
 }
+
 .dynamic[disabled] {
     cursor: not-allowed;
     opacity: 0.5;
 }
-.seaverMachine{
+
+.seaverMachine {
 
 }
 
 .seaverList {
     margin-top: 10px;
 }
-.addMore>div{
-  margin-bottom: 10px;
+
+.addMore > div {
+    margin-bottom: 10px;
 }
-.seaverList{
-  overflow: hidden;
+
+.seaverList {
+    overflow: hidden;
 }
-.seaverList>div{
+
+.seaverList > div {
     display: inline-block;
     float: left;
-    width:600px;
+    width: 600px;
     margin-left: 40px;
     margin-bottom: 20px;
-    padding:10px;
-    border:1px solid #d2d2d2;
-    border-radius:4px;
+    padding: 10px;
+    border: 1px solid #d2d2d2;
+    border-radius: 4px;
 }
-.seaverList>div>p{
+
+.seaverList > div > p {
     font-weight: bold;
 }
-.seaverList .list>div{
-    padding:10px 0;
+
+.seaverList .list > div {
+    padding: 10px 0;
 }
-.seaverList .list>div>div:first-child {
+
+.seaverList .list > div > div:first-child {
     text-align: right;
-    line-height:28px;
+    line-height: 28px;
 }
