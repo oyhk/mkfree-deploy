@@ -472,8 +472,8 @@ public class ProjectController extends BaseController {
                     newLog = projectStructureLogRepository.save(newLog);
 
 
-//                    String logMapKey = project.getName() + "#" + newLog.getSeqNo();
-                    String logMapKey = "log1";
+                    String logMapKey = project.getName() + "#" + newLog.getSeqNo();
+//                    String logMapKey = "log1";
                     Bootstrap.logStringBufferMap.put(logMapKey, new StringBuffer());
                     Bootstrap.logQueueMap.put(logMapKey, new LinkedList<>());
 

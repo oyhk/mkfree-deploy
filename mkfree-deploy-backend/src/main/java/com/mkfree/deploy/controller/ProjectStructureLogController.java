@@ -55,17 +55,17 @@ public class ProjectStructureLogController extends BaseController {
      * @return
      */
     @RequestMapping(value = Routes.PROJECT_STRUCTURE_LOG_INFO, method = RequestMethod.GET)
-    public JsonResult info(Long projectId, Long logId, HttpServletRequest request) {
+    public JsonResult info(Long projectId, Long seq, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (projectId == null) {
                 jsonResult.errorParam("项目id不能为空", log);
                 return;
             }
-            if (logId == null) {
-                jsonResult.errorParam("日志id不能为空", log);
+            if (seq == null) {
+                jsonResult.errorParam("日志序号不能为空", log);
                 return;
             }
-            ProjectStructureLog projectStructureLog = projectStructureLogRepository.findByIdAndProjectId(logId, projectId);
+            ProjectStructureLog projectStructureLog = projectStructureLogRepository.findByProjectIdAndSeqNo(projectId,seq);
             if (projectStructureLog == null) {
                 jsonResult.remind(ProjectStructureLog.REMIND_RECORD_IS_NOT_EXIST);
                 return;

@@ -28,7 +28,7 @@ public interface ProjectStructureLogRepository extends JpaRepository<ProjectStru
      * @return
      */
     List<ProjectStructureLog> findTop10ByProjectIdOrderByCreatedAtDesc(Long projectId);
-    ProjectStructureLog findByIdAndProjectId(Long id,Long projectId);
+    ProjectStructureLog findByProjectIdAndSeqNo(Long id, Long projectId);
 
     /**
      * 查找项目最新的部署信息
