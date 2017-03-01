@@ -49,7 +49,6 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
     }
     
     function deploy(values) {
-        console.log(values)
         dispatch({
             type: 'projects/deploy',
             payload: values,

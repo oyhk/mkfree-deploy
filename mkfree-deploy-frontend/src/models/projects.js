@@ -7,7 +7,6 @@ import {
     ROUTE_PROJECT_STRUCTURE_LOGS,
     LOGS_LIST
 } from "../constants";
-
 export default {
     namespace: 'projects',
     state: {
@@ -22,20 +21,21 @@ export default {
         envType: ['DEV', '开发'],
         serverMachineList: [],
         structureLogList: [],
+        description: ''
     },
     reducers: {
-        // save(state, {payload: {data: list,data: sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists}}) {
-        //     return {...state, list, sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists};
-        // },
-        // Info(state,{payload:{pList , sList}}){
-        //     return {...state ,pList , sList}
-        // },
         save(state, action) {
             const {payload}=action;
             return {...state, ...payload};
         },
         Info(state, action) {
             const {payload}=action;
+            return {...state, ...payload};
+        },
+        changeDescription(state, action) {
+            const {description}=state;
+            let {payload}=action;
+            payload.description = description + payload.description;
             return {...state, ...payload};
         },
     },
@@ -109,14 +109,20 @@ export default {
             yield call(projectService.projectDeploy, values);
             yield put({type: 'reload'});
         },
-        *projectStructureLogList({payload:values}, {call, put}){
-            const structureLogList = yield call(projectService.projectStructureLogList, values);
+        *projectStructureLogList({payload}, {call, put}){
+            const {pathname, projectId}= payload;
+            const structureLogList = yield call(projectService.projectStructureLogList, {projectId});
             yield put({type: 'Info', payload: {structureLogList}});
+            if (!pathname.split('/')[5]) {
+                browserHistory.push(`${pathname}/log/${structureLogList[0].seqNo}`)
+            }
         },
-        *projectStructureLogInfo({payload:values}, {call, put}){
-            const structureLogInfo = yield call(projectService.projectStructureLogInfo, values);
-            yield put({type: 'Info', payload: {structureLogInfo}});
-        }
+        *projectStructureLogInfo({payload}, {call, put}){
+            const data = yield call(projectService.projectStructureLogInfo, payload);
+            if (data) {
+                yield put({type: 'Info', payload: {description: data.description}});
+            }
+        },
     },
     subscriptions: {
         setup({dispatch, history}) {
@@ -146,7 +152,8 @@ export default {
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
-                            projectId: pathname.split('/')[4]
+                            projectId: pathname.split('/')[4],
+                            pathname
                         }
                     });
                 }
@@ -155,7 +162,7 @@ export default {
                     dispatch({
                         type: 'projectStructureLogInfo', payload: {
                             projectId: pathname.split('/')[4],
-                            logId: pathname.split('/')[6]
+                            seqNo: pathname.split('/')[6],
                         }
                     });
                 }

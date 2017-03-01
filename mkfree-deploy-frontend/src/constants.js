@@ -26,7 +26,7 @@ export const ROUTE_USERS = ROUTE_PREFIX + '/users';
 export const ROUTE_USERS_INFO = ROUTE_PREFIX + '/users/info';
 export const ROUTE_USERS_CREATE = ROUTE_PREFIX + '/users/create';
 
-export const ROUTE_PROJECT_STRUCTURE_LOGS = ROUTE_PREFIX + '/project_structure_log';
+export const ROUTE_PROJECT_STRUCTURE_LOGS = ROUTE_PREFIX + '/project_structure';
 export const LOGS_LIST = 'log';
 export const ROUTE_PROJECT_STRUCTURE_LOGS_INFO = ROUTE_PREFIX + '/project_structure_log/info';
 
