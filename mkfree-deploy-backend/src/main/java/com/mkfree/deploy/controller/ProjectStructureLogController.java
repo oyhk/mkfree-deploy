@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * Created by oyhk on 2017/2/8.
@@ -43,7 +42,7 @@ public class ProjectStructureLogController extends BaseController {
                 jsonResult.remind("项目id为空", log);
                 return;
             }
-            jsonResult.data = projectStructureLogRepository.findByProjectId(projectId);
+            jsonResult.data = projectStructureLogRepository.findTop10ByProjectIdOrderByCreatedAtDesc(projectId);
 
         };
         return doing.go(request, log);
