@@ -9,7 +9,6 @@ import com.mkfree.deploy.domain.ProjectStructureLog;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureLogStatus;
 import com.mkfree.deploy.helper.ProjectStructureLogHelper;
 import com.mkfree.deploy.repository.ProjectStructureLogRepository;
-import com.mkfree.deploy.service.ProjectStructureLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
