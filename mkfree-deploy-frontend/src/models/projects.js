@@ -1,8 +1,12 @@
-import * as projectService from '../services/projects';
-
-import {browserHistory } from 'dva/router';
-
-import {ROUTE_PROJECTS,ROUTE_PROJECTS_CREATE,ROUTE_PROJECTS_INFO} from '../constants';
+import * as projectService from "../services/projects";
+import {browserHistory} from "dva/router";
+import {
+    ROUTE_PROJECTS,
+    ROUTE_PROJECTS_CREATE,
+    ROUTE_PROJECTS_INFO,
+    ROUTE_PROJECT_STRUCTURE_LOGS,
+    LOGS_LIST
+} from "../constants";
 
 export default {
     namespace: 'projects',
@@ -12,11 +16,11 @@ export default {
         sList: [],
         total: null,
         pageNo: null,
-
+        loading: false,
         visible_more: false,
-        recordID:0,
-        envType:['DEV', '开发'],
-        serverMachineList:[],
+        recordID: 0,
+        envType: ['DEV', '开发'],
+        serverMachineList: [],
         structureLogList: [],
     },
     reducers: {
@@ -73,7 +77,7 @@ export default {
                 type: 'Info',
                 payload: {
                     pList: result,
-                },
+                }
             });
         },
         *seaverFetch({payload: {pageNo = 0}}, {call, put}) {
@@ -108,6 +112,10 @@ export default {
         *projectStructureLogList({payload:values}, {call, put}){
             const structureLogList = yield call(projectService.projectStructureLogList, values);
             yield put({type: 'Info', payload: {structureLogList}});
+        },
+        *projectStructureLogInfo({payload:values}, {call, put}){
+            const structureLogInfo = yield call(projectService.projectStructureLogInfo, values);
+            yield put({type: 'Info', payload: {structureLogInfo}});
         }
     },
     subscriptions: {
@@ -134,11 +142,20 @@ export default {
                     });
                     dispatch({type: 'seaverFetch', payload: query});
                 }
-
-                if (pathname.includes('job')) {
+                
+                if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
-                            projectId: pathname.split('/')[2]
+                            projectId: pathname.split('/')[4]
+                        }
+                    });
+                }
+                
+                if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(LOGS_LIST)) {
+                    dispatch({
+                        type: 'projectStructureLogInfo', payload: {
+                            projectId: pathname.split('/')[4],
+                            logId: pathname.split('/')[6]
                         }
                     });
                 }

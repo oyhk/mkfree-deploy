@@ -76,4 +76,8 @@ export function projectStructureLogList(values) {
     return request(`/api/project_structure_log/list?${stringify(values)}`);
 }
 
+export function projectStructureLogInfo(values) {
+    return request(`/api/project_structure_log/info?${stringify(values)}`);
+}
+
 
