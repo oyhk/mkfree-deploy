@@ -11,7 +11,7 @@ function Header({children, location, structureLogList}) {
             <Timeline.Item key={index}>
             <span style={{fontSize: '16px'}}>
                 {createdAt}
-                <a href={ROUTE_PROJECT_STRUCTURE_LOGS + '/' + pathname.split('/')[3] + '/' + LOGS_LIST + '/' + name.split('#')[1]}
+                <a href={ROUTE_PROJECT_STRUCTURE_LOGS + '/' + pathname.split('/')[3] + '/' + pathname.split('/')[4] + '/' + LOGS_LIST + '/' + name.split('#')[1]}
                    style={{marginLeft: '15px'}}>{name}</a>
             </span>
             </Timeline.Item

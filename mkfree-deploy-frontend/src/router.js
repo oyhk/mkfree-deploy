@@ -43,7 +43,7 @@ export default function ({history}) {
                     {/*projectStructureLog*/}
                     <Route path={ROUTE_PROJECT_STRUCTURE_LOGS} component={StructureLogs}/>
                 </Route>
-                <Route path={ROUTE_PROJECT_STRUCTURE_LOGS + '/:id'} component={ProjectsHeader}>
+                <Route path={ROUTE_PROJECT_STRUCTURE_LOGS+'/:project_name' + '/:id'} component={ProjectsHeader}>
                     <Route path={LOGS_LIST+'/:info_id'} component={StructureLogs}/>
                 </Route>
             </Route>

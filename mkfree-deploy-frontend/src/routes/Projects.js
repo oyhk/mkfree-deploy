@@ -5,14 +5,14 @@ import {Link, browserHistory, routerRedux} from "dva/router";
 import styles from "./Projects.css";
 import {
     PAGE_SIZE,
-    LOGS_LIST,
+    ROUTE_PREFIX,
     ROUTE_PROJECTS_CREATE,
+    ROUTE_PROJECT_STRUCTURE_LOGS,
     ROUTE_PROJECTS_INFO,
     ENV_DEV,
     ENV_TEST,
     ENV_UAT,
-    ENV_PROD,
-    ROUTE_PROJECT_STRUCTURE_LOGS
+    ENV_PROD
 } from "../constants";
 
 const CheckboxGroup = Checkbox.Group;
@@ -77,7 +77,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                 dataIndex: 'name',
                 key: 'name',
                 render: (text, record) => <a
-                    href={`${ROUTE_PROJECT_STRUCTURE_LOGS }/${record.id }`}>{text}</a>,
+                    href={`${ROUTE_PROJECT_STRUCTURE_LOGS }/${text}/${record.id }`}>{text}</a>,
             },
             // ${LOGS_LIST}
             {

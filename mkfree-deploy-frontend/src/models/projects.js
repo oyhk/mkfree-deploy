@@ -77,7 +77,7 @@ export default {
                 type: 'Info',
                 payload: {
                     pList: result,
-                },
+                }
             });
         },
         *seaverFetch({payload: {pageNo = 0}}, {call, put}) {
@@ -146,7 +146,7 @@ export default {
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
-                            projectId: pathname.split('/')[3]
+                            projectId: pathname.split('/')[4]
                         }
                     });
                 }
@@ -154,8 +154,8 @@ export default {
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(LOGS_LIST)) {
                     dispatch({
                         type: 'projectStructureLogInfo', payload: {
-                            projectId: pathname.split('/')[3],
-                            logId: pathname.split('/')[5]
+                            projectId: pathname.split('/')[4],
+                            logId: pathname.split('/')[6]
                         }
                     });
                 }
