@@ -1,13 +1,12 @@
 import React, {Component} from "react";
 import {connect} from "dva";
-import {Input, Form, Icon, Button, Transfer, Col,Switch} from "antd";
+import {Input, Form, Icon, Button, Transfer, Col, Switch, Popconfirm} from "antd";
 import styles from "./Projects.css";
-import {ROUTE_PROJECTS_INFO} from "../constants";
 const InputGroup = Input.Group;
 
 const FormItem = Form.Item;
 
-function ProjectsCreate({dispatch, pList, sList, loading}) {
+function ProjectsCreate({dispatch, pList, sList, loading, params}) {
     function editHandler(values) {
         values.id = pList.id;
         dispatch({
@@ -25,8 +24,12 @@ function ProjectsCreate({dispatch, pList, sList, loading}) {
     
     return (
         <div>
-            <ProjectsCentont record={pList || []} servarData={sList || []}
-                             onOk={location.pathname.includes(ROUTE_PROJECTS_INFO) ? editHandler : saveHandler}/>
+            <ProjectsCentont
+                record={pList || []}
+                servarData={sList || []}
+                edit={params.id}
+                dispatch={dispatch}
+                onOk={params.id ? editHandler : saveHandler}/>
         </div>
     );
 }
@@ -313,7 +316,7 @@ class ProjectsCentont extends Component {
                             checkedChildren={'启用'}
                             unCheckedChildren={'停用'}
                             onChange={(e) => {
-                                item.isEnable = e? 'YES' : 'NO';
+                                item.isEnable = e ? 'YES' : 'NO';
                                 this.revampDeployTarget(index, "revamp", item)
                             }}
                             checked={isEnable == 'YES'}/>
@@ -352,7 +355,7 @@ class ProjectsCentont extends Component {
         
         
         return (
-            <div className={styles.projectsCenton} style={this.state.style}>
+            <div className={styles.projectsCenton}>
                 <Form horizontal onSubmit={this.okHandler}>
                     <div>
                         <h3>基本配置</h3>
@@ -618,6 +621,18 @@ class ProjectsCentont extends Component {
                     </div>
                     <div style={{paddingLeft: 430, marginBottom: 20}}>
                         <Button type="primary" htmlType="submit">保存</Button>
+                        {this.props.edit &&
+                        <Popconfirm
+                            title="确认删除?"
+                            onConfirm={() => {
+                                this.props.dispatch({
+                                    type: 'projects/remove',
+                                    payload: {id: this.pops.edit},
+                                });
+                            }}>
+                            <Button type="danger" style={{marginLeft: 20}}>删除</Button>
+                        </Popconfirm>
+                        }
                     </div>
                 </Form>
             </div>

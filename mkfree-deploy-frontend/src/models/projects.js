@@ -1,4 +1,5 @@
 import * as projectService from "../services/projects";
+import {message} from "antd";
 import {browserHistory} from "dva/router";
 import {
     ROUTE_PROJECTS,
@@ -52,12 +53,20 @@ export default {
             });
         },
         *patch({payload: values}, {call, put}) {
-            yield call(projectService.update, values);
-            browserHistory.push(`${ROUTE_PROJECTS}`);
+            const {code, desc} = yield call(projectService.update, values);
+            if (code == 1) {
+                message.success('修改成功');
+            } else {
+                message.warning(desc);
+            }
         },
         *remove({payload: values}, {call, put}) {
-            yield call(projectService.remove, values);
-            yield put({type: 'reload'});
+            const {code, desc} =  yield call(projectService.remove, values);
+            if (code == 1) {
+                browserHistory.push(ROUTE_PROJECTS);
+            } else {
+                message.warning(desc);
+            }
         },
         *create({payload: values}, {call, put}) {
             yield call(projectService.save, values);
@@ -141,7 +150,7 @@ export default {
                     dispatch({type: 'seaverFetch', payload: query});
                 }
                 
-                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
+                if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(ROUTE_PROJECTS_INFO)) {
                     dispatch({
                         type: 'projectFetch', payload: {
                             projectsId: pathname.split('/')[4]

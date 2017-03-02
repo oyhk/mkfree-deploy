@@ -1,14 +1,12 @@
 import React, {Component} from "react";
 import {connect} from "dva";
-import {Table, notification, Popconfirm, Button, Checkbox, Modal} from "antd";
-import {Link, browserHistory, routerRedux} from "dva/router";
+import {Table, notification, Button, Checkbox, Modal} from "antd";
+import {browserHistory, routerRedux} from "dva/router";
 import styles from "./Projects.css";
 import {
     PAGE_SIZE,
-    ROUTE_PREFIX,
     ROUTE_PROJECTS_CREATE,
     ROUTE_PROJECT_STRUCTURE_LOGS,
-    ROUTE_PROJECTS_INFO,
     ENV_DEV,
     ENV_TEST,
     ENV_UAT,
@@ -156,22 +154,6 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                 render: (text, record) => (
                     <span>{text}</span>
                 )
-            },
-            {
-                title: '操作',
-                dataIndex: 'id',
-                key: 'id',
-                render: (text, record) => (
-                    <span className={styles.operation}>
-                        <Link to={`${ROUTE_PROJECTS_INFO}/${record.id}`}>编辑</Link>
-                        {/*<ProjectModal title="编辑项目" record={record} onOk={editHandler.bind(null, record.id)}>*/}
-                        {/*<a>编辑</a>*/}
-                        {/*</ProjectModal>*/}
-                        <Popconfirm title="确认删除?" onConfirm={deleteHandler.bind(null, record.id)}>
-                            <a href="">删除</a>
-                        </Popconfirm>
-                    </span>
-                ),
             },
         ];
     return (
