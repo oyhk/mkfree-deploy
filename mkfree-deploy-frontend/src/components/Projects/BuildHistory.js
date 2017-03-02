@@ -1,7 +1,6 @@
 import React from "react";
 import {Timeline, Card} from "antd";
 import {Link} from "dva/router";
-import {connect} from "dva";
 import {LOGS_LIST, ROUTE_PROJECT_STRUCTURE_LOGS} from "../../constants";
 
 function Header({children, location, structureLogList}) {
@@ -34,9 +33,4 @@ function Header({children, location, structureLogList}) {
 }
 
 
-function mapStateToProps(state) {
-    const {structureLogList} = state.projects;
-    return {structureLogList};
-}
-
-export default connect(mapStateToProps)(Header);
+export default Header;

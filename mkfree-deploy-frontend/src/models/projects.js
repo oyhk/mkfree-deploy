@@ -22,7 +22,9 @@ export default {
         envType: ['DEV', '开发'],
         serverMachineList: [],
         structureLogList: [],
-        description: ''
+        description: '',
+        projectEnvConfigList: [],
+        nextName: ''
     },
     reducers: {
         save(state, action) {
@@ -76,9 +78,27 @@ export default {
             const pageNo = yield select(state => state.projects.pageNo);
             yield put({type: 'fetch', payload: {pageNo}});
         },
-        *deploy({payload:values}, {call, put}){
-            yield call(projectService.deploy, values);
-            yield put({type: 'reload'});
+        *deploy({payload:values}, {call, put, select}){
+            const nextName = yield select(state => state.projects.nextName);
+            const {pathname}=values;
+            const {code, desc}=yield call(projectService.deploy, values);
+            if (code == 1) {
+                message.success('发布进行中');
+                if (!pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
+                    console.log(nextName);
+                    browserHistory.push(nextName);
+                } else {
+                    yield put({
+                        type: 'projectStructureLogList',
+                        payload: {
+                            projectId: pathname.split('/')[4],
+                            pathname
+                        }
+                    });
+                }
+            } else {
+                message.warning(desc);
+            }
         },
         *projectFetch({payload: {projectsId = 0}}, {call, put}) {
             const result = yield call(projectService.projectFetch, {projectsId});

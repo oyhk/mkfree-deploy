@@ -13,9 +13,17 @@ import {
     ENV_PROD
 } from "../constants";
 
+const ENV = {
+    DEV: ENV_DEV,
+    TEST: ENV_TEST,
+    UAT: ENV_UAT,
+    PROD: ENV_PROD
+}
+
 const CheckboxGroup = Checkbox.Group;
 
-function Projects({dispatch, list: dataSource, loading, total, pageNo: current, visible_more, recordID, envType, serverMachineList}) {
+function Projects({dispatch, list: dataSource, loading, total, pageNo: current, visible_more, recordID, envType, serverMachineList, location}) {
+    const {pathname}=location;
     
     function deleteHandler(id) {
         dispatch({
@@ -47,6 +55,7 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
     }
     
     function deploy(values) {
+        values.pathname = pathname;
         dispatch({
             type: 'projects/deploy',
             payload: values,
@@ -73,8 +82,15 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                 title: '项目名称',
                 dataIndex: 'name',
                 key: 'name',
-                render: (text, record) => <a
-                    href={`${ROUTE_PROJECT_STRUCTURE_LOGS }/${text}/${record.id }`}>{text}</a>,
+                render: (text, record) =>
+                    <a
+                        onClick={() => {
+                            changeState({
+                                projectEnvConfigList: record.projectEnvConfigList
+                            })
+                            browserHistory.push(`${ROUTE_PROJECT_STRUCTURE_LOGS }/${text}/${record.id }`)
+                        }}
+                    >{text}</a>,
             },
             // ${LOGS_LIST}
             {
@@ -96,54 +112,28 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
                                 }),
                             });
                         }
-                        switch (item.env) {
-                            case  "DEV" :
-                                if ((item.serverMachineList || []).length > 1) {
-                                    return <a key={index} onClick={() => {
-                                        change(ENV_DEV);
-                                    }}>{ENV_DEV[1]}.</a>;
+                        return <a
+                            key={index}
+                            onClick={() => {
+                                changeState({
+                                    projectEnvConfigList: record.projectEnvConfigList,
+                                    nextName: `${ROUTE_PROJECT_STRUCTURE_LOGS }/${record.name}/${record.id }`
+                                })
+                                if (item.serverMachineList.length > 1) {
+                                    change(ENV[item.env])
+                                } else {
+                                    deploy({
+                                        id: record.id,
+                                        env: ENV[item.env][0]
+                                    })
                                 }
-                                return <a key={index} onClick={deploy.bind(null, {
-                                    id: record.id,
-                                    env: ENV_DEV[0]
-                                })}>{ENV_DEV[1]}</a>;
-                            case  "TEST" :
-                                if ((item.serverMachineList || []).length > 1) {
-                                    return <a key={index} onClick={() => {
-                                        change(ENV_TEST);
-                                    }}>{ENV_TEST[1]}.</a>;
-                                }
-                                return <a key={index} onClick={deploy.bind(null, {
-                                    id: record.id,
-                                    env: ENV_TEST[0]
-                                })}>{ENV_TEST[1]}</a>;
-                            case  "UAT" :
-                                if ((item.serverMachineList || []).length > 1) {
-                                    return <a key={index} onClick={() => {
-                                        change(ENV_UAT);
-                                    }}>{ENV_UAT[1]}.</a>;
-                                }
-                                return <a key={index} onClick={deploy.bind(null, {
-                                    id: record.id,
-                                    env: ENV_UAT[0]
-                                })}>{ENV_UAT[1]}</a>;
-                            case  "PROD" :
-                                if ((item.serverMachineList || []).length > 1) {
-                                    return <a key={index} onClick={() => {
-                                        change(ENV_PROD);
-                                    }}>{ENV_PROD[1]}.</a>;
-                                }
-                                return <a key={index} onClick={deploy.bind(null, {
-                                    id: record.id,
-                                    env: ENV_PROD[0]
-                                })}>{ENV_PROD[1]}</a>;
-                        }
+                                
+                            }}>
+                            {ENV[item.env][1]}
+                        </a>
+                        
                     });
-                    return (
-                        <div className={styles.operation}>
-                            {  em  }
-                        </div>);
-                    
+                    return (<div className={styles.operation}>{  em  }</div>);
                 },
                 
             },
