@@ -1,66 +1,75 @@
-import React from "react";
 import {connect} from "dva";
+import React, {Component} from "react";
 import styles from "./Projects.css";
-import cookie from "react-cookie";
+
+let stompClient;
 
 
-function StructureLogs({params}) {
-    const {project_name, info_id}=params;
-    let stompClient;
+class StructureLogs extends Component {
     
-    function websocket() {
+    constructor(props) {
+        super(props);
+        this.state = {
+            visible: false,
+        };
+    }
+    
+    componentWillMount() {
+        const {description}=this.props;
+        if (!description) {
+            this.websocket()
+        }
+    }
+    
+    componentWillUnmount() {
+        this.disconnect()
+    }
+    
+    
+    websocket() {
+        const {dispatch, params}=this.props;
+        const {project_name, info_id}=params;
         var socket = new SockJS('http://192.168.1.210:8091/websocket/init');
         stompClient = Stomp.over(socket);
-        var headers = {
-            login: 'mylogin',
-            passcode: 'localhost',
-            user_token: cookie.load('user_token'),
-            'Content-Type': 'application/json'
-        };
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            // /log/${project_name}#${info_id}
-            stompClient.subscribe(` /log/log1`, function (greeting) {
-                console.log(JSON.parse(greeting.body).content);
+            stompClient.subscribe(`/log/${project_name}#${info_id}`, function (greeting) {
+                dispatch({
+                    type: 'projects/changeDescription',
+                    payload: {
+                        description: JSON.parse(greeting.body).content
+                    }
+                })
             });
         }, (a) => {
             console.log('失败', a)
         });
     }
     
-    function disconnect() {
+    disconnect() {
         stompClient.disconnect(() => {
             console.log('成功切断')
         })
     }
     
-    return (
-        
-        <div className={styles.normal}>
-            <button onClick={websocket}>
-                建立websocket
-            </button>
-            <button onClick={disconnect}>
-                切断websocket
-            </button>
-        </div>
-    );
+    
+    render() {
+        const {description, params}=this.props;
+        const {project_name, info_id}=params;
+        return (
+            <div className={styles.normal}>
+                <h2 style={{fontSize: '30px'}}>{project_name}#{ info_id}</h2>
+                {description}
+            </div>
+        );
+    }
 }
 
 
 function mapStateToProps({routing, projects, loading}) {
-    const {list, total, pageNo, visible_more, recordID, envType, serverMachineList} = projects;
-    // console.log(routing)
-    // const {}=routing;
+    const {description} = projects;
     return {
-        loading: loading.models.projects,
-        list,
-        total,
-        pageNo,
-        visible_more,
-        recordID,
-        envType,
-        serverMachineList,
+        description,
     };
 }
 export default connect(mapStateToProps)(StructureLogs);

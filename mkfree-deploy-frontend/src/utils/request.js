@@ -83,7 +83,7 @@ export async function request(url, options = {}) {
     if (result.code == 105 || result.code == 104) {
       browserHistory.push(ROUTE_USERS_SIGN_IN)
     }
-    // throw new Error(`请求 url : ${url},返回结果 : ${result.desc}`);
+    throw new Error(`请求 url : ${url},返回结果 : ${result.desc}`);
   }
   return result.data;
 }

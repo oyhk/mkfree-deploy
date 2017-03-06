@@ -37,14 +37,14 @@ export default function ({history}) {
                     {/*project*/}
                     <Route path={ROUTE_PROJECTS} component={Projects}/>
                     <Route path={ROUTE_PROJECTS_CREATE} component={ProjectsCreate}/>
-                    <Route path={ROUTE_PROJECTS_INFO + '/:id'} component={ProjectsCreate}/>
                     {/*serverMachine*/}
                     <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
                     {/*projectStructureLog*/}
                     <Route path={ROUTE_PROJECT_STRUCTURE_LOGS} component={StructureLogs}/>
                 </Route>
-                <Route path={ROUTE_PROJECT_STRUCTURE_LOGS+'/:project_name' + '/:id'} component={ProjectsHeader}>
-                    <Route path={LOGS_LIST+'/:info_id'} component={StructureLogs}/>
+                <Route path={ROUTE_PROJECT_STRUCTURE_LOGS + '/:project_name' + '/:id'} component={ProjectsHeader}>
+                    <Route path={ROUTE_PROJECTS_INFO} component={ProjectsCreate}/>
+                    <Route path={LOGS_LIST + '/:info_id'} component={StructureLogs}/>
                 </Route>
             </Route>
             <Route path={ROUTE_USERS_SIGN_IN} component={SsoIndex}/>

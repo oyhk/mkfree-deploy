@@ -1,5 +1,5 @@
-import {request} from '../utils/request';
-import {stringify} from 'qs'
+import {request, requestResult} from "../utils/request";
+import {stringify} from "qs";
 export function fetch({pageNo = 0}) {
     return request(`/api/project/page?pageNo=${pageNo}&pageSize=20`);
 }
@@ -12,7 +12,7 @@ export function save(values) {
 }
 
 export function update(values) {
-    return request('/api/project/update', {
+    return requestResult('/api/project/update', {
         method: 'PUT',
         body: JSON.stringify(values),
     });
@@ -20,19 +20,18 @@ export function update(values) {
 
 
 export function remove(id) {
-    return request('/api/project/delete', {
+    return requestResult('/api/project/delete', {
         method: 'DELETE',
-        body: JSON.stringify({id:id}),
+        body: JSON.stringify({id: id}),
     });
 }
 
 export function deploy(body) {
-    return request('/api/project/structure', {
+    return requestResult('/api/project/structure', {
         method: 'POST',
         body: JSON.stringify(body),
     });
 }
-
 
 
 export function projectFetch({projectsId = 0}) {

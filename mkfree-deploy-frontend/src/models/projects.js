@@ -1,4 +1,5 @@
 import * as projectService from "../services/projects";
+import {message} from "antd";
 import {browserHistory} from "dva/router";
 import {
     ROUTE_PROJECTS,
@@ -7,7 +8,6 @@ import {
     ROUTE_PROJECT_STRUCTURE_LOGS,
     LOGS_LIST
 } from "../constants";
-
 export default {
     namespace: 'projects',
     state: {
@@ -22,20 +22,23 @@ export default {
         envType: ['DEV', '开发'],
         serverMachineList: [],
         structureLogList: [],
+        description: '',
+        projectEnvConfigList: [],
+        nextName: ''
     },
     reducers: {
-        // save(state, {payload: {data: list,data: sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists}}) {
-        //     return {...state, list, sList, total, pageNo ,visible_more, recordID, envType, serverMachineLists};
-        // },
-        // Info(state,{payload:{pList , sList}}){
-        //     return {...state ,pList , sList}
-        // },
         save(state, action) {
             const {payload}=action;
             return {...state, ...payload};
         },
         Info(state, action) {
             const {payload}=action;
+            return {...state, ...payload};
+        },
+        changeDescription(state, action) {
+            const {description}=state;
+            let {payload}=action;
+            payload.description = description + payload.description;
             return {...state, ...payload};
         },
     },
@@ -52,12 +55,20 @@ export default {
             });
         },
         *patch({payload: values}, {call, put}) {
-            yield call(projectService.update, values);
-            browserHistory.push(`${ROUTE_PROJECTS}`);
+            const {code, desc} = yield call(projectService.update, values);
+            if (code == 1) {
+                message.success('修改成功');
+            } else {
+                message.warning(desc);
+            }
         },
         *remove({payload: values}, {call, put}) {
-            yield call(projectService.remove, values);
-            yield put({type: 'reload'});
+            const {code, desc} =  yield call(projectService.remove, values);
+            if (code == 1) {
+                browserHistory.push(ROUTE_PROJECTS);
+            } else {
+                message.warning(desc);
+            }
         },
         *create({payload: values}, {call, put}) {
             yield call(projectService.save, values);
@@ -67,9 +78,27 @@ export default {
             const pageNo = yield select(state => state.projects.pageNo);
             yield put({type: 'fetch', payload: {pageNo}});
         },
-        *deploy({payload:values}, {call, put}){
-            yield call(projectService.deploy, values);
-            yield put({type: 'reload'});
+        *deploy({payload:values}, {call, put, select}){
+            const nextName = yield select(state => state.projects.nextName);
+            const {pathname}=values;
+            const {code, desc}=yield call(projectService.deploy, values);
+            if (code == 1) {
+                message.success('发布进行中');
+                if (!pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
+                    console.log(nextName);
+                    browserHistory.push(nextName);
+                } else {
+                    yield put({
+                        type: 'projectStructureLogList',
+                        payload: {
+                            projectId: pathname.split('/')[4],
+                            pathname
+                        }
+                    });
+                }
+            } else {
+                message.warning(desc);
+            }
         },
         *projectFetch({payload: {projectsId = 0}}, {call, put}) {
             const result = yield call(projectService.projectFetch, {projectsId});
@@ -109,14 +138,20 @@ export default {
             yield call(projectService.projectDeploy, values);
             yield put({type: 'reload'});
         },
-        *projectStructureLogList({payload:values}, {call, put}){
-            const structureLogList = yield call(projectService.projectStructureLogList, values);
+        *projectStructureLogList({payload}, {call, put}){
+            const {pathname, projectId}= payload;
+            const structureLogList = yield call(projectService.projectStructureLogList, {projectId});
             yield put({type: 'Info', payload: {structureLogList}});
+            if (!pathname.split('/')[5]) {
+                browserHistory.push(`${pathname}/log/${structureLogList[0].seqNo}`)
+            }
         },
-        *projectStructureLogInfo({payload:values}, {call, put}){
-            const structureLogInfo = yield call(projectService.projectStructureLogInfo, values);
-            yield put({type: 'Info', payload: {structureLogInfo}});
-        }
+        *projectStructureLogInfo({payload}, {call, put}){
+            const data = yield call(projectService.projectStructureLogInfo, payload);
+            if (data) {
+                yield put({type: 'Info', payload: {description: data.description}});
+            }
+        },
     },
     subscriptions: {
         setup({dispatch, history}) {
@@ -134,7 +169,8 @@ export default {
                 if (pathname === ROUTE_PROJECTS_CREATE) {
                     dispatch({type: 'seaverFetch', payload: query});
                 }
-                if (pathname.includes(ROUTE_PROJECTS_INFO)) {
+                
+                if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(ROUTE_PROJECTS_INFO)) {
                     dispatch({
                         type: 'projectFetch', payload: {
                             projectsId: pathname.split('/')[4]
@@ -146,7 +182,8 @@ export default {
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
-                            projectId: pathname.split('/')[4]
+                            projectId: pathname.split('/')[4],
+                            pathname
                         }
                     });
                 }
@@ -155,7 +192,7 @@ export default {
                     dispatch({
                         type: 'projectStructureLogInfo', payload: {
                             projectId: pathname.split('/')[4],
-                            logId: pathname.split('/')[6]
+                            seqNo: pathname.split('/')[6],
                         }
                     });
                 }
