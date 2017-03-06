@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.domain.User;
 import com.mkfree.deploy.domain.UserProjectPermission;
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import com.mkfree.deploy.dto.UserProjectPermissionDto;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public enum UserProjectPermissionHelper {
             userProjectPermissionDto.setProjectName(userProjectPermission.getProjectName());
             userProjectPermissionDto.setProjectId(userProjectPermission.getProjectId());
             try {
-                userProjectPermissionDto.setProjectEnv(objectMapper.readValue(userProjectPermission.getProjectEnvList(), new TypeReference<List<String>>() {
+                userProjectPermissionDto.setProjectEnv(objectMapper.readValue(userProjectPermission.getProjectEnvList(), new TypeReference<List<ProjectEnv>>() {
                 }));
             } catch (IOException e) {
                 log.info(e.getMessage());
