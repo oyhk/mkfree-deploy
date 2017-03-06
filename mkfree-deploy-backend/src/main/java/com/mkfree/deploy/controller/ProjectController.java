@@ -92,7 +92,7 @@ public class ProjectController extends BaseController {
 
                 UserProjectPermissionDto userProjectPermissionDto = userProjectPermissionDtoMap.get(project.getId());
                 if (userProjectPermissionDto != null) {
-                    projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv().toString())).collect(Collectors.toList());
+                    projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv())).collect(Collectors.toList());
                     List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
                     if (projectEnvConfigList != null) {
                         projectEnvConfigList.forEach(projectEnvConfig -> {
