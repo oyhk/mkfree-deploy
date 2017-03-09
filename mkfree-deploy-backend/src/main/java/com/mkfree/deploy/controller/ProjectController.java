@@ -375,7 +375,7 @@ public class ProjectController extends BaseController {
             }
 
             if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
-                long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv().toString())).count();
+                long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv())).count();
                 if (count == 0) {
                     jsonResult.custom("10021", "没有此项目发布权限", log);
                     return;
