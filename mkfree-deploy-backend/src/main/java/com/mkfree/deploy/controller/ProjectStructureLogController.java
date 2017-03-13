@@ -74,11 +74,9 @@ public class ProjectStructureLogController extends BaseController {
 
             if (projectStructureLog.getStatus() == ProjectStructureLogStatus.PROCESSING) {
                 String logKey = ProjectStructureLogHelper.SINGLETONE.getLogKey(projectStructureLog);
-                log.info("######################## ProjectStructureLogController info ###############");
-                log.info("logKey : {}", logKey);
-                log.info("######################## ProjectStructureLogController info ###############");
-
-                projectStructureLog.setDescription(Bootstrap.logStringBufferMap.get(logKey).toString());
+                if(Bootstrap.logStringBufferMap.get(logKey) != null) {
+                    projectStructureLog.setDescription(Bootstrap.logStringBufferMap.get(logKey).toString());
+                }
             }
             jsonResult.data = projectStructureLog;
 
