@@ -469,6 +469,7 @@ public class ProjectController extends BaseController {
                     newLog.setName("#" + nextSeqNo);
                     newLog.setProjectId(projectId);
                     newLog.setSeqNo(nextSeqNo);
+                    newLog.setProjectName(projectName);
                     newLog = projectStructureLogRepository.save(newLog);
 
 
