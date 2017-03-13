@@ -20,7 +20,7 @@ public enum ProjectStructureLogHelper {
     }
 
     public String getLogKey(ProjectStructureLog projectStructureLog) {
-        return String.format("%s#%d", projectStructureLog.getName(), projectStructureLog.getSeqNo());
+        return String.format("%s#%d", projectStructureLog.getProjectName(), projectStructureLog.getSeqNo());
 
     }
 }
