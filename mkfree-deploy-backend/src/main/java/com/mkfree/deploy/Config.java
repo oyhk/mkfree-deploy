@@ -22,7 +22,7 @@ public class Config {
      */
     @Bean
     ExecutorService commonExecutorService() {
-        return Executors.newFixedThreadPool(5);
+        return Executors.newCachedThreadPool();
     }
 
     @Bean
