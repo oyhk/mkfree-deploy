@@ -91,7 +91,7 @@
     IFS=';' read -ra ADDR <<< "$structureStepAfterList"
     for i in "${ADDR[@]}"; do
         echo "ssh -p ${serverSshPort} ${serverSshUsername}@${serverIP} $i"
-        echo $(time ssh -p ${serverSshPort} -t ${serverSshUsername}@${serverIP} "$i")
+        echo $(ssh -p ${serverSshPort} -t ${serverSshUsername}@${serverIP} "$i")
     done
     ################ 构建后执行命令 end  ############
 
