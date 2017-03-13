@@ -65,7 +65,7 @@ public class ProjectStructureLogController extends BaseController {
                 jsonResult.errorParam("日志序号不能为空", log);
                 return;
             }
-            ProjectStructureLog projectStructureLog = projectStructureLogRepository.findByProjectIdAndSeqNo(projectId,seqNo);
+            ProjectStructureLog projectStructureLog = projectStructureLogRepository.findByProjectIdAndSeqNo(projectId, seqNo);
             if (projectStructureLog == null) {
                 jsonResult.remind(ProjectStructureLog.REMIND_RECORD_IS_NOT_EXIST);
                 return;
@@ -74,6 +74,10 @@ public class ProjectStructureLogController extends BaseController {
 
             if (projectStructureLog.getStatus() == ProjectStructureLogStatus.PROCESSING) {
                 String logKey = ProjectStructureLogHelper.SINGLETONE.getLogKey(projectStructureLog);
+                log.info("######################## ProjectStructureLogController info ###############");
+                log.info("logKey : {}", logKey);
+                log.info("######################## ProjectStructureLogController info ###############");
+
                 projectStructureLog.setDescription(Bootstrap.logStringBufferMap.get(logKey).toString());
             }
             jsonResult.data = projectStructureLog;
