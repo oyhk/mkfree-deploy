@@ -71,7 +71,7 @@
     IFS=';' read -ra ADDR <<< "$structureStepBeforeList"
     for i in "${ADDR[@]}"; do
         echo "$i"
-        ${i}
+        echo ${i}
     done
     ################ 构建步骤 end  ############
 
