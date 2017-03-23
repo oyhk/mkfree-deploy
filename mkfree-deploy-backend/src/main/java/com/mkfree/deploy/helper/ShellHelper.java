@@ -59,7 +59,7 @@ public enum ShellHelper {
             Stream<String> command = Stream.of(params);
             command.forEach(commands::add);
 
-            Process process = Runtime.getRuntime().exec((String[]) command.toArray());
+            Process process = Runtime.getRuntime().exec(commands.toArray(new String []{}));
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s;
             while ((s = reader.readLine()) != null) {
