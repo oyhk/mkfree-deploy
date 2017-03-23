@@ -2,6 +2,7 @@ package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +31,9 @@ public class ProjectDto extends DtoEntity {
 
     // 发布机器id列表
     private List<Long> serverMachineIdList;
+
+    // 最后发布时间
+    private Date lastPublishDate;
 
     public List<Long> getServerMachineIdList() {
         return serverMachineIdList;
@@ -102,5 +106,13 @@ public class ProjectDto extends DtoEntity {
 
     public void setDeployTargetFileList(List<ProjectDeployFileDto> deployTargetFileList) {
         this.deployTargetFileList = deployTargetFileList;
+    }
+
+    public Date getLastPublishDate() {
+        return lastPublishDate;
+    }
+
+    public void setLastPublishDate(Date lastPublishDate) {
+        this.lastPublishDate = lastPublishDate;
     }
 }

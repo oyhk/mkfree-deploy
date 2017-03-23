@@ -139,10 +139,10 @@ function Projects({dispatch, list: dataSource, loading, total, pageNo: current, 
             },
             {
                 title: '最近发布时间',
-                dataIndex: 'updatedAt',
-                key: 'updatedAt',
+                dataIndex: 'lastPublishDate',
+                key: 'lastPublishDate',
                 render: (text, record) => (
-                    <span>{text}</span>
+                    <span>{record.lastPublishDate}</span>
                 )
             },
         ];
