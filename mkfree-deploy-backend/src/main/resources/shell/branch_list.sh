@@ -7,5 +7,5 @@ echo "cd $projectSystemPath"
 echo "git pull"
 git pull
 echo "##########git_branch_list##########"
-echo $(git branch -a)
+echo "$(git branch -a)"
 echo "##########git_branch_list##########"
