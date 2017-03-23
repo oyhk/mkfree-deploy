@@ -21,7 +21,7 @@ public enum ShellHelper {
      * @param log
      * @param command
      */
-    public void executeShellFile(Logger log, String logMapKey, String... command) {
+    public void buildProjectExecuteShellFile(Logger log, String logMapKey, String... command) {
 
         try {
             Process process = Runtime.getRuntime().exec(command);
@@ -31,13 +31,13 @@ public enum ShellHelper {
             while ((s = reader.readLine()) != null) {
                 log.info(s);
                 StringBuffer stringBuffer = Bootstrap.logStringBufferMap.get(logMapKey);
-                if(stringBuffer== null){
-                    stringBuffer  = new StringBuffer();
+                if (stringBuffer == null) {
+                    stringBuffer = new StringBuffer();
                 }
                 stringBuffer.append(s).append("\n");
 
                 Queue<String> strings = Bootstrap.logQueueMap.get(logMapKey);
-                if(strings == null){
+                if (strings == null) {
                     strings = new LinkedList<>();
                 }
                 strings.add(s);
@@ -47,6 +47,23 @@ public enum ShellHelper {
             log.error(e.getMessage());
         }
 
+    }
+
+    public String executeShellFile(Logger log, String... command) {
+        StringBuilder stringBuffer = new StringBuilder();
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String s;
+            while ((s = reader.readLine()) != null) {
+                log.info(s);
+                stringBuffer.append(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return stringBuffer.toString();
     }
 
 

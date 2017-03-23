@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 public class SystemConfig extends IDEntity {
     @Column(columnDefinition = "varchar(255) comment '项目根路劲'")
     private String projectPath;
+    @Column(columnDefinition = "varchar(255) comment '安装路劲'")
+    private String installPath;
 
     public String getProjectPath() {
         return projectPath;
@@ -17,5 +19,13 @@ public class SystemConfig extends IDEntity {
 
     public void setProjectPath(String projectPath) {
         this.projectPath = projectPath;
+    }
+
+    public String getInstallPath() {
+        return installPath;
+    }
+
+    public void setInstallPath(String installPath) {
+        this.installPath = installPath;
     }
 }

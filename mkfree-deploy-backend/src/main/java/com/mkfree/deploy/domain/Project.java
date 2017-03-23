@@ -20,6 +20,16 @@ public class Project extends IDEntity {
     private String remotePath;
     @Column(columnDefinition = "varchar (255) comment '部署的项目模块名称'")
     private String moduleName;
+    @Column(columnDefinition = "text comment '项目系统路劲'")
+    private String systemPath;
+
+    public String getSystemPath() {
+        return systemPath;
+    }
+
+    public void setSystemPath(String systemPath) {
+        this.systemPath = systemPath;
+    }
 
     public String getGitUrl() {
         return gitUrl;

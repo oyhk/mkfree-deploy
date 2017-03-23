@@ -291,6 +291,25 @@ public class ProjectController extends BaseController {
         return doing.go(request, log);
     }
 
+    @RequestMapping(value = Routes.PROJECT_BRANCH_LIST, method = RequestMethod.GET)
+    public JsonResult branchList(Long id, HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+            if (id == null) {
+                jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
+                return;
+            }
+            Project project = projectRepository.findOne(id);
+            if (project == null) {
+                jsonResult.remind(Project.REMIND_RECORD_IS_NOT_EXIST);
+                return;
+            }
+            String branchListFile = new File("").getAbsolutePath() + "/src/main/resources/shell/branch_list.sh";
+            String result = ShellHelper.SINGLEONE.executeShellFile(log, branchListFile);
+            log.info("result : {}", result);
+
+        };
+        return doing.go(request, log);
+    }
 
     @RequestMapping(value = Routes.PROJECT_INFO, method = RequestMethod.GET)
     public JsonResult info(Long id, HttpServletRequest request) {
@@ -554,7 +573,7 @@ public class ProjectController extends BaseController {
                         }
                     });
 
-                    ShellHelper.SINGLEONE.executeShellFile(log, logMapKey, deployShellPath,
+                    ShellHelper.SINGLEONE.buildProjectExecuteShellFile(log, logMapKey, deployShellPath,
                             projectName,
                             systemConfigProjectPath,
                             projectGitUrl,

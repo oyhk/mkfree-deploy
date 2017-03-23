@@ -15,24 +15,22 @@
     structureStepBeforeList=${11} #构建前步骤
     structureStepAfterList=${12} #构建后步骤
 
-    #git@git.oschina.net:kcoupon/rockcent.git 例如：截取项目名称 rockcent
-    gitProjectName=${gitUrl##*/} #git项目名称
 
     echo 'deploy start'
-    projectAllPath=${localPath}/${projectName}/${gitProjectName/.git/''}
     projectPath=${localPath}/${projectName}
     # 当项目不存在
-    if [ ! -d "$projectAllPath" ]; then
-        mkdir -p ${projectAllPath}
-        cd ${projectPath}
+    if [ ! -d "$projectPath" ]; then
+        mkdir -p ${projectPath}
+        cd ${localPath}
         echo "git clone $gitUrl"
         echo 'git clone start . . .'
-        git clone ${gitUrl}
+        git clone ${gitUrl} ${projectName}
         echo "git clone $gitUrl"
         echo 'git clone success . . .'
     fi
 
     # 进入指定目录
+    projectAllPath=${localPath}/${projectName}
     echo "cd $projectAllPath"
     cd ${projectAllPath}
 
