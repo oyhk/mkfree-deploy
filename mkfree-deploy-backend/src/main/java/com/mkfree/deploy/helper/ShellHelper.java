@@ -1,13 +1,15 @@
 package com.mkfree.deploy.helper;
 
 import com.mkfree.deploy.Bootstrap;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by oyhk on 2017/2/3.
@@ -49,10 +51,15 @@ public enum ShellHelper {
 
     }
 
-    public String executeShellFile(Logger log, String... command) {
+    public String executeShellFile(Logger log, String path, String... params) {
         StringBuilder stringBuffer = new StringBuilder();
         try {
-            Process process = Runtime.getRuntime().exec(command);
+            List<String> commands = new ArrayList<>();
+            commands.add(path);
+            Stream<String> command = Stream.of(params);
+            command.forEach(commands::add);
+
+            Process process = Runtime.getRuntime().exec((String[]) command.toArray());
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s;
             while ((s = reader.readLine()) != null) {

@@ -305,7 +305,7 @@ public class ProjectController extends BaseController {
             }
             String branchListFile = new File("").getAbsolutePath() + "/src/main/resources/shell/branch_list.sh";
             ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + branchListFile);
-            String result = ShellHelper.SINGLEONE.executeShellFile(log, branchListFile);
+            String result = ShellHelper.SINGLEONE.executeShellFile(log, branchListFile, project.getSystemPath());
             log.info("result : {}", result);
 
         };
