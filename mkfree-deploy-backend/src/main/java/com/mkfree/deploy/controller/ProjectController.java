@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -303,11 +304,18 @@ public class ProjectController extends BaseController {
                 jsonResult.remind(Project.REMIND_RECORD_IS_NOT_EXIST);
                 return;
             }
+            String projectBranchListSplit = "##########branch_list##########";
             String branchListFile = new File("").getAbsolutePath() + "/src/main/resources/shell/branch_list.sh";
             ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + branchListFile);
-            String result = ShellHelper.SINGLEONE.executeShellFile(log, branchListFile, project.getSystemPath());
-            log.info("result : {}", result);
-
+            String result = ShellHelper.SINGLEONE.executeShellFile(log, branchListFile, project.getSystemPath(), projectBranchListSplit);
+            log.info("branchList executeShellFile result : {}", result);
+            int start = result.indexOf(projectBranchListSplit);
+            int end = result.lastIndexOf(projectBranchListSplit);
+            String branchListTemp = result.substring(start + 31, end);
+            Stream<String> stringStream = Stream.of(branchListTemp.split("remotes/origin/"));
+            List<String> branchList = stringStream.filter(s -> !s.contains("master*")).filter(s -> !s.contains("HEAD")).map(String::trim).collect(Collectors.toList());
+            branchList.add("release/*");// 如果选这个分支名称，会动态选择最新分支发布版本
+            jsonResult.data = branchList;
         };
         return doing.go(request, log);
     }
