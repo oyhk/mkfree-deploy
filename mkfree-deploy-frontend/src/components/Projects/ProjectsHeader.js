@@ -7,7 +7,7 @@ import {connect} from "dva";
 
 function Header(props) {
     const {children}=props;
-    console.log(props)
+    // console.log(props)
     return (
         <div className={styles.normal}>
             <div className={styles.header}>
@@ -20,7 +20,7 @@ function Header(props) {
                 </div>
             </div>
         </div>
-    
+
     );
 }
 

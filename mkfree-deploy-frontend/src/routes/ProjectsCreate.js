@@ -1,12 +1,13 @@
 import React, {Component} from "react";
 import {connect} from "dva";
-import {Input, Form, Icon, Button, Transfer, Col, Switch, Popconfirm} from "antd";
+import {Input, Form, Icon, Button, Transfer, Col, Switch, Popconfirm,Select} from "antd";
 import styles from "./Projects.css";
 const InputGroup = Input.Group;
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
-function ProjectsCreate({dispatch, pList, sList, loading, params}) {
+function ProjectsCreate({dispatch, pList, sList,publicBranchList, loading, params}) {
     function editHandler(values) {
         values.id = pList.id;
         dispatch({
@@ -14,19 +15,20 @@ function ProjectsCreate({dispatch, pList, sList, loading, params}) {
             payload: values,
         });
     }
-    
+
     function saveHandler(values) {
         dispatch({
             type: 'projects/create',
             payload: values,
         });
     }
-    
+
     return (
         <div>
             <ProjectsCentont
                 record={pList || []}
                 servarData={sList || []}
+                publicBranchList={publicBranchList || []}
                 edit={params.id}
                 dispatch={dispatch}
                 onOk={params.id ? editHandler : saveHandler}/>
@@ -53,7 +55,7 @@ class ProjectsCentont extends Component {
                 "structureBeforeList": [""], /*发布前命令*/
                 "structureAfterList": [""], /*发布后命令*/
             },
-            
+
             TESTConfig: {
                 "env": "TEST",
                 "serverMachineIdList": [],
@@ -61,7 +63,7 @@ class ProjectsCentont extends Component {
                 "structureBeforeList": [""],
                 "structureAfterList": [""],
             },
-            
+
             UATConfig: {
                 "env": "UAT",
                 "serverMachineIdList": [],
@@ -69,7 +71,7 @@ class ProjectsCentont extends Component {
                 "structureBeforeList": [""],
                 "structureAfterList": [""],
             },
-            
+
             PRODConfig: {
                 "env": "PROD",
                 "serverMachineIdList": [],
@@ -77,10 +79,13 @@ class ProjectsCentont extends Component {
                 "structureBeforeList": [""],
                 "structureAfterList": [""],
             },
+            publicBranchList:[],
+            publicBranchItem:[],
         };
     }
-    
-    componentDidMount() {
+
+    componentDidMount(){
+
         if (this.props.record && this.props.record.projectEnvConfigList) {
             const
                 projectEnvConfigList = this.props.record.projectEnvConfigList,
@@ -103,9 +108,15 @@ class ProjectsCentont extends Component {
             });
         }
         this.setState({style: {width: document.body.offsetWidth - 336}});
+        if(this.props.publicBranchList){
+            this.setState({
+                publicBranchList:this.props.publicBranchList
+            })
+        }
     }
-    
+
     componentWillReceiveProps(nextProps) {
+
         if (nextProps.record && nextProps.record.projectEnvConfigList && this.state.visible) {
             const
                 projectEnvConfigList = nextProps.record.projectEnvConfigList,
@@ -135,27 +146,33 @@ class ProjectsCentont extends Component {
                 visible: false
             })
         }
+        if(nextProps.publicBranchList){
+            this.setState({
+                publicBranchList:nextProps.publicBranchList,
+                publicBranchItem:nextProps.publicBranchList,
+            })
+        }
     }
-    
+
     showModelHandler = (e) => {
         if (e) e.stopPropagation();
         this.setState({
             visible: true,
         });
     };
-    
+
     hideModelHandler = () => {
         this.setState({
             visible: false,
         });
     };
-    
+
     okHandler = (e) => {
         e.preventDefault();
         const {onOk} = this.props;
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                
+
                 values["projectEnvConfigList"] = [
                     this.state.DEVConfig,
                     this.state.TESTConfig,
@@ -163,53 +180,64 @@ class ProjectsCentont extends Component {
                     this.state.PRODConfig,
                 ];
                 values["deployTargetFileList"] = this.state.deployTargetFileList;
-                
+
                 onOk(values);
-                
+
             }
         });
     };
     revampList = (env, after, index, type, value) => {
-        
+
         const Build = JSON.parse(JSON.stringify(this.state[env]));
-        
+
         (type == "add" ) && (Build[after].push(""));
-        
+
         (type == "delete" && Build[after].length > 1) && (Build[after].splice(index, 1));
-        
+
         (type == "revamp" && index > -1 && Build[after]) && (Build[after][index] = value);
-        
+
         (type == "revamp" && index > -1 && !( Build[after])) && (Build[after] = [value]);
-        
+
         (type == "revamp" && index == -1) && (Build[after] = value);
-        
+
         this.setState({[env]: Build});
     };
     revampDeployTarget = (index, type, value) => {
         const {deployTargetFileList}=this.state;
         if (deployTargetFileList.length == 1 && type == "delete") return;
         const Build = deployTargetFileList.concat();
-        
+
         (type == "add" ) && (Build.push({
             localFilePath: '',
             remoteFilePath: '',
             isEnable: 'NO'
         }));
-        
+
         (type == "revamp" ) && (Build[index] = value);
-        
+
         (type == "delete" ) && (Build.splice(index, 1));
-        
+
         (Build.length == 0 ) && (Build.push(""));
-        
+
         (type == "delete" && index == 0) && (this.props.form.setFieldsValue({"deployTargetFile": Build[0]}));
-        
+
         this.setState({
             deployTargetFileList: Build
         });
     }
-    
-    
+
+    sHandleChange(value,fn){
+        const items = this.state.publicBranchList;
+        const item = items.filter((d)=>d.includes(value));
+
+
+        this.setState({
+            publicBranchItem:value&& value !=" " ? item : items
+        });
+        (value != undefined)&& (fn(value));
+    }
+
+
     render() {
         const {children} = this.props;
         const {getFieldDecorator} = this.props.form;
@@ -296,8 +324,8 @@ class ProjectsCentont extends Component {
                         this.revampList("PRODConfig", "structureAfterList", index, "delete", e)
                     }}/>
                 }/></div>;
-                
-                
+
+
             }),
             deployTargetFiles = (_state.deployTargetFileList).map((item, index) => {
                 const {localFilePath, remoteFilePath, isEnable}=item;
@@ -342,7 +370,7 @@ class ProjectsCentont extends Component {
                     </Col>
                 </InputGroup>;
             });
-        
+
         if (this.props.servarData.length > 0) {
             this.props.servarData.map((item, index) => {
                 mockData.push({
@@ -352,8 +380,8 @@ class ProjectsCentont extends Component {
                 });
             });
         }
-        
-        
+        const options = this.state.publicBranchItem.map((d,i) => <Option key={d}>{d}</Option>)
+
         return (
             <div className={styles.projectsCenton}>
                 <Form horizontal onSubmit={this.okHandler}>
@@ -409,7 +437,7 @@ class ProjectsCentont extends Component {
                             }} style={{marginTop: '10px', width: "100%"}}>
                                 <Icon type="plus"/> Add path
                             </Button>
-                        
+
                         </FormItem>
                     </div>
                     <div className={styles.seaverMachine}>
@@ -436,8 +464,21 @@ class ProjectsCentont extends Component {
                                     <div className="ant-row">
                                         <div className="ant-col-6"><label>发布分支名：</label></div>
                                         <div className="ant-col-16">
-                                            <Input value={_state.DEVConfig.publicBranch || ""}
-                                                   onChange={(e) => this.revampList("DEVConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                                            {/*<Input value={_state.DEVConfig.publicBranch || ""}
+                                                   onChange={(e) => this.revampList("DEVConfig", "publicBranch", -1, "revamp", e.target.value)}/>*/}
+                                            <Select
+                                                combobox
+                                                value={_state.DEVConfig.publicBranch}
+                                                placeholder={this.props.placeholder}
+                                                notFoundContent="请输入其他字段"
+                                                defaultActiveFirstOption={false}
+                                                showArrow={false}
+                                                filterOption={false}
+                                                onChange={(e)=>this.sHandleChange(e,(value)=>{ this.revampList("DEVConfig", "publicBranch", -1, "revamp", value)})}
+                                                onFocus={(e)=>this.sHandleChange(_state.DEVConfig.publicBranch,(value)=>{})}
+                                            >
+                                                {options}
+                                            </Select>
                                         </div>
                                     </div>
                                     <div className="ant-row">
@@ -464,7 +505,7 @@ class ProjectsCentont extends Component {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <h4>测试</h4>
                                 <div className={styles.list}>
@@ -486,8 +527,21 @@ class ProjectsCentont extends Component {
                                     <div className="ant-row">
                                         <div className="ant-col-6"><label>发布分支名：</label></div>
                                         <div className="ant-col-16">
-                                            <Input value={_state.TESTConfig.publicBranch || ""}
-                                                   onChange={(e) => this.revampList("TESTConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                                            {/*<Input value={_state.TESTConfig.publicBranch || ""}
+                                                   onChange={(e) => this.revampList("TESTConfig", "publicBranch", -1, "revamp", e.target.value)}/>*/}
+                                            <Select
+                                                combobox
+                                                value={_state.TESTConfig.publicBranch}
+                                                placeholder={this.props.placeholder}
+                                                notFoundContent="请输入其他字段"
+                                                defaultActiveFirstOption={false}
+                                                showArrow={false}
+                                                filterOption={false}
+                                                onChange={(e)=>this.sHandleChange(e,(value)=>{this.revampList("TESTConfig", "publicBranch", -1, "revamp", value)})}
+                                                onFocus={(e)=>this.sHandleChange(_state.TESTConfig.publicBranch,(value)=>{})}
+                                            >
+                                                {options}
+                                            </Select>
                                         </div>
                                     </div>
                                     <div className="ant-row">
@@ -515,7 +569,7 @@ class ProjectsCentont extends Component {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className={styles.seaverList}>
                             <div>
                                 <h4>仿真测试</h4>
@@ -538,8 +592,21 @@ class ProjectsCentont extends Component {
                                     <div className="ant-row">
                                         <div className="ant-col-6"><label>发布分支名：</label></div>
                                         <div className="ant-col-16">
-                                            <Input value={_state.UATConfig.publicBranch || ""}
-                                                   onChange={(e) => this.revampList("UATConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                                            {/*<Input value={_state.UATConfig.publicBranch || ""}
+                                                   onChange={(e) => this.revampList("UATConfig", "publicBranch", -1, "revamp", e.target.value)}/>*/}
+                                            <Select
+                                                combobox
+                                                value={_state.UATConfig.publicBranch}
+                                                placeholder={this.props.placeholder}
+                                                notFoundContent="请输入其他字段"
+                                                defaultActiveFirstOption={false}
+                                                showArrow={false}
+                                                filterOption={false}
+                                                onChange={(e)=>this.sHandleChange(e,(value)=>{this.revampList("UATConfig", "publicBranch", -1, "revamp", value)})}
+                                                onFocus={(e)=>this.sHandleChange(_state.UATConfig.publicBranch,(value)=>{})}
+                                            >
+                                                {options}
+                                            </Select>
                                         </div>
                                     </div>
                                     <div className="ant-row">
@@ -566,7 +633,7 @@ class ProjectsCentont extends Component {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <h4>生产</h4>
                                 <div className={styles.list}>
@@ -588,8 +655,21 @@ class ProjectsCentont extends Component {
                                     <div className="ant-row">
                                         <div className="ant-col-6"><label>发布分支名：</label></div>
                                         <div className="ant-col-16">
-                                            <Input value={_state.PRODConfig.publicBranch || ""}
-                                                   onChange={(e) => this.revampList("PRODConfig", "publicBranch", -1, "revamp", e.target.value)}/>
+                                            {/*<Input value={_state.PRODConfig.publicBranch || ""}
+                                                   onChange={(e) => this.revampList("PRODConfig", "publicBranch", -1, "revamp", e.target.value)}/>*/}
+                                            <Select
+                                                combobox
+                                                value={_state.PRODConfig.publicBranch}
+                                                placeholder={this.props.placeholder}
+                                                notFoundContent="请输入其他字段"
+                                                defaultActiveFirstOption={false}
+                                                showArrow={false}
+                                                filterOption={false}
+                                                onChange={(e)=>this.sHandleChange(e,(value)=>{this.revampList("PRODConfig", "publicBranch", -1, "revamp", value)})}
+                                                onFocus={(e)=>this.sHandleChange(_state.PRODConfig.publicBranch,(value)=>{})}
+                                            >
+                                                {options}
+                                            </Select>
                                         </div>
                                     </div>
                                     <div className="ant-row">
@@ -617,7 +697,7 @@ class ProjectsCentont extends Component {
                                 </div>
                             </div>
                         </div>
-                    
+
                     </div>
                     <div style={{paddingLeft: 430, marginBottom: 20}}>
                         <Button type="primary" htmlType="submit">保存</Button>
@@ -641,9 +721,10 @@ class ProjectsCentont extends Component {
 }
 
 function mapStateToProps(state) {
-    const {pList, sList} = state.projects;
+    const {pList, sList,publicBranchList} = state.projects;
     return {
         loading: state.loading.models.projects,
+        publicBranchList,
         pList,
         sList,
     };
