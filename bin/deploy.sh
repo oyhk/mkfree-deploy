@@ -27,7 +27,7 @@ start() {
       echo "================================"
    else
       # 构建 java
-      cd $APP_HOME && /rockcent/apps/jenkins-project/tools/hudson.tasks.Maven_MavenInstallation/maven/bin/mvn clean package
+      cd $APP_HOME && /mnt/usr/module/maven/current/bin/mvn clean package
 
       echo -n "Starting $APP_MAINCLASS ..."
       cd $APP_HOME
