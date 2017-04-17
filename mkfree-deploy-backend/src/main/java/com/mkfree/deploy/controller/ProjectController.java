@@ -89,7 +89,9 @@ public class ProjectController extends BaseController {
 
                 // 最后发布时间
                 ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
-                projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
+                if(null != projectStructureLog){
+                        projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
+                }
 
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
