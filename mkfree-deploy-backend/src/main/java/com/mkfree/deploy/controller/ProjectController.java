@@ -86,10 +86,12 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
-
+                log.info("projcect id:{}",project.getId());
                 // 最后发布时间
                 ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
+                log.info("projectStructureLog:{}",projectStructureLog);
                 if(null != projectStructureLog){
+                    log.info("publishDate:{}",projectStructureLog.getCreatedAt());
                         projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
                 }
 
