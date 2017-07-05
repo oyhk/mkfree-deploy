@@ -31,7 +31,6 @@ public enum ShellHelper {
 
             String s;
             while ((s = reader.readLine()) != null) {
-                log.info(s);
                 StringBuffer stringBuffer = Bootstrap.logStringBufferMap.get(logMapKey);
                 if (stringBuffer == null) {
                     stringBuffer = new StringBuffer();
