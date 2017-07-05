@@ -18,7 +18,7 @@ public class IndexController {
      */
     @RequestMapping(value = {"/deploy/**","/**.js","/**.css"},method = RequestMethod.GET)
     public String index() {
-        return "index";
+        return "index-prod";
     }
 
     @RequestMapping(value = "/websocket",method = RequestMethod.GET)

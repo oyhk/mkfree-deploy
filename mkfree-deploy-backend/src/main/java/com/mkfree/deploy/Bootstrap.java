@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by oyhk on 17/1/22.
@@ -29,9 +30,9 @@ import java.util.Queue;
 public class Bootstrap {
 
     // 已经构建生成的日志
-    public static Map<String, Queue<String>> logQueueMap = new HashMap<>();
+    public static Map<String, Queue<String>> logQueueMap = new ConcurrentHashMap<>();
     // 构建日志队列
-    public static Map<String, StringBuffer> logStringBufferMap = new HashMap<>();
+    public static Map<String, StringBuffer> logStringBufferMap = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(Bootstrap.class);

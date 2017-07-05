@@ -14,8 +14,8 @@ import java.util.Date;
 public class DtoEntity {
 
     protected Long id;
-    protected Date createdAt = new Date();
-    protected Date updatedAt = new Date();
+    protected Date createdAt ;
+    protected Date updatedAt ;
     protected Whether isDelete = Whether.NO;
 
     public static final String CHECK_IDENTIFIER_IS_NOT_NULL = "唯一标识不能为空";

@@ -3,11 +3,11 @@ package com.mkfree.deploy.domain.enumclass;
 /**
  * Created by oyhk on 2017/1/23.
  * 构建类型
- *
  */
 public enum ProjectStructureStepType {
 
-    BEFORE("构建前"), AFTER("构建后");
+    BEFORE("构建前"),
+    AFTER("构建后");
 
     private String text;
 

@@ -29,18 +29,28 @@ public class ProjectDto extends DtoEntity {
     // 各种环境配置
     private List<ProjectEnvConfigDto> projectEnvConfigList;
 
-    // 发布机器id列表
-    private List<Long> serverMachineIdList;
+    // 发布机器ip列表
+    private List<String> serverMachineIpList;
+    // 发布机器ip
+    private String serverMachineIp;
 
     // 最后发布时间
     private Date lastPublishDate;
 
-    public List<Long> getServerMachineIdList() {
-        return serverMachineIdList;
+    public List<String> getServerMachineIpList() {
+        return serverMachineIpList;
     }
 
-    public void setServerMachineIdList(List<Long> serverMachineIdList) {
-        this.serverMachineIdList = serverMachineIdList;
+    public void setServerMachineIpList(List<String> serverMachineIpList) {
+        this.serverMachineIpList = serverMachineIpList;
+    }
+
+    public String getServerMachineIp() {
+        return serverMachineIp;
+    }
+
+    public void setServerMachineIp(String serverMachineIp) {
+        this.serverMachineIp = serverMachineIp;
     }
 
     public String getName() {

@@ -13,9 +13,14 @@ public enum ObjectMapperHelper {
 
     SINGLEONE;
 
-    public List<String> jsonToListString(ObjectMapper objectMapper, String value) throws IOException {
-        return objectMapper.readValue(value, new TypeReference<List<String>>() {
-        });
+    public List<String> jsonToListString(ObjectMapper objectMapper, String value)  {
+        try {
+            return objectMapper.readValue(value, new TypeReference<List<String>>() {
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public List<Long> jsonToListLong(ObjectMapper objectMapper, String value)  {
