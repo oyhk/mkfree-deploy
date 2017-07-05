@@ -23,6 +23,7 @@ export default {
         serverMachineList: [],
         structureLogList: [],
         description: '',
+        publicBranchList:[],
         projectEnvConfigList: [],
         nextName: ''
     },
@@ -85,7 +86,7 @@ export default {
             if (code == 1) {
                 message.success('发布进行中');
                 if (!pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
-                    console.log(nextName);
+                    // console.log(nextName);
                     browserHistory.push(nextName);
                 } else {
                     yield put({
@@ -152,6 +153,12 @@ export default {
                 yield put({type: 'Info', payload: {description: data.description}});
             }
         },
+        *projectBranchList({payload}, {call, put}){
+            const data = yield call(projectService.projectBranchList, payload);
+            if (data) {
+                yield put({type: 'Info', payload: {publicBranchList: data}});
+            }
+        },
     },
     subscriptions: {
         setup({dispatch, history}) {
@@ -169,7 +176,7 @@ export default {
                 if (pathname === ROUTE_PROJECTS_CREATE) {
                     dispatch({type: 'seaverFetch', payload: query});
                 }
-                
+
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(ROUTE_PROJECTS_INFO)) {
                     dispatch({
                         type: 'projectFetch', payload: {
@@ -177,8 +184,10 @@ export default {
                         }
                     });
                     dispatch({type: 'seaverFetch', payload: query});
+                    dispatch({type: 'projectBranchList', payload: {id:pathname.split('/')[4]}});
+
                 }
-                
+
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS)) {
                     dispatch({
                         type: 'projectStructureLogList', payload: {
@@ -187,7 +196,7 @@ export default {
                         }
                     });
                 }
-                
+
                 if (pathname.includes(ROUTE_PROJECT_STRUCTURE_LOGS) && pathname.includes(LOGS_LIST)) {
                     dispatch({
                         type: 'projectStructureLogInfo', payload: {

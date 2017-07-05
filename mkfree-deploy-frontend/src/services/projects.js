@@ -79,4 +79,8 @@ export function projectStructureLogInfo(values) {
     return request(`/api/project_structure_log/info?${stringify(values)}`);
 }
 
+export function projectBranchList(values) {
+    return request(`/api/project/branch_list?${stringify(values)}`);
+}
+
 

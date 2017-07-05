@@ -85,10 +85,14 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
-
+                log.info("projcect id:{}",project.getId());
                 // 最后发布时间
                 ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
-                projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
+                log.info("projectStructureLog:{}",projectStructureLog);
+                if(null != projectStructureLog){
+                    log.info("publishDate:{}",projectStructureLog.getCreatedAt());
+                        projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
+                }
 
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
