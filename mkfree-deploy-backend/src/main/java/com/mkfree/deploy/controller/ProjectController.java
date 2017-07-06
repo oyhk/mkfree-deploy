@@ -365,7 +365,7 @@ public class ProjectController extends BaseController {
             for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
                 projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-                projectEnvConfigDto.setServerMachineIdList(ObjectMapperHelper.SINGLEONE.jsonToListLong(objectMapper, projectEnvConfig.getServerMachineList()));
+                projectEnvConfigDto.setServerMachineIpList(ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineList()));
                 projectEnvConfigDto.setPublicBranch(projectEnvConfig.getPublicBranch());
 
 

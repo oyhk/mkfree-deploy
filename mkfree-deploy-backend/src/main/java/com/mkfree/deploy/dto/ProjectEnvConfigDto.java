@@ -18,6 +18,8 @@ public class ProjectEnvConfigDto extends IDEntity {
     private ProjectEnv env;
     //需要发布的服务机器id列表
     private List<Long> serverMachineIdList;
+    //需要发布的服务机器ip列表
+    private List<String> serverMachineIpList;
     //需要发布的服务机器列表
     private List<ServerMachineDto> serverMachineList;
     //发布分支名称
@@ -36,6 +38,14 @@ public class ProjectEnvConfigDto extends IDEntity {
             return this.env.getText();
         }
         return null;
+    }
+
+    public List<String> getServerMachineIpList() {
+        return serverMachineIpList;
+    }
+
+    public void setServerMachineIpList(List<String> serverMachineIpList) {
+        this.serverMachineIpList = serverMachineIpList;
     }
 
     public void setEnv(ProjectEnv env) {

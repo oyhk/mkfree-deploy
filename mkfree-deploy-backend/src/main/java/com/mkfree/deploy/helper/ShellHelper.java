@@ -62,7 +62,6 @@ public enum ShellHelper {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s;
             while ((s = reader.readLine()) != null) {
-                log.info(s);
                 stringBuffer.append(s);
             }
         } catch (IOException e) {

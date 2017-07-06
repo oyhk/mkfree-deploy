@@ -12,7 +12,7 @@ public class Project extends IDEntity {
 
     @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
     private String name;
-    @Column(columnDefinition = "varchar (255) comment 'git仓库地址'", nullable = false)
+    @Column(columnDefinition = "varchar (1000) comment 'git仓库地址'", nullable = false)
     private String gitUrl;
     @Column(columnDefinition = "text comment '分支列表'")
     private String branchList;
@@ -20,7 +20,7 @@ public class Project extends IDEntity {
     private String remotePath;
     @Column(columnDefinition = "varchar (255) comment '部署的项目模块名称'")
     private String moduleName;
-    @Column(columnDefinition = "text comment '项目系统路劲'")
+    @Column(columnDefinition = "varchar(1000) comment '项目系统路劲'")
     private String systemPath;
 
     public String getSystemPath() {
