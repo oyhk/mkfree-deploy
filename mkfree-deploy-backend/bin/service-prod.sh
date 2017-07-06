@@ -1,7 +1,7 @@
 #!/bin/sh
 JAVA_HOME="/mnt/usr/module/java/current"
 APP_HOME=/mnt/usr/module/mkfree-deploy/mkfree-deploy-backend
-APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
+APP_MAINCLASS=target/mkfree-deploy-backend-1.0.jar
 psid=0
 checkpid() {
    javaps=`$JAVA_HOME/bin/jps -l | grep $APP_MAINCLASS`
