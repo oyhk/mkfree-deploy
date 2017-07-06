@@ -4,9 +4,12 @@ import {connect} from 'dva';
 import {Link} from 'dva/router';
 import {Button, Menu, Icon, Layout, Breadcrumb} from 'antd';
 
+import {route} from '../Constant';
+
 const {Header, Content, Footer} = Layout;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
+
 
 
 function MainLayout({dispatch, children}) {
@@ -21,7 +24,7 @@ function MainLayout({dispatch, children}) {
                     defaultSelectedKeys={['1']}
                     style={{lineHeight: '64px'}}
                 >
-                    <Menu.Item key="1"><Link to="/deploy/project">项目管理</Link></Menu.Item>
+                    <Menu.Item key="1"><Link to={route.project}>项目管理</Link></Menu.Item>
                     <Menu.Item key="2">用户管理</Menu.Item>
                     <Menu.Item key="3">服务器管理</Menu.Item>
                 </Menu>
@@ -31,9 +34,7 @@ function MainLayout({dispatch, children}) {
                     <Breadcrumb.Item>项目管理</Breadcrumb.Item>
                 </Breadcrumb>
                 <div style={{background: '#fff', padding: 24, minHeight: '81vh'}}>
-
                     {children}
-
                 </div>
             </Content>
             <Footer style={{textAlign: 'center'}}>

@@ -1,5 +1,5 @@
 import * as projectService from '../services/ProjectService';
-import {addKey} from '../utils/TableUtils';
+import {addKey} from '../utils/Utils';
 
 export default {
 

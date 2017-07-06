@@ -1,6 +1,8 @@
 import React from 'react';
 import {connect} from 'dva';
+import {Link} from 'dva/router';
 import {Button, Table, Row, Col} from 'antd';
+import {route} from '../Constant';
 
 function ProjectRoute({dispatch, pageResult}) {
 
@@ -10,16 +12,16 @@ function ProjectRoute({dispatch, pageResult}) {
         dataIndex: 'name',
         key: 'name',
     }, {
-        title: '操作',
-        dataIndex: 'options',
-        key: 'options',
+        title: '部署',
+        dataIndex: 'deploy',
+        key: 'deploy',
         render: (text, record) => {
 
             const option = record.projectEnvConfigList.map((projectEnvConfig, projectEnvConfigIndex) => {
                 const serverMachineList = projectEnvConfig.serverMachineList.map((serverMachine, serverMachineIndex) => {
                     return <li key={serverMachineIndex}>
                         <span style={{paddingRight: '5px'}}>{serverMachine.ip}</span>
-                        { serverMachineIndex === 0 ?
+                        { true ?
                             <Button type="primary"
                                     size="small"
                                     onClick={() => {
@@ -56,6 +58,15 @@ function ProjectRoute({dispatch, pageResult}) {
                 </div>
             );
         },
+    }, {
+        title: '操作',
+        dataIndex: 'options',
+        key: 'options',
+        render: (text, record) => {
+            return <div>
+                <Link to={route.project_edit_path(record.id)}>编辑</Link>
+            </div>;
+        }
     }];
     return (
         <div>
