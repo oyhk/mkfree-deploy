@@ -1,53 +1,19 @@
-import React from "react";
-import {Router, Route, IndexRedirect} from "dva/router";
-import MainLayout from "./components/Mainlayout/MainLayout";
-import Header from "./components/Mainlayout/Header";
-import Users from "./routes/Users";
-import Projects from "./routes/Projects";
-import ProjectsHeader from "./components/Projects/ProjectsHeader";
-import ProjectsCreate from "./routes/ProjectsCreate";
-import ServerMachine from "./routes/ServerMachine";
-import UsersInfo from "./routes/UserInfo";
-import SsoIndex from "./routes/SsoIndex";
-import StructureLogs from "./routes/StructureLogs";
-import {
-    ROUTE_USERS,
-    ROUTE_PROJECTS,
-    ROUTE_PROJECTS_CREATE,
-    ROUTE_PROJECTS_INFO,
-    ROUTE_ServerMachine,
-    ROUTE_USERS_INFO,
-    LOGS_LIST,
-    ROUTE_USERS_SIGN_IN,
-    ROUTE_JOB,
-    ROUTE_USERS_CREATE,
-    ROUTE_PROJECT_STRUCTURE_LOGS
-} from "./constants";
+import React from 'react';
+import {Router, Route} from 'dva/router';
+import {MainLayout, ProjectRoute, ProjectEditRoute, SignInRoute} from './routes';
+import {route} from './Constant';
 
-export default function ({history}) {
+
+function RouterConfig({history}) {
     return (
         <Router history={history}>
             <Route path="/" component={MainLayout}>
-                <IndexRedirect to={ROUTE_PROJECTS}/>
-                <Route path="/" component={Header}>
-                    {/*admin*/}
-                    <Route path={ROUTE_USERS} component={Users}/>
-                    <Route path={ROUTE_USERS_CREATE} component={UsersInfo}/>
-                    <Route path={ROUTE_USERS_INFO + '/:id'} component={UsersInfo}/>
-                    {/*project*/}
-                    <Route path={ROUTE_PROJECTS} component={Projects}/>
-                    <Route path={ROUTE_PROJECTS_CREATE} component={ProjectsCreate}/>
-                    {/*serverMachine*/}
-                    <Route path={ROUTE_ServerMachine} component={ServerMachine}/>
-                    {/*projectStructureLog*/}
-                    <Route path={ROUTE_PROJECT_STRUCTURE_LOGS} component={StructureLogs}/>
-                </Route>
-                <Route path={ROUTE_PROJECT_STRUCTURE_LOGS + '/:project_name' + '/:id'} component={ProjectsHeader}>
-                    <Route path={ROUTE_PROJECTS_INFO} component={ProjectsCreate}/>
-                    <Route path={LOGS_LIST + '/:info_id'} component={StructureLogs}/>
-                </Route>
+                <Route path={route.project} component={ProjectRoute}/>
+                <Route path={route.projectEdit} component={ProjectEditRoute}/>
             </Route>
-            <Route path={ROUTE_USERS_SIGN_IN} component={SsoIndex}/>
+            <Route path={route.signIn} component={SignInRoute}/>
         </Router>
     );
-};
+}
+
+export default RouterConfig;
