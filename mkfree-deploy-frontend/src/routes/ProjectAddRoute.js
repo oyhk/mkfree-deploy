@@ -2,15 +2,23 @@ import React from 'react';
 import {connect} from 'dva';
 import {Button, Table, Row, Col, Form, Input, Switch} from 'antd';
 import ProjectFormComponent from '../components/ProjectFormComponent';
+
+
 const FormItem = Form.Item;
 
 
-function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvConfigList, form}) {
+const formItemLayout = {
+    labelCol: {span: 4},
+    wrapperCol: {span: 19},
+};
+
+function ProjectAddRoute({dispatch, project, deployTargetFileList, projectEnvConfigList, form}) {
     const {getFieldDecorator, getFieldValue} = form;
 
-    function update() {
+    function save() {
+
+
         const newProject = {
-            id: project.id,
             name: getFieldValue('name'),
             gitUrl: getFieldValue('gitUrl'),
             remotePath: getFieldValue('remotePath'),
@@ -39,7 +47,7 @@ function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvCo
         });
 
         dispatch({
-            type: 'projectModel/update',
+            type: 'projectModel/saved',
             payload: {
                 ...newProject,
                 deployTargetFileList: newDeployTargetFileList,
@@ -51,21 +59,19 @@ function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvCo
 
     return (
         <div>
-            <ProjectFormComponent getFieldDecorator={getFieldDecorator} project={project}
-                                  deployTargetFileList={deployTargetFileList}
-                                  projectEnvConfigList={projectEnvConfigList}/>
+            <ProjectFormComponent dispatch={dispatch} getFieldDecorator={getFieldDecorator} project={project} deployTargetFileList={deployTargetFileList} projectEnvConfigList={projectEnvConfigList} />
             <FormItem style={{marginTop: '20px'}} wrapperCol={{span: 1, offset: 23}}>
-                <Button type="primary" onClick={update}>提交</Button>
+                <Button type="primary" onClick={save}>提交</Button>
             </FormItem>
         </div>
     );
 }
 
-ProjectEditRoute.propTypes = {};
+ProjectAddRoute.propTypes = {};
 
 function mapStateToProps(state) {
     const {project, deployTargetFileList, projectEnvConfigList} = state.projectModel;
     return {project, deployTargetFileList, projectEnvConfigList};
 }
 
-export default Form.create()(connect(mapStateToProps)(ProjectEditRoute));
+export default Form.create()(connect(mapStateToProps)(ProjectAddRoute));

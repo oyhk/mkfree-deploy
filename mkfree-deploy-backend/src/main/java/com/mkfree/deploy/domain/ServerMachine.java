@@ -14,17 +14,23 @@ import javax.persistence.Enumerated;
 @Entity
 public class ServerMachine extends IDEntity {
 
-    @Column(columnDefinition = "varchar(50) comment 'IP地址'")
+    //IP地址
+    @Column(columnDefinition = "varchar(50)")
     private String ip;
-    @Column(columnDefinition = "varchar(50) comment '名称'")
+    //名称
+    @Column(columnDefinition = "varchar(50)")
     private String name;
-    @Column(columnDefinition = "varchar(50) comment 'ssh端口'")
+    //ssh端口
+    @Column(columnDefinition = "varchar(50)")
     private String port;
-    @Column(columnDefinition = "varchar(50) comment 'ssh用户名'")
+    //ssh用户名
+    @Column(columnDefinition = "varchar(50)")
     private String username;
-    @Column(columnDefinition = "varchar(50) comment '密码'")
+    //密码
+    @Column(columnDefinition = "varchar(50)")
     private String password;
-    @Column(columnDefinition = "varchar(50) comment '机器类型'")
+    //机器类型
+    @Column(columnDefinition = "varchar(50)")
     @Enumerated(EnumType.STRING)
     private ServerMachineType type;
 

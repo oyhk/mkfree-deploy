@@ -1,17 +1,14 @@
 package com.mkfree.deploy;
 
 import com.mkfree.deploy.helper.UserHelper;
+import com.mkfree.deploy.repository.BaseRepositoryImpl;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
-import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
-import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
-import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @SpringBootApplication
 @EnableAutoConfiguration
 @EnableScheduling
+@EnableJpaRepositories(basePackages = {"com.mkfree.deploy.repository"},
+        repositoryBaseClass = BaseRepositoryImpl.class
+)
 public class Bootstrap {
 
     // 已经构建生成的日志

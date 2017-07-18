@@ -8,9 +8,11 @@ import javax.persistence.Entity;
  */
 @Entity
 public class SystemConfig extends IDEntity {
-    @Column(columnDefinition = "varchar(255) comment '项目根路劲'")
+    //项目根路劲
+    @Column(columnDefinition = "varchar(255)")
     private String projectPath;
-    @Column(columnDefinition = "varchar(255) comment '安装路劲'")
+    //安装路劲
+    @Column(columnDefinition = "varchar(255)")
     private String installPath;
 
     public String getProjectPath() {

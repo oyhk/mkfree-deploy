@@ -16,16 +16,23 @@ import javax.persistence.Enumerated;
 public class ProjectStructureStep extends IDEntity {
 
 
-    @Column(columnDefinition = "bigint comment '项目id'")
+    //项目id
+    @Column(columnDefinition = "bigint")
     private Long projectId;
-    @Column(columnDefinition = "text comment '构建步骤内容'")
+    @Column
+    private String projectName;
+    //构建步骤内容
+    @Column(columnDefinition = "varchar(2000)")
     private String step;
-    @Column(columnDefinition = "varchar(30) comment '类型'")
+    //类型
+    @Column(columnDefinition = "varchar(30)")
     @Enumerated(EnumType.STRING)
     private ProjectStructureStepType type;
-    @Column(columnDefinition = "bigint comment '项目环境配置id'")
+    //项目环境配置id
+    @Column(columnDefinition = "bigint")
     private Long projectEnvConfigId;
-    @Column(columnDefinition = "varchar(30) comment '环境'")
+    //环境
+    @Column(columnDefinition = "varchar(30)")
     @Enumerated(EnumType.STRING)
     private ProjectEnv env;
 
@@ -67,5 +74,13 @@ public class ProjectStructureStep extends IDEntity {
 
     public void setProjectEnvConfigId(Long projectEnvConfigId) {
         this.projectEnvConfigId = projectEnvConfigId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

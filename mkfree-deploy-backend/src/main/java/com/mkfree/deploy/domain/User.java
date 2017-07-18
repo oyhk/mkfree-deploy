@@ -19,15 +19,20 @@ public class User extends IDEntity {
     public static final String LOGIN_USER = "login_user";
     public static final String LOGIN_USER_TOKEN = "user_token";
 
-    @Column(columnDefinition = "varchar (100) comment '用户名'", unique = true)
+    //用户名
+    @Column(columnDefinition = "varchar (100)", unique = true)
     private String username;
-    @Column(columnDefinition = "varchar (100) comment '密码'")
+    //密码
+    @Column(columnDefinition = "varchar (100)")
     private String password;
-    @Column(columnDefinition = "varchar (100) comment '密码盐'")
+    //密码盐
+    @Column(columnDefinition = "varchar (100)")
     private String passwordSalt;
-    @Column(columnDefinition = "varchar (100) comment '登录后的userToken'")
+    //登录后的userToken
+    @Column(columnDefinition = "varchar (100)")
     private String userToken;
-    @Column(columnDefinition = "varchar(100) comment '角色类型 SUPER_ADMIN(\"超级管理员\"), ADMIN(\"管理员\"), COMMON(\"普通成员\")'")
+    //角色类型 SUPER_ADMIN("超级管理员"), ADMIN("管理员"), COMMON("普通成员")
+    @Column(columnDefinition = "varchar(100)")
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
 

@@ -14,28 +14,31 @@ import javax.persistence.Enumerated;
 @Entity
 public class ProjectStructureLog extends IDEntity {
 
-    @Column(columnDefinition = "varchar (100) comment '构建名'")
+    //构建名
+    @Column(columnDefinition = "varchar (100)")
     private String name;
 
-    @Column(columnDefinition = "bigint comment '用户id'")
+    //用户id
+    @Column(columnDefinition = "bigint")
     private Long userId;
-
-    @Column(columnDefinition = "varchar (100) comment '用户名'")
+    //用户名
+    @Column(columnDefinition = "varchar (100)")
     private String username;
-
-    @Column(columnDefinition = "bigint comment '项目id'")
+    //项目id
+    @Column(columnDefinition = "bigint")
     private Long projectId;
-    @Column(columnDefinition = "varchar (100) comment '构建日志状态'")
+    //构建日志状态
+    @Column(columnDefinition = "varchar (100)")
     @Enumerated(EnumType.STRING)
     private ProjectStructureLogStatus status = ProjectStructureLogStatus.PROCESSING;
-
-    @Column(columnDefinition = "varchar (100) comment '项目名'")
+    //项目名
+    @Column(columnDefinition = "varchar (100)")
     private String projectName;
-
-    @Column(columnDefinition = "bigint comment '构建序列号，递增'")
+    //构建序列号，递增
+    @Column(columnDefinition = "bigint")
     private Long seqNo;
-
-    @Column(columnDefinition = "longtext comment '详细日志'")
+    //详细日志
+    @Column(columnDefinition = "longtext")
     private String description;
 
     public Long getUserId() {

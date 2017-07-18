@@ -22,13 +22,9 @@ public class IDEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP")
-    protected Date createdAt = new Date();
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    protected Date updatedAt = new Date();
-    @Column(columnDefinition = "varchar (20) default 'NO' comment '是否逻辑删除 (是:YES,否:NO)'")
-    @Enumerated(EnumType.STRING)
-    protected Whether isDelete = Whether.NO;
+    protected Date createdAt;
+    protected Date updatedAt;
+    protected Boolean isDelete = false;
 
     public static final String CHECK_IDENTIFIER_IS_NOT_NULL = "唯一标识不能为空";
     public static final String CHECK_BODY_IS_NOT_NULL = "body 不能为空";
@@ -68,12 +64,12 @@ public class IDEntity {
         this.updatedAt = updatedAt;
     }
 
-    public Whether getIsDelete() {
+    public Boolean getDelete() {
         return isDelete;
     }
 
-    public void setIsDelete(Whether isDelete) {
-        this.isDelete = isDelete;
+    public void setDelete(Boolean delete) {
+        isDelete = delete;
     }
 
     @Override

@@ -14,12 +14,13 @@ public enum ProjectDeployFileHelper {
 
     SINGLEONE;
 
-    public ProjectDeployFile create(Whether isEnable,String localFilePath,String remoteFilePath, Long projectId) {
+    public ProjectDeployFile create(Whether isEnable,String localFilePath,String remoteFilePath, Long projectId,String projectName) {
         ProjectDeployFile projectDeployFile = new ProjectDeployFile();
         projectDeployFile.setIsEnable(isEnable);
         projectDeployFile.setLocalFilePath(localFilePath);
         projectDeployFile.setRemoteFilePath(remoteFilePath);
         projectDeployFile.setProjectId(projectId);
+        projectDeployFile.setProjectName(projectName);
         return projectDeployFile;
     }
 }

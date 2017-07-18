@@ -1,8 +1,8 @@
 package com.mkfree.deploy;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -40,20 +40,15 @@ public class Config {
      * @return
      */
     @Bean
-    DataSource druidDataSource() {
-
-        DruidDataSource dataSource = new DruidDataSource();
-        dataSource.setMaxActive(100);
-        dataSource.setUrl(prop.jdbcUrl);
-        dataSource.setUsername(prop.jdbcUsername);
-        dataSource.setPassword(prop.jdbcPassword);
-        return dataSource;
+    public DataSource dataSource() {
+        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+        dataSourceBuilder.driverClassName("org.sqlite.JDBC");
+        dataSourceBuilder.url("jdbc:sqlite:mydb.db");
+        return dataSourceBuilder.build();
     }
 
-    /**
-     * 配置文件
-     */
-    @Autowired
-    private Prop prop;
-
+    @Bean
+    public Prop prop() {
+        return new Prop();
+    }
 }

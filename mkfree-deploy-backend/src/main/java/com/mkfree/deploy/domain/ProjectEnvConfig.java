@@ -14,14 +14,20 @@ import javax.persistence.Enumerated;
 @Entity
 public class ProjectEnvConfig extends IDEntity {
 
-    @Column(columnDefinition = "bigint comment '项目id'")
+    //项目id
+    @Column(columnDefinition = "bigint")
     private Long projectId;
-    @Column(columnDefinition = "varchar(50) comment '环境类型'")
+    @Column
+    private String projectName;
+    //环境类型
+    @Column(columnDefinition = "varchar(50)")
     @Enumerated(EnumType.STRING)
     private ProjectEnv env;
-    @Column(columnDefinition = "varchar(255) comment '需要发布的服务机器列表'")
+    //需要发布的服务机器ip列表 ["192.168.1.241","192.168.1.211"]
+    @Column(columnDefinition = "varchar(255)")
     private String serverMachineList;
-    @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
+    //发布分支名称
+    @Column(columnDefinition = "varchar(255)")
     private String publicBranch;
 
 
@@ -55,5 +61,13 @@ public class ProjectEnvConfig extends IDEntity {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

@@ -1,4 +1,5 @@
 import fetch from 'dva/fetch';
+import {message} from 'antd';
 
 function parseJSON(response) {
     return response.json();
@@ -30,7 +31,17 @@ export function requestData(url, options = {}) {
     return fetch(url1, options)
         .then(checkStatus)
         .then(parseJSON)
-        .then(result => result.data)
+        .then((result) => {
+            if (result.code === '0') {
+                message.error(result.desc);
+            } else if (result.code === '1') {
+                message.success(result.desc);
+            } else {
+                message.warn(result.desc);
+            }
+
+            return result.data;
+        })
         .catch(err => ({err}));
 }
 
@@ -53,6 +64,16 @@ export function request(url, options = {}) {
     return fetch(url1, options)
         .then(checkStatus)
         .then(parseJSON)
-        .then(result => result)
+        .then((result) => {
+            if (result.code === '0') {
+                message.error(result.desc);
+            } else if (result.code === '1') {
+                message.success(result.desc);
+            } else {
+                message.warn(result.desc);
+            }
+
+            return result;
+        })
         .catch(err => ({err}));
 }

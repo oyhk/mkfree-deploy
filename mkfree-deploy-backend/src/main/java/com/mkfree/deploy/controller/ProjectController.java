@@ -23,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,8 +63,6 @@ public class ProjectController extends BaseController {
     private UserProjectPermissionRepository userProjectPermissionRepository;
     @Autowired
     private ExecutorService commonExecutorService;
-    @Autowired
-    private SimpMessagingTemplate template;
 
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
@@ -85,42 +82,34 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
-                log.info("projcect id:{}",project.getId());
+                log.info("projcect id:{}", project.getId());
                 // 最后发布时间
                 ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
-                log.info("projectStructureLog:{}",projectStructureLog);
-                if(null != projectStructureLog){
-                    log.info("publishDate:{}",projectStructureLog.getCreatedAt());
-                        projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
+                log.info("projectStructureLog:{}", projectStructureLog);
+                if (null != projectStructureLog) {
+                    log.info("publishDate:{}", projectStructureLog.getCreatedAt());
+                    projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
                 }
+
 
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
                 projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineList().equals("[]")).collect(Collectors.toList());
+                List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
+                if (userDto.getRoleType() == RoleType.SUPER_ADMIN) {
 
-                UserProjectPermissionDto userProjectPermissionDto = userProjectPermissionDtoMap.get(project.getId());
-                if (userProjectPermissionDto != null) {
-                    projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv())).collect(Collectors.toList());
-                    List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
-                    if (projectEnvConfigList != null) {
-                        projectEnvConfigList.forEach(projectEnvConfig -> {
-                            ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
-                            projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-                            List<String> serverMachineIpList = ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineList());
-                            List<ServerMachineDto> serverMachineDtoList = serverMachineRepository.findByIpIn(serverMachineIpList).stream().map(serverMachine -> {
-                                ServerMachineDto serverMachineDto = new ServerMachineDto();
-                                serverMachineDto.setId(serverMachine.getId());
-                                serverMachineDto.setName(serverMachine.getName());
-                                serverMachineDto.setIp(serverMachine.getIp());
-                                return serverMachineDto;
-                            }).collect(Collectors.toList());
-                            projectEnvConfigDto.setServerMachineList(serverMachineDtoList);
-                            projectEnvConfigDtoList.add(projectEnvConfigDto);
-                        });
+                    this.projectEnvConfigList(projectEnvConfigList, projectEnvConfigDtoList);
+                } else {
+                    UserProjectPermissionDto userProjectPermissionDto = userProjectPermissionDtoMap.get(project.getId());
+                    // 普通操作人员
+                    if (userProjectPermissionDto != null) {
+                        projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv())).collect(Collectors.toList());
+                        if (projectEnvConfigList != null) {
+                            this.projectEnvConfigList(projectEnvConfigList, projectEnvConfigDtoList);
+                        }
                     }
-                    projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
-
                 }
+                projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
                 projectDtoList.add(projectDto);
 
             });
@@ -160,7 +149,7 @@ public class ProjectController extends BaseController {
             List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
             if (projectDeployFileDtoList != null) {
                 for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
-                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId());
+                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
                     projectDeployFileRepository.save(projectDeployFile);
                 }
             }
@@ -173,7 +162,8 @@ public class ProjectController extends BaseController {
                     ProjectEnvConfig projectEnvConfig = new ProjectEnvConfig();
                     projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
                     projectEnvConfig.setProjectId(project.getId());
-                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIdList()));
+                    projectEnvConfig.setProjectName(project.getName());
+                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIpList()));
                     projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                     projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
@@ -224,7 +214,7 @@ public class ProjectController extends BaseController {
                 projectDeployFileRepository.delete(projectDeployFileList);
 
                 for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
-                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId());
+                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
                     projectDeployFileRepository.save(projectDeployFile);
                 }
             }
@@ -240,7 +230,7 @@ public class ProjectController extends BaseController {
                         projectEnvConfig.setProjectId(project.getId());
                     }
                     projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
-                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIdList()));
+                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIpList()));
                     projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                     projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
@@ -453,7 +443,6 @@ public class ProjectController extends BaseController {
             }
 
 
-
             // 异步线程构建发布项目
             commonExecutorService.execute(() -> {
                 ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
@@ -587,5 +576,22 @@ public class ProjectController extends BaseController {
         return doing.go(dto, userDto, request, objectMapper, log);
     }
 
+
+    private void projectEnvConfigList(List<ProjectEnvConfig> projectEnvConfigList, List<ProjectEnvConfigDto> projectEnvConfigDtoList) {
+        projectEnvConfigList.forEach(projectEnvConfig -> {
+            ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
+            projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
+            List<String> serverMachineIpList = ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineList());
+            List<ServerMachineDto> serverMachineDtoList = serverMachineRepository.findByIpIn(serverMachineIpList).stream().map(serverMachine -> {
+                ServerMachineDto serverMachineDto = new ServerMachineDto();
+                serverMachineDto.setId(serverMachine.getId());
+                serverMachineDto.setName(serverMachine.getName());
+                serverMachineDto.setIp(serverMachine.getIp());
+                return serverMachineDto;
+            }).collect(Collectors.toList());
+            projectEnvConfigDto.setServerMachineList(serverMachineDtoList);
+            projectEnvConfigDtoList.add(projectEnvConfigDto);
+        });
+    }
 
 }

@@ -1,7 +1,7 @@
 import * as projectService from '../services/ProjectService';
-// eslint-disable-next-line import/no-duplicates
 import {addKey, urlPathParams} from '../utils/Utils';
 import {route} from '../Constant';
+import {message, Button} from 'antd';
 
 export default {
 
@@ -9,6 +9,13 @@ export default {
 
     state: {
         project: {}, // 项目信息
+        deployTargetFileList: [{}], // 上传文件列表
+        projectEnvConfigList: [
+            {envText: '开发环境', env: 'DEV'},
+            {envText: '测试环境', env: 'TEST'},
+            {envText: '预发布环境', env: 'UAT'},
+            {envText: '生产环境', env: 'PROD'}
+        ], // 项目环境
         pageResult: {},
     },
 
@@ -47,19 +54,54 @@ export default {
                 }
             });
         },
+        *update({payload}, {call, put}) {
+            yield call(projectService.update, payload);
+        },
         *info({payload}, {call, put}) {
             const result = yield call(projectService.info, payload.id);
             yield put({
                 type: 'save',
                 payload: {
-                    project: result
+                    project: result,
+                    deployTargetFileList: result.deployTargetFileList,
+                    projectEnvConfigList: result.projectEnvConfigList,
                 }
             });
 
         },
+
         *structure({payload}, {call, put, select}) {
             const result = yield call(projectService.structure, payload);
-        }
+        },
+
+        // 保存
+        *saved({payload}, {call, put, select}) {
+            console.log(payload);
+            console.log('save');
+            const result = yield call(projectService.save, payload);
+            console.log(result);
+        },
+        // 添加一项 deployTargetFile
+        *addDeployTargetFile({payload}, {call, put, select}) {
+            const {deployTargetFileList} = (yield select(state => state.projectModel));
+            yield put({
+                type: 'save',
+                payload: {
+                    deployTargetFileList: deployTargetFileList.concat([{}])
+                }
+            });
+        },
+
+        // 删除一项 deployTargetFile
+        *deleteDeployTargetFile({payload}, {call, put, select}) {
+            const {deployTargetFileList} = (yield select(state => state.projectModel));
+            yield put({
+                type: 'save',
+                payload: {
+                    deployTargetFileList: deployTargetFileList.concat([{}])
+                }
+            });
+        },
     },
 
     reducers: {
