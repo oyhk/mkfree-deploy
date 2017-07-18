@@ -21,7 +21,7 @@ function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvCo
         deployTargetFileList.forEach((item, index) => {
             newDeployTargetFileList.push({
                 localFilePath: getFieldValue(`localFilePath${index}`),
-                remotePath: getFieldValue(`remoteFilePath${index}`),
+                remoteFilePath: getFieldValue(`remoteFilePath${index}`),
                 isEnable: getFieldValue(`isEnable${index}`) ? 'YES' : 'NO'
             });
         });
