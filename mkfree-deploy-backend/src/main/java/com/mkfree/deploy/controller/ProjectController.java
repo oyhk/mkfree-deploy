@@ -555,6 +555,9 @@ public class ProjectController extends BaseController {
                     }
                 });
 
+                if(moduleName == null){
+                    moduleName = "";
+                }
                 ShellHelper.SINGLEONE.buildProjectExecuteShellFile(log, logMapKey, deployShellPath,
                         projectName,
                         systemConfigProjectPath,

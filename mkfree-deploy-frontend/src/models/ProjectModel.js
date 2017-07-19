@@ -71,15 +71,12 @@ export default {
         },
 
         *structure({payload}, {call, put, select}) {
-            const result = yield call(projectService.structure, payload);
+            yield call(projectService.structure, payload);
         },
 
         // 保存
         *saved({payload}, {call, put, select}) {
-            console.log(payload);
-            console.log('save');
-            const result = yield call(projectService.save, payload);
-            console.log(result);
+            yield call(projectService.save, payload);
         },
         // 添加一项 deployTargetFile
         *addDeployTargetFile({payload}, {call, put, select}) {
