@@ -220,6 +220,11 @@ public class ProjectController extends BaseController {
             }
             project = projectRepository.save(project);
 
+
+            // 删除环境构建命令，再添加
+            List<ProjectEnvConfig> oldProjectEnvConfigList =  projectEnvConfigRepository.findByProjectId(project.getId());
+            projectEnvConfigRepository.delete(oldProjectEnvConfigList);
+
             // 项目环境配置
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
             if (projectEnvConfigList != null) {
