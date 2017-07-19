@@ -41,8 +41,8 @@ function ProjectAddRoute({dispatch, project, deployTargetFileList, projectEnvCon
                 env: item.env,
                 publicBranch: getFieldValue(`publicBranch${index}`),
                 serverMachineIpList: `${getFieldValue(`serverMachineIpList${index}`)}`.split(','),
-                structureBeforeList: `${getFieldValue(`structureBeforeList${index}`)}`.split(','),
-                structureAfterList: `${getFieldValue(`structureAfterList${index}`)}`.split(','),
+                structureBeforeList: `${getFieldValue(`structureBeforeList${index}`)}`.split(';'),
+                structureAfterList: `${getFieldValue(`structureAfterList${index}`)}`.split(';'),
             });
         });
 
