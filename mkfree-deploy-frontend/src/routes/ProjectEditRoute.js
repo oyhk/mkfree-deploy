@@ -51,7 +51,7 @@ function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvCo
 
     return (
         <div>
-            <ProjectFormComponent getFieldDecorator={getFieldDecorator} project={project}
+            <ProjectFormComponent dispatch={dispatch} getFieldDecorator={getFieldDecorator} project={project}
                                   deployTargetFileList={deployTargetFileList}
                                   projectEnvConfigList={projectEnvConfigList}/>
             <FormItem style={{marginTop: '20px'}} wrapperCol={{span: 1, offset: 23}}>
