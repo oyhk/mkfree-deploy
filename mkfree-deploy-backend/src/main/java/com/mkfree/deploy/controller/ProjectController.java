@@ -170,13 +170,13 @@ public class ProjectController extends BaseController {
                     // 项目构建前命令
                     if (projectEnvConfigDto.getStructureBeforeList() != null) {
                         for (String command : projectEnvConfigDto.getStructureBeforeList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), projectEnvConfig.getId()));
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
                     if (projectEnvConfigDto.getStructureAfterList() != null) {
                         for (String command : projectEnvConfigDto.getStructureAfterList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), projectEnvConfig.getId()));
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -222,7 +222,7 @@ public class ProjectController extends BaseController {
 
 
             // 删除环境构建命令，再添加
-            List<ProjectEnvConfig> oldProjectEnvConfigList =  projectEnvConfigRepository.findByProjectId(project.getId());
+            List<ProjectEnvConfig> oldProjectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
             projectEnvConfigRepository.delete(oldProjectEnvConfigList);
 
             // 项目环境配置
@@ -246,7 +246,7 @@ public class ProjectController extends BaseController {
                         List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                         projectStructureStepRepository.delete(projectStructureStepList);
                         for (String command : projectEnvConfigDto.getStructureBeforeList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), projectEnvConfig.getId()));
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
@@ -254,7 +254,7 @@ public class ProjectController extends BaseController {
                         List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                         projectStructureStepRepository.delete(projectStructureStepList);
                         for (String command : projectEnvConfigDto.getStructureAfterList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), projectEnvConfig.getId()));
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -389,6 +389,34 @@ public class ProjectController extends BaseController {
 
         };
         return doing.go(request, log);
+    }
+
+    @Transactional
+    @RequestMapping(value = Routes.PROJECT_SYNC, method = RequestMethod.POST)
+    public JsonResult sync(@RequestBody ProjectDto dto, HttpServletRequest request) {
+        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
+        RestDoing doing = jsonResult -> {
+            Long id = dto.getId();
+            if (id == null) {
+                jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
+                return;
+            }
+
+            Project project = projectRepository.findOne(id);
+            ServerMachine serverMachine = serverMachineRepository.findByIp(dto.getServerMachineIp());
+
+            SystemConfig systemConfig = systemConfigRepository.findOne(1L);
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(id);
+            projectDeployFileList.forEach(projectDeployFile -> {
+                String filePath = String.format("%s/%s/%s", systemConfig.getProjectPath(), project.getName(), projectDeployFile.getLocalFilePath());
+                String command = String.format("scp -P %s -r %s %s@%s:%s", serverMachine.getPort(), filePath, serverMachine.getUsername(), serverMachine.getIp(), project.getRemotePath());
+                ShellHelper.SINGLEONE.executeShellCommand(log, command);
+                log.info("project sync >> command : {}", command);
+            });
+
+            log.info("restart project >> command : {}","restart command");
+        };
+        return doing.go(userDto, request, objectMapper, log);
     }
 
     @Transactional
@@ -560,7 +588,7 @@ public class ProjectController extends BaseController {
                     }
                 });
 
-                if(moduleName == null){
+                if (moduleName == null) {
                     moduleName = "";
                 }
                 ShellHelper.SINGLEONE.buildProjectExecuteShellFile(log, logMapKey, deployShellPath,

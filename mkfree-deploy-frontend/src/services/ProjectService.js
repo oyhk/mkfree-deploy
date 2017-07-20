@@ -1,7 +1,7 @@
 import {request, requestData} from '../utils/Request';
 
 export async function page() {
-    return requestData('/api/project/page');
+    return requestData('/api/project/page?pageSize=100');
 }
 
 export async function save(body) {
@@ -19,4 +19,8 @@ export async function info(id) {
 
 export async function structure(body) {
     return request('/api/project/structure', {method: 'POST', body: JSON.stringify(body)});
+}
+
+export async function sync(body) {
+    return request('/api/project/sync', {method: 'POST', body: JSON.stringify(body)});
 }

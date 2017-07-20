@@ -27,6 +27,7 @@ public class Routes {
     public static final String PROJECT_BRANCH_LIST = API_PREFIX + "/project/branch_list";
     public static final String PROJECT_DELETE = API_PREFIX + "/project/delete";
     public static final String PROJECT_STRUCTURE = API_PREFIX + "/project/structure";
+    public static final String PROJECT_SYNC = API_PREFIX + "/project/sync"; //同步版本
 
     public static final String SERVER_MACHINE_PAGE = API_PREFIX + "/server_machine/page";
     public static final String SERVER_MACHINE_SAVE = API_PREFIX + "/server_machine/save";

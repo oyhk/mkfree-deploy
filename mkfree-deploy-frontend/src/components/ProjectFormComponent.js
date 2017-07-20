@@ -7,7 +7,7 @@ const formItemLayout = {
     wrapperCol: {span: 19},
 };
 
-function ProjectFormComponent({dispatch, getFieldDecorator, project, deployTargetFileList, projectEnvConfigList}) {
+function ProjectFormComponent({dispatch,getFieldDecorator,project,deployTargetFileList,projectEnvConfigList}) {
     return (
         <div>
             <div style={{border: '1px solid #e9e9e9', padding: '15px', borderRadius: '10px'}}>
@@ -66,14 +66,14 @@ function ProjectFormComponent({dispatch, getFieldDecorator, project, deployTarge
                             <FormItem key={`deploy_${index}_0`} {...formItemLayout}
                                       label={`( ${index + 1} ) 上传文件路劲`}>
                                 {getFieldDecorator(`localFilePath${index}`, {
-                                    initialValue: item.localFilePath ? item.localFilePath : ''
+                                    initialValue: item.localFilePath ?  item.localFilePath : ''
                                 })(
                                     <Input placeholder="上传文件路劲"/>
                                 )}
                             </FormItem>
                             <FormItem key={`deploy_${index}_1`} {...formItemLayout} label="服务器路劲">
                                 {getFieldDecorator(`remoteFilePath${index}`, {
-                                    initialValue: item.remoteFilePath ? item.remoteFilePath : ''
+                                    initialValue: item.remoteFilePath ?item.remoteFilePath : ''
                                 })(
                                     <Input placeholder="服务器路劲"/>
                                 )}

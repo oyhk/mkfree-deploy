@@ -73,7 +73,9 @@ export default {
         *structure({payload}, {call, put, select}) {
             yield call(projectService.structure, payload);
         },
-
+        *sync({payload}, {call, put, select}){
+            yield call(projectService.sync, payload);
+        },
         // 保存
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload);

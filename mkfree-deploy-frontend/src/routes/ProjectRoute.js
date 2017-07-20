@@ -38,7 +38,14 @@ function ProjectRoute({dispatch, pageResult}) {
                             <Button type="danger"
                                     size="small"
                                     onClick={() => {
-
+                                        dispatch({
+                                            type: 'projectModel/sync',
+                                            payload: {
+                                                id: record.id,
+                                                env: projectEnvConfig.env,
+                                                serverMachineIp: serverMachine.ip,
+                                            }
+                                        });
                                     }}>同步</Button>
                         }
                     </li>;
