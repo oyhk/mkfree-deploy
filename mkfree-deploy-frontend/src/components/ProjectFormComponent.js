@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Table, Row, Col, Form, Input, Switch} from 'antd';
+import {Button, Table, Row, Col, Icon, Form, Input, Switch} from 'antd';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -7,7 +7,25 @@ const formItemLayout = {
     wrapperCol: {span: 19},
 };
 
-function ProjectFormComponent({dispatch,getFieldDecorator,project,deployTargetFileList,projectEnvConfigList}) {
+function ProjectFormComponent({dispatch, getFieldDecorator, project, deployTargetFileList, projectEnvConfigList}) {
+
+
+    const formItemLayout = {
+        labelCol: {
+            xs: {span: 24},
+            sm: {span: 4},
+        },
+        wrapperCol: {
+            xs: {span: 24},
+            sm: {span: 20},
+        },
+    };
+    const formItemLayoutWithOutLabel = {
+        wrapperCol: {
+            xs: {span: 24, offset: 0},
+            sm: {span: 20, offset: 4},
+        },
+    };
     return (
         <div>
             <div style={{border: '1px solid #e9e9e9', padding: '15px', borderRadius: '10px'}}>
@@ -66,14 +84,14 @@ function ProjectFormComponent({dispatch,getFieldDecorator,project,deployTargetFi
                             <FormItem key={`deploy_${index}_0`} {...formItemLayout}
                                       label={`( ${index + 1} ) 上传文件路劲`}>
                                 {getFieldDecorator(`localFilePath${index}`, {
-                                    initialValue: item.localFilePath ?  item.localFilePath : ''
+                                    initialValue: item.localFilePath ? item.localFilePath : ''
                                 })(
                                     <Input placeholder="上传文件路劲"/>
                                 )}
                             </FormItem>
                             <FormItem key={`deploy_${index}_1`} {...formItemLayout} label="服务器路劲">
                                 {getFieldDecorator(`remoteFilePath${index}`, {
-                                    initialValue: item.remoteFilePath ?item.remoteFilePath : ''
+                                    initialValue: item.remoteFilePath ? item.remoteFilePath : ''
                                 })(
                                     <Input placeholder="服务器路劲"/>
                                 )}
@@ -126,13 +144,26 @@ function ProjectFormComponent({dispatch,getFieldDecorator,project,deployTargetFi
                                     <Input placeholder="构建命令"/>
                                 )}
                             </FormItem>
-                            <FormItem key={`${index}_4`} {...formItemLayout} label="构建后命令">
-                                {getFieldDecorator(`structureAfterList${index}`, {
-                                    initialValue: item.structureAfterList ? item.structureAfterList : ''
-                                })(
-                                    <Input placeholder="构建后命令"/>
-                                )}
-                            </FormItem>
+
+                            {
+                                item.structureAfterList && item.structureAfterList.map((afterItem, index) => {
+                                    return <FormItem key={`${index}_4`} {...formItemLayout} label="构建后命令">
+                                        {getFieldDecorator(`structureAfterList${index}`, {
+                                            initialValue: item.structureAfterList ? afterItem.command : ''
+                                        })(
+                                            <Input placeholder="构建后命令" style={{width: '80%', marginRight: '20px'}}/>
+                                        )}
+                                        <span>是否重启命令：</span>
+                                        {/*{getFieldDecorator(`isRestart${index}`, {*/}
+                                            {/*valuePropName: 'checked',*/}
+                                            {/*initialValue: afterItem.isRestart*/}
+                                        {/*})(*/}
+                                            {/*<Switch />*/}
+                                        {/*)}*/}
+                                    </FormItem>
+                                })
+                            }
+
                         </div>;
                     })
                 }
