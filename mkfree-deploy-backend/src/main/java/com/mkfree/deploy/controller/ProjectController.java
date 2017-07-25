@@ -1,6 +1,5 @@
 package com.mkfree.deploy.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Bootstrap;
 import com.mkfree.deploy.Routes;
@@ -9,10 +8,7 @@ import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.PageResult;
 import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.*;
-import com.mkfree.deploy.domain.enumclass.ProjectStructureLogStatus;
-import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
-import com.mkfree.deploy.domain.enumclass.RoleType;
-import com.mkfree.deploy.domain.enumclass.Whether;
+import com.mkfree.deploy.domain.enumclass.*;
 import com.mkfree.deploy.dto.*;
 import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
@@ -82,7 +78,7 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
-                log.info("projcect id:{}", project.getId());
+                log.info("project id:{}", project.getId());
                 // 最后发布时间
                 ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
                 log.info("projectStructureLog:{}", projectStructureLog);
@@ -94,7 +90,7 @@ public class ProjectController extends BaseController {
 
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
-                projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineList().equals("[]")).collect(Collectors.toList());
+                projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineIp().equals("[]")).collect(Collectors.toList());
                 List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
                 if (userDto.getRoleType() == RoleType.SUPER_ADMIN) {
 
@@ -163,20 +159,20 @@ public class ProjectController extends BaseController {
                     projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
                     projectEnvConfig.setProjectId(project.getId());
                     projectEnvConfig.setProjectName(project.getName());
-                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIpList()));
+                    projectEnvConfig.setServerMachineIp(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIpList()));
                     projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                     projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
                     // 项目构建前命令
                     if (projectEnvConfigDto.getStructureBeforeList() != null) {
-                        for (String command : projectEnvConfigDto.getStructureBeforeList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
+                        for (ProjectStructureStep projectStructureStep : projectEnvConfigDto.getStructureBeforeList()) {
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), false, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
                     if (projectEnvConfigDto.getStructureAfterList() != null) {
-                        for (String command : projectEnvConfigDto.getStructureAfterList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
+                        for (ProjectStructureStep projectStructureStep : projectEnvConfigDto.getStructureAfterList()) {
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), projectStructureStep.getRestart(), ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -220,11 +216,6 @@ public class ProjectController extends BaseController {
             }
             project = projectRepository.save(project);
 
-
-            // 删除环境构建命令，再添加
-            List<ProjectEnvConfig> oldProjectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
-            projectEnvConfigRepository.delete(oldProjectEnvConfigList);
-
             // 项目环境配置
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
             if (projectEnvConfigList != null) {
@@ -235,7 +226,8 @@ public class ProjectController extends BaseController {
                         projectEnvConfig.setProjectId(project.getId());
                     }
                     projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
-                    projectEnvConfig.setServerMachineList(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIpList()));
+                    projectEnvConfig.setProjectName(project.getName());
+                    projectEnvConfig.setServerMachineIp(objectMapper.writeValueAsString(projectEnvConfigDto.getServerMachineIpList()));
                     projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                     projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
@@ -245,16 +237,22 @@ public class ProjectController extends BaseController {
 
                         List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                         projectStructureStepRepository.delete(projectStructureStepList);
-                        for (String command : projectEnvConfigDto.getStructureBeforeList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
+                        for (ProjectStructureStep projectStructureStep : projectEnvConfigDto.getStructureBeforeList()) {
+                            if(StringUtils.isBlank(projectStructureStep.getStep())){
+                                continue;
+                            }
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), false, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
                     if (projectEnvConfigDto.getStructureAfterList() != null) {
                         List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                         projectStructureStepRepository.delete(projectStructureStepList);
-                        for (String command : projectEnvConfigDto.getStructureAfterList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(command, ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(),project.getName(), projectEnvConfig.getId()));
+                        for (ProjectStructureStep projectStructureStep : projectEnvConfigDto.getStructureAfterList()) {
+                            if(StringUtils.isBlank(projectStructureStep.getStep())){
+                                continue;
+                            }
+                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), projectStructureStep.getRestart(), ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -357,33 +355,43 @@ public class ProjectController extends BaseController {
             // 项目配置环境
             List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
             List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
+
             for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
                 projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-                projectEnvConfigDto.setServerMachineIpList(ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineList()));
+                projectEnvConfigDto.setServerMachineIpList(ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp()));
                 projectEnvConfigDto.setPublicBranch(projectEnvConfig.getPublicBranch());
 
-
                 // 项目配置环境构建前步骤
+                if (projectEnvConfigDto.getStructureBeforeList() == null) {
+                    projectEnvConfigDto.setStructureBeforeList(new ArrayList<>());
+                }
                 List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                 for (ProjectStructureStep projectStructureStep : projectStructureStepBeforeList) {
-                    if (projectEnvConfigDto.getStructureBeforeList() == null) {
-                        projectEnvConfigDto.setStructureBeforeList(new ArrayList<>());
-                    }
-                    projectEnvConfigDto.getStructureBeforeList().add(projectStructureStep.getStep());
+                    projectEnvConfigDto.getStructureBeforeList().add(projectStructureStep);
+                }
+                // 环境没有添加时，默认添加
+                if (projectEnvConfigDto.getStructureBeforeList().size() == 0) {
+                    projectEnvConfigDto.getStructureBeforeList().add(new ProjectStructureStep());
                 }
 
+
                 // 项目配置环境构建后步骤
+                if (projectEnvConfigDto.getStructureAfterList() == null) {
+                    projectEnvConfigDto.setStructureAfterList(new ArrayList<>());
+                }
                 List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                 for (ProjectStructureStep projectStructureStep : projectStructureStepAfterList) {
-                    if (projectEnvConfigDto.getStructureAfterList() == null) {
-                        projectEnvConfigDto.setStructureAfterList(new ArrayList<>());
-                    }
-                    projectEnvConfigDto.getStructureAfterList().add(projectStructureStep.getStep());
+                    projectEnvConfigDto.getStructureAfterList().add(projectStructureStep);
+                }
+                // 环境没有添加时，默认添加
+                if (projectEnvConfigDto.getStructureAfterList().size() == 0) {
+                    projectEnvConfigDto.getStructureAfterList().add(new ProjectStructureStep());
                 }
 
                 projectEnvConfigDtoList.add(projectEnvConfigDto);
             }
+
             projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
             jsonResult.data = projectDto;
 
@@ -414,7 +422,7 @@ public class ProjectController extends BaseController {
                 log.info("project sync >> command : {}", command);
             });
 
-            log.info("restart project >> command : {}","restart command");
+            log.info("restart project >> command : {}", "restart command");
         };
         return doing.go(userDto, request, objectMapper, log);
     }
@@ -617,15 +625,8 @@ public class ProjectController extends BaseController {
         projectEnvConfigList.forEach(projectEnvConfig -> {
             ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
             projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-            List<String> serverMachineIpList = ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineList());
-            List<ServerMachineDto> serverMachineDtoList = serverMachineRepository.findByIpIn(serverMachineIpList).stream().map(serverMachine -> {
-                ServerMachineDto serverMachineDto = new ServerMachineDto();
-                serverMachineDto.setId(serverMachine.getId());
-                serverMachineDto.setName(serverMachine.getName());
-                serverMachineDto.setIp(serverMachine.getIp());
-                return serverMachineDto;
-            }).collect(Collectors.toList());
-            projectEnvConfigDto.setServerMachineList(serverMachineDtoList);
+            List<String> serverMachineIpList = ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
+            projectEnvConfigDto.setServerMachineIpList(serverMachineIpList);
             projectEnvConfigDtoList.add(projectEnvConfigDto);
         });
     }

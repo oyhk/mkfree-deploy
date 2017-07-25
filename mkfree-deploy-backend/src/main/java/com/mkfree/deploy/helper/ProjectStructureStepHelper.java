@@ -23,13 +23,14 @@ public enum ProjectStructureStepHelper {
      * @param projectId
      * @return
      */
-    public ProjectStructureStep create(String command, ProjectStructureStepType type, ProjectEnv env, Long projectId,String projectName, Long projectEnvConfigId) {
+    public ProjectStructureStep create(String command,boolean isRestart, ProjectStructureStepType type, ProjectEnv env, Long projectId,String projectName, Long projectEnvConfigId) {
         ProjectStructureStep projectStructureStep = new ProjectStructureStep();
         projectStructureStep.setProjectId(projectId);
         projectStructureStep.setProjectName(projectName);
         projectStructureStep.setStep(command);
         projectStructureStep.setType(type);
         projectStructureStep.setEnv(env);
+        projectStructureStep.setRestart(isRestart);
         projectStructureStep.setProjectEnvConfigId(projectEnvConfigId);
         return projectStructureStep;
     }

@@ -11,10 +11,6 @@ export default {
         project: {}, // 项目信息
         deployTargetFileList: [{}], // 上传文件列表
         projectEnvConfigList: [
-            {envText: '开发环境', env: 'DEV'},
-            {envText: '测试环境', env: 'TEST'},
-            {envText: '预发布环境', env: 'UAT'},
-            {envText: '生产环境', env: 'PROD'}
         ], // 项目环境
         pageResult: {},
     },

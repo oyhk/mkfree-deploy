@@ -1,8 +1,7 @@
 package com.mkfree.deploy.dto;
 
-import com.mkfree.deploy.domain.IDEntity;
-import com.mkfree.deploy.domain.ServerMachine;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
+import com.mkfree.deploy.domain.ProjectEnvConfig;
+import com.mkfree.deploy.domain.ProjectStructureStep;
 
 import java.util.List;
 
@@ -10,35 +9,17 @@ import java.util.List;
  * Created by oyhk on 2017/2/7.
  *
  */
-public class ProjectEnvConfigDto extends IDEntity {
+public class ProjectEnvConfigDto extends ProjectEnvConfig {
 
-    // 项目id
-    private Long projectId;
-    //环境类型
-    private ProjectEnv env;
     //需要发布的服务机器id列表
     private List<Long> serverMachineIdList;
     //需要发布的服务机器ip列表
     private List<String> serverMachineIpList;
-    //需要发布的服务机器列表
-    private List<ServerMachineDto> serverMachineList;
-    //发布分支名称
-    private String publicBranch;
     // 构建前执行命令
-    private List<String> structureBeforeList;
+    private List<ProjectStructureStep> structureBeforeList;
     // 构建后命令
-    private List<String> structureAfterList;
+    private List<ProjectStructureStep> structureAfterList;
 
-    public ProjectEnv getEnv() {
-        return env;
-    }
-
-    public String getEnvText() {
-        if (this.env != null) {
-            return this.env.getText();
-        }
-        return null;
-    }
 
     public List<String> getServerMachineIpList() {
         return serverMachineIpList;
@@ -46,10 +27,6 @@ public class ProjectEnvConfigDto extends IDEntity {
 
     public void setServerMachineIpList(List<String> serverMachineIpList) {
         this.serverMachineIpList = serverMachineIpList;
-    }
-
-    public void setEnv(ProjectEnv env) {
-        this.env = env;
     }
 
     public List<Long> getServerMachineIdList() {
@@ -60,43 +37,20 @@ public class ProjectEnvConfigDto extends IDEntity {
         this.serverMachineIdList = serverMachineIdList;
     }
 
-    public String getPublicBranch() {
-        return publicBranch;
-    }
-
-    public void setPublicBranch(String publicBranch) {
-        this.publicBranch = publicBranch;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
-    public List<String> getStructureBeforeList() {
+    public List<ProjectStructureStep> getStructureBeforeList() {
         return structureBeforeList;
     }
 
-    public void setStructureBeforeList(List<String> structureBeforeList) {
+    public void setStructureBeforeList(List<ProjectStructureStep> structureBeforeList) {
         this.structureBeforeList = structureBeforeList;
     }
 
-    public List<String> getStructureAfterList() {
+    public List<ProjectStructureStep> getStructureAfterList() {
         return structureAfterList;
     }
 
-    public void setStructureAfterList(List<String> structureAfterList) {
+    public void setStructureAfterList(List<ProjectStructureStep> structureAfterList) {
         this.structureAfterList = structureAfterList;
     }
 
-    public List<ServerMachineDto> getServerMachineList() {
-        return serverMachineList;
-    }
-
-    public void setServerMachineList(List<ServerMachineDto> serverMachineList) {
-        this.serverMachineList = serverMachineList;
-    }
 }

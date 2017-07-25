@@ -28,6 +28,8 @@ public class ProjectStructureStep extends IDEntity {
     @Column(columnDefinition = "varchar(30)")
     @Enumerated(EnumType.STRING)
     private ProjectStructureStepType type;
+    @Column
+    private Boolean isRestart = false;
     //项目环境配置id
     @Column(columnDefinition = "bigint")
     private Long projectEnvConfigId;
@@ -82,5 +84,13 @@ public class ProjectStructureStep extends IDEntity {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public Boolean getRestart() {
+        return isRestart;
+    }
+
+    public void setRestart(Boolean restart) {
+        isRestart = restart;
     }
 }

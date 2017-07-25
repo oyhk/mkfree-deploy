@@ -24,12 +24,19 @@ public class ProjectEnvConfig extends IDEntity {
     @Enumerated(EnumType.STRING)
     private ProjectEnv env;
     //需要发布的服务机器ip列表 ["192.168.1.241","192.168.1.211"]
-    @Column(columnDefinition = "varchar(255)")
-    private String serverMachineList;
+    @Column(columnDefinition = "varchar(255)", name = "serverMachineList")
+    private String serverMachineIp;
     //发布分支名称
     @Column(columnDefinition = "varchar(255)")
     private String publicBranch;
 
+
+    public String getEnvText() {
+        if (this.env != null) {
+            return this.env.getText();
+        }
+        return null;
+    }
 
     public ProjectEnv getEnv() {
         return env;
@@ -39,12 +46,12 @@ public class ProjectEnvConfig extends IDEntity {
         this.env = env;
     }
 
-    public String getServerMachineList() {
-        return serverMachineList;
+    public String getServerMachineIp() {
+        return serverMachineIp;
     }
 
-    public void setServerMachineList(String serverMachineList) {
-        this.serverMachineList = serverMachineList;
+    public void setServerMachineIp(String serverMachineIp) {
+        this.serverMachineIp = serverMachineIp;
     }
 
     public String getPublicBranch() {

@@ -2,12 +2,71 @@ import React from 'react';
 import {Button, Table, Row, Col, Icon, Form, Input, Switch} from 'antd';
 
 const FormItem = Form.Item;
-const formItemLayout = {
-    labelCol: {span: 4},
-    wrapperCol: {span: 19},
-};
 
-function ProjectFormComponent({dispatch, getFieldDecorator, project, deployTargetFileList, projectEnvConfigList}) {
+function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, form, isAdd}) {
+
+
+    const {getFieldDecorator, getFieldValue} = form;
+
+    function submit() {
+
+        if (isAdd) {
+            project.id = 0;
+        }
+
+        const newProject = {
+            id: project.id,
+            name: getFieldValue('name'),
+            gitUrl: getFieldValue('gitUrl'),
+            remotePath: getFieldValue('remotePath'),
+            moduleName: getFieldValue('moduleName'),
+        };
+
+        const newDeployTargetFileList = [];
+        deployTargetFileList.forEach((item, index) => {
+            newDeployTargetFileList.push({
+                localFilePath: getFieldValue(`localFilePath${index}`),
+                remoteFilePath: getFieldValue(`remoteFilePath${index}`),
+                isEnable: getFieldValue(`isEnable${index}`) ? 'YES' : 'NO'
+            });
+        });
+
+        const newProjectEnvConfigList = [];
+        projectEnvConfigList.forEach((item, index) => {
+
+
+            const newStructureBeforeList = [];
+            item.structureBeforeList.forEach((beforeItem, afterIndex) => {
+                newStructureBeforeList.push({
+                    step: getFieldValue(`stepBefore${index}${afterIndex}`),
+                });
+            });
+
+            const newStructureAfterList = [];
+            item.structureAfterList.forEach((afterItem, afterIndex) => {
+                newStructureAfterList.push({
+                    step: getFieldValue(`stepAfter${index}${afterIndex}`),
+                    restart: getFieldValue(`isRestartAfter${index}${afterIndex}`),
+                });
+            });
+            newProjectEnvConfigList.push({
+                env: item.env,
+                publicBranch: getFieldValue(`publicBranch${index}`),
+                serverMachineIpList: `${getFieldValue(`serverMachineIpList${index}`)}`.split(','),
+                structureBeforeList: newStructureBeforeList,
+                structureAfterList: newStructureAfterList
+            });
+        });
+
+        dispatch({
+            type: 'projectModel/update',
+            payload: {
+                ...newProject,
+                deployTargetFileList: newDeployTargetFileList,
+                projectEnvConfigList: newProjectEnvConfigList
+            }
+        });
+    }
 
 
     const formItemLayout = {
@@ -18,12 +77,6 @@ function ProjectFormComponent({dispatch, getFieldDecorator, project, deployTarge
         wrapperCol: {
             xs: {span: 24},
             sm: {span: 20},
-        },
-    };
-    const formItemLayoutWithOutLabel = {
-        wrapperCol: {
-            xs: {span: 24, offset: 0},
-            sm: {span: 20, offset: 4},
         },
     };
     return (
@@ -137,40 +190,89 @@ function ProjectFormComponent({dispatch, getFieldDecorator, project, deployTarge
                                     <Input placeholder="服务器ip"/>
                                 )}
                             </FormItem>
-                            <FormItem key={`${index}_3`} {...formItemLayout} label="构建命令">
-                                {getFieldDecorator(`structureBeforeList${index}`, {
-                                    initialValue: item.structureBeforeList ? item.structureBeforeList : ''
-                                })(
-                                    <Input placeholder="构建命令"/>
-                                )}
-                            </FormItem>
-
                             {
-                                item.structureAfterList && item.structureAfterList.map((afterItem, index) => {
-                                    return <FormItem key={`${index}_4`} {...formItemLayout} label="构建后命令">
-                                        {getFieldDecorator(`structureAfterList${index}`, {
-                                            initialValue: item.structureAfterList ? afterItem.command : ''
+                                item.structureBeforeList && item.structureBeforeList.length > 0 ? item.structureBeforeList.map((beforeItem, beforeIndex) => {
+                                    return <FormItem key={`${index}_${beforeIndex}_before`} {...formItemLayout}
+                                                     label="构建命令">
+                                        {getFieldDecorator(`stepBefore${index}${beforeIndex}`, {
+                                            initialValue: beforeItem.step ? beforeItem.step : ''
                                         })(
-                                            <Input placeholder="构建后命令" style={{width: '80%', marginRight: '20px'}}/>
+                                            <Input placeholder="构建命令"/>
                                         )}
-                                        <span>是否重启命令：</span>
-                                        {/*{getFieldDecorator(`isRestart${index}`, {*/}
-                                            {/*valuePropName: 'checked',*/}
-                                            {/*initialValue: afterItem.isRestart*/}
-                                        {/*})(*/}
-                                            {/*<Switch />*/}
-                                        {/*)}*/}
-                                    </FormItem>
-                                })
+                                    </FormItem>;
+                                }) : <FormItem {...formItemLayout}
+                                               label="构建命令">
+                                    {getFieldDecorator(`stepBefore${index}0`, {
+                                        initialValue: ''
+                                    })(
+                                        <Input placeholder="构建命令"/>
+                                    )}
+                                </FormItem>
+                            }
+                            {
+                                item.structureAfterList && item.structureAfterList.length > 0 ? item.structureAfterList.map((afterItem, afterIndex) => {
+                                    return <Row key={`${afterIndex}_div`}>
+                                        <Col span={20}>
+                                            <FormItem key={`${index}_${afterIndex}_step_after`}
+                                                      labelCol={{span: 5}}
+                                                      wrapperCol={{span: 16}} label="构建后命令">
+                                                {getFieldDecorator(`stepAfter${index}${afterIndex}`, {
+                                                    initialValue: afterItem.step ? afterItem.step : ''
+                                                })(
+                                                    <Input placeholder="构建后命令"/>
+                                                )}
+                                            </FormItem>
+                                        </Col>
+                                        <Col span={4}>
+                                            <FormItem key={`${index}_${afterIndex}_is_restart_after`}
+                                                      labelCol={{span: 10}}
+                                                      wrapperCol={{span: 10}}
+                                                      label="是否重启命令">
+                                                {getFieldDecorator(`isRestartAfter${index}${afterIndex}`, {
+                                                    valuePropName: 'checked',
+                                                    initialValue: afterItem.restart
+                                                })(
+                                                    <Switch />
+                                                )}
+                                            </FormItem>
+                                        </Col>
+                                    </Row>;
+                                }) : <Row >
+                                    <Col span={20}>
+                                        <FormItem
+                                            labelCol={{span: 5}}
+                                            wrapperCol={{span: 16}} label="构建后命令">
+                                            {getFieldDecorator(`stepAfter${index}0`, {
+                                                initialValue: ''
+                                            })(
+                                                <Input placeholder="构建后命令"/>
+                                            )}
+                                        </FormItem>
+                                    </Col>
+                                    <Col span={4}>
+                                        <FormItem
+                                            labelCol={{span: 10}}
+                                            wrapperCol={{span: 10}}
+                                            label="是否重启命令">
+                                            {getFieldDecorator(`isRestartAfter${index}0`, {
+                                                valuePropName: 'checked',
+                                                initialValue: false
+                                            })(
+                                                <Switch />
+                                            )}
+                                        </FormItem>
+                                    </Col>
+                                </Row>
                             }
 
                         </div>;
                     })
                 }
-
-
             </div>
+            <FormItem style={{marginTop: '20px'}} wrapperCol={{span: 1, offset: 23}}>
+                <Button type="primary" onClick={submit}>提交</Button>
+            </FormItem>
         </div>
     );
 }
-export default ProjectFormComponent;
+export default Form.create()(ProjectFormComponent);

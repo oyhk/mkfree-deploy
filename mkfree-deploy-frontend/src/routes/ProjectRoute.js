@@ -18,9 +18,11 @@ function ProjectRoute({dispatch, pageResult}) {
         render: (text, record) => {
 
             const option = record.projectEnvConfigList.map((projectEnvConfig, projectEnvConfigIndex) => {
-                const serverMachineList = projectEnvConfig.serverMachineList.map((serverMachine, serverMachineIndex) => {
-                    return <li key={serverMachineIndex} style={{marginTop: '5px'}}>
-                        <span style={{paddingRight: '5px'}}>{serverMachine.ip}</span>
+
+                const serverMachineList = projectEnvConfig.serverMachineIpList.map((ip, serverMachineIndex) => {
+
+                    return ip === '' ? '' : <li key={serverMachineIndex} style={{marginTop: '5px'}}>
+                        <span style={{paddingRight: '5px'}}>{ip}</span>
                         { true ?
                             <Button type="primary"
                                     size="small"
@@ -30,7 +32,7 @@ function ProjectRoute({dispatch, pageResult}) {
                                             payload: {
                                                 id: record.id,
                                                 env: projectEnvConfig.env,
-                                                serverMachineIp: serverMachine.ip,
+                                                serverMachineIp: ip,
                                             }
                                         });
                                     }}>发布</Button>
@@ -43,7 +45,7 @@ function ProjectRoute({dispatch, pageResult}) {
                                             payload: {
                                                 id: record.id,
                                                 env: projectEnvConfig.env,
-                                                serverMachineIp: serverMachine.ip,
+                                                serverMachineIp: ip,
                                             }
                                         });
                                     }}>同步</Button>
