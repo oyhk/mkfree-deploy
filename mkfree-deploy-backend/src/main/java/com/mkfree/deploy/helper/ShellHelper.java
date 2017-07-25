@@ -58,7 +58,7 @@ public enum ShellHelper {
             Stream<String> command = Stream.of(params);
             command.forEach(commands::add);
 
-            Process process = Runtime.getRuntime().exec(commands.toArray(new String []{}));
+            Process process = Runtime.getRuntime().exec(commands.toArray(new String[]{}));
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s;
             while ((s = reader.readLine()) != null) {
@@ -84,7 +84,7 @@ public enum ShellHelper {
 
         Process p;
         try {
-            p = Runtime.getRuntime().exec(command);
+            p = Runtime.getRuntime().exec(new String[]{"bash", "-c", command});
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -94,7 +94,9 @@ public enum ShellHelper {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            log.error(e.getMessage());
+            if (log != null) {
+                log.error(e.getMessage());
+            }
         }
 
         return output.toString();

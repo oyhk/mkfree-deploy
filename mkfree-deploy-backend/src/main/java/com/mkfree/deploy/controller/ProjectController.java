@@ -23,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -238,7 +240,7 @@ public class ProjectController extends BaseController {
                         List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
                         projectStructureStepRepository.delete(projectStructureStepList);
                         for (ProjectStructureStep projectStructureStep : projectEnvConfigDto.getStructureBeforeList()) {
-                            if(StringUtils.isBlank(projectStructureStep.getStep())){
+                            if (StringUtils.isBlank(projectStructureStep.getStep())) {
                                 continue;
                             }
                             projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), false, ProjectStructureStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
@@ -249,7 +251,7 @@ public class ProjectController extends BaseController {
                         List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectStructureStepType.AFTER, projectEnvConfig.getId());
                         projectStructureStepRepository.delete(projectStructureStepList);
                         for (ProjectStructureStep projectStructureStep : projectEnvConfigDto.getStructureAfterList()) {
-                            if(StringUtils.isBlank(projectStructureStep.getStep())){
+                            if (StringUtils.isBlank(projectStructureStep.getStep())) {
                                 continue;
                             }
                             projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), projectStructureStep.getRestart(), ProjectStructureStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
@@ -410,19 +412,29 @@ public class ProjectController extends BaseController {
                 return;
             }
 
+            log.info("project sync >> start");
             Project project = projectRepository.findOne(id);
             ServerMachine serverMachine = serverMachineRepository.findByIp(dto.getServerMachineIp());
 
             SystemConfig systemConfig = systemConfigRepository.findOne(1L);
-            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(id);
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(id,Whether.YES);
             projectDeployFileList.forEach(projectDeployFile -> {
                 String filePath = String.format("%s/%s/%s", systemConfig.getProjectPath(), project.getName(), projectDeployFile.getLocalFilePath());
-                String command = String.format("scp -P %s -r %s %s@%s:%s", serverMachine.getPort(), filePath, serverMachine.getUsername(), serverMachine.getIp(), project.getRemotePath());
-                ShellHelper.SINGLEONE.executeShellCommand(log, command);
+                String command = String.format("scp -P %s -r %s %s@%s:%s", serverMachine.getPort(), filePath, serverMachine.getUsername(), serverMachine.getIp(), project.getRemotePath()+"/"+projectDeployFile.getRemoteFilePath());
                 log.info("project sync >> command : {}", command);
+                String result = ShellHelper.SINGLEONE.executeShellCommand(log, command);
+                log.info(result);
             });
 
-            log.info("restart project >> command : {}", "restart command");
+            // 找出同步后需要执行的命令
+            List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndIsRestartAndType(project.getId(), true, ProjectStructureStepType.AFTER);
+            projectStructureStepList.forEach(projectStructureStep -> {
+                String stepCommand = String.format("ssh -p %s -t %s@%s \"%s\"", serverMachine.getPort(), serverMachine.getUsername(), serverMachine.getIp(), projectStructureStep.getStep());
+                log.info("restart project >> command : {}", stepCommand);
+                ShellHelper.SINGLEONE.executeShellCommand(log, stepCommand);
+            });
+            log.info("project sync >> success");
+
         };
         return doing.go(userDto, request, objectMapper, log);
     }
