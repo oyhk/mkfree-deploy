@@ -29,9 +29,9 @@ public interface BaseDoing<T> {
      * @param log
      */
     default void showParams(HttpServletRequest request, Logger log) throws IOException {
-        if (request != null) {
+        if (request != null && request.getMethod().equals("GET")) {
             Enumeration<String> parameterNames = request.getParameterNames();
-            StringBuffer parameterStringBuffer = new StringBuffer("params => { ");
+            StringBuilder parameterStringBuffer = new StringBuilder("params => { ");
             while (parameterNames.hasMoreElements()) {
                 String parameterName = parameterNames.nextElement();
                 parameterStringBuffer.append(parameterName).append(" : ").append(request.getParameter(parameterName)).append(" ,");

@@ -84,13 +84,14 @@ public enum ShellHelper {
 
         Process p;
         try {
-            p = Runtime.getRuntime().exec(new String[]{"bash", "-c", command});
+            p = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", command});
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
             String line;
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
+                log.info(line);
             }
         } catch (Exception e) {
             e.printStackTrace();

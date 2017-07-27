@@ -430,7 +430,7 @@ public class ProjectController extends BaseController {
             List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndIsRestartAndType(project.getId(), true, ProjectStructureStepType.AFTER);
             projectStructureStepList.forEach(projectStructureStep -> {
                 String stepCommand = String.format("ssh -p %s -t %s@%s \"%s\"", serverMachine.getPort(), serverMachine.getUsername(), serverMachine.getIp(), projectStructureStep.getStep());
-                log.info("restart project >> command : {}", stepCommand);
+                log.info("project sync >> command : {}", stepCommand);
                 ShellHelper.SINGLEONE.executeShellCommand(log, stepCommand);
             });
             log.info("project sync >> success");
