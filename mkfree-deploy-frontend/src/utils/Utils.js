@@ -28,3 +28,17 @@ export function routePath(sourceUrl, params) {
 export function urlPathParams(sourceurl, targetUrl) {
     return pathToRegexp(sourceurl, []).exec(targetUrl);
 }
+
+/**
+ * json 转换 url params
+ *
+ * 例如：{page:1,pageSize:20} => page=1&pageSize=20
+ * @param json
+ * @returns {string}
+ */
+export function jsonToUrlParams(json) {
+    const urlParams = Object.keys(json).map((key) => {
+        return `${encodeURIComponent(key)}=${encodeURIComponent(json[key])}`;
+    }).join('&');
+    return urlParams;
+}

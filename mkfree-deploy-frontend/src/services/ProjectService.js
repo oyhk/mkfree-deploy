@@ -1,7 +1,8 @@
 import {request, requestData} from '../utils/Request';
+import {jsonToUrlParams} from '../utils/Utils';
 
-export async function page() {
-    return requestData('/api/project/page?pageSize=100');
+export async function page(params) {
+    return requestData(`/api/project/page?${jsonToUrlParams(params)}`);
 }
 
 export async function save(body) {
@@ -15,6 +16,10 @@ export async function update(body) {
 
 export async function info(id) {
     return requestData(`/api/project/info?id=${id}`);
+}
+
+export async function envList() {
+    return requestData('/api/project/env_list');
 }
 
 export async function structure(body) {

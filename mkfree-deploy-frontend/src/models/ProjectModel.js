@@ -10,8 +10,7 @@ export default {
     state: {
         project: {}, // 项目信息
         deployTargetFileList: [{}], // 上传文件列表
-        projectEnvConfigList: [
-        ], // 项目环境
+        projectEnvConfigList: [], // 项目环境
         pageResult: {},
     },
 
@@ -20,7 +19,7 @@ export default {
             return history.listen((location) => {
                 // 项目管理
                 if (location.pathname === route.project) {
-                    dispatch({type: 'page', payload: {}});
+                    dispatch({type: 'page', payload: {...location.query}});
                     return;
                 }
                 const edit = urlPathParams(route.projectEdit, location.pathname);
@@ -28,6 +27,13 @@ export default {
                 if (edit) {
                     const id = edit[1];
                     dispatch({type: 'info', payload: {id}});
+                }
+
+                // 新增页
+                if (location.pathname === route.projectAdd) {
+                    dispatch({
+                        type: 'initAdd',
+                    });
                 }
             });
         },
@@ -39,7 +45,7 @@ export default {
         },
 
         *page({payload}, {call, put}) {
-            const result = yield call(projectService.page);
+            const result = yield call(projectService.page, payload);
 
             addKey(result.list);
 
@@ -69,7 +75,7 @@ export default {
         *structure({payload}, {call, put, select}) {
             yield call(projectService.structure, payload);
         },
-        *sync({payload}, {call, put, select}){
+        *sync({payload}, {call, put, select}) {
             yield call(projectService.sync, payload);
         },
         // 保存
@@ -97,6 +103,17 @@ export default {
                 }
             });
         },
+        *initAdd({payload}, {call, put, select}) {
+            const envList = yield call(projectService.envList);
+            yield put({
+                type: 'save',
+                payload: {
+                    project: {},
+                    projectEnvConfigList: envList,
+                    deployTargetFileList: [{}]
+                }
+            });
+        }
     },
 
     reducers: {

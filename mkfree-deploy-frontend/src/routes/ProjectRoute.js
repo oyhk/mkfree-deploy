@@ -86,7 +86,16 @@ function ProjectRoute({dispatch, pageResult}) {
                         }}
                 >添加</Button>
             </div>
-            <Table dataSource={pageResult.list} columns={columns}/>
+            <Table dataSource={pageResult.list} columns={columns}
+                   pagination={{
+                       defaultPageSize: 10,
+                       current: pageResult.pageNo + 1,
+                       defaultCurrent: pageResult.pageNo + 1,
+                       total: pageResult.totalCount,
+                       onChange: (page, pageSize) => {
+                           browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}`);
+                       }
+                   }}/>
         </div>
     );
 }

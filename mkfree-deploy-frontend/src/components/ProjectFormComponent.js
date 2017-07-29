@@ -58,14 +58,25 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
             });
         });
 
-        dispatch({
-            type: 'projectModel/update',
-            payload: {
-                ...newProject,
-                deployTargetFileList: newDeployTargetFileList,
-                projectEnvConfigList: newProjectEnvConfigList
-            }
-        });
+        if (isAdd) {
+            dispatch({
+                type: 'projectModel/saved',
+                payload: {
+                    ...newProject,
+                    deployTargetFileList: newDeployTargetFileList,
+                    projectEnvConfigList: newProjectEnvConfigList
+                }
+            });
+        } else {
+            dispatch({
+                type: 'projectModel/update',
+                payload: {
+                    ...newProject,
+                    deployTargetFileList: newDeployTargetFileList,
+                    projectEnvConfigList: newProjectEnvConfigList
+                }
+            });
+        }
     }
 
 

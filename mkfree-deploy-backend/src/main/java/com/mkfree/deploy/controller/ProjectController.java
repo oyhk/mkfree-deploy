@@ -63,6 +63,27 @@ public class ProjectController extends BaseController {
     private ExecutorService commonExecutorService;
 
 
+    @RequestMapping(value = Routes.PROJECT_ENV_LIST, method = RequestMethod.GET)
+    public JsonResult envList(HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+            List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
+
+            for (int i = 0; i < ProjectEnv.values().length; i++) {
+                ProjectEnv projectEnv = ProjectEnv.values()[i];
+                ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
+                projectEnvConfigDto.setEnv(projectEnv);
+                // 项目配置环境构建前步骤
+                projectEnvConfigDto.setStructureBeforeList(Collections.singletonList(new ProjectStructureStep()));
+                // 项目配置环境构建后步骤
+                projectEnvConfigDto.setStructureAfterList(Collections.singletonList(new ProjectStructureStep()));
+                projectEnvConfigDtoList.add(projectEnvConfigDto);
+            }
+            jsonResult.data = projectEnvConfigDtoList;
+        };
+        return doing.go(log);
+    }
+
+
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
@@ -80,12 +101,9 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
-                log.info("project id:{}", project.getId());
                 // 最后发布时间
                 ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
-                log.info("projectStructureLog:{}", projectStructureLog);
                 if (null != projectStructureLog) {
-                    log.info("publishDate:{}", projectStructureLog.getCreatedAt());
                     projectDto.setLastPublishDate(projectStructureLog.getCreatedAt());
                 }
 
@@ -115,7 +133,7 @@ public class ProjectController extends BaseController {
 
             jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectDtoList, Routes.PROJECT_PAGE);
         };
-        return doing.go(request, log);
+        return doing.go(request,objectMapper, log);
     }
 
     @RequestMapping(value = Routes.PROJECT_SAVE, method = RequestMethod.POST)
@@ -417,13 +435,12 @@ public class ProjectController extends BaseController {
             ServerMachine serverMachine = serverMachineRepository.findByIp(dto.getServerMachineIp());
 
             SystemConfig systemConfig = systemConfigRepository.findOne(1L);
-            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(id,Whether.YES);
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(id, Whether.YES);
             projectDeployFileList.forEach(projectDeployFile -> {
                 String filePath = String.format("%s/%s/%s", systemConfig.getProjectPath(), project.getName(), projectDeployFile.getLocalFilePath());
-                String command = String.format("scp -P %s -r %s %s@%s:%s", serverMachine.getPort(), filePath, serverMachine.getUsername(), serverMachine.getIp(), project.getRemotePath()+"/"+projectDeployFile.getRemoteFilePath());
+                String command = String.format("scp -P %s -r %s %s@%s:%s", serverMachine.getPort(), filePath, serverMachine.getUsername(), serverMachine.getIp(), project.getRemotePath() + "/" + projectDeployFile.getRemoteFilePath());
                 log.info("project sync >> command : {}", command);
-                String result = ShellHelper.SINGLEONE.executeShellCommand(log, command);
-                log.info(result);
+                ShellHelper.SINGLEONE.executeShellCommand(log, command);
             });
 
             // 找出同步后需要执行的命令

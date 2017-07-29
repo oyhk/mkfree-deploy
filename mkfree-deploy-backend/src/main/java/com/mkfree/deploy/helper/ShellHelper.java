@@ -78,19 +78,16 @@ public enum ShellHelper {
      * @param command
      * @return
      */
-    public String executeShellCommand(Logger log, String command) {
-
-        StringBuilder output = new StringBuilder();
-
+    public void executeShellCommand(Logger log, String command) {
         Process p;
         try {
             p = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", command});
             p.waitFor();
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
+            while (reader.ready()) {
+                String line = reader.readLine();
                 log.info(line);
             }
         } catch (Exception e) {
@@ -100,6 +97,5 @@ public enum ShellHelper {
             }
         }
 
-        return output.toString();
     }
 }
