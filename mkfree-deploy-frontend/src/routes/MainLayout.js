@@ -24,7 +24,7 @@ function MainLayout({dispatch, children}) {
                     defaultSelectedKeys={['1']}
                     style={{lineHeight: '64px'}}
                 >
-                    <Menu.Item key="1"><Link to={route.project}>项目管理</Link></Menu.Item>
+                    <Menu.Item key="1"><Link to={`${route.project}?pageSize=100`}>项目管理</Link></Menu.Item>
                     <Menu.Item key="2">用户管理</Menu.Item>
                     <Menu.Item key="3">服务器管理</Menu.Item>
                 </Menu>

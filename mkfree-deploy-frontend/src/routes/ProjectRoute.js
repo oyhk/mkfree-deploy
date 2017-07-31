@@ -88,7 +88,7 @@ function ProjectRoute({dispatch, pageResult}) {
             </div>
             <Table dataSource={pageResult.list} columns={columns}
                    pagination={{
-                       defaultPageSize: 10,
+                       defaultPageSize: 100,
                        current: pageResult.pageNo + 1,
                        defaultCurrent: pageResult.pageNo + 1,
                        total: pageResult.totalCount,

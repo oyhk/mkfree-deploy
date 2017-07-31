@@ -80,7 +80,7 @@ public class ProjectController extends BaseController {
             }
             jsonResult.data = projectEnvConfigDtoList;
         };
-        return doing.go(log);
+        return doing.go(request, log);
     }
 
 
@@ -133,7 +133,7 @@ public class ProjectController extends BaseController {
 
             jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectDtoList, Routes.PROJECT_PAGE);
         };
-        return doing.go(request,objectMapper, log);
+        return doing.go(request, objectMapper, log);
     }
 
     @RequestMapping(value = Routes.PROJECT_SAVE, method = RequestMethod.POST)
