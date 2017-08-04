@@ -443,6 +443,9 @@ public class ProjectController extends BaseController {
                 ShellHelper.SINGLEONE.executeShellCommand(log, command);
             });
 
+            ShellHelper.SINGLEONE.executeShellCommand(log,String.format("ssh -p %s -t %s@%s \"%s\"",serverMachine.getPort(), serverMachine.getUsername(), serverMachine.getIp(), "tree -a /mnt/usr/project/antbox-common-api"));
+
+
             // 找出同步后需要执行的命令
             List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndIsRestartAndType(project.getId(), true, ProjectStructureStepType.AFTER);
             projectStructureStepList.forEach(projectStructureStep -> {
@@ -450,6 +453,9 @@ public class ProjectController extends BaseController {
                 log.info("project sync >> command : {}", stepCommand);
                 ShellHelper.SINGLEONE.executeShellCommand(log, stepCommand);
             });
+
+
+
             log.info("project sync >> success");
 
         };
