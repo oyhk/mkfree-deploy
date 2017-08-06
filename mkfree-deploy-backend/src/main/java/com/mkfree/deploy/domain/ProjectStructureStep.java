@@ -17,24 +17,24 @@ public class ProjectStructureStep extends IDEntity {
 
 
     //项目id
-    @Column(columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
-    @Column
+    @Column(columnDefinition = "varchar(200) comment '项目名称'")
     private String projectName;
     //构建步骤内容
-    @Column(columnDefinition = "varchar(2000)")
+    @Column(columnDefinition = "varchar(2000) comment '执行命令'")
     private String step;
     //类型
-    @Column(columnDefinition = "varchar(30)")
+    @Column(columnDefinition = "varchar(30) comment '命令类型'")
     @Enumerated(EnumType.STRING)
     private ProjectStructureStepType type;
     @Column
     private Boolean isRestart = false;
     //项目环境配置id
-    @Column(columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint comment '项目环境配置id'")
     private Long projectEnvConfigId;
     //环境
-    @Column(columnDefinition = "varchar(30)")
+    @Column(columnDefinition = "varchar(30) comment '环境 DEV(\"开发环境\"), TEST(\"测试环境\"), UAT(\"仿真测试\"), PROD(\"生产\")'")
     @Enumerated(EnumType.STRING)
     private ProjectEnv env;
 

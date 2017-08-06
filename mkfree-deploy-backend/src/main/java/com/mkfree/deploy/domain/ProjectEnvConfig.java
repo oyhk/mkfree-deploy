@@ -15,19 +15,19 @@ import javax.persistence.Enumerated;
 public class ProjectEnvConfig extends IDEntity {
 
     //项目id
-    @Column(columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
-    @Column
+    @Column(columnDefinition = "varchar(50) comment '项目名称'")
     private String projectName;
     //环境类型
-    @Column(columnDefinition = "varchar(50)")
+    @Column(columnDefinition = "varchar(50) comment '环境类型'")
     @Enumerated(EnumType.STRING)
     private ProjectEnv env;
     //需要发布的服务机器ip列表 ["192.168.1.241","192.168.1.211"]
-    @Column(columnDefinition = "varchar(255)", name = "serverMachineList")
+    @Column(columnDefinition = "varchar(255) comment '需要发布的服务机器ip列表 [\"192.168.1.241\",\"192.168.1.211\"]'", name = "serverMachineList")
     private String serverMachineIp;
     //发布分支名称
-    @Column(columnDefinition = "varchar(255)")
+    @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
     private String publicBranch;
 
 

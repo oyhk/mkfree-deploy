@@ -6,7 +6,7 @@ package com.mkfree.deploy.domain.enumclass;
  */
 public enum RoleType {
 
-    SUPER_ADMIN("超级管理员"), ADMIN("管理员"), COMMON("普通成员");
+    ADMIN("管理员"), COMMON("普通成员");
 
     private String text;
 

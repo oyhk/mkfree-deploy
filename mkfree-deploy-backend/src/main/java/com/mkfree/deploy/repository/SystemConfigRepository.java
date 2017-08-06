@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * Created by oyhk on 2017/1/23.
  */
 @Repository
-public interface SystemConfigRepository extends JpaRepository<SystemConfig, Long> {
+public interface SystemConfigRepository extends BaseRepository<SystemConfig, Long> {
 
 
 

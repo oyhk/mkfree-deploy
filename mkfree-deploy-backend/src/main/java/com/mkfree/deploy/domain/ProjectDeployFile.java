@@ -14,21 +14,20 @@ import javax.persistence.Enumerated;
 @Entity
 public class ProjectDeployFile extends IDEntity {
     // 本地文件路劲
-    @Column(columnDefinition = "varchar (255) default ''", unique = true)
+    @Column(columnDefinition = "varchar (255) default '' comment '本地文件路劲'")
     private String localFilePath;
     // 远程服务文件路劲
-    @Column(columnDefinition = "varchar (255) default ''")
+    @Column(columnDefinition = "varchar (255) default '' comment '远程服务文件路劲'")
     private String remoteFilePath;
     // 项目id
-    @Column(columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
     // 项目名称
-    @Column
+    @Column(columnDefinition = "varchar(50) comment '项目名称'")
     private String projectName;
     // 是否启用
-    @Column(columnDefinition = "varchar (255)")
-    @Enumerated(EnumType.STRING)
-    private Whether isEnable;
+    @Column(columnDefinition = "bit comment '是否启用'")
+    private Boolean isEnable;
 
     public String getLocalFilePath() {
         return localFilePath;
@@ -54,12 +53,12 @@ public class ProjectDeployFile extends IDEntity {
         this.projectId = projectId;
     }
 
-    public Whether getIsEnable() {
+    public Boolean getEnable() {
         return isEnable;
     }
 
-    public void setIsEnable(Whether isEnable) {
-        this.isEnable = isEnable;
+    public void setEnable(Boolean enable) {
+        isEnable = enable;
     }
 
     public String getProjectName() {

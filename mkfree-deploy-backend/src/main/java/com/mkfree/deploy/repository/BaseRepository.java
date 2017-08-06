@@ -12,6 +12,17 @@ import java.io.Serializable;
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends JpaRepository<T, ID> {
 
+    @Transactional
+    public void softDelete(T entity);
+
+    @Transactional
+    public void softDelete(ID id);
+
+    @Transactional
+    public void softDelete(Iterable<? extends T> entities);
+
+    @Transactional
+    public void softDeleteInBatch(Iterable<T> entities);
 }
 
 

@@ -23,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -112,7 +110,7 @@ public class ProjectController extends BaseController {
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
                 projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineIp().equals("[]")).collect(Collectors.toList());
                 List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
-                if (userDto.getRoleType() == RoleType.SUPER_ADMIN) {
+                if (userDto.getRoleType() == RoleType.ADMIN) {
 
                     this.projectEnvConfigList(projectEnvConfigList, projectEnvConfigDtoList);
                 } else {
@@ -165,7 +163,7 @@ public class ProjectController extends BaseController {
             List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
             if (projectDeployFileDtoList != null) {
                 for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
-                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
+                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
                     projectDeployFileRepository.save(projectDeployFile);
                 }
             }
@@ -230,7 +228,7 @@ public class ProjectController extends BaseController {
                 projectDeployFileRepository.delete(projectDeployFileList);
 
                 for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
-                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getIsEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
+                    ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
                     projectDeployFileRepository.save(projectDeployFile);
                 }
             }
@@ -362,7 +360,7 @@ public class ProjectController extends BaseController {
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(project.getId());
             List<ProjectDeployFileDto> projectDeployFileDtoList = projectDeployFileList.stream().map(projectDeployFile -> {
                 ProjectDeployFileDto projectDeployFileDto = new ProjectDeployFileDto();
-                projectDeployFileDto.setIsEnable(projectDeployFile.getIsEnable());
+                projectDeployFileDto.setEnable(projectDeployFile.getEnable());
                 projectDeployFileDto.setLocalFilePath(projectDeployFile.getLocalFilePath());
                 projectDeployFileDto.setRemoteFilePath(projectDeployFile.getRemoteFilePath());
                 return projectDeployFileDto;
@@ -484,7 +482,7 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
+            if (userDto.getRoleType() != RoleType.ADMIN) {
                 long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv())).count();
                 if (count == 0) {
                     jsonResult.custom("10021", "没有此项目发布权限", log);

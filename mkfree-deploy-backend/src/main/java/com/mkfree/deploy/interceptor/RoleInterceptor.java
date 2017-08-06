@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
  * Created by oyhk on 15/11/29.
  * 自动登录过滤器
  */
-@Component
 public class RoleInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger log = LoggerFactory.getLogger(RoleInterceptor.class);
@@ -34,11 +33,12 @@ public class RoleInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())) {
             UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
 
-            if (userDto.getRoleType() != RoleType.SUPER_ADMIN) {
+            if (userDto.getRoleType() != RoleType.ADMIN) {
                 response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>("10011", "没有权限访问，此模块")));
                 response.getWriter().close();
                 return false;

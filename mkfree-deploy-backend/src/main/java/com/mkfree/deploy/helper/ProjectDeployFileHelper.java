@@ -14,9 +14,9 @@ public enum ProjectDeployFileHelper {
 
     SINGLEONE;
 
-    public ProjectDeployFile create(Whether isEnable,String localFilePath,String remoteFilePath, Long projectId,String projectName) {
+    public ProjectDeployFile create(Boolean isEnable,String localFilePath,String remoteFilePath, Long projectId,String projectName) {
         ProjectDeployFile projectDeployFile = new ProjectDeployFile();
-        projectDeployFile.setIsEnable(isEnable);
+        projectDeployFile.setEnable(isEnable);
         projectDeployFile.setLocalFilePath(localFilePath);
         projectDeployFile.setRemoteFilePath(remoteFilePath);
         projectDeployFile.setProjectId(projectId);

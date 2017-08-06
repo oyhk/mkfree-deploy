@@ -25,7 +25,6 @@ import java.util.List;
  * Created by oyhk on 15/11/29.
  * 自动登录过滤器
  */
-@Component
 public class UserInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger log = LoggerFactory.getLogger(UserInterceptor.class);
@@ -38,7 +37,8 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())){
             UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
             if (userDto != null) {

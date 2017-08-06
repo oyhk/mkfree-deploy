@@ -12,7 +12,7 @@ import java.util.List;
  * Created by oyhk on 2017/1/23.
  */
 @Repository
-public interface ProjectEnvConfigRepository extends JpaRepository<ProjectEnvConfig, Long> {
+public interface ProjectEnvConfigRepository extends BaseRepository<ProjectEnvConfig, Long> {
 
     ProjectEnvConfig findByProjectIdAndEnv(Long projectId,ProjectEnv env);
     List<ProjectEnvConfig> findByProjectId(Long projectId);

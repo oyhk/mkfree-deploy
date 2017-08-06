@@ -1,7 +1,10 @@
 package com.mkfree.deploy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mkfree.deploy.interceptor.RoleInterceptor;
+import com.mkfree.deploy.interceptor.UserInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +18,9 @@ import java.util.concurrent.Executors;
 @Configuration
 public class Config {
 
+    public static final String ENV_PROD = "prod";
+    public static final String ENV_LOCAL = "local";
+
     /**
      * 公共线程池
      *
@@ -26,29 +32,18 @@ public class Config {
     }
 
     @Bean
-    ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    RoleInterceptor roleInterceptor() {
+        return new RoleInterceptor();
     }
 
     @Bean
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
-        return new NamedParameterJdbcTemplate(dataSource);
-    }
-
-    /**
-     * 数据库连接池
-     * @return
-     */
-    @Bean
-    public DataSource dataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.driverClassName("org.sqlite.JDBC");
-        dataSourceBuilder.url("jdbc:sqlite:mydb.db");
-        return dataSourceBuilder.build();
+    UserInterceptor userInterceptor() {
+        return new UserInterceptor();
     }
 
     @Bean
-    public Prop prop() {
+    Prop prop() {
         return new Prop();
     }
+
 }

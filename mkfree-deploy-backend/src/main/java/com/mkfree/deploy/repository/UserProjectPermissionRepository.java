@@ -10,7 +10,7 @@ import java.util.List;
  * Created by DK on 17/2/6.
  */
 @Repository
-public interface UserProjectPermissionRepository extends JpaRepository<UserProjectPermission, Long> {
+public interface UserProjectPermissionRepository extends BaseRepository<UserProjectPermission, Long> {
     List<UserProjectPermission> findByUserId(Long userId);
 
     List<UserProjectPermission> findByProjectId(Long projectId);

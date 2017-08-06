@@ -22,9 +22,12 @@ public class IDEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
+    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP",nullable = false)
     protected Date createdAt;
+    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",nullable = false)
     protected Date updatedAt;
-    protected Boolean isDelete = false;
+    @Column(columnDefinition = "bit default 0 comment '是否逻辑删除 1 是 , 0 否'",nullable = false)
+    protected Boolean isDelete;
 
     public static final String CHECK_IDENTIFIER_IS_NOT_NULL = "唯一标识不能为空";
     public static final String CHECK_BODY_IS_NOT_NULL = "body 不能为空";

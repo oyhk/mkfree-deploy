@@ -5,6 +5,7 @@ import com.mkfree.deploy.domain.User;
 import com.mkfree.deploy.interceptor.RoleInterceptor;
 import com.mkfree.deploy.interceptor.UserInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -22,6 +23,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     private UserInterceptor userInterceptor;
     @Autowired
     private RoleInterceptor roleInterceptor;
+
 
     /**
      * 配置react 路由

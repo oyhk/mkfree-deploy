@@ -27,7 +27,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
             newDeployTargetFileList.push({
                 localFilePath: getFieldValue(`localFilePath${index}`),
                 remoteFilePath: getFieldValue(`remoteFilePath${index}`),
-                isEnable: getFieldValue(`isEnable${index}`) ? 'YES' : 'NO'
+                enable: getFieldValue(`isEnable${index}`)
             });
         });
 
@@ -167,7 +167,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                             >
                                 {getFieldDecorator(`isEnable${index}`, {
                                     valuePropName: 'checked',
-                                    initialValue: item.isEnable === 'YES'
+                                    initialValue: item.enable
                                 })(
                                     <Switch />
                                 )}
@@ -187,6 +187,11 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                             borderRadius: '10px'
                         }}>
                             <h3>{item.envText}</h3>
+                            <Row>
+                                <Col offset={2}>
+                                    <h4>部署配置</h4>
+                                </Col>
+                            </Row>
                             <FormItem key={`${index}_1`} {...formItemLayout} label="发布分支">
                                 {getFieldDecorator(`publicBranch${index}`, {
                                     initialValue: item.publicBranch ? item.publicBranch : ''
@@ -222,60 +227,53 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                             }
                             {
                                 item.structureAfterList && item.structureAfterList.length > 0 ? item.structureAfterList.map((afterItem, afterIndex) => {
-                                    return <Row key={`${afterIndex}_div`}>
-                                        <Col span={20}>
-                                            <FormItem key={`${index}_${afterIndex}_step_after`}
-                                                      labelCol={{span: 5}}
-                                                      wrapperCol={{span: 16}} label="构建后命令">
-                                                {getFieldDecorator(`stepAfter${index}${afterIndex}`, {
-                                                    initialValue: afterItem.step ? afterItem.step : ''
-                                                })(
-                                                    <Input placeholder="构建后命令"/>
-                                                )}
-                                            </FormItem>
-                                        </Col>
-                                        <Col span={4}>
-                                            <FormItem key={`${index}_${afterIndex}_is_restart_after`}
-                                                      labelCol={{span: 10}}
-                                                      wrapperCol={{span: 10}}
-                                                      label="是否重启命令">
-                                                {getFieldDecorator(`isRestartAfter${index}${afterIndex}`, {
-                                                    valuePropName: 'checked',
-                                                    initialValue: afterItem.restart
-                                                })(
-                                                    <Switch />
-                                                )}
-                                            </FormItem>
-                                        </Col>
-                                    </Row>;
-                                }) : <Row >
-                                    <Col span={20}>
-                                        <FormItem
-                                            labelCol={{span: 5}}
-                                            wrapperCol={{span: 16}} label="构建后命令">
-                                            {getFieldDecorator(`stepAfter${index}0`, {
-                                                initialValue: ''
-                                            })(
-                                                <Input placeholder="构建后命令"/>
-                                            )}
-                                        </FormItem>
-                                    </Col>
-                                    <Col span={4}>
-                                        <FormItem
-                                            labelCol={{span: 10}}
-                                            wrapperCol={{span: 10}}
-                                            label="是否重启命令">
-                                            {getFieldDecorator(`isRestartAfter${index}0`, {
-                                                valuePropName: 'checked',
-                                                initialValue: false
-                                            })(
-                                                <Switch />
-                                            )}
-                                        </FormItem>
-                                    </Col>
-                                </Row>
+                                    return <FormItem key={`${index}_${afterIndex}_step_after`}
+                                                     {...formItemLayout}
+                                                     label="构建后命令">
+                                        {getFieldDecorator(`stepAfter${index}${afterIndex}`, {
+                                            initialValue: afterItem.step ? afterItem.step : ''
+                                        })(
+                                            <Input placeholder="构建后命令"/>
+                                        )}
+                                    </FormItem>;
+                                }) :
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label="构建后命令">
+                                        {getFieldDecorator(`stepAfter${index}0`, {
+                                            initialValue: ''
+                                        })(
+                                            <Input placeholder="构建后命令"/>
+                                        )}
+                                    </FormItem>
                             }
-
+                            <Row>
+                                <Col offset={2}>
+                                    <h4>同步配置</h4>
+                                </Col>
+                            </Row>
+                            {
+                                item.structureSyncList && item.structureSyncList.length > 0 ? item.structureSyncList.map((syncItem, syncIndex) => {
+                                    return <FormItem key={`${index}_${syncIndex}_sync`}
+                                                     {...formItemLayout}
+                                                     label="构建后命令">
+                                        {getFieldDecorator(`sync${index}${syncIndex}`, {
+                                            initialValue: syncItem.step ? syncItem.step : ''
+                                        })(
+                                            <Input placeholder="构建后命令"/>
+                                        )}
+                                    </FormItem>;
+                                }) :
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label="同步后命令">
+                                        {getFieldDecorator(`sync${index}0`, {
+                                            initialValue: ''
+                                        })(
+                                            <Input placeholder="同步后命令"/>
+                                        )}
+                                    </FormItem>
+                            }
                         </div>;
                     })
                 }

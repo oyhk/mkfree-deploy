@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * Created by oyhk on 2017/1/23.
  */
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+public interface ProjectRepository extends BaseRepository<Project, Long> {
 
     Project findByName(String name);
 

@@ -12,7 +12,7 @@ import java.util.List;
  * Created by oyhk on 2017/1/23.
  */
 @Repository
-public interface ProjectStructureStepRepository extends JpaRepository<ProjectStructureStep, Long> {
+public interface ProjectStructureStepRepository extends BaseRepository<ProjectStructureStep, Long> {
 
     List<ProjectStructureStep> findByProjectIdAndType(Long projectId, ProjectStructureStepType type);
 

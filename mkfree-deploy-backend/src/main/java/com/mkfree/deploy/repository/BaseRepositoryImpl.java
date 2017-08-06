@@ -26,17 +26,15 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
         this.entityInformation = entityInformation;
     }
 
+    @Transactional
     @Override
     public <S extends T> S save(S entity) {
         try {
-            Date now = new Date();
             if (entityInformation.isNew(entity)) {
-                ((IDEntity) entity).setCreatedAt(now);
-                ((IDEntity) entity).setUpdatedAt(now);
+                ((IDEntity) entity).setDelete(false);
                 em.persist(entity);
                 return entity;
             } else {
-                ((IDEntity) entity).setUpdatedAt(now);
                 return em.merge(entity);
             }
         } catch (Exception e) {
@@ -44,4 +42,50 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
         }
         return null;
     }
+
+    @Transactional
+    public void softDelete(T entity) {
+        Assert.notNull(entity, "The entity must not be null!");
+        ((IDEntity) entity).setDelete(true);
+        em.merge(entity);
+    }
+
+    @Transactional
+    public void softDelete(ID id) {
+
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
+
+        T entity = findOne(id);
+
+        if (entity == null) {
+            throw new EmptyResultDataAccessException(String.format("No %s entity with id %s exists!", entityInformation.getJavaType(), id), 1);
+        }
+
+        softDelete(entity);
+    }
+
+    @Transactional
+    public void softDelete(Iterable<? extends T> entities) {
+
+        Assert.notNull(entities, "The given Iterable of entities not be null!");
+
+        for (T entity : entities) {
+            softDelete(entity);
+        }
+    }
+
+    @Transactional
+    public void softDeleteInBatch(Iterable<T> entities) {
+
+        Assert.notNull(entities, "The given Iterable of entities not be null!");
+
+        if (!entities.iterator().hasNext()) {
+            return;
+        }
+
+        for (T entity : entities) {
+            softDelete(entity);
+        }
+    }
+
 }

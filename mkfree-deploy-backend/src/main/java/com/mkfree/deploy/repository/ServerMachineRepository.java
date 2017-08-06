@@ -11,7 +11,7 @@ import java.util.List;
  *
  */
 @Repository
-public interface ServerMachineRepository extends JpaRepository<ServerMachine, Long> {
+public interface ServerMachineRepository extends BaseRepository<ServerMachine, Long> {
 
     List<ServerMachine> findByIpIn(List<String> ipList);
     ServerMachine findByIp(String ip);

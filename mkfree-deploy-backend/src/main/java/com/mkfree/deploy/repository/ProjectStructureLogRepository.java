@@ -12,7 +12,7 @@ import java.util.List;
  * Created by zhangjh on 2017/2/8.
  */
 @Repository
-public interface ProjectStructureLogRepository extends JpaRepository<ProjectStructureLog, Long> {
+public interface ProjectStructureLogRepository extends BaseRepository<ProjectStructureLog, Long> {
     /**
      * 同步锁
      *

@@ -12,7 +12,7 @@ import java.util.List;
  * Created by oyhk on 2017/1/23.
  */
 @Repository
-public interface ProjectDeployFileRepository extends JpaRepository<ProjectDeployFile, Long> {
+public interface ProjectDeployFileRepository extends BaseRepository<ProjectDeployFile, Long> {
 
 
     List<ProjectDeployFile> findByProjectId(Long projectId);

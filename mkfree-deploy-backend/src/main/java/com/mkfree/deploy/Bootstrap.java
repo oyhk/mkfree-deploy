@@ -1,6 +1,5 @@
 package com.mkfree.deploy;
 
-import com.mkfree.deploy.helper.UserHelper;
 import com.mkfree.deploy.repository.BaseRepositoryImpl;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -10,9 +9,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +34,14 @@ public class Bootstrap {
         SpringApplication app = new SpringApplication(Bootstrap.class);
         app.setBannerMode(Banner.Mode.LOG);
         ApplicationContext applicationContext = app.run(args);
+
+        Prop prop = applicationContext.getBean(Prop.class);
+        // 是否生产环境
+        if (applicationContext.getEnvironment().getActiveProfiles() != null && applicationContext.getEnvironment().getActiveProfiles().length > 0) {
+            if (applicationContext.getEnvironment().getActiveProfiles()[0].contains(Config.ENV_PROD)) {
+                prop.env = Config.ENV_PROD;
+            }
+        }
     }
 
 }

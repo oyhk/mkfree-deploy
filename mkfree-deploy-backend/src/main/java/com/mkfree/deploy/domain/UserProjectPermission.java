@@ -11,16 +11,16 @@ import javax.persistence.Entity;
 public class UserProjectPermission extends IDEntity {
 
     //用户id
-    @Column(columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint comment '用户id'")
     private Long userId;
     //项目id
-    @Column(columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
     //项目允许发布环境列表
-    @Column(columnDefinition = "varchar(255)")
+    @Column(columnDefinition = "varchar(255) comment '项目允许发布环境列表'")
     private String projectEnvList;
     //项目名称
-    @Column(columnDefinition = "varchar(255)")
+    @Column(columnDefinition = "varchar(255) comment '项目名称'")
     private String projectName;
 
     public Long getUserId() {

@@ -7,7 +7,8 @@ package com.mkfree.deploy.domain.enumclass;
 public enum ProjectStructureStepType {
 
     BEFORE("构建前"),
-    AFTER("构建后");
+    AFTER("构建后"),
+    SYNC("同步命令");
 
     private String text;
 

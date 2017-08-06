@@ -9,4 +9,6 @@ import org.springframework.stereotype.Component;
  */
 public class Prop {
 
+
+    public String env = "local";
 }

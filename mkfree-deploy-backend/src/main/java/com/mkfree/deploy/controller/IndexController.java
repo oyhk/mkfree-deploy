@@ -1,5 +1,8 @@
 package com.mkfree.deploy.controller;
 
+import com.mkfree.deploy.Config;
+import com.mkfree.deploy.Prop;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,17 +15,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class IndexController {
 
+    @Autowired
+    private Prop prop;
+
     /**
      * 配置react路由
      * @return
      */
-    @RequestMapping(value = {"/deploy/**","/**.js","/**.css"},method = RequestMethod.GET)
+    @RequestMapping(value = {"/deploy/**", "/**.js", "/**.css"}, method = RequestMethod.GET)
     public String index() {
-        return "index-prod";
+        if (Config.ENV_PROD.equals(prop.env)) {
+            return "index-prod";
+        }
+        return "index";
     }
 
-    @RequestMapping(value = "/websocket",method = RequestMethod.GET)
-    public String websocket() {
-        return "websocket-stomp";
-    }
 }
