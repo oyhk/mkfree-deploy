@@ -16,5 +16,5 @@ public interface ProjectDeployFileRepository extends BaseRepository<ProjectDeplo
 
 
     List<ProjectDeployFile> findByProjectId(Long projectId);
-    List<ProjectDeployFile> findByProjectIdAndIsEnable(Long projectId, Whether isEnable);
+    List<ProjectDeployFile> findByProjectIdAndIsEnable(Long projectId, Boolean enable);
 }

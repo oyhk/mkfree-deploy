@@ -19,7 +19,8 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
     private List<ProjectStructureStep> structureBeforeList;
     // 构建后命令
     private List<ProjectStructureStep> structureAfterList;
-
+    // 同步后命令
+    private List<ProjectStructureStep> structureSyncList;
 
     public List<String> getServerMachineIpList() {
         return serverMachineIpList;
@@ -53,4 +54,11 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
         this.structureAfterList = structureAfterList;
     }
 
+    public List<ProjectStructureStep> getStructureSyncList() {
+        return structureSyncList;
+    }
+
+    public void setStructureSyncList(List<ProjectStructureStep> structureSyncList) {
+        this.structureSyncList = structureSyncList;
+    }
 }

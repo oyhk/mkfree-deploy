@@ -18,7 +18,5 @@ public interface ProjectStructureStepRepository extends BaseRepository<ProjectSt
 
     List<ProjectStructureStep> findByProjectId(Long projectId);
 
-    List<ProjectStructureStep> findByProjectIdAndIsRestartAndType(Long projectId, boolean isRestart, ProjectStructureStepType type);
-
     List<ProjectStructureStep> findByProjectIdAndTypeAndProjectEnvConfigId(Long projectId, ProjectStructureStepType type, Long projectEnvConfigId);
 }

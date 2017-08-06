@@ -46,7 +46,13 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
             item.structureAfterList.forEach((afterItem, afterIndex) => {
                 newStructureAfterList.push({
                     step: getFieldValue(`stepAfter${index}${afterIndex}`),
-                    restart: getFieldValue(`isRestartAfter${index}${afterIndex}`),
+                });
+            });
+
+            const newStructureSyncList = [];
+            item.structureSyncList.forEach((syncItem, syncIndex) => {
+                newStructureSyncList.push({
+                    step: getFieldValue(`sync${index}${syncIndex}`),
                 });
             });
             newProjectEnvConfigList.push({
@@ -54,7 +60,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 publicBranch: getFieldValue(`publicBranch${index}`),
                 serverMachineIpList: `${getFieldValue(`serverMachineIpList${index}`)}`.split(','),
                 structureBeforeList: newStructureBeforeList,
-                structureAfterList: newStructureAfterList
+                structureAfterList: newStructureAfterList,
+                structureSyncList: newStructureSyncList,
+                
             });
         });
 
