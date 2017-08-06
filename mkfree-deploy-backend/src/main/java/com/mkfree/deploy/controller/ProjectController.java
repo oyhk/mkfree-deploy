@@ -471,7 +471,7 @@ public class ProjectController extends BaseController {
                 ShellHelper.SINGLEONE.executeShellCommand(log, command);
             });
 
-            ShellHelper.SINGLEONE.executeShellCommand(log, String.format("ssh -p %s -t %s@%s \"%s\"", serverMachine.getPort(), serverMachine.getUsername(), serverMachine.getIp(), "tree -a /mnt/usr/project/antbox-common-api"));
+            ShellHelper.SINGLEONE.executeShellCommand(log, String.format("ssh -p %s -t %s@%s \"%s\"", serverMachine.getPort(), serverMachine.getUsername(), serverMachine.getIp(), "tree -a " + project.getRemotePath()));
 
 
             // 找出同步后需要执行的命令
