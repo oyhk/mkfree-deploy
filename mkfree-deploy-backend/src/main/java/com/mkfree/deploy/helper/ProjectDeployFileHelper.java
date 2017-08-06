@@ -1,11 +1,6 @@
 package com.mkfree.deploy.helper;
 
 import com.mkfree.deploy.domain.ProjectDeployFile;
-import com.mkfree.deploy.domain.ProjectStructureStep;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
-import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
-import com.mkfree.deploy.domain.enumclass.Whether;
-import com.mkfree.deploy.dto.ProjectDeployFileDto;
 
 /**
  * Created by oyhk on 2017/1/23.

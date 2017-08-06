@@ -3,7 +3,6 @@ package com.mkfree.deploy.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mkfree.deploy.domain.enumclass.Whether;
 
 import javax.persistence.*;
 import java.util.Date;

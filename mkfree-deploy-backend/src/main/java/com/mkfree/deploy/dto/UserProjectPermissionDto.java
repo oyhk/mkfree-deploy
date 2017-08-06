@@ -1,5 +1,6 @@
 package com.mkfree.deploy.dto;
 
+import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.domain.enumclass.OptionType;
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Created by DK on 17/2/6.
  */
-public class UserProjectPermissionDto extends DtoEntity {
+public class UserProjectPermissionDto extends UserProjectPermission {
 
     //用户id
     private Long userId;

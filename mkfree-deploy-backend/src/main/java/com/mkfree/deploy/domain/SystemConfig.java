@@ -5,29 +5,34 @@ import javax.persistence.Entity;
 
 /**
  * Created by oyhk on 2017/2/6.
+ * 系统配置使用 纵表设计
  */
 @Entity
 public class SystemConfig extends IDEntity {
+
     //项目根路劲
-    @Column(columnDefinition = "varchar(255)  comment '项目根路劲'")
-    private String projectPath;
+    public static final String keyProjectPath = "projectPath";
     //安装路劲
-    @Column(columnDefinition = "varchar(255)  comment '安装路劲'")
-    private String installPath;
+    public static final String keyInstallPath = "installPath";
 
-    public String getProjectPath() {
-        return projectPath;
+    @Column(columnDefinition = "varchar(255)  comment '属性键'", unique = true, name = "p_key")
+    private String key;
+    @Column(columnDefinition = "varchar(255)  comment '属性值'", name = "p_value")
+    private String value;
+
+    public String getKey() {
+        return key;
     }
 
-    public void setProjectPath(String projectPath) {
-        this.projectPath = projectPath;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public String getInstallPath() {
-        return installPath;
+    public String getValue() {
+        return value;
     }
 
-    public void setInstallPath(String installPath) {
-        this.installPath = installPath;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

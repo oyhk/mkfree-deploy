@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface SystemConfigRepository extends BaseRepository<SystemConfig, Long> {
 
 
-
+    SystemConfig findByKey(String key);
 
 
 }

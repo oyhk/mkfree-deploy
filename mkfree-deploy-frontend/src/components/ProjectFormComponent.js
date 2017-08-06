@@ -62,7 +62,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 structureBeforeList: newStructureBeforeList,
                 structureAfterList: newStructureAfterList,
                 structureSyncList: newStructureSyncList,
-                
+
             });
         });
 
@@ -211,7 +211,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 {getFieldDecorator(`serverMachineIpList${index}`, {
                                     initialValue: item.serverMachineIpList ? item.serverMachineIpList : ''
                                 })(
-                                    <Input placeholder="服务器ip"/>
+                                    <Input placeholder="服务器ip, 多个ip用逗号隔开 例如 192.168.2.12,192.168.2.13"/>
                                 )}
                             </FormItem>
                             {

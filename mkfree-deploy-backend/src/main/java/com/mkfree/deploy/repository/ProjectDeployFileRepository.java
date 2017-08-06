@@ -1,9 +1,6 @@
 package com.mkfree.deploy.repository;
 
-import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.ProjectDeployFile;
-import com.mkfree.deploy.domain.enumclass.Whether;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

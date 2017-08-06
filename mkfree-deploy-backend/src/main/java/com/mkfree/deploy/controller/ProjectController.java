@@ -153,11 +153,11 @@ public class ProjectController extends BaseController {
 
             }
 
-            SystemConfig systemConfig = systemConfigRepository.findOne(1L);
+            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
             project = new Project();
             BeanUtils.copyProperties(dto, project);
-            project.setSystemPath(systemConfig.getProjectPath() + "/" + dto.getName());
+            project.setSystemPath(systemConfig.getValue() + "/" + dto.getName());
             project = projectRepository.save(project);
 
             List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
@@ -462,10 +462,10 @@ public class ProjectController extends BaseController {
             Project project = projectRepository.findOne(id);
             ServerMachine serverMachine = serverMachineRepository.findByIp(dto.getServerMachineIp());
 
-            SystemConfig systemConfig = systemConfigRepository.findOne(1L);
+            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(id, true);
             projectDeployFileList.forEach(projectDeployFile -> {
-                String filePath = String.format("%s/%s/%s", systemConfig.getProjectPath(), project.getName(), projectDeployFile.getLocalFilePath());
+                String filePath = String.format("%s/%s/%s", systemConfig.getValue(), project.getName(), projectDeployFile.getLocalFilePath());
                 String command = String.format("scp -P %s -r %s %s@%s:%s", serverMachine.getPort(), filePath, serverMachine.getUsername(), serverMachine.getIp(), project.getRemotePath() + "/" + projectDeployFile.getRemoteFilePath());
                 log.info("project sync >> command : {}", command);
                 ShellHelper.SINGLEONE.executeShellCommand(log, command);
@@ -522,7 +522,7 @@ public class ProjectController extends BaseController {
 
             ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + deployShellPath);
             Project project = projectRepository.findOne(dto.getId());
-            SystemConfig systemConfig = systemConfigRepository.findOne(1L);
+            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
 
             Long projectId = project.getId();
@@ -570,7 +570,7 @@ public class ProjectController extends BaseController {
                 }
 
                 String projectName = project.getName();
-                String systemConfigProjectPath = systemConfig.getProjectPath();
+                String systemConfigProjectPath = systemConfig.getValue();
                 String projectGitUrl = project.getGitUrl();
                 String projectEnvConfigPublicBranch = projectEnvConfig.getPublicBranch();
                 String remotePath = project.getRemotePath();
