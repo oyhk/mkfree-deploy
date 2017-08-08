@@ -36,6 +36,16 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
 
 
             const newStructureBeforeList = [];
+
+            if (!item.structureBeforeList) {
+                item.structureBeforeList = [{}];
+            }
+            if (!item.structureAfterList) {
+                item.structureAfterList = [{}];
+            }
+            if (!item.structureSyncList) {
+                item.structureSyncList = [{}];
+            }
             item.structureBeforeList.forEach((beforeItem, afterIndex) => {
                 newStructureBeforeList.push({
                     step: getFieldValue(`stepBefore${index}${afterIndex}`),
