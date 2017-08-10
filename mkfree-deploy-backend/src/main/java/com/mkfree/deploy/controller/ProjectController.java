@@ -475,7 +475,7 @@ public class ProjectController extends BaseController {
 
 
             // 找出同步后需要执行的命令
-            List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndType(project.getId(), ProjectStructureStepType.SYNC);
+            List<ProjectStructureStep> projectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(project.getId(), ProjectStructureStepType.SYNC,dto.getEnv());
             projectStructureStepList.forEach(projectStructureStep -> {
                 String stepCommand = String.format("ssh -p %s -t %s@%s \"%s\"", serverMachine.getPort(), serverMachine.getUsername(), serverMachine.getIp(), projectStructureStep.getStep());
                 log.info("project sync >> command : {}", stepCommand);

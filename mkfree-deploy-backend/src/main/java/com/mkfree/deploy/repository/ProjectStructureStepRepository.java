@@ -2,6 +2,7 @@ package com.mkfree.deploy.repository;
 
 import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.ProjectStructureStep;
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.List;
 @Repository
 public interface ProjectStructureStepRepository extends BaseRepository<ProjectStructureStep, Long> {
 
-    List<ProjectStructureStep> findByProjectIdAndType(Long projectId, ProjectStructureStepType type);
+    List<ProjectStructureStep> findByProjectIdAndTypeAndEnv(Long projectId, ProjectStructureStepType type, ProjectEnv env);
 
     List<ProjectStructureStep> findByProjectId(Long projectId);
 
