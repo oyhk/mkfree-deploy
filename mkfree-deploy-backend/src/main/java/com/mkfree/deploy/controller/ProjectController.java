@@ -587,14 +587,21 @@ public class ProjectController extends BaseController {
             shellBuilder.append("git pull origin #{publicBranch}").append("\n");
             params.put("publicBranch", publicBranch);
 
-            // 4. 在远程服务器创建标准目录结构
+            // 4. 执行构建命令
+            List<ProjectStructureStep> beforeProjectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectStructureStepType.BEFORE, projectEnv);
+            beforeProjectStructureStepList.forEach(projectStructureStep -> {
+                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
+                shellBuilder.append(projectStructureStep.getStep()).append("\n");
+            });
+
+            // 5. 在远程服务器创建标准目录结构
             shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} 'mkdir -p #{remoteProjectPath}'").append("\n");
             shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}").append("\n");
 
             shellBuilder.append("echo mkdir -p #{remoteProjectPath}/version").append("\n");
             shellBuilder.append("mkdir -p #{remoteProjectPath}/version").append("\n");
 
-            // 5. 在远程服务器创建 git 分支 + git log version + 当前发布时间 目录，格式：release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094_20170608
+            // 6. 在远程服务器创建 git 分支 + git log version + 当前发布时间 目录，格式：release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094_20170608
             String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publicBranch + " \n echo $(git log -1)";
             String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(null, getLogVersionShell);
             if (StringUtils.isNotBlank(gitLogVersion)) {
@@ -605,24 +612,18 @@ public class ProjectController extends BaseController {
             shellBuilder.append("mkdir -p #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
             params.put("projectVersionDir", projectVersionDir);
 
-            // 6. 删除软连接
+            // 7. 删除软连接
             shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n");
             shellBuilder.append("ln -sf #{remoteProjectPath}/current").append("\n");
             shellBuilder.append("echo rm -rf  #{remoteProjectPath}/current").append("\n");
             shellBuilder.append("rm -rf  #{remoteProjectPath}/current").append("\n");
 
 
-            // 7. 建立软连接
+            // 8. 建立软连接
             shellBuilder.append("echo ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
             shellBuilder.append("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
             shellBuilder.append("ln -sf ~/current").append("\n").append("rm -rf ~/current").append("'").append("\n");
 
-            // 8. 执行构建命令
-            List<ProjectStructureStep> beforeProjectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectStructureStepType.BEFORE, projectEnv);
-            beforeProjectStructureStepList.forEach(projectStructureStep -> {
-                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
-                shellBuilder.append(projectStructureStep.getStep()).append("\n");
-            });
 
             // 9. 上传发布文件
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
