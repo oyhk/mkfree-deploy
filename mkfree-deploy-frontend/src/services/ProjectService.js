@@ -18,6 +18,10 @@ export async function info(id) {
     return requestData(`/api/project/info?id=${id}`);
 }
 
+export async function branchList(id) {
+    return requestData(`/api/project/branch_list?id=${id}`);
+}
+
 export async function envList() {
     return requestData('/api/project/env_list');
 }

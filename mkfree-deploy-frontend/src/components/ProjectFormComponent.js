@@ -1,9 +1,10 @@
 import React from 'react';
-import {Button, Table, Row, Col, Icon, Form, Input, Switch} from 'antd';
+import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select} from 'antd';
 
+const Option = Select.Option;
 const FormItem = Form.Item;
 
-function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, form, isAdd}) {
+function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, branchList, form, isAdd}) {
 
 
     const {getFieldDecorator, getFieldValue} = form;
@@ -214,7 +215,17 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 {getFieldDecorator(`publicBranch${index}`, {
                                     initialValue: item.publicBranch ? item.publicBranch : ''
                                 })(
-                                    <Input placeholder="发布分支"/>
+                                    <Select
+                                        placeholder="发布分支"
+                                        style={{display: 'block'}}
+                                    >
+                                        {
+                                            branchList.map((item, branchIndex) => {
+                                                return <Option key={`publicBranch${index}${branchIndex}`} value={item}>{item}</Option>;
+                                            })
+                                        }
+
+                                    </Select>
                                 )}
                             </FormItem>
                             <FormItem key={`${index}_2`} {...formItemLayout} label="服务器ip">

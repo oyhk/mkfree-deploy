@@ -12,6 +12,7 @@ export default {
         deployTargetFileList: [{}], // 上传文件列表
         projectEnvConfigList: [], // 项目环境
         pageResult: {},
+        branchList: [], // 分支列表
     },
 
     subscriptions: {
@@ -27,6 +28,7 @@ export default {
                 if (edit) {
                     const id = edit[1];
                     dispatch({type: 'info', payload: {id}});
+                    dispatch({type: 'branchList', payload: {id}});
                 }
 
                 // 新增页
@@ -78,6 +80,18 @@ export default {
         *sync({payload}, {call, put, select}) {
             yield call(projectService.sync, payload);
         },
+        // 项目分支列表
+        *branchList({payload}, {call, put, select}) {
+            const branchList = yield call(projectService.branchList, payload.id);
+            yield put({
+                type: 'save',
+                payload: {
+                    branchList
+                }
+            });
+
+        },
+
         // 保存
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload);
@@ -110,7 +124,8 @@ export default {
                 payload: {
                     project: {},
                     projectEnvConfigList: envList,
-                    deployTargetFileList: [{}]
+                    deployTargetFileList: [{}],
+                    branchList: ['master'],
                 }
             });
         }

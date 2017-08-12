@@ -340,18 +340,29 @@ public class ProjectController extends BaseController {
                 jsonResult.remind(Project.REMIND_RECORD_IS_NOT_EXIST);
                 return;
             }
-            String projectBranchListSplit = "##########branch_list##########";
-            String branchListFile = new File("").getAbsolutePath() + "/src/main/resources/shell/branch_list.sh";
-            ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + branchListFile);
-            String result = ShellHelper.SINGLEONE.executeShellFile(log, branchListFile, project.getSystemPath(), projectBranchListSplit);
-            log.info("branchList executeShellFile result : {}", result);
-            int start = result.indexOf(projectBranchListSplit);
-            int end = result.lastIndexOf(projectBranchListSplit);
-            String branchListTemp = result.substring(start + 31, end);
-            Stream<String> stringStream = Stream.of(branchListTemp.split("remotes/origin/"));
-            List<String> branchList = stringStream.filter(s -> !s.contains("master*")).filter(s -> !s.contains("HEAD")).map(String::trim).collect(Collectors.toList());
-            branchList.add("release/*");// 如果选这个分支名称，会动态选择最新分支发布版本
-            jsonResult.data = branchList;
+            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
+
+            String projectPath = systemConfig.getValue() + "/" + project.getName();
+
+            Map<String, String> params = new HashMap<>();
+            StringBuilder shellBuilder = new StringBuilder();
+            StrSubstitutor strSubstitutor = new StrSubstitutor(params, "#{", "}");
+
+            // 1. cd 项目路劲
+            shellBuilder.append("cd #{projectPath}").append("\n");
+            params.put("projectPath", projectPath);
+
+            // 2. git pull 拉去所有分支
+            shellBuilder.append("git pull").append("\n");
+
+            // 3. 查看分支列表
+            shellBuilder.append("git branch -a | grep remotes/origin").append("\n");
+
+            String lastShell = strSubstitutor.replace(shellBuilder.toString());
+            String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(log, lastShell);
+            String[] branchListArray = branchListTemp.split("remotes/origin/");
+
+            jsonResult.data = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") &&  !s.contains("Updating") ).map(String::trim).sorted().collect(Collectors.toList());
         };
         return doing.go(request, log);
     }
@@ -565,7 +576,6 @@ public class ProjectController extends BaseController {
             shellBuilder.append("git pull").append("\n");
 
             // 3. git 切换到项目发布分支 并且 拉取发布分支最新代码
-
             if (StringUtils.isBlank(publicBranch)) {
                 publicBranch = "master"; // 如果不填分支默认 master
             }
@@ -613,6 +623,7 @@ public class ProjectController extends BaseController {
                 shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
                 shellBuilder.append(projectStructureStep.getStep()).append("\n");
             });
+
             // 9. 上传发布文件
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
 
@@ -623,10 +634,12 @@ public class ProjectController extends BaseController {
                 params.put("projectDeployFileLocalFilePath" + i, projectDeployFile.getLocalFilePath());
                 params.put("projectDeployFileRemoteFilePath" + i, projectDeployFile.getRemoteFilePath());
             }
+
             // 10. 查看此版本上传后文件列表
             shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'");
             shellBuilder.append("echo tree #{remoteProjectPath}/current").append("\n");
             shellBuilder.append("tree #{remoteProjectPath}/current").append("\n");
+
             // 11. 执行构建后命令
             List<ProjectStructureStep> afterProjectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectStructureStepType.AFTER, projectEnv);
             afterProjectStructureStepList.forEach(projectStructureStep -> {
