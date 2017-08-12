@@ -588,9 +588,9 @@ public class ProjectController extends BaseController {
             String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publicBranch + " \n echo $(git log -1)";
             String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(null, getLogVersionShell);
             if (StringUtils.isNotBlank(gitLogVersion)) {
-                gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("Author")).trim();
+                gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
             }
-            String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publicBranch.replace("/", "_") + gitLogVersion;
+            String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publicBranch.replace("/", "_") + "_" + gitLogVersion;
             shellBuilder.append("echo mkdir -p #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
             shellBuilder.append("mkdir -p #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
             params.put("projectVersionDir", projectVersionDir);
@@ -623,12 +623,18 @@ public class ProjectController extends BaseController {
                 params.put("projectDeployFileLocalFilePath" + i, projectDeployFile.getLocalFilePath());
                 params.put("projectDeployFileRemoteFilePath" + i, projectDeployFile.getRemoteFilePath());
             }
-            // 10. 执行构建后命令
+            // 10. 查看此版本上传后文件列表
+            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'");
+            shellBuilder.append("echo tree #{remoteProjectPath}/current").append("\n");
+            shellBuilder.append("tree #{remoteProjectPath}/current").append("\n");
+            // 11. 执行构建后命令
             List<ProjectStructureStep> afterProjectStructureStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectStructureStepType.AFTER, projectEnv);
             afterProjectStructureStepList.forEach(projectStructureStep -> {
-                shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} '").append(projectStructureStep.getStep()).append("'").append("\n");
-                shellBuilder.append("ssh -p #{port} #{username}@#{ip} '").append(projectStructureStep.getStep()).append("'").append("\n");
+                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
+                shellBuilder.append(projectStructureStep.getStep()).append("\n");
             });
+            shellBuilder.append("'");
+
 
             String lastShell = strSubstitutor.replace(shellBuilder.toString());
             ShellHelper.SINGLEONE.executeShellCommand(log, lastShell);
@@ -636,200 +642,6 @@ public class ProjectController extends BaseController {
         };
         return doing.go(log);
     }
-
-//    @Transactional
-//    @RequestMapping(value = Routes.PROJECT_STRUCTURE, method = RequestMethod.POST)
-//    public JsonResult structure(@RequestBody ProjectDto dto, HttpServletRequest request) {
-//
-//        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
-//
-//        RestDoing doing = jsonResult -> {
-//            if (dto.getId() == null) {
-//                jsonResult.errorParam("id不能为空");
-//                return;
-//            }
-//            if (dto.getEnv() == null) {
-//                jsonResult.errorParam("发布环境不能为空");
-//                return;
-//            }
-//            // 需要发布的机器ip
-//            String publicServerMachineIp = dto.getServerMachineIp();
-//            if (StringUtils.isBlank(publicServerMachineIp)) {
-//                jsonResult.errorParam("发布机器ip不能为空", log);
-//                return;
-//            }
-//
-//            if (userDto.getRoleType() != RoleType.ADMIN) {
-//                long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv())).count();
-//                if (count == 0) {
-//                    jsonResult.custom("10021", "没有此项目发布权限", log);
-//                    return;
-//                }
-//            }
-//
-//            String deployShellPath = new File("").getAbsolutePath() + "/src/main/resources/shell/deploy.sh";
-//
-//            ShellHelper.SINGLEONE.executeShellCommand(log, "chmod u+x " + deployShellPath);
-//            Project project = projectRepository.findOne(dto.getId());
-//            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
-//
-//
-//            Long projectId = project.getId();
-//            ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, dto.getEnv());
-//            if (projectEnvConfig == null) {
-//                jsonResult.remind("发布环境不存在", log);
-//                return;
-//            }
-//
-//
-//            // 部署目标模块文件或者目录
-//            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectIdAndIsEnable(projectId, true);
-//
-//            StringBuilder shellDeployTargetFileList = new StringBuilder();
-//            if (projectDeployFileList.size() > 0) {
-//                projectDeployFileList.forEach(projectDeployFile -> {
-//                    shellDeployTargetFileList.append(projectDeployFile.getLocalFilePath()).append(",").append(projectDeployFile.getRemoteFilePath()).append(";");
-//                });
-//                shellDeployTargetFileList.deleteCharAt(shellDeployTargetFileList.length() - 1);
-//            }
-//
-//
-//            // 异步线程构建发布项目
-//            commonExecutorService.execute(() -> {
-//                ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
-//
-//                //构建前命令
-//                List<ProjectStructureStep> projectStructureStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.BEFORE, projectEnvConfig.getId());
-//                StringBuilder projectStructureStepBeforeBuilder = new StringBuilder();
-//                if (projectStructureStepBeforeList.size() > 0) {
-//                    projectStructureStepBeforeList.forEach(projectStructureStep -> {
-//                        projectStructureStepBeforeBuilder.append(projectStructureStep.getStep()).append(";");
-//                    });
-//                    projectStructureStepBeforeBuilder.deleteCharAt(projectStructureStepBeforeBuilder.length() - 1);
-//                }
-//
-//                // 构建后命令
-//                List<ProjectStructureStep> projectStructureStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(projectId, ProjectStructureStepType.AFTER, projectEnvConfig.getId());
-//                StringBuilder projectStructureStepAfterBuilder = new StringBuilder();
-//                if (projectStructureStepAfterList.size() > 0) {
-//                    projectStructureStepAfterList.forEach(projectStructureStep -> {
-//                        projectStructureStepAfterBuilder.append(projectStructureStep.getStep()).append(";");
-//                    });
-//                    projectStructureStepAfterBuilder.deleteCharAt(projectStructureStepAfterBuilder.length() - 1);
-//                }
-//
-//                String projectName = project.getName();
-//                String systemConfigProjectPath = systemConfig.getValue();
-//                String projectGitUrl = project.getGitUrl();
-//                String projectEnvConfigPublicBranch = projectEnvConfig.getPublicBranch();
-//                String remotePath = project.getRemotePath();
-//                String moduleName = project.getModuleName();
-//
-//                ProjectStructureLog projectStructureLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(projectId);
-//                Long nextSeqNo = ProjectStructureLogHelper.SINGLETONE.getNextSeqNo(projectStructureLog);
-//
-//                // 保存构建日志
-//                ProjectStructureLog newLog = new ProjectStructureLog();
-//                newLog.setName("#" + nextSeqNo);
-//                newLog.setProjectId(projectId);
-//                newLog.setSeqNo(nextSeqNo);
-//                newLog.setProjectName(projectName);
-//                newLog = projectStructureLogRepository.save(newLog);
-//
-//                //
-//                String logMapKey = project.getName() + "#" + newLog.getSeqNo();
-//
-//                Bootstrap.logStringBufferMap.put(logMapKey, new StringBuffer());
-//                Bootstrap.logQueueMap.put(logMapKey, new LinkedList<>());
-//
-//                // 异步线程向客户端推送构建中日志
-//                ProjectStructureLog finalNewLog = newLog;
-//                commonExecutorService.execute(() -> {
-//                    log.info("push structure log start ...");
-//                    Date date = new Date();
-//                    boolean isFailUpdate = false; //是否失败更新日志状态
-//                    boolean isSuccess = false; //构建成功
-//                    boolean isFail = false; //构建失败
-//
-//                    // 无论成功 还是 失败 最终都会构建完成
-//                    boolean isProcessed = false; // 构建完成
-//
-//                    while (true) {
-//                        Date currentDate = new Date();
-//                        // 当构建时间超过5分钟构建线程就结束
-//                        if (currentDate.getTime() - date.getTime() > 5 * 60 * 1000) {
-//                            log.info("push structure log end ...");
-//                            isProcessed = true;
-//                        }
-//
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        if (Bootstrap.logQueueMap.get(logMapKey).size() > 0) {
-//                            while (true) {
-//                                String value = Bootstrap.logQueueMap.get(logMapKey).poll();
-//                                log.info(value);
-//                                if (value.contains("deploy success")) {
-//                                    isSuccess = true;
-//                                    isProcessed = true;
-//                                } else if (value.contains("ERROR")) {
-//                                    isFail = true;
-//                                }
-//                                if (Bootstrap.logQueueMap.get(logMapKey).size() == 0) {
-//                                    break;
-//                                }
-//                            }
-//                        }
-//
-//                        if (isSuccess) {
-//                            ProjectStructureLog updateProjectStructureLog = projectStructureLogRepository.findOne(finalNewLog.getId());
-//                            updateProjectStructureLog.setStatus(ProjectStructureLogStatus.SUCCESS);
-//                            projectStructureLogRepository.save(updateProjectStructureLog);
-//                        }
-//                        if (isFail && !isFailUpdate) {
-//                            ProjectStructureLog updateProjectStructureLog = projectStructureLogRepository.findOne(finalNewLog.getId());
-//                            updateProjectStructureLog.setStatus(ProjectStructureLogStatus.FAIL);
-//                            projectStructureLogRepository.save(updateProjectStructureLog);
-//                            isFailUpdate = true;
-//                        }
-//
-//                        if (isProcessed) {
-//                            ProjectStructureLog updateProjectStructureLog = projectStructureLogRepository.findOne(finalNewLog.getId());
-//                            updateProjectStructureLog.setDescription(Bootstrap.logStringBufferMap.get(logMapKey).toString());
-//                            projectStructureLogRepository.save(updateProjectStructureLog);
-//                            break;
-//                        }
-//
-//                    }
-//                });
-//
-//                if (moduleName == null) {
-//                    moduleName = "";
-//                }
-//                ShellHelper.SINGLEONE.buildProjectExecuteShellFile(log, logMapKey, deployShellPath,
-//                        projectName,
-//                        systemConfigProjectPath,
-//                        projectGitUrl,
-//                        projectEnvConfigPublicBranch,
-//                        remotePath,
-//                        moduleName,
-//                        shellDeployTargetFileList.toString(),
-//                        serverMachine.getIp(),
-//                        serverMachine.getUsername(),
-//                        serverMachine.getPort(),
-//                        projectStructureStepBeforeBuilder.toString(),
-//                        projectStructureStepAfterBuilder.toString());
-//
-//
-//            });
-//
-//        };
-//        return doing.go(dto, userDto, request, objectMapper, log);
-//    }
-
 
     private void projectEnvConfigList(List<ProjectEnvConfig> projectEnvConfigList, List<ProjectEnvConfigDto> projectEnvConfigDtoList) {
         projectEnvConfigList.forEach(projectEnvConfig -> {
