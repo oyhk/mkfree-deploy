@@ -14,5 +14,5 @@
 
 
 ![banner](http://oszh5svp5.bkt.clouddn.com/pigeon_banner_show_01.png)
-![image](https://gitee.com/381895649/mkfree-deploy/blob/master/doc/images/mk-deploy.jpeg)
+![banner](https://gitee.com/381895649/mkfree-deploy/blob/master/doc/images/mk-deploy.jpeg)
 
