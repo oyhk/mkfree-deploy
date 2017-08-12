@@ -10,4 +10,6 @@
 - 数据库 mysql
 
 ### 用它可以做些神马？
+- 核心思想
+	[![](https://gitee.com/381895649/mkfree-deploy/blob/master/doc/images/mk-deploy.jpeg)](https://gitee.com/381895649/mkfree-deploy/blob/master/doc/images/mk-deploy.jpeg)
 
