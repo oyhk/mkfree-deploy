@@ -16,9 +16,10 @@
 ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mk-deploy.jpeg)
 
 ### 用它可以做些神马？
-- 用户管理
+- 支持多项目部署
 - 项目的用户权限管理
+- 用户管理
 - 项目管理
 - 版本回滚
-- 支持多项目部署
+
 
