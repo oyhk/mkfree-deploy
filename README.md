@@ -75,9 +75,10 @@ java -jar target/mkfree-deploy-backend-1.0.jar --spring.profiles.active=prod
 ````
 启动后，数据结构会自动生成
 ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mk-deploy_db.jpeg)
-再用户表添加一个用户
+在用户表添加一个用户
 ````sql
-INSERT INTO user (username, password,password_salt,role_type,user_token) VALUES ('oyhk', '5b648d79f3aa3cef14ae40cf17a4c66a',1492429251747,'ADMIN','e15fc3c18fecfd8e3937c2b8c8677b4a');
+INSERT INTO user (username, password,password_salt,role_type,user_token)
+VALUES ('oyhk', '5b648d79f3aa3cef14ae40cf17a4c66a',1492429251747,'ADMIN','e15fc3c18fecfd8e3937c2b8c8677b4a');
 ````
 打开浏览器
 http://127.0.0.1:8091/deploy/project?pageSize=100
