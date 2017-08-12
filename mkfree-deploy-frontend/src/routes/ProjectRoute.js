@@ -23,7 +23,7 @@ function ProjectRoute({dispatch, pageResult}) {
 
                     return ip === '' ? '' : <li key={serverMachineIndex} style={{marginTop: '5px'}}>
                         <span style={{paddingRight: '5px'}}>{ip}</span>
-                        { serverMachineIndex === 0 ?
+                        { true ?
                             <Button type="primary"
                                     size="small"
                                     onClick={() => {
