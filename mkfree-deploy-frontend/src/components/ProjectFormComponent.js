@@ -36,33 +36,33 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
         projectEnvConfigList.forEach((item, index) => {
 
 
-            const newStructureBeforeList = [];
+            const newBuildBeforeList = [];
 
-            if (!item.structureBeforeList) {
-                item.structureBeforeList = [{}];
+            if (!item.buildBeforeList) {
+                item.buildBeforeList = [{}];
             }
-            if (!item.structureAfterList) {
-                item.structureAfterList = [{}];
+            if (!item.buildAfterList) {
+                item.buildAfterList = [{}];
             }
-            if (!item.structureSyncList) {
-                item.structureSyncList = [{}];
+            if (!item.buildSyncList) {
+                item.buildSyncList = [{}];
             }
-            item.structureBeforeList.forEach((beforeItem, afterIndex) => {
-                newStructureBeforeList.push({
+            item.buildBeforeList.forEach((beforeItem, afterIndex) => {
+                newBuildBeforeList.push({
                     step: getFieldValue(`stepBefore${index}${afterIndex}`),
                 });
             });
 
-            const newStructureAfterList = [];
-            item.structureAfterList.forEach((afterItem, afterIndex) => {
-                newStructureAfterList.push({
+            const newBuildAfterList = [];
+            item.buildAfterList.forEach((afterItem, afterIndex) => {
+                newBuildAfterList.push({
                     step: getFieldValue(`stepAfter${index}${afterIndex}`),
                 });
             });
 
-            const newStructureSyncList = [];
-            item.structureSyncList.forEach((syncItem, syncIndex) => {
-                newStructureSyncList.push({
+            const newBuildSyncList = [];
+            item.buildSyncList.forEach((syncItem, syncIndex) => {
+                newBuildSyncList.push({
                     step: getFieldValue(`sync${index}${syncIndex}`),
                 });
             });
@@ -70,9 +70,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 env: item.env,
                 publicBranch: getFieldValue(`publicBranch${index}`),
                 serverMachineIpList: `${getFieldValue(`serverMachineIpList${index}`)}`.split(','),
-                structureBeforeList: newStructureBeforeList,
-                structureAfterList: newStructureAfterList,
-                structureSyncList: newStructureSyncList,
+                buildBeforeList: newBuildBeforeList,
+                buildAfterList: newBuildAfterList,
+                buildSyncList: newBuildSyncList,
 
             });
         });
@@ -236,7 +236,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 )}
                             </FormItem>
                             {
-                                item.structureBeforeList && item.structureBeforeList.length > 0 ? item.structureBeforeList.map((beforeItem, beforeIndex) => {
+                                item.buildBeforeList && item.buildBeforeList.length > 0 ? item.buildBeforeList.map((beforeItem, beforeIndex) => {
                                     return <FormItem key={`${index}_${beforeIndex}_before`} {...formItemLayout}
                                                      label="构建命令">
                                         {getFieldDecorator(`stepBefore${index}${beforeIndex}`, {
@@ -255,7 +255,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 </FormItem>
                             }
                             {
-                                item.structureAfterList && item.structureAfterList.length > 0 ? item.structureAfterList.map((afterItem, afterIndex) => {
+                                item.buildAfterList && item.buildAfterList.length > 0 ? item.buildAfterList.map((afterItem, afterIndex) => {
                                     return <FormItem key={`${index}_${afterIndex}_step_after`}
                                                      {...formItemLayout}
                                                      label="构建后命令">
@@ -282,7 +282,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 </Col>
                             </Row>
                             {
-                                item.structureSyncList && item.structureSyncList.length > 0 ? item.structureSyncList.map((syncItem, syncIndex) => {
+                                item.buildSyncList && item.buildSyncList.length > 0 ? item.buildSyncList.map((syncItem, syncIndex) => {
                                     return <FormItem key={`${index}_${syncIndex}_sync`}
                                                      {...formItemLayout}
                                                      label="构建后命令">

@@ -1,7 +1,7 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.ProjectBuildStepType;
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
-import com.mkfree.deploy.domain.enumclass.ProjectStructureStepType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +13,7 @@ import javax.persistence.Enumerated;
  * 项目构建步骤
  */
 @Entity
-public class ProjectStructureStep extends IDEntity {
+public class ProjectBuildStep extends IDEntity {
 
 
     //项目id
@@ -27,7 +27,7 @@ public class ProjectStructureStep extends IDEntity {
     //类型
     @Column(columnDefinition = "varchar(30) comment '命令类型'")
     @Enumerated(EnumType.STRING)
-    private ProjectStructureStepType type;
+    private ProjectBuildStepType type;
     //项目环境配置id
     @Column(columnDefinition = "bigint comment '项目环境配置id'")
     private Long projectEnvConfigId;
@@ -60,11 +60,11 @@ public class ProjectStructureStep extends IDEntity {
         this.step = step;
     }
 
-    public ProjectStructureStepType getType() {
+    public ProjectBuildStepType getType() {
         return type;
     }
 
-    public void setType(ProjectStructureStepType type) {
+    public void setType(ProjectBuildStepType type) {
         this.type = type;
     }
 

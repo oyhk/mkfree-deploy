@@ -1,7 +1,7 @@
 package com.mkfree.deploy.dto;
 
+import com.mkfree.deploy.domain.ProjectBuildStep;
 import com.mkfree.deploy.domain.ProjectEnvConfig;
-import com.mkfree.deploy.domain.ProjectStructureStep;
 
 import java.util.List;
 
@@ -15,12 +15,12 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
     private List<Long> serverMachineIdList;
     //需要发布的服务机器ip列表
     private List<String> serverMachineIpList;
-    // 构建前执行命令
-    private List<ProjectStructureStep> structureBeforeList;
+    // 构建前命令
+    private List<ProjectBuildStep> buildBeforeList;
     // 构建后命令
-    private List<ProjectStructureStep> structureAfterList;
+    private List<ProjectBuildStep> buildAfterList;
     // 同步后命令
-    private List<ProjectStructureStep> structureSyncList;
+    private List<ProjectBuildStep> buildSyncList;
 
     public List<String> getServerMachineIpList() {
         return serverMachineIpList;
@@ -38,27 +38,27 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
         this.serverMachineIdList = serverMachineIdList;
     }
 
-    public List<ProjectStructureStep> getStructureBeforeList() {
-        return structureBeforeList;
+    public List<ProjectBuildStep> getBuildBeforeList() {
+        return buildBeforeList;
     }
 
-    public void setStructureBeforeList(List<ProjectStructureStep> structureBeforeList) {
-        this.structureBeforeList = structureBeforeList;
+    public void setBuildBeforeList(List<ProjectBuildStep> buildBeforeList) {
+        this.buildBeforeList = buildBeforeList;
     }
 
-    public List<ProjectStructureStep> getStructureAfterList() {
-        return structureAfterList;
+    public List<ProjectBuildStep> getBuildAfterList() {
+        return buildAfterList;
     }
 
-    public void setStructureAfterList(List<ProjectStructureStep> structureAfterList) {
-        this.structureAfterList = structureAfterList;
+    public void setBuildAfterList(List<ProjectBuildStep> buildAfterList) {
+        this.buildAfterList = buildAfterList;
     }
 
-    public List<ProjectStructureStep> getStructureSyncList() {
-        return structureSyncList;
+    public List<ProjectBuildStep> getBuildSyncList() {
+        return buildSyncList;
     }
 
-    public void setStructureSyncList(List<ProjectStructureStep> structureSyncList) {
-        this.structureSyncList = structureSyncList;
+    public void setBuildSyncList(List<ProjectBuildStep> buildSyncList) {
+        this.buildSyncList = buildSyncList;
     }
 }

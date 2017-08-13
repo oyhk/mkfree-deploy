@@ -1,25 +1,22 @@
 package com.mkfree.deploy.repository;
 
-import com.mkfree.deploy.domain.ProjectStructureLog;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
+import com.mkfree.deploy.domain.ProjectBuildLog;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.LockModeType;
 import java.util.List;
 
 /**
  * Created by zhangjh on 2017/2/8.
  */
 @Repository
-public interface ProjectStructureLogRepository extends BaseRepository<ProjectStructureLog, Long> {
+public interface ProjectStructureLogRepository extends BaseRepository<ProjectBuildLog, Long> {
     /**
      * 同步锁
      *
      * @param id
      * @return
      */
-    ProjectStructureLog findOne(Long id);
+    ProjectBuildLog findOne(Long id);
 
     /**
      * 根据项目查询所有的构建历史列表
@@ -27,8 +24,8 @@ public interface ProjectStructureLogRepository extends BaseRepository<ProjectStr
      * @param projectId 项目id
      * @return
      */
-    List<ProjectStructureLog> findTop10ByProjectIdOrderByCreatedAtDesc(Long projectId);
-    ProjectStructureLog findByProjectIdAndSeqNo(Long id, Long projectId);
+    List<ProjectBuildLog> findTop10ByProjectIdOrderByCreatedAtDesc(Long projectId);
+    ProjectBuildLog findByProjectIdAndSeqNo(Long id, Long projectId);
 
     /**
      * 查找项目最新的部署信息
@@ -36,7 +33,7 @@ public interface ProjectStructureLogRepository extends BaseRepository<ProjectStr
      * @param projectId 项目id
      * @return
      */
-    ProjectStructureLog findTop1ByProjectIdOrderByIdDesc(Long projectId);
+    ProjectBuildLog findTop1ByProjectIdOrderByIdDesc(Long projectId);
 
     /**
      * 查找指定构建版本的日志信息
@@ -45,6 +42,6 @@ public interface ProjectStructureLogRepository extends BaseRepository<ProjectStr
      * @param name      构建名
      * @return
      */
-    ProjectStructureLog findTop1ByProjectIdAndNameOrderByIdDesc(Long projectId, String name);
+    ProjectBuildLog findTop1ByProjectIdAndNameOrderByIdDesc(Long projectId, String name);
 
 }

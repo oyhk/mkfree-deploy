@@ -5,8 +5,8 @@ import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.RestDoing;
-import com.mkfree.deploy.domain.ProjectStructureLog;
-import com.mkfree.deploy.domain.enumclass.ProjectStructureLogStatus;
+import com.mkfree.deploy.domain.ProjectBuildLog;
+import com.mkfree.deploy.domain.enumclass.ProjectBuildLogStatus;
 import com.mkfree.deploy.helper.ProjectStructureLogHelper;
 import com.mkfree.deploy.repository.ProjectStructureLogRepository;
 import org.slf4j.Logger;
@@ -65,20 +65,20 @@ public class ProjectStructureLogController extends BaseController {
                 jsonResult.errorParam("日志序号不能为空", log);
                 return;
             }
-            ProjectStructureLog projectStructureLog = projectStructureLogRepository.findByProjectIdAndSeqNo(projectId, seqNo);
-            if (projectStructureLog == null) {
-                jsonResult.remind(ProjectStructureLog.REMIND_RECORD_IS_NOT_EXIST);
+            ProjectBuildLog projectBuildLog = projectStructureLogRepository.findByProjectIdAndSeqNo(projectId, seqNo);
+            if (projectBuildLog == null) {
+                jsonResult.remind(ProjectBuildLog.REMIND_RECORD_IS_NOT_EXIST);
                 return;
             }
 
 
-            if (projectStructureLog.getStatus() == ProjectStructureLogStatus.PROCESSING) {
-                String logKey = ProjectStructureLogHelper.SINGLETONE.getLogKey(projectStructureLog);
+            if (projectBuildLog.getStatus() == ProjectBuildLogStatus.PROCESSING) {
+                String logKey = ProjectStructureLogHelper.SINGLETONE.getLogKey(projectBuildLog);
                 if(Bootstrap.logStringBufferMap.get(logKey) != null) {
-                    projectStructureLog.setDescription(Bootstrap.logStringBufferMap.get(logKey).toString());
+                    projectBuildLog.setDescription(Bootstrap.logStringBufferMap.get(logKey).toString());
                 }
             }
-            jsonResult.data = projectStructureLog;
+            jsonResult.data = projectBuildLog;
 
         };
         return doing.go(request, log);

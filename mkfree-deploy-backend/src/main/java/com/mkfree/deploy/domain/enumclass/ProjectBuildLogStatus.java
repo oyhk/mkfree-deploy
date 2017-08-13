@@ -2,17 +2,15 @@ package com.mkfree.deploy.domain.enumclass;
 
 /**
  * Created by oyhk on 2017/1/23.
- * 构建类型
+ * 构建日志状态
  */
-public enum ProjectStructureStepType {
+public enum ProjectBuildLogStatus {
 
-    BEFORE("构建前"),
-    AFTER("构建后"),
-    SYNC("同步命令");
+    SUCCESS("成功"), FAIL("失败"),PROCESSING("构建中");
 
     private String text;
 
-    ProjectStructureStepType(String text) {
+    ProjectBuildLogStatus(String text) {
         this.text = text;
     }
 
