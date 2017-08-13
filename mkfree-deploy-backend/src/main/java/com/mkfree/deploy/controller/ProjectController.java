@@ -13,6 +13,7 @@ import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -599,8 +600,78 @@ public class ProjectController extends BaseController {
                 shellBuilder.append(projectStructureStep.getStep()).append("\n");
             });
 
+            // 5. 创建build目录文件夹
+            SystemConfig buildSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
+            String buildPath = buildSystemConfig.getValue() + "/" + project.getName();
+            shellBuilder.append("echo mkdir -p #{buildPath}/version").append("\n");
+            shellBuilder.append("mkdir -p #{buildPath}/version").append("\n");
+            params.put("buildPath", buildPath);
 
-            String lastShell = ProjectHelper.SINGLEONE.createDeployShell(strSubstitutor, shellBuilder, params, projectPath, publicBranch, projectId, projectEnv, projectDeployFileRepository, projectStructureStepRepository, true);
+            // 6. 创建发布版本文件夹 当前发布时间 + git 分支 + git log version  目录格式：20170608_release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094
+            String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publicBranch + " \n echo $(git log -1)";
+            String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(null, getLogVersionShell);
+            if (StringUtils.isNotBlank(gitLogVersion)) {
+                gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
+            }
+            String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publicBranch.replace("/", "_") + "_" + gitLogVersion;
+            shellBuilder.append("echo mkdir -p #{buildPath}/version/#{projectVersionDir}").append("\n");
+            shellBuilder.append("mkdir -p #{buildPath}/version/#{projectVersionDir}").append("\n");
+            params.put("projectVersionDir", projectVersionDir);
+
+            // 7. 把构建好的文件 并且 是需要上传的文件 copy到版本文件夹中
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
+            for (int i = 0; i < projectDeployFileList.size(); i++) {
+                ProjectDeployFile projectDeployFile = projectDeployFileList.get(i);
+                shellBuilder.append("echo cp -r #{projectPath}/#{projectDeployFileLocalFilePath").append(i).append("} #{buildPath}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath").append(i).append("}").append("\n");
+                shellBuilder.append("cp -r #{projectPath}/#{projectDeployFileLocalFilePath").append(i).append("} #{buildPath}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath").append(i).append("}").append("\n");
+                params.put("projectDeployFileLocalFilePath" + i, projectDeployFile.getLocalFilePath());
+                params.put("projectDeployFileRemoteFilePath" + i, projectDeployFile.getRemoteFilePath());
+            }
+
+            // 8. 创建本地最新版本软连接
+            shellBuilder.append("echo ln -sf #{buildPath}/current").append("\n");
+            shellBuilder.append("ln -sf #{buildPath}/current").append("\n");
+            shellBuilder.append("echo rm -rf #{buildPath}/current").append("\n");
+            shellBuilder.append("rm -rf #{buildPath}/current").append("\n");
+            shellBuilder.append("echo ln -s #{buildPath}/version/#{projectVersionDir} #{buildPath}/current").append("\n");
+            shellBuilder.append("ln -s #{buildPath}/version/#{projectVersionDir} #{buildPath}/current").append("\n");
+
+            // 9. 远程服务器: 创建标准目录结构
+            shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} ").append("mkdir -p #{remoteProjectPath}/version").append("\n");
+            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
+
+            // 10. 远程服务器: 上传版本文件
+            shellBuilder.append("echo scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+            shellBuilder.append("scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+
+            // 11. 远程服务器: 创建当前版本软链接
+            // 11.1 删除
+            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ");
+            shellBuilder.append("'").append("\n");
+            shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n")
+                    .append("ln -sf #{remoteProjectPath}/current").append("\n")
+                    .append("echo rm -rf  #{remoteProjectPath}/current").append("\n")
+                    .append("rm -rf  #{remoteProjectPath}/current").append("\n");
+            // 11.2 创建
+            shellBuilder.append("echo ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
+            shellBuilder.append("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
+            shellBuilder.append("ln -sf ~/current").append("\n").append("rm -rf ~/current").append("\n");
+
+
+            // 12. 查看此版本上传后文件列表
+            shellBuilder.append("echo tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+            shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+
+            // 13. 执行构建后命令
+            List<ProjectBuildStep> afterProjectBuildStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.AFTER, projectEnv);
+            afterProjectBuildStepList.forEach(projectStructureStep -> {
+                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
+                shellBuilder.append(projectStructureStep.getStep()).append("\n");
+            });
+
+            shellBuilder.append("'");
+
+            String lastShell = strSubstitutor.replace(shellBuilder.toString());
             ShellHelper.SINGLEONE.executeShellCommand(log, lastShell);
 
         };

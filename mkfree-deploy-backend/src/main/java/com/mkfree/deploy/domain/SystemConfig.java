@@ -12,6 +12,8 @@ public class SystemConfig extends IDEntity {
 
     //项目根路劲
     public static final String keyProjectPath = "projectPath";
+    // 项目构建后目录
+    public static final String keyBuildPath = "buildPath";
     //安装路劲
     public static final String keyInstallPath = "installPath";
 
