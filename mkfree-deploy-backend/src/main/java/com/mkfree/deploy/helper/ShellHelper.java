@@ -1,14 +1,15 @@
 package com.mkfree.deploy.helper;
 
 import com.mkfree.deploy.Bootstrap;
+import com.mkfree.deploy.Config;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -74,32 +75,50 @@ public enum ShellHelper {
 
     /**
      * 执行命令
-     * @param log
      * @param command
      * @return
      */
-    public String executeShellCommand(Logger log, String command) {
-        StringBuilder builder = new StringBuilder();
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", command});
-            p.waitFor();
+    public String executeShellCommand(String command, String key, Logger log) {
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            while (reader.ready()) {
-                String line = reader.readLine();
-                builder.append(line);
-                if (log != null) {
+        StringBuilder builder = new StringBuilder();
+        if (StringUtils.isNotBlank(key)) {
+            Config.STRING_BUILDER_MAP.put(key, builder);
+        }
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", command});
+            BufferedReader stdoutReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = stdoutReader.readLine()) != null) {
+                // process procs standard output here
+                builder.append(line).append("\n");
+                if (StringUtils.isNotBlank(key)) {
                     log.info(line);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (log != null) {
-                log.error(e.getMessage());
+
+            BufferedReader stderrReader = new BufferedReader(
+                    new InputStreamReader(process.getErrorStream()));
+            while ((line = stderrReader.readLine()) != null) {
+                // process procs standard error here
             }
+            process.waitFor();
+            process.exitValue();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
         return builder.toString();
 
     }
+
+
+    /**
+     * 执行命令
+     * @param command
+     * @return
+     */
+    public String executeShellCommand(String command) {
+        return this.executeShellCommand(command, null, null);
+    }
+
 }

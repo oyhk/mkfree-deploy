@@ -33,7 +33,7 @@ public enum  ProjectHelper {
 
         // 6. 在远程服务器创建 git 分支 + git log version + 当前发布时间 目录，格式：release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094_20170608
         String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publicBranch + " \n echo $(git log -1)";
-        String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(null, getLogVersionShell);
+        String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand( getLogVersionShell);
         if (StringUtils.isNotBlank(gitLogVersion)) {
             gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
         }

@@ -12,6 +12,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,6 +23,8 @@ public class Config {
 
     public static final String ENV_PROD = "prod";
     public static final String ENV_LOCAL = "local";
+
+    public static final Map<String,StringBuilder> STRING_BUILDER_MAP = new ConcurrentHashMap<>();
 
     /**
      * 公共线程池

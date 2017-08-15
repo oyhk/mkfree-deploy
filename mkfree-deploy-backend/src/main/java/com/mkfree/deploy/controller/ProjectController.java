@@ -1,6 +1,7 @@
 package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
@@ -24,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -356,7 +360,7 @@ public class ProjectController extends BaseController {
             shellBuilder.append("git branch -a | grep remotes/origin").append("\n");
 
             String lastShell = strSubstitutor.replace(shellBuilder.toString());
-            String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(log, lastShell);
+            String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell);
             String[] branchListArray = branchListTemp.split("remotes/origin/");
 
             jsonResult.data = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating")).map(String::trim).sorted().collect(Collectors.toList());
@@ -501,7 +505,7 @@ public class ProjectController extends BaseController {
             params.put("projectPath", projectPath);
 
             String lastShell = ProjectHelper.SINGLEONE.createDeployShell(strSubstitutor, shellBuilder, params, projectPath, publicBranch, projectId, projectEnv, projectDeployFileRepository, projectStructureStepRepository, true);
-            ShellHelper.SINGLEONE.executeShellCommand(log, lastShell);
+            ShellHelper.SINGLEONE.executeShellCommand(lastShell);
 
         };
         return doing.go(userDto, request, objectMapper, log);
@@ -573,23 +577,23 @@ public class ProjectController extends BaseController {
 
             // 1. cd 项目路劲
             String projectPath = systemConfig.getValue() + "/" + project.getName();
-            shellBuilder.append("echo 'cd #{projectPath}'").append("\n");
+            shellBuilder.append("echo cd #{projectPath}").append("\n");
             shellBuilder.append("cd #{projectPath}").append("\n");
             params.put("projectPath", projectPath);
 
             // 2. git pull 用git拉去最新代码
-            shellBuilder.append("echo 'git pull'").append("\n");
+            shellBuilder.append("echo git pull").append("\n");
             shellBuilder.append("git pull").append("\n");
 
             // 3. git 切换到项目发布分支 并且 拉取发布分支最新代码
             if (StringUtils.isBlank(publicBranch)) {
                 publicBranch = "master"; // 如果不填分支默认 master
             }
-            shellBuilder.append("echo 'git checkout #{publicBranch}'").append("\n");
+            shellBuilder.append("echo git checkout #{publicBranch}").append("\n");
             shellBuilder.append("git checkout #{publicBranch}").append("\n");
 
 
-            shellBuilder.append("echo 'git pull origin #{publicBranch}'").append("\n");
+            shellBuilder.append("echo git pull origin #{publicBranch}").append("\n");
             shellBuilder.append("git pull origin #{publicBranch}").append("\n");
             params.put("publicBranch", publicBranch);
 
@@ -609,7 +613,7 @@ public class ProjectController extends BaseController {
 
             // 6. 创建发布版本文件夹 当前发布时间 + git 分支 + git log version  目录格式：20170608_release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094
             String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publicBranch + " \n echo $(git log -1)";
-            String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(null, getLogVersionShell);
+            String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(getLogVersionShell);
             if (StringUtils.isNotBlank(gitLogVersion)) {
                 gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
             }
@@ -646,6 +650,8 @@ public class ProjectController extends BaseController {
 
             // 11. 远程服务器: 创建当前版本软链接
             // 11.1 删除
+
+            shellBuilder.append("echo exec #{username}@#{ip} shell \n");
             shellBuilder.append("ssh -p #{port} #{username}@#{ip} ");
             shellBuilder.append("'").append("\n");
             shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n")
@@ -672,7 +678,7 @@ public class ProjectController extends BaseController {
             shellBuilder.append("'");
 
             String lastShell = strSubstitutor.replace(shellBuilder.toString());
-            ShellHelper.SINGLEONE.executeShellCommand(log, lastShell);
+            ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
 
         };
         return doing.go(log);
