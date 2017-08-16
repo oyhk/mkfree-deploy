@@ -11,7 +11,7 @@
 
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>./logs/mkfree-deploy.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>./logs/mkfree-deploy.log.%d{yyyy-MM-dd}</FileNamePattern>
         </rollingPolicy>
     </appender>
     <!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
