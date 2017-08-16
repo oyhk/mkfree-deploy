@@ -1,7 +1,6 @@
 package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
@@ -25,9 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -55,7 +51,7 @@ public class ProjectController extends BaseController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private ProjectStructureLogRepository projectStructureLogRepository;
+    private ProjectBuildLogRepository projectBuildLogRepository;
     @Autowired
     private ProjectDeployFileRepository projectDeployFileRepository;
     @Autowired
@@ -103,7 +99,7 @@ public class ProjectController extends BaseController {
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
                 // 最后发布时间
-                ProjectBuildLog projectBuildLog = projectStructureLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
+                ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
                 if (null != projectBuildLog) {
                     projectDto.setLastPublishDate(projectBuildLog.getCreatedAt());
                 }
@@ -678,7 +674,20 @@ public class ProjectController extends BaseController {
             shellBuilder.append("'");
 
             String lastShell = strSubstitutor.replace(shellBuilder.toString());
-            ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
+            String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
+
+
+            // 发布完成添加发布日志
+            ProjectBuildLog projectBuildLog = new ProjectBuildLog();
+            projectBuildLog.setDescription(result);
+            projectBuildLog.setProjectId(projectId);
+            projectBuildLog.setStatus(ProjectBuildLogStatus.SUCCESS);
+            projectBuildLog.setProjectName(project.getName());
+            projectBuildLog.setUserId(userDto.getId());
+            projectBuildLog.setUsername(userDto.getUsername());
+            projectBuildLog = projectBuildLogRepository.save(projectBuildLog);
+            projectBuildLog.setName("#" + projectBuildLog.getId());
+            projectBuildLogRepository.save(projectBuildLog);
 
         };
         return doing.go(log);

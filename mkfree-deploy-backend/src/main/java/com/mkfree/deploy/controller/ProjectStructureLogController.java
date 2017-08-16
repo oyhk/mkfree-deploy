@@ -8,7 +8,7 @@ import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.ProjectBuildLog;
 import com.mkfree.deploy.domain.enumclass.ProjectBuildLogStatus;
 import com.mkfree.deploy.helper.ProjectStructureLogHelper;
-import com.mkfree.deploy.repository.ProjectStructureLogRepository;
+import com.mkfree.deploy.repository.ProjectBuildLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ProjectStructureLogController extends BaseController {
 
     private final Logger log = LoggerFactory.getLogger(ProjectStructureLogController.class);
     @Autowired
-    private ProjectStructureLogRepository projectStructureLogRepository;
+    private ProjectBuildLogRepository projectBuildLogRepository;
 
     /**
      * 查询项目的构建历史列表
@@ -42,7 +42,7 @@ public class ProjectStructureLogController extends BaseController {
                 jsonResult.remind("项目id为空", log);
                 return;
             }
-            jsonResult.data = projectStructureLogRepository.findTop10ByProjectIdOrderByCreatedAtDesc(projectId);
+            jsonResult.data = projectBuildLogRepository.findTop10ByProjectIdOrderByCreatedAtDesc(projectId);
 
         };
         return doing.go(request, log);
@@ -65,20 +65,6 @@ public class ProjectStructureLogController extends BaseController {
                 jsonResult.errorParam("日志序号不能为空", log);
                 return;
             }
-            ProjectBuildLog projectBuildLog = projectStructureLogRepository.findByProjectIdAndSeqNo(projectId, seqNo);
-            if (projectBuildLog == null) {
-                jsonResult.remind(ProjectBuildLog.REMIND_RECORD_IS_NOT_EXIST);
-                return;
-            }
-
-
-            if (projectBuildLog.getStatus() == ProjectBuildLogStatus.PROCESSING) {
-                String logKey = ProjectStructureLogHelper.SINGLETONE.getLogKey(projectBuildLog);
-                if(Bootstrap.logStringBufferMap.get(logKey) != null) {
-                    projectBuildLog.setDescription(Bootstrap.logStringBufferMap.get(logKey).toString());
-                }
-            }
-            jsonResult.data = projectBuildLog;
 
         };
         return doing.go(request, log);

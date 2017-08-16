@@ -9,7 +9,7 @@ import java.util.List;
  * Created by zhangjh on 2017/2/8.
  */
 @Repository
-public interface ProjectStructureLogRepository extends BaseRepository<ProjectBuildLog, Long> {
+public interface ProjectBuildLogRepository extends BaseRepository<ProjectBuildLog, Long> {
     /**
      * 同步锁
      *
@@ -25,7 +25,6 @@ public interface ProjectStructureLogRepository extends BaseRepository<ProjectBui
      * @return
      */
     List<ProjectBuildLog> findTop10ByProjectIdOrderByCreatedAtDesc(Long projectId);
-    ProjectBuildLog findByProjectIdAndSeqNo(Long id, Long projectId);
 
     /**
      * 查找项目最新的部署信息

@@ -17,7 +17,6 @@ public class ProjectBuildLog extends IDEntity {
     //构建名
     @Column(columnDefinition = "varchar (100) comment '构建名'")
     private String name;
-
     //用户id
     @Column(columnDefinition = "bigint comment '用户id'")
     private Long userId;
@@ -34,9 +33,6 @@ public class ProjectBuildLog extends IDEntity {
     //项目名
     @Column(columnDefinition = "varchar (100) comment '项目名'")
     private String projectName;
-    //构建序列号，递增
-    @Column(columnDefinition = "bigint comment '构建序列号，递增'")
-    private Long seqNo;
     //详细日志
     @Column(columnDefinition = "longtext comment '详细日志'")
     private String description;
@@ -71,14 +67,6 @@ public class ProjectBuildLog extends IDEntity {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public Long getSeqNo() {
-        return seqNo;
-    }
-
-    public void setSeqNo(Long seqNo) {
-        this.seqNo = seqNo;
     }
 
     public String getName() {
