@@ -2,15 +2,15 @@ package com.mkfree.deploy.domain.enumclass;
 
 /**
  * Created by oyhk on 2017/1/23.
- * 构建日志状态
+ * 构建类型
  */
-public enum ProjectBuildLogStatus {
+public enum ProjectBuildType {
 
-    SUCCESS("成功"), FAIL("失败");
+    BUILD("构建"), SYNC("同步命令");
 
     private String text;
 
-    ProjectBuildLogStatus(String text) {
+    ProjectBuildType(String text) {
         this.text = text;
     }
 

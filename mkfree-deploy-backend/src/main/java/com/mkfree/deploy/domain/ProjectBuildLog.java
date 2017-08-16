@@ -1,6 +1,8 @@
 package com.mkfree.deploy.domain;
 
 import com.mkfree.deploy.domain.enumclass.ProjectBuildLogStatus;
+import com.mkfree.deploy.domain.enumclass.ProjectBuildStepType;
+import com.mkfree.deploy.domain.enumclass.ProjectBuildType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,26 +16,22 @@ import javax.persistence.Enumerated;
 @Entity
 public class ProjectBuildLog extends IDEntity {
 
-    //构建名
     @Column(columnDefinition = "varchar (100) comment '构建名'")
     private String name;
-    //用户id
     @Column(columnDefinition = "bigint comment '用户id'")
     private Long userId;
-    //用户名
     @Column(columnDefinition = "varchar (100) comment '用户名'")
     private String username;
-    //项目id
     @Column(columnDefinition = "bigint comment '项目id'")
     private Long projectId;
-    //构建日志状态
+    @Column(columnDefinition = "varchar (100) comment '构建类型 BUILD(\"构建\"), SYNC(\"同步命令\")'")
+    @Enumerated(EnumType.STRING)
+    private ProjectBuildType buildType;
     @Column(columnDefinition = "varchar (100) comment '构建日志状态'")
     @Enumerated(EnumType.STRING)
-    private ProjectBuildLogStatus status = ProjectBuildLogStatus.PROCESSING;
-    //项目名
+    private ProjectBuildLogStatus status;
     @Column(columnDefinition = "varchar (100) comment '项目名'")
     private String projectName;
-    //详细日志
     @Column(columnDefinition = "longtext comment '详细日志'")
     private String description;
 
@@ -91,5 +89,13 @@ public class ProjectBuildLog extends IDEntity {
 
     public void setStatus(ProjectBuildLogStatus status) {
         this.status = status;
+    }
+
+    public ProjectBuildType getBuildType() {
+        return buildType;
+    }
+
+    public void setBuildType(ProjectBuildType buildType) {
+        this.buildType = buildType;
     }
 }

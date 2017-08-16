@@ -682,6 +682,7 @@ public class ProjectController extends BaseController {
             projectBuildLog.setDescription(result);
             projectBuildLog.setProjectId(projectId);
             projectBuildLog.setStatus(ProjectBuildLogStatus.SUCCESS);
+            projectBuildLog.setBuildType(ProjectBuildType.BUILD);
             projectBuildLog.setProjectName(project.getName());
             projectBuildLog.setUserId(userDto.getId());
             projectBuildLog.setUsername(userDto.getUsername());
