@@ -687,6 +687,7 @@ public class ProjectController extends BaseController {
             projectBuildLog = projectBuildLogRepository.save(projectBuildLog);
             projectBuildLog.setName(project.getName() + "_" + projectVersionDir);
             projectBuildLog.setBuildVersion(projectVersionDir);
+            projectBuildLog.setIp(publicServerMachineIp);
             projectBuildLogRepository.save(projectBuildLog);
 
         };

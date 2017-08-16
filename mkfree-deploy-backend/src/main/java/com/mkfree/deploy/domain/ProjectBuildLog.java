@@ -35,7 +35,17 @@ public class ProjectBuildLog extends IDEntity {
     private String projectName;
     @Column(columnDefinition = "longtext comment '详细日志'")
     private String description;
+    @Column(columnDefinition = "varchar(30) comment '发布ip'")
+    private String ip;
 
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
     public String getBuildVersion() {
         return buildVersion;
