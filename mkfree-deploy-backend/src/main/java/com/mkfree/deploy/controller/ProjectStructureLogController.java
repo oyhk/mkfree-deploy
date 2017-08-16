@@ -1,13 +1,9 @@
 package com.mkfree.deploy.controller;
 
-import com.mkfree.deploy.Bootstrap;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
 import com.mkfree.deploy.common.RestDoing;
-import com.mkfree.deploy.domain.ProjectBuildLog;
-import com.mkfree.deploy.domain.enumclass.ProjectBuildLogStatus;
-import com.mkfree.deploy.helper.ProjectStructureLogHelper;
 import com.mkfree.deploy.repository.ProjectBuildLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

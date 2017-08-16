@@ -1,7 +1,6 @@
 package com.mkfree.deploy.domain;
 
-import com.mkfree.deploy.domain.enumclass.ProjectBuildLogStatus;
-import com.mkfree.deploy.domain.enumclass.ProjectBuildStepType;
+import com.mkfree.deploy.domain.enumclass.ProjectBuildStatus;
 import com.mkfree.deploy.domain.enumclass.ProjectBuildType;
 
 import javax.persistence.Column;
@@ -27,13 +26,24 @@ public class ProjectBuildLog extends IDEntity {
     @Column(columnDefinition = "varchar (100) comment '构建类型 BUILD(\"构建\"), SYNC(\"同步命令\")'")
     @Enumerated(EnumType.STRING)
     private ProjectBuildType buildType;
+    @Column(columnDefinition = "varchar (100) comment '构建当前版本号'")
+    private String buildVersion;
     @Column(columnDefinition = "varchar (100) comment '构建日志状态'")
     @Enumerated(EnumType.STRING)
-    private ProjectBuildLogStatus status;
+    private ProjectBuildStatus status;
     @Column(columnDefinition = "varchar (100) comment '项目名'")
     private String projectName;
     @Column(columnDefinition = "longtext comment '详细日志'")
     private String description;
+
+
+    public String getBuildVersion() {
+        return buildVersion;
+    }
+
+    public void setBuildVersion(String buildVersion) {
+        this.buildVersion = buildVersion;
+    }
 
     public Long getUserId() {
         return userId;
@@ -83,11 +93,11 @@ public class ProjectBuildLog extends IDEntity {
         this.description = description;
     }
 
-    public ProjectBuildLogStatus getStatus() {
+    public ProjectBuildStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ProjectBuildLogStatus status) {
+    public void setStatus(ProjectBuildStatus status) {
         this.status = status;
     }
 

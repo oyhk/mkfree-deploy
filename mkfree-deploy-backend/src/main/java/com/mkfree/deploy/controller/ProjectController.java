@@ -500,8 +500,6 @@ public class ProjectController extends BaseController {
             shellBuilder.append("cd #{projectPath}").append("\n");
             params.put("projectPath", projectPath);
 
-            String lastShell = ProjectHelper.SINGLEONE.createDeployShell(strSubstitutor, shellBuilder, params, projectPath, publicBranch, projectId, projectEnv, projectDeployFileRepository, projectStructureStepRepository, true);
-            ShellHelper.SINGLEONE.executeShellCommand(lastShell);
 
         };
         return doing.go(userDto, request, objectMapper, log);
@@ -681,13 +679,14 @@ public class ProjectController extends BaseController {
             ProjectBuildLog projectBuildLog = new ProjectBuildLog();
             projectBuildLog.setDescription(result);
             projectBuildLog.setProjectId(projectId);
-            projectBuildLog.setStatus(ProjectBuildLogStatus.SUCCESS);
+            projectBuildLog.setStatus(ProjectBuildStatus.SUCCESS);
             projectBuildLog.setBuildType(ProjectBuildType.BUILD);
             projectBuildLog.setProjectName(project.getName());
             projectBuildLog.setUserId(userDto.getId());
             projectBuildLog.setUsername(userDto.getUsername());
             projectBuildLog = projectBuildLogRepository.save(projectBuildLog);
-            projectBuildLog.setName("#" + projectBuildLog.getId());
+            projectBuildLog.setName(project.getName() + "_" + projectVersionDir);
+            projectBuildLog.setBuildVersion(projectVersionDir);
             projectBuildLogRepository.save(projectBuildLog);
 
         };
