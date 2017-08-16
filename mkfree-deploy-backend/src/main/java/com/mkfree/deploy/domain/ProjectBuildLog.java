@@ -2,6 +2,7 @@ package com.mkfree.deploy.domain;
 
 import com.mkfree.deploy.domain.enumclass.ProjectBuildStatus;
 import com.mkfree.deploy.domain.enumclass.ProjectBuildType;
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +38,17 @@ public class ProjectBuildLog extends IDEntity {
     private String description;
     @Column(columnDefinition = "varchar(30) comment '发布ip'")
     private String ip;
+    @Column(columnDefinition = "varchar (100) comment '构建项目环境 DEV(\"开发环境\"), TEST(\"测试环境\"), UAT(\"仿真测试\"), PROD(\"生产\")'")
+    @Enumerated(EnumType.STRING)
+    private ProjectEnv projectEnv;
 
+    public ProjectEnv getProjectEnv() {
+        return projectEnv;
+    }
+
+    public void setProjectEnv(ProjectEnv projectEnv) {
+        this.projectEnv = projectEnv;
+    }
 
     public String getIp() {
         return ip;

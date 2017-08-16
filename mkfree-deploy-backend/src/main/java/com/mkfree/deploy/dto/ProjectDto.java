@@ -5,6 +5,7 @@ import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -12,6 +13,9 @@ import java.util.List;
  *
  */
 public class ProjectDto extends Project {
+
+
+    private Map<String, List<String>> buildVersion;
 
     private String moduleName;
     //部署的项目模块的目标文件或者目录
@@ -84,5 +88,13 @@ public class ProjectDto extends Project {
 
     public void setLastPublishDate(Date lastPublishDate) {
         this.lastPublishDate = lastPublishDate;
+    }
+
+    public Map<String, List<String>> getBuildVersion() {
+        return buildVersion;
+    }
+
+    public void setBuildVersion(Map<String, List<String>> buildVersion) {
+        this.buildVersion = buildVersion;
     }
 }

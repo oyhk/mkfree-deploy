@@ -1,5 +1,6 @@
 package com.mkfree.deploy.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -123,6 +125,28 @@ public class ProjectController extends BaseController {
                     }
                 }
                 projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
+
+
+                List<String> ipList = new ArrayList<>();
+                for (int i = 0; i < projectEnvConfigList.size(); i++) {
+                    ProjectEnvConfig projectEnvConfig = projectEnvConfigList.get(i);
+                    try {
+                        List<String> ipListTemp = objectMapper.readValue(projectEnvConfig.getServerMachineIp(), new TypeReference<List<String>>() {
+                        });
+                        ipList.addAll(ipListTemp);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                ipList.remove("");
+
+
+
+
+
+
+
+
                 projectDtoList.add(projectDto);
 
             });
@@ -688,6 +712,7 @@ public class ProjectController extends BaseController {
             projectBuildLog.setName(project.getName() + "_" + projectVersionDir);
             projectBuildLog.setBuildVersion(projectVersionDir);
             projectBuildLog.setIp(publicServerMachineIp);
+            projectBuildLog.setProjectEnv(projectEnv);
             projectBuildLogRepository.save(projectBuildLog);
 
         };
