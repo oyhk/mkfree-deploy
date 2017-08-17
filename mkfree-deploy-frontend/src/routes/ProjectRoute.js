@@ -25,10 +25,10 @@ function ProjectRoute({dispatch, pageResult}) {
                     return ip === '' ? '' : <li key={serverMachineIndex} style={{marginTop: '5px'}}>
 
 
-                        <Col span={5}
+                        <Col span={3}
                              className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>{ip}</Col>
                         { true ?
-                            <Col span={19}
+                            <Col span={21}
                                  className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>
                                 <Button type="primary"
                                         size="small"
@@ -42,8 +42,8 @@ function ProjectRoute({dispatch, pageResult}) {
                                                 }
                                             });
                                         }}>发布</Button>
-                                &nbsp;
-                                服务器运行版本：{record.buildVersion && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`] && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`][0]}
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                {record.buildVersion && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`][0]}`}
                             </Col>
                             :
                             <Button type="danger"
@@ -63,12 +63,12 @@ function ProjectRoute({dispatch, pageResult}) {
                 });
                 return (
                     <Row key={projectEnvConfigIndex} type="flex" style={{paddingTop: '10px'}}>
-                        <Col span={3} style={{
+                        <Col span={2} style={{
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>{projectEnvConfig.envText} :</Col>
-                        <Col span={21}>
+                        <Col span={22}>
                             <ul>{serverMachineList}</ul>
                         </Col>
                     </Row>
