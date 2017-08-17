@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.util.Date;
 
 /**
  * 项目构建历史
@@ -41,6 +42,15 @@ public class ProjectBuildLog extends IDEntity {
     @Column(columnDefinition = "varchar (100) comment '构建项目环境 DEV(\"开发环境\"), TEST(\"测试环境\"), UAT(\"仿真测试\"), PROD(\"生产\")'")
     @Enumerated(EnumType.STRING)
     private ProjectEnv projectEnv;
+
+    public ProjectBuildLog() {
+        super();
+    }
+
+    public ProjectBuildLog(String buildVersion, Date createdAt) {
+        this.buildVersion = buildVersion;
+        this.createdAt = createdAt;
+    }
 
     public ProjectEnv getProjectEnv() {
         return projectEnv;

@@ -43,7 +43,7 @@ function ProjectRoute({dispatch, pageResult}) {
                                             });
                                         }}>发布</Button>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                {record.buildVersion && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`][0]}`}
+                                {record.buildLog && record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].buildVersion} 发布时间：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].createdAt}`}
                             </Col>
                             :
                             <Button type="danger"

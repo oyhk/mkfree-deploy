@@ -1,6 +1,7 @@
 package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.Project;
+import com.mkfree.deploy.domain.ProjectBuildLog;
 import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.Date;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class ProjectDto extends Project {
 
 
-    private Map<String, List<String>> buildVersion;
+    private Map<String, List<ProjectBuildLog>> buildLog;
 
     private String moduleName;
     //部署的项目模块的目标文件或者目录
@@ -90,11 +91,11 @@ public class ProjectDto extends Project {
         this.lastPublishDate = lastPublishDate;
     }
 
-    public Map<String, List<String>> getBuildVersion() {
-        return buildVersion;
+    public Map<String, List<ProjectBuildLog>> getBuildLog() {
+        return buildLog;
     }
 
-    public void setBuildVersion(Map<String, List<String>> buildVersion) {
-        this.buildVersion = buildVersion;
+    public void setBuildLog(Map<String, List<ProjectBuildLog>> buildLog) {
+        this.buildLog = buildLog;
     }
 }

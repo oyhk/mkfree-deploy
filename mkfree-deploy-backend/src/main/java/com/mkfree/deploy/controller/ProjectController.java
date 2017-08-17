@@ -100,19 +100,8 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
-                // 最后发布时间
-                ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdOrderByIdDesc(project.getId());
-                if (null != projectBuildLog) {
-                    projectDto.setLastPublishDate(projectBuildLog.getCreatedAt());
-                }
-
-
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
-
-                if (projectEnvConfigList == null) {
-                    return;
-                }
 
                 projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineIp().equals("[]")).collect(Collectors.toList());
                 List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
@@ -131,10 +120,12 @@ public class ProjectController extends BaseController {
                 }
                 projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
 
+                if (projectEnvConfigList == null) {
+                    return;
+                }
 
                 Set<String> ipList = new HashSet<>();
-                for (int i = 0; i < projectEnvConfigList.size(); i++) {
-                    ProjectEnvConfig projectEnvConfig = projectEnvConfigList.get(i);
+                for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
                     try {
                         List<String> ipListTemp = objectMapper.readValue(projectEnvConfig.getServerMachineIp(), new TypeReference<List<String>>() {
                         });
@@ -146,14 +137,14 @@ public class ProjectController extends BaseController {
                 ipList.remove("");
 
                 List<ProjectBuildLog> projectBuildLogList = projectBuildLogRepository.findByIpInAndProjectIdOrderByCreatedAtDesc(ipList, project.getId());
-                Map<String, List<String>> projectBuildLogListMap = new HashMap<>();
+                Map<String, List<ProjectBuildLog>> projectBuildLogListMap = new HashMap<>();
                 projectBuildLogList.forEach(projectBuildLogTemp -> {
                     String key = projectBuildLogTemp.getProjectId() + "_" + projectBuildLogTemp.getIp() + "_" + projectBuildLogTemp.getProjectEnv().toString();
                     projectBuildLogListMap.computeIfAbsent(key, s -> new ArrayList<>());
-                    projectBuildLogListMap.get(key).add(projectBuildLogTemp.getBuildVersion());
+                    projectBuildLogListMap.get(key).add(new ProjectBuildLog(projectBuildLogTemp.getBuildVersion(), projectBuildLogTemp.getCreatedAt()));
                 });
 
-                projectDto.setBuildVersion(projectBuildLogListMap);
+                projectDto.setBuildLog(projectBuildLogListMap);
 
                 projectDtoList.add(projectDto);
 
@@ -531,6 +522,9 @@ public class ProjectController extends BaseController {
             // 1. cd 项目路劲
             shellBuilder.append("cd #{projectPath}").append("\n");
             params.put("projectPath", projectPath);
+
+            // 2. 查询项目相同环境最新发布版本
+//            projectBuildLogRepository.findTop1ByProjectIdOrderByIdDesc()
 
 
         };
