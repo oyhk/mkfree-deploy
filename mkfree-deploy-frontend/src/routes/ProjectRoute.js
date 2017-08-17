@@ -3,6 +3,7 @@ import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
 import {Button, Table, Row, Col} from 'antd';
 import {route} from '../Constant';
+import styles from './ProjectRoute.less';
 
 function ProjectRoute({dispatch, pageResult}) {
 
@@ -22,24 +23,28 @@ function ProjectRoute({dispatch, pageResult}) {
                 const serverMachineList = projectEnvConfig.serverMachineIpList.map((ip, serverMachineIndex) => {
 
                     return ip === '' ? '' : <li key={serverMachineIndex} style={{marginTop: '5px'}}>
-                        <span style={{paddingRight: '5px'}}>{ip}</span>
+
+
+                        <Col span={5}
+                             className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>{ip}</Col>
                         { true ?
-                            <span>
-                            <Button type="primary"
-                                    size="small"
-                                    onClick={() => {
-                                        dispatch({
-                                            type: 'projectModel/structure',
-                                            payload: {
-                                                id: record.id,
-                                                env: projectEnvConfig.env,
-                                                serverMachineIp: ip,
-                                            }
-                                        });
-                                    }}>发布</Button>
+                            <Col span={19}
+                                 className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>
+                                <Button type="primary"
+                                        size="small"
+                                        onClick={() => {
+                                            dispatch({
+                                                type: 'projectModel/structure',
+                                                payload: {
+                                                    id: record.id,
+                                                    env: projectEnvConfig.env,
+                                                    serverMachineIp: ip,
+                                                }
+                                            });
+                                        }}>发布</Button>
                                 &nbsp;
                                 服务器运行版本：{record.buildVersion && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`] && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`][0]}
-                            </span>
+                            </Col>
                             :
                             <Button type="danger"
                                     size="small"
@@ -58,7 +63,11 @@ function ProjectRoute({dispatch, pageResult}) {
                 });
                 return (
                     <Row key={projectEnvConfigIndex} type="flex" style={{paddingTop: '10px'}}>
-                        <Col span={3}>{projectEnvConfig.envText} :</Col>
+                        <Col span={3} style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>{projectEnvConfig.envText} :</Col>
                         <Col span={21}>
                             <ul>{serverMachineList}</ul>
                         </Col>
