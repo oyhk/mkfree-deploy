@@ -522,6 +522,7 @@ public class ProjectController extends BaseController {
             params.put("publicBranch", publicBranch);
 
             // 1. cd 项目路劲
+            shellBuilder.append("echo cd #{projectPath}").append("\n");
             shellBuilder.append("cd #{projectPath}").append("\n");
             params.put("projectPath", projectPath);
             params.put("remoteProjectPath", project.getRemotePath());
