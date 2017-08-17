@@ -24,6 +24,7 @@ function ProjectRoute({dispatch, pageResult}) {
                     return ip === '' ? '' : <li key={serverMachineIndex} style={{marginTop: '5px'}}>
                         <span style={{paddingRight: '5px'}}>{ip}</span>
                         { true ?
+                            <span>
                             <Button type="primary"
                                     size="small"
                                     onClick={() => {
@@ -36,6 +37,9 @@ function ProjectRoute({dispatch, pageResult}) {
                                             }
                                         });
                                     }}>发布</Button>
+                                &nbsp;
+                                服务器运行版本：{record.buildVersion && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`] && record.buildVersion[`${record.id}_${ip}_${projectEnvConfig.env}`][0]}
+                            </span>
                             :
                             <Button type="danger"
                                     size="small"

@@ -90,12 +90,12 @@ public class ProjectController extends BaseController {
         // 首先把用户可发布的项目权限分组
         Map<Long, UserProjectPermissionDto> userProjectPermissionDtoMap = userDto.getUserProjectPermissionList().stream().collect(Collectors.toMap(UserProjectPermissionDto::getProjectId, userProjectPermissionDto -> userProjectPermissionDto));
 
-        RestDoing doing = jsonResult -> {
+        RestDoing doing = (JsonResult jsonResult) -> {
 
             List<ProjectDto> projectDtoList = new ArrayList<>();
 
             Page<Project> page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
-            page.getContent().forEach(project -> {
+            page.getContent().forEach((Project project) -> {
 
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
@@ -109,6 +109,11 @@ public class ProjectController extends BaseController {
 
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
+
+                if (projectEnvConfigList == null) {
+                    return;
+                }
+
                 projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineIp().equals("[]")).collect(Collectors.toList());
                 List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
                 if (userDto.getRoleType() == RoleType.ADMIN) {
@@ -127,7 +132,7 @@ public class ProjectController extends BaseController {
                 projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
 
 
-                List<String> ipList = new ArrayList<>();
+                Set<String> ipList = new HashSet<>();
                 for (int i = 0; i < projectEnvConfigList.size(); i++) {
                     ProjectEnvConfig projectEnvConfig = projectEnvConfigList.get(i);
                     try {
@@ -140,12 +145,15 @@ public class ProjectController extends BaseController {
                 }
                 ipList.remove("");
 
+                List<ProjectBuildLog> projectBuildLogList = projectBuildLogRepository.findByIpInAndProjectIdOrderByCreatedAtDesc(ipList, project.getId());
+                Map<String, List<String>> projectBuildLogListMap = new HashMap<>();
+                projectBuildLogList.forEach(projectBuildLogTemp -> {
+                    String key = projectBuildLogTemp.getProjectId() + "_" + projectBuildLogTemp.getIp() + "_" + projectBuildLogTemp.getProjectEnv().toString();
+                    projectBuildLogListMap.computeIfAbsent(key, s -> new ArrayList<>());
+                    projectBuildLogListMap.get(key).add(projectBuildLogTemp.getBuildVersion());
+                });
 
-
-
-
-
-
+                projectDto.setBuildVersion(projectBuildLogListMap);
 
                 projectDtoList.add(projectDto);
 
