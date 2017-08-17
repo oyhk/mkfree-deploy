@@ -45,7 +45,7 @@ public class ProjectController extends BaseController {
     @Autowired
     private ServerMachineRepository serverMachineRepository;
     @Autowired
-    private ProjectStructureStepRepository projectStructureStepRepository;
+    private ProjectBuildStepRepository projectBuildStepRepository;
     @Autowired
     private ProjectEnvConfigRepository projectEnvConfigRepository;
     @Autowired
@@ -206,19 +206,19 @@ public class ProjectController extends BaseController {
                     // 项目构建前命令
                     if (projectEnvConfigDto.getBuildBeforeList() != null) {
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildBeforeList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
                     if (projectEnvConfigDto.getBuildAfterList() != null) {
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildAfterList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目同步后命令
                     if (projectEnvConfigDto.getBuildSyncList() != null) {
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildSyncList()) {
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -281,35 +281,35 @@ public class ProjectController extends BaseController {
                     // 项目构建前命令
                     if (projectEnvConfigDto.getBuildBeforeList() != null) {
 
-                        List<ProjectBuildStep> projectBuildStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.BEFORE, projectEnvConfig.getId());
-                        projectStructureStepRepository.delete(projectBuildStepList);
+                        List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.BEFORE, projectEnvConfig.getId());
+                        projectBuildStepRepository.delete(projectBuildStepList);
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildBeforeList()) {
                             if (StringUtils.isBlank(projectStructureStep.getStep())) {
                                 continue;
                             }
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
                     if (projectEnvConfigDto.getBuildAfterList() != null) {
-                        List<ProjectBuildStep> projectBuildStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.AFTER, projectEnvConfig.getId());
-                        projectStructureStepRepository.delete(projectBuildStepList);
+                        List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.AFTER, projectEnvConfig.getId());
+                        projectBuildStepRepository.delete(projectBuildStepList);
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildAfterList()) {
                             if (StringUtils.isBlank(projectStructureStep.getStep())) {
                                 continue;
                             }
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目同步后命令
                     if (projectEnvConfigDto.getBuildSyncList() != null) {
-                        List<ProjectBuildStep> projectBuildStepList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
-                        projectStructureStepRepository.delete(projectBuildStepList);
+                        List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
+                        projectBuildStepRepository.delete(projectBuildStepList);
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildSyncList()) {
                             if (StringUtils.isBlank(projectStructureStep.getStep())) {
                                 continue;
                             }
-                            projectStructureStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -335,8 +335,8 @@ public class ProjectController extends BaseController {
             userProjectPermissionRepository.delete(userProjectPermissionList);
 
             // 删除构建步骤
-            List<ProjectBuildStep> projectBuildStepList = projectStructureStepRepository.findByProjectId(dto.getId());
-            projectStructureStepRepository.delete(projectBuildStepList);
+            List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectId(dto.getId());
+            projectBuildStepRepository.delete(projectBuildStepList);
 
             // 删除各个环境配置
             List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(dto.getId());
@@ -434,7 +434,7 @@ public class ProjectController extends BaseController {
                 if (projectEnvConfigDto.getBuildBeforeList() == null) {
                     projectEnvConfigDto.setBuildBeforeList(new ArrayList<>());
                 }
-                List<ProjectBuildStep> projectBuildStepBeforeList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.BEFORE, projectEnvConfig.getId());
+                List<ProjectBuildStep> projectBuildStepBeforeList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.BEFORE, projectEnvConfig.getId());
                 for (ProjectBuildStep projectStructureStep : projectBuildStepBeforeList) {
                     projectEnvConfigDto.getBuildBeforeList().add(projectStructureStep);
                 }
@@ -448,7 +448,7 @@ public class ProjectController extends BaseController {
                 if (projectEnvConfigDto.getBuildAfterList() == null) {
                     projectEnvConfigDto.setBuildAfterList(new ArrayList<>());
                 }
-                List<ProjectBuildStep> projectBuildStepAfterList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.AFTER, projectEnvConfig.getId());
+                List<ProjectBuildStep> projectBuildStepAfterList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.AFTER, projectEnvConfig.getId());
                 for (ProjectBuildStep projectStructureStep : projectBuildStepAfterList) {
                     projectEnvConfigDto.getBuildAfterList().add(projectStructureStep);
                 }
@@ -461,7 +461,7 @@ public class ProjectController extends BaseController {
                 if (projectEnvConfigDto.getBuildSyncList() == null) {
                     projectEnvConfigDto.setBuildSyncList(new ArrayList<>());
                 }
-                List<ProjectBuildStep> projectStructureSyncList = projectStructureStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
+                List<ProjectBuildStep> projectStructureSyncList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
                 for (ProjectBuildStep projectStructureStep : projectStructureSyncList) {
                     projectEnvConfigDto.getBuildSyncList().add(projectStructureStep);
                 }
@@ -493,11 +493,12 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            log.info("project sync >> start");
             Project project = projectRepository.findOne(projectId);
             ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
 
             SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
+            SystemConfig buildPathSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
+
 
             ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, projectEnv);
             if (projectEnvConfig == null) {
@@ -516,15 +517,78 @@ public class ProjectController extends BaseController {
             params.put("username", serverMachine.getUsername());
             params.put("ip", serverMachine.getIp());
 
+
             String publicBranch = projectEnvConfig.getPublicBranch();
             params.put("publicBranch", publicBranch);
 
             // 1. cd 项目路劲
             shellBuilder.append("cd #{projectPath}").append("\n");
             params.put("projectPath", projectPath);
+            params.put("remoteProjectPath", project.getRemotePath());
 
             // 2. 查询项目相同环境最新发布版本
-//            projectBuildLogRepository.findTop1ByProjectIdOrderByIdDesc()
+            ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
+            String projectVersionDir = projectBuildLog.getBuildVersion();
+            params.put("projectVersionDir", projectVersionDir);
+
+            String buildPath = buildPathSystemConfig.getValue() + "/" + project.getName();
+            params.put("buildPath", buildPath);
+
+
+            // 9. 远程服务器: 创建标准目录结构
+            shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} ").append("mkdir -p #{remoteProjectPath}/version").append("\n");
+            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
+
+            // 10. 远程服务器: 上传版本文件
+            shellBuilder.append("echo scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+            shellBuilder.append("scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+
+            // 11. 远程服务器: 创建当前版本软链接
+            // 11.1 删除
+            shellBuilder.append("echo exec #{username}@#{ip} shell \n");
+            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ");
+            shellBuilder.append("'").append("\n");
+            shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n")
+                    .append("ln -sf #{remoteProjectPath}/current").append("\n")
+                    .append("echo rm -rf  #{remoteProjectPath}/current").append("\n")
+                    .append("rm -rf  #{remoteProjectPath}/current").append("\n");
+            // 11.2 创建
+            shellBuilder.append("echo ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
+            shellBuilder.append("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
+            shellBuilder.append("ln -sf ~/current").append("\n").append("rm -rf ~/current").append("\n");
+
+
+            // 12. 查看此版本上传后文件列表
+            shellBuilder.append("echo tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+            shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+
+            // 13. 执行构建后命令
+            List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.SYNC, projectEnv);
+            afterProjectBuildStepList.forEach(projectStructureStep -> {
+                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
+                shellBuilder.append(projectStructureStep.getStep()).append("\n");
+            });
+
+            shellBuilder.append("'");
+
+            String lastShell = strSubstitutor.replace(shellBuilder.toString());
+            String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
+
+            // 同步完成添加发布日志
+            ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
+            projectBuildLogNew.setDescription(result);
+            projectBuildLogNew.setProjectId(projectId);
+            projectBuildLogNew.setStatus(ProjectBuildStatus.SUCCESS);
+            projectBuildLogNew.setBuildType(ProjectBuildType.SYNC);
+            projectBuildLogNew.setProjectName(project.getName());
+            projectBuildLogNew.setUserId(userDto.getId());
+            projectBuildLogNew.setUsername(userDto.getUsername());
+            projectBuildLogNew = projectBuildLogRepository.save(projectBuildLogNew);
+            projectBuildLogNew.setName(project.getName() + "_" + projectVersionDir);
+            projectBuildLogNew.setBuildVersion(projectVersionDir);
+            projectBuildLogNew.setIp(publicServerMachineIp);
+            projectBuildLogNew.setProjectEnv(projectEnv);
+            projectBuildLogRepository.save(projectBuildLogNew);
 
 
         };
@@ -618,7 +682,7 @@ public class ProjectController extends BaseController {
             params.put("publicBranch", publicBranch);
 
             // 4. 执行构建命令
-            List<ProjectBuildStep> beforeProjectBuildStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.BEFORE, projectEnv);
+            List<ProjectBuildStep> beforeProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.BEFORE, projectEnv);
             beforeProjectBuildStepList.forEach(projectStructureStep -> {
                 shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
                 shellBuilder.append(projectStructureStep.getStep()).append("\n");
@@ -689,7 +753,7 @@ public class ProjectController extends BaseController {
             shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
 
             // 13. 执行构建后命令
-            List<ProjectBuildStep> afterProjectBuildStepList = projectStructureStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.AFTER, projectEnv);
+            List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.AFTER, projectEnv);
             afterProjectBuildStepList.forEach(projectStructureStep -> {
                 shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
                 shellBuilder.append(projectStructureStep.getStep()).append("\n");

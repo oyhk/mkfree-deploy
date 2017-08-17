@@ -11,7 +11,7 @@ import java.util.List;
  * Created by oyhk on 2017/1/23.
  */
 @Repository
-public interface ProjectStructureStepRepository extends BaseRepository<ProjectBuildStep, Long> {
+public interface ProjectBuildStepRepository extends BaseRepository<ProjectBuildStep, Long> {
 
     List<ProjectBuildStep> findByProjectIdAndTypeAndEnv(Long projectId, ProjectBuildStepType type, ProjectEnv env);
 

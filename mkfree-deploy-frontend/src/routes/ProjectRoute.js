@@ -27,7 +27,7 @@ function ProjectRoute({dispatch, pageResult}) {
 
                         <Col span={3}
                              className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>{ip}</Col>
-                        { true ?
+                        { serverMachineIndex === 0 ?
                             <Col span={21}
                                  className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>
                                 <Button type="primary"
@@ -46,18 +46,23 @@ function ProjectRoute({dispatch, pageResult}) {
                                 {record.buildLog && record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].buildVersion} 发布时间：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].createdAt}`}
                             </Col>
                             :
-                            <Button type="danger"
-                                    size="small"
-                                    onClick={() => {
-                                        dispatch({
-                                            type: 'projectModel/sync',
-                                            payload: {
-                                                id: record.id,
-                                                env: projectEnvConfig.env,
-                                                serverMachineIp: ip,
-                                            }
-                                        });
-                                    }}>同步</Button>
+                            <Col span={21}
+                                 className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>
+                                <Button type="danger"
+                                        size="small"
+                                        onClick={() => {
+                                            dispatch({
+                                                type: 'projectModel/sync',
+                                                payload: {
+                                                    id: record.id,
+                                                    env: projectEnvConfig.env,
+                                                    serverMachineIp: ip,
+                                                }
+                                            });
+                                        }}>同步</Button>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                {record.buildLog && record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].buildVersion} 发布时间：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].createdAt}`}
+                            </Col>
                         }
                     </li>;
                 });

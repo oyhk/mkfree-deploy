@@ -1,6 +1,8 @@
 package com.mkfree.deploy.repository;
 
 import com.mkfree.deploy.domain.ProjectBuildLog;
+import com.mkfree.deploy.domain.enumclass.ProjectBuildType;
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -26,7 +28,7 @@ public interface ProjectBuildLogRepository extends BaseRepository<ProjectBuildLo
      * @param projectId 项目id
      * @return
      */
-    ProjectBuildLog findTop1ByProjectIdOrderByIdDesc(Long projectId);
+    ProjectBuildLog findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(Long projectId, ProjectBuildType buildType, ProjectEnv projectEnv);
 
 
     List<ProjectBuildLog> findByIpInAndProjectIdOrderByCreatedAtDesc(Collection<String> ip, Long projectId);
