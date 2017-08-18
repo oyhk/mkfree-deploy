@@ -100,6 +100,7 @@ public class ProjectController extends BaseController {
                 ProjectDto projectDto = new ProjectDto();
                 projectDto.setName(project.getName());
                 projectDto.setId(project.getId());
+                projectDto.setBranchList(project.getBranchList());
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
 
@@ -348,8 +349,8 @@ public class ProjectController extends BaseController {
         return doing.go(request, log);
     }
 
-    @RequestMapping(value = Routes.PROJECT_BRANCH_LIST, method = RequestMethod.GET)
-    public JsonResult branchList(Long id, HttpServletRequest request) {
+    @RequestMapping(value = Routes.PROJECT_BRANCH_REFRESH, method = RequestMethod.GET)
+    public JsonResult branchRefresh(Long id, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (id == null) {
                 jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
@@ -381,10 +382,13 @@ public class ProjectController extends BaseController {
             String lastShell = strSubstitutor.replace(shellBuilder.toString());
             String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell);
             String[] branchListArray = branchListTemp.split("remotes/origin/");
+            List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating")).map(String::trim).sorted().collect(Collectors.toList());
+            project.setBranchList(objectMapper.writeValueAsString(branchList));
+            projectRepository.save(project);
 
-            jsonResult.data = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating")).map(String::trim).sorted().collect(Collectors.toList());
+            jsonResult.data = project.getBranchList();
         };
-        return doing.go(request, log);
+        return doing.go(request, objectMapper, log);
     }
 
     @RequestMapping(value = Routes.PROJECT_INFO, method = RequestMethod.GET)
@@ -404,6 +408,7 @@ public class ProjectController extends BaseController {
             projectDto.setId(project.getId());
             projectDto.setGitUrl(project.getGitUrl());
             projectDto.setModuleName(project.getModuleName());
+            projectDto.setBranchList(project.getBranchList());
 
 
             // 上传部署文件或目录
@@ -607,6 +612,7 @@ public class ProjectController extends BaseController {
             Long projectId = dto.getId();
             ProjectEnv projectEnv = dto.getEnv();
             String publicServerMachineIp = dto.getServerMachineIp();
+            String publishBranch = dto.getPublishBranch();
 
             if (projectId == null) {
                 jsonResult.errorParam("id不能为空");
@@ -651,8 +657,11 @@ public class ProjectController extends BaseController {
             params.put("username", serverMachine.getUsername());
             params.put("ip", serverMachine.getIp());
 
-            String publicBranch = projectEnvConfig.getPublicBranch();
-            params.put("publicBranch", publicBranch);
+            // 指定分支发布
+            if (StringUtils.isBlank(publishBranch)) {
+                publishBranch = projectEnvConfig.getPublicBranch();
+            }
+            params.put("publicBranch", publishBranch);
             String remoteProjectPath = project.getRemotePath();
             params.put("remoteProjectPath", remoteProjectPath);
 
@@ -671,8 +680,8 @@ public class ProjectController extends BaseController {
             shellBuilder.append("git pull").append("\n");
 
             // 3. git 切换到项目发布分支 并且 拉取发布分支最新代码
-            if (StringUtils.isBlank(publicBranch)) {
-                publicBranch = "master"; // 如果不填分支默认 master
+            if (StringUtils.isBlank(publishBranch)) {
+                publishBranch = "master"; // 如果不填分支默认 master
             }
             shellBuilder.append("echo git checkout #{publicBranch}").append("\n");
             shellBuilder.append("git checkout #{publicBranch}").append("\n");
@@ -680,7 +689,7 @@ public class ProjectController extends BaseController {
 
             shellBuilder.append("echo git pull origin #{publicBranch}").append("\n");
             shellBuilder.append("git pull origin #{publicBranch}").append("\n");
-            params.put("publicBranch", publicBranch);
+            params.put("publicBranch", publishBranch);
 
             // 4. 执行构建命令
             List<ProjectBuildStep> beforeProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.BEFORE, projectEnv);
@@ -697,12 +706,12 @@ public class ProjectController extends BaseController {
             params.put("buildPath", buildPath);
 
             // 6. 创建发布版本文件夹 当前发布时间 + git 分支 + git log version  目录格式：20170608_release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094
-            String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publicBranch + " \n echo $(git log -1)";
+            String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publishBranch + " \n echo $(git log -1)";
             String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(getLogVersionShell);
             if (StringUtils.isNotBlank(gitLogVersion)) {
                 gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
             }
-            String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publicBranch.replace("/", "_") + "_" + gitLogVersion;
+            String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publishBranch.replace("/", "_") + "_" + gitLogVersion;
             shellBuilder.append("echo mkdir -p #{buildPath}/version/#{projectVersionDir}").append("\n");
             shellBuilder.append("mkdir -p #{buildPath}/version/#{projectVersionDir}").append("\n");
             params.put("projectVersionDir", projectVersionDir);

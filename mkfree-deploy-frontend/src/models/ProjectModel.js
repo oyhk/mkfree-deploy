@@ -2,6 +2,7 @@ import * as projectService from '../services/ProjectService';
 import {addKey, urlPathParams} from '../utils/Utils';
 import {route} from '../Constant';
 import {message, Button} from 'antd';
+import {browserHistory} from 'dva/router';
 
 export default {
 
@@ -12,7 +13,6 @@ export default {
         deployTargetFileList: [{}], // 上传文件列表
         projectEnvConfigList: [], // 项目环境
         pageResult: {},
-        branchList: [], // 分支列表
     },
 
     subscriptions: {
@@ -28,7 +28,6 @@ export default {
                 if (edit) {
                     const id = edit[1];
                     dispatch({type: 'info', payload: {id}});
-                    dispatch({type: 'branchList', payload: {id}});
                 }
 
                 // 新增页
@@ -59,7 +58,8 @@ export default {
             });
         },
         *update({payload}, {call, put}) {
-            yield call(projectService.update, payload);
+            yield call(projectService.update, payload, {desc: '修改成功'});
+            browserHistory.push(`${route.project}?pageSize=100`);
         },
         *info({payload}, {call, put}) {
             const result = yield call(projectService.info, payload.id);
@@ -75,21 +75,15 @@ export default {
         },
 
         *structure({payload}, {call, put, select}) {
-            yield call(projectService.structure, payload);
+            yield call(projectService.structure, payload, {desc: '发布成功'});
         },
         *sync({payload}, {call, put, select}) {
             yield call(projectService.sync, payload);
         },
         // 项目分支列表
-        *branchList({payload}, {call, put, select}) {
-            const branchList = yield call(projectService.branchList, payload.id);
-            yield put({
-                type: 'save',
-                payload: {
-                    branchList
-                }
-            });
-
+        *branchRefresh({payload}, {call, put, select}) {
+            const branchList = yield call(projectService.branchRefresh, payload.id, {desc: '刷新分支成功'});
+            browserHistory.replace(`${route.project}?pageSize=100`);
         },
 
         // 保存

@@ -220,7 +220,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                         style={{display: 'block'}}
                                     >
                                         {
-                                            branchList.map((item, branchIndex) => {
+                                            project.branchList && JSON.parse(project.branchList).map((item, branchIndex) => {
                                                 return <Option key={`publicBranch${index}${branchIndex}`} value={item}>{item}</Option>;
                                             })
                                         }

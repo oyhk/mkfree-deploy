@@ -25,7 +25,7 @@ public class Routes {
     public static final String PROJECT_SAVE = API_PREFIX + "/project/save";
     public static final String PROJECT_UPDATE = API_PREFIX + "/project/update";
     public static final String PROJECT_INFO = API_PREFIX + "/project/info";
-    public static final String PROJECT_BRANCH_LIST = API_PREFIX + "/project/branch_list";
+    public static final String PROJECT_BRANCH_REFRESH = API_PREFIX + "/project/branch_refresh";
     public static final String PROJECT_DELETE = API_PREFIX + "/project/delete";
     public static final String PROJECT_STRUCTURE = API_PREFIX + "/project/structure";
     public static final String PROJECT_SYNC = API_PREFIX + "/project/sync"; //同步版本

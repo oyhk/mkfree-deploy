@@ -34,9 +34,9 @@ export function requestData(url, options = {}) {
         .then((result) => {
             if (result.code === '0') {
                 message.error(result.desc);
-            } else if (result.code === '1') {
-                message.success(result.desc);
-            } else {
+            } else if (result.code === '1' && options.remind) {
+                message.success(options.remind.desc);
+            } else if (options.remind) {
                 message.warn(result.desc);
             }
 
@@ -67,9 +67,9 @@ export function request(url, options = {}) {
         .then((result) => {
             if (result.code === '0') {
                 message.error(result.desc);
-            } else if (result.code === '1') {
-                message.success(result.desc);
-            } else {
+            } else if (result.code === '1' && options.remind) {
+                message.success(options.remind.desc);
+            } else if (options.remind) {
                 message.warn(result.desc);
             }
 

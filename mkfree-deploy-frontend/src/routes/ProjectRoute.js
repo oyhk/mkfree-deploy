@@ -1,13 +1,12 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 
+
 function ProjectRoute({dispatch, pageResult}) {
-
-
     const columns = [{
         title: '项目名称',
         dataIndex: 'name',
@@ -30,20 +29,64 @@ function ProjectRoute({dispatch, pageResult}) {
                         { serverMachineIndex === 0 ?
                             <Col span={21}
                                  className={serverMachineIndex === 0 ? styles.project_env_li_first : styles.project_env_li_not_first}>
-                                <Button type="primary"
-                                        size="small"
-                                        onClick={() => {
-                                            dispatch({
-                                                type: 'projectModel/structure',
-                                                payload: {
-                                                    id: record.id,
-                                                    env: projectEnvConfig.env,
-                                                    serverMachineIp: ip,
-                                                }
-                                            });
-                                        }}>发布</Button>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                {record.buildLog && record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].buildVersion} 发布时间：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].createdAt}`}
+
+                                {
+                                    projectEnvConfig.env === 'DEV' ? <div><Dropdown overlay={<Menu
+                                        onClick={(e) => {
+                                            window.aaa = e;
+                                            if (e.key === `${record.id}_dev_refresh`) {
+                                                dispatch({
+                                                    type: 'projectModel/branchRefresh',
+                                                    payload: {
+                                                        id: record.id
+                                                    }
+                                                });
+                                            } else {
+
+                                                dispatch({
+                                                    type: 'projectModel/structure',
+                                                    payload: {
+                                                        id: record.id,
+                                                        env: projectEnvConfig.env,
+                                                        serverMachineIp: ip,
+                                                        publishBranch: e.item.props.children
+                                                    }
+                                                });
+                                            }
+                                        }}><Menu.Item key={`${record.id}_dev_refresh`}><Icon type="reload"/>
+                                        刷新分支</Menu.Item>{
+                                        record.branchList && JSON.parse(record.branchList).map((item, index) => {
+                                            return <Menu.Item key={`${record.id}_${item}`}>{item}</Menu.Item>;
+                                        })
+                                    }</Menu>} trigger={['hover']}>
+                                        <Button size="small" type="primary">
+                                            发布 <Icon type="down"/>
+                                        </Button>
+                                    </Dropdown>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        {record.buildLog && record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].buildVersion} 发布时间：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].createdAt}`}
+                                    </div>
+                                        :
+                                        <div>
+                                            <Button type="primary"
+                                                    size="small"
+                                                    onClick={() => {
+
+                                                        dispatch({
+                                                            type: 'projectModel/structure',
+                                                            payload: {
+                                                                id: record.id,
+                                                                env: projectEnvConfig.env,
+                                                                serverMachineIp: ip,
+                                                            }
+                                                        });
+                                                    }}>发布</Button>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            {record.buildLog && record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`] && `服务器运行版本：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].buildVersion} 发布时间：${record.buildLog[`${record.id}_${ip}_${projectEnvConfig.env}`][0].createdAt}`}
+                                        </div>
+                                }
+
+
                             </Col>
                             :
                             <Col span={21}

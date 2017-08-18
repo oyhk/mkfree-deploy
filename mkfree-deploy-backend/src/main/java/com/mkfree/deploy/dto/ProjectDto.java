@@ -30,9 +30,18 @@ public class ProjectDto extends Project {
     private List<String> serverMachineIpList;
     // 发布机器ip
     private String serverMachineIp;
-
+    // 发布分支
+    private String publishBranch;
     // 最后发布时间
     private Date lastPublishDate;
+
+    public String getPublishBranch() {
+        return publishBranch;
+    }
+
+    public void setPublishBranch(String publishBranch) {
+        this.publishBranch = publishBranch;
+    }
 
     public List<String> getServerMachineIpList() {
         return serverMachineIpList;
