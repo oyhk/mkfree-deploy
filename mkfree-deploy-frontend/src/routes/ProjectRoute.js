@@ -33,7 +33,6 @@ function ProjectRoute({dispatch, pageResult}) {
                                 {
                                     projectEnvConfig.env === 'DEV' ? <div><Dropdown overlay={<Menu
                                         onClick={(e) => {
-                                            window.aaa = e;
                                             if (e.key === `${record.id}_dev_refresh`) {
                                                 dispatch({
                                                     type: 'projectModel/branchRefresh',
