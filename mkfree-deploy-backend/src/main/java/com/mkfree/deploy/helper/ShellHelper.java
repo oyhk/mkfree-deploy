@@ -111,6 +111,14 @@ public enum ShellHelper {
 
     }
 
+    /**
+     * 执行命令
+     * @param command
+     * @return
+     */
+    public String executeShellCommand(String command, Logger log) {
+        return this.executeShellCommand(command, null, log);
+    }
 
     /**
      * 执行命令

@@ -707,7 +707,7 @@ public class ProjectController extends BaseController {
 
             // 6. 创建发布版本文件夹 当前发布时间 + git 分支 + git log version  目录格式：20170608_release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094
             String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publishBranch + " \n git pull origin " + publishBranch + " \n echo $(git log -1)";
-            String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(getLogVersionShell);
+            String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(getLogVersionShell, log);
             if (StringUtils.isNotBlank(gitLogVersion)) {
                 gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
             }
