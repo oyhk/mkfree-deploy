@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Created by oyhk on 2017/1/22.
  */
@@ -23,7 +25,10 @@ public class IndexController {
      * @return
      */
     @RequestMapping(value = {"/deploy/**", "/**.js", "/**.css"}, method = RequestMethod.GET)
-    public String index() {
+    public String index(HttpServletResponse response) {
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
         if (Config.ENV_PROD.equals(prop.env)) {
             return "index-prod";
         }
