@@ -2,6 +2,7 @@ package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.JsonResult;
@@ -791,6 +792,25 @@ public class ProjectController extends BaseController {
             projectBuildLog.setProjectEnv(projectEnv);
             projectBuildLogRepository.save(projectBuildLog);
 
+        };
+        return doing.go(log);
+    }
+
+    @Transactional
+    @RequestMapping(value = Routes.PROJECT_BUILD_LOG, method = RequestMethod.GET)
+    public JsonResult buildLog(ProjectDto dto, HttpServletRequest request) {
+        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
+        RestDoing doing = jsonResult -> {
+            Long id = dto.getId();
+            if (id == null) {
+                jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
+                return;
+            }
+            StringBuilder result = Config.STRING_BUILDER_MAP.get("project_log_id_" + dto.getId());
+            if (result == null) {
+                result = new StringBuilder("");
+            }
+            jsonResult.data = result.toString().replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>");
         };
         return doing.go(log);
     }

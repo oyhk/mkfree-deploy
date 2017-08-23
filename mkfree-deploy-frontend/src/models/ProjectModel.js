@@ -13,6 +13,7 @@ export default {
         deployTargetFileList: [{}], // 上传文件列表
         projectEnvConfigList: [], // 项目环境
         pageResult: {},
+        buildLog: undefined, // 构建日志
     },
 
     subscriptions: {
@@ -34,6 +35,17 @@ export default {
                 if (location.pathname === route.projectAdd) {
                     dispatch({
                         type: 'initAdd',
+                    });
+                }
+
+                const urlBuildLog = urlPathParams(route.projectBuildLog, location.pathname);
+                if (urlBuildLog) {
+                    const id = urlBuildLog[1];
+                    dispatch({
+                        type: 'buildLog',
+                        payload: {
+                            id,
+                        }
                     });
                 }
             });
@@ -77,6 +89,25 @@ export default {
         *structure({payload}, {call, put, select}) {
             yield call(projectService.structure, payload, {desc: '发布成功'});
         },
+        // 项目构建日志
+        *buildLog({payload}, {call, put, select}) {
+            const buildLog = yield call(projectService.buildLog, payload.id);
+            yield put({
+                type: 'save',
+                payload: {
+                    buildLog
+                }
+            });
+
+            if (!buildLog || buildLog.indexOf('deploy finish') === -1) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            }
+            window.scroll(0,10000000);
+
+        },
         *sync({payload}, {call, put, select}) {
             yield call(projectService.sync, payload);
         },
@@ -85,7 +116,6 @@ export default {
             const branchList = yield call(projectService.branchRefresh, payload.id, {desc: '刷新分支成功'});
             browserHistory.replace(`${route.project}?pageSize=100`);
         },
-
         // 保存
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload);

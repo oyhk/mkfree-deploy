@@ -18,6 +18,10 @@ export async function info(id, remind) {
     return requestData(`/api/project/info?id=${id}`);
 }
 
+export async function buildLog(id, remind) {
+    return requestData(`/api/project/build_log?id=${id}`);
+}
+
 export async function branchRefresh(id, remind) {
     return requestData(`/api/project/branch_refresh?id=${id}`, {remind});
 }

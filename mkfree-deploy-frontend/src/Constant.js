@@ -6,5 +6,7 @@ export const route = {
     project: `${route_prefix}/project`,
     projectEdit: `${route_prefix}/project/edit/:id`,
     projectAdd: `${route_prefix}/project/add`,
-    project_edit_path: id => routePath(route.projectEdit, {id})
+    projectBuildLog: `${route_prefix}/project/build_log/:id`,
+    project_edit_path: id => routePath(route.projectEdit, {id}),
+    project_build_log_path: id => routePath(route.projectBuildLog, {id}),
 };

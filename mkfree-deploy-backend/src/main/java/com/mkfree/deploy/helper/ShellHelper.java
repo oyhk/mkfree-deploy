@@ -91,12 +91,13 @@ public enum ShellHelper {
             String line;
             while ((line = stdoutReader.readLine()) != null) {
                 // process procs standard output here
-                builder.append(line).append("\n");
+                builder.append(line).append("</br>");
                 if (StringUtils.isNotBlank(key)) {
                     log.info(line);
                 }
             }
 
+            builder.append("deploy finish");
             BufferedReader stderrReader = new BufferedReader(
                     new InputStreamReader(process.getErrorStream()));
             while ((line = stderrReader.readLine()) != null) {
