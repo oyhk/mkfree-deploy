@@ -102,7 +102,7 @@ export default {
             if (!buildLog || buildLog.indexOf('deploy finish') === -1) {
                 setTimeout(() => {
                     window.location.reload();
-                }, 1000);
+                }, 5000);
 
             }
             window.scroll(0,10000000);
