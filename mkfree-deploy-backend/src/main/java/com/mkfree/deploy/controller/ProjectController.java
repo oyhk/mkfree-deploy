@@ -382,6 +382,8 @@ public class ProjectController extends BaseController {
 
             String lastShell = strSubstitutor.replace(shellBuilder.toString());
             String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell);
+            branchListTemp = branchListTemp.replaceAll("</br>", "");
+            branchListTemp = branchListTemp.replaceAll("deploy finish", "");
             String[] branchListArray = branchListTemp.split("remotes/origin/");
             List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating")).map(String::trim).sorted().collect(Collectors.toList());
             project.setBranchList(objectMapper.writeValueAsString(branchList));
