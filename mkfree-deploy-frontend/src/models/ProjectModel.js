@@ -118,7 +118,8 @@ export default {
         },
         // 保存
         *saved({payload}, {call, put, select}) {
-            yield call(projectService.save, payload);
+            yield call(projectService.save, payload,{desc: '添加成功'});
+            browserHistory.push(`${route.project}?pageSize=100`);
         },
         // 添加一项 deployTargetFile
         *addDeployTargetFile({payload}, {call, put, select}) {
@@ -146,10 +147,12 @@ export default {
             yield put({
                 type: 'save',
                 payload: {
-                    project: {},
+                    project: {
+                        branchList: '["master"]',
+                    },
                     projectEnvConfigList: envList,
                     deployTargetFileList: [{}],
-                    branchList: ['master'],
+
                 }
             });
         }

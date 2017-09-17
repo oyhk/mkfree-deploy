@@ -11,8 +11,8 @@ function ProjectAddRoute({dispatch, project, deployTargetFileList, projectEnvCon
 ProjectAddRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {project, branchList, deployTargetFileList, projectEnvConfigList} = state.projectModel;
-    return {project, branchList, deployTargetFileList, projectEnvConfigList};
+    const {project, deployTargetFileList, projectEnvConfigList} = state.projectModel;
+    return {project, deployTargetFileList, projectEnvConfigList};
 }
 
 export default connect(mapStateToProps)(ProjectAddRoute);

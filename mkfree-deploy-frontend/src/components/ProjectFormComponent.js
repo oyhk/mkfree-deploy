@@ -4,7 +4,7 @@ import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select} from 'antd';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, branchList, form, isAdd}) {
+function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, form, isAdd}) {
 
 
     const {getFieldDecorator, getFieldValue} = form;

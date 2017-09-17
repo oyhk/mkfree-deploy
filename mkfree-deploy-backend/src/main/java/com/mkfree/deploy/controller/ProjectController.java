@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
-import com.mkfree.deploy.common.BaseController;
-import com.mkfree.deploy.common.JsonResult;
-import com.mkfree.deploy.common.PageResult;
-import com.mkfree.deploy.common.RestDoing;
+import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.enumclass.*;
 import com.mkfree.deploy.dto.*;
@@ -26,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -177,12 +175,27 @@ public class ProjectController extends BaseController {
 
             }
 
+
             SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
             project = new Project();
             BeanUtils.copyProperties(dto, project);
             project.setSystemPath(systemConfig.getValue() + "/" + dto.getName());
             project = projectRepository.save(project);
+
+
+            String projectSystemPath = project.getSystemPath();
+            File projectFile = new File(projectSystemPath);
+            // 当服务器不存在目录时,创建目录 并且 git clone 部署项目
+            if (!projectFile.exists()) {
+                projectFile.mkdir();
+                String gitUrl = dto.getGitUrl();
+                Shell shell = new Shell();
+                shell.append("git clone #{gitUrl} #{projectSystemPath}");
+                shell.addParams("gitUrl", gitUrl).addParams("projectSystemPath", projectSystemPath);
+                ShellHelper.SINGLEONE.executeShellCommand(shell.getShell(), log);
+            }
+
 
             List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
             if (projectDeployFileDtoList != null) {
@@ -191,7 +204,6 @@ public class ProjectController extends BaseController {
                     projectDeployFileRepository.save(projectDeployFile);
                 }
             }
-
 
             // 项目环境配置
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
