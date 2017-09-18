@@ -36,7 +36,6 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
                 ((IDEntity) entity).setCreatedAt(now);
                 ((IDEntity) entity).setUpdatedAt(now);
                 em.persist(entity);
-                em.persist(entity);
                 return entity;
             } else {
                 ((IDEntity) entity).setUpdatedAt(now);
