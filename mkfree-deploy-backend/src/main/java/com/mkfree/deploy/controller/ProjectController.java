@@ -157,6 +157,7 @@ public class ProjectController extends BaseController {
     }
 
     @RequestMapping(value = Routes.PROJECT_SAVE, method = RequestMethod.POST)
+    @Transactional
     public JsonResult save(@RequestBody ProjectDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (StringUtils.isBlank(dto.getName())) {
