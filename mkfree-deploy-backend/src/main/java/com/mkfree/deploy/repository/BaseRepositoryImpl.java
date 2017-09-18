@@ -30,11 +30,16 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
     @Override
     public <S extends T> S save(S entity) {
         try {
+            Date now = new Date();
             if (entityInformation.isNew(entity)) {
                 ((IDEntity) entity).setDelete(false);
+                ((IDEntity) entity).setCreatedAt(now);
+                ((IDEntity) entity).setUpdatedAt(now);
+                em.persist(entity);
                 em.persist(entity);
                 return entity;
             } else {
+                ((IDEntity) entity).setUpdatedAt(now);
                 return em.merge(entity);
             }
         } catch (Exception e) {
