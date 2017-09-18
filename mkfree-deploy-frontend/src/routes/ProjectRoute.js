@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col, Menu, Dropdown, Icon} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 
@@ -135,14 +135,16 @@ function ProjectRoute({dispatch, pageResult}) {
             return <div>
                 <Link to={route.project_build_log_path(record.id)} target="_blank">构建日志</Link> &nbsp;&nbsp;
                 <Link to={route.project_edit_path(record.id)}>编辑</Link> &nbsp;&nbsp;
-                <Link onClick={() => {
+                <Popconfirm title="确定删除此项目吗？" onConfirm={() => {
                     dispatch({
                         type: 'projectModel/deleted',
                         payload: {
                             id: record.id
                         }
                     });
-                }}>删除</Link>
+                }} okText="Yes" cancelText="No">
+                    <Link>删除</Link>
+                </Popconfirm>
             </div>;
         }
     }];
