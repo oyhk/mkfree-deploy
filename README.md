@@ -71,7 +71,7 @@ mvn clean package
 ````
 启动命令
 ````
-java -jar target/mkfree-deploy-backend-1.0.jar --spring.profiles.active=prod
+java -jar target/mkfree-deploy-backend-1.0.0.jar --spring.profiles.active=prod
 ````
 启动后，数据结构会自动生成
 ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mk-deploy_db.jpeg)
