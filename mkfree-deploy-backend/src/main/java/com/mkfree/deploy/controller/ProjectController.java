@@ -192,12 +192,12 @@ public class ProjectController extends BaseController {
                 projectFile.delete();
             }else{
                 projectFile.mkdir();
-                String gitUrl = dto.getGitUrl();
-                Shell shell = new Shell();
-                shell.append("git clone #{gitUrl} #{projectSystemPath}");
-                shell.addParams("gitUrl", gitUrl).addParams("projectSystemPath", projectSystemPath);
-                ShellHelper.SINGLEONE.executeShellCommand(shell.getShell(), log);
             }
+            String gitUrl = dto.getGitUrl();
+            Shell shell = new Shell();
+            shell.append("git clone #{gitUrl} #{projectSystemPath}");
+            shell.addParams("gitUrl", gitUrl).addParams("projectSystemPath", projectSystemPath);
+            ShellHelper.SINGLEONE.executeShellCommand(shell.getShell(), log);
 
 
             List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
