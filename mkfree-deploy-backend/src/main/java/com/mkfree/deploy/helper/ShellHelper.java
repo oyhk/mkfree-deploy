@@ -86,8 +86,7 @@ public enum ShellHelper {
         }
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", command});
-            BufferedReader stdoutReader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
+            BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = stdoutReader.readLine()) != null) {
                 // process procs standard output here

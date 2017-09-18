@@ -8,6 +8,9 @@ export async function page(params, remind) {
 export async function save(body, remind) {
     return request('/api/project/save', {method: 'POST', body: JSON.stringify(body)});
 }
+export async function deleted(body, remind) {
+    return request('/api/project/delete', {method: 'DELETE', body: JSON.stringify(body), remind});
+}
 
 export async function update(body, remind) {
     return request('/api/project/update', {method: 'PUT', body: JSON.stringify(body), remind});
