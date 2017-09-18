@@ -190,16 +190,8 @@ public class ProjectController extends BaseController {
             // 当服务器不存在目录时,创建目录 并且 git clone 部署项目
             if (projectFile.exists()) {
                 projectFile.delete();
-            }else{
-                projectFile.mkdir();
             }
-            String gitUrl = dto.getGitUrl();
-            Shell shell = new Shell();
-            shell.append("git clone #{gitUrl} #{projectSystemPath}");
-            shell.addParams("gitUrl", gitUrl).addParams("projectSystemPath", projectSystemPath);
-            ShellHelper.SINGLEONE.executeShellCommand(shell.getShell(), log);
-
-
+            projectFile.mkdir();
             List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
             if (projectDeployFileDtoList != null) {
                 for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
