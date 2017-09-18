@@ -181,7 +181,7 @@ public class ProjectController extends BaseController {
 
             project = new Project();
             BeanUtils.copyProperties(dto, project);
-            project.setSystemPath(systemConfig.getValue() + "/" + dto.getName());
+            project.setSystemPath(systemConfig.getValue() + File.separator + dto.getName());
             project = projectRepository.save(project);
 
 
@@ -371,7 +371,7 @@ public class ProjectController extends BaseController {
             }
             SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
-            String projectPath = systemConfig.getValue() + "/" + project.getName();
+            String projectPath = systemConfig.getValue() + File.separator + project.getName();
 
             Map<String, String> params = new HashMap<>();
             StringBuilder shellBuilder = new StringBuilder();
@@ -521,7 +521,7 @@ public class ProjectController extends BaseController {
                 return;
             }
 
-            String projectPath = systemConfig.getValue() + "/" + project.getName();
+            String projectPath = systemConfig.getValue() + File.separator + project.getName();
 
             Map<String, String> params = new HashMap<>();
             StringBuilder shellBuilder = new StringBuilder();
@@ -547,7 +547,7 @@ public class ProjectController extends BaseController {
             String projectVersionDir = projectBuildLog.getBuildVersion();
             params.put("projectVersionDir", projectVersionDir);
 
-            String buildPath = buildPathSystemConfig.getValue() + "/" + project.getName();
+            String buildPath = buildPathSystemConfig.getValue() + File.separator + project.getName();
             params.put("buildPath", buildPath);
 
 
@@ -680,7 +680,7 @@ public class ProjectController extends BaseController {
             StrSubstitutor strSubstitutor = new StrSubstitutor(params, "#{", "}");
 
             // 1. cd 项目路劲
-            String projectPath = systemConfig.getValue() + "/" + project.getName();
+            String projectPath = systemConfig.getValue() + File.separator + project.getName();
             shellBuilder.append("echo cd #{projectPath}").append("\n");
             shellBuilder.append("cd #{projectPath}").append("\n");
             params.put("projectPath", projectPath);
@@ -710,7 +710,7 @@ public class ProjectController extends BaseController {
 
             // 5. 创建build目录文件夹
             SystemConfig buildSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
-            String buildPath = buildSystemConfig.getValue() + "/" + project.getName();
+            String buildPath = buildSystemConfig.getValue() + File.separator + project.getName();
             shellBuilder.append("echo mkdir -p #{buildPath}/version").append("\n");
             shellBuilder.append("mkdir -p #{buildPath}/version").append("\n");
             params.put("buildPath", buildPath);
@@ -835,4 +835,7 @@ public class ProjectController extends BaseController {
         });
     }
 
+    public static void main(String[] args) {
+        System.out.println(File.separator);
+    }
 }
