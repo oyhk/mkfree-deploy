@@ -187,7 +187,9 @@ public class ProjectController extends BaseController {
             String projectSystemPath = project.getSystemPath();
             File projectFile = new File(projectSystemPath);
             // 当服务器不存在目录时,创建目录 并且 git clone 部署项目
-            if (!projectFile.exists()) {
+            if (projectFile.exists()) {
+                projectFile.delete();
+            }else{
                 projectFile.mkdir();
                 String gitUrl = dto.getGitUrl();
                 Shell shell = new Shell();
@@ -824,6 +826,7 @@ public class ProjectController extends BaseController {
             if (result == null) {
                 result = new StringBuilder("");
             }
+            jsonResult.data = result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">WARNING</span>");
             jsonResult.data = result.toString().replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>");
         };
         return doing.go(log);
