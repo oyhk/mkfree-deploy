@@ -6,7 +6,7 @@ git pull
 
 FRONTEND_HOME=${currentRootPath}/mkfree-deploy-frontend # 前端项目路劲
 APP_HOME=${currentRootPath}/mkfree-deploy-backend # 后端项目路劲
-APP_MAINCLASS=mkfree-deploy-backend-1.0.jar
+APP_MAINCLASS=mkfree-deploy-backend-1.0.0.jar
 psid=0
 checkpid() {
    javaps=`jps -l | grep $APP_MAINCLASS`
