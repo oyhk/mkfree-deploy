@@ -110,9 +110,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
         key: 'buildLog',
         render: (value, record, columnIndex) => {
             return (
-                record.publishVersion ?
-                    <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link> : ''
-
+                <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link>
             );
         }
     }, {
