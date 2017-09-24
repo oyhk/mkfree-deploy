@@ -17,6 +17,6 @@ public interface ProjectRepository extends BaseRepository<Project, Long> {
 
     Project findByName(String name);
 
-    Page<Project> findByProjectTagIdIn(Pageable pageable,List<Long> projectTagId);
+    Page<Project> findByProjectTagId(Pageable pageable,Long projectTagId);
 
 }

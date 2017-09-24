@@ -134,9 +134,7 @@ public class ProjectController extends BaseController {
             if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
                 page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
             } else {
-                List<Long> projectTagIdList = objectMapper.readValue(projectTagId, new TypeReference<List<Long>>() {
-                });
-                page = projectRepository.findByProjectTagIdIn(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), projectTagIdList);
+                page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
             }
 
             List<ProjectAntTableDto> projectAntTableDtoList = new ArrayList<>();

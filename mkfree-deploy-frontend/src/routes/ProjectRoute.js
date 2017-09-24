@@ -125,7 +125,8 @@ function ProjectRoute({dispatch, location, pageResult}) {
                         dispatch({
                             type: 'projectModel/branchRefresh',
                             payload: {
-                                id: record.id
+                                id: record.id,
+                                query: location.query
                             }
                         });
                     }}>刷新分支</Link> &nbsp;&nbsp;
@@ -133,7 +134,8 @@ function ProjectRoute({dispatch, location, pageResult}) {
                         dispatch({
                             type: 'projectModel/deleted',
                             payload: {
-                                id: record.id
+                                id: record.id,
+
                             }
                         });
                     }} okText="Yes" cancelText="No">
@@ -171,12 +173,12 @@ function ProjectRoute({dispatch, location, pageResult}) {
                         <Link onClick={() => {
                             const page = location.query.page ? location.query.page : 0;
                             const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=[1]`);
+                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=1`);
                         }}>后端</Link>&nbsp;&nbsp;
                         <Link color="red" checked onClick={() => {
                             const page = location.query.page ? location.query.page : 0;
                             const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=[2]`);
+                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=2`);
                         }}>前端</Link>&nbsp;&nbsp;
 
                     </Col>

@@ -122,12 +122,12 @@ export default {
         // 项目分支列表
         *branchRefresh({payload}, {call, put, select}) {
             const branchList = yield call(projectService.branchRefresh, payload.id, {desc: '刷新分支成功'});
-            browserHistory.replace(`${route.project}?pageSize=100`);
+            browserHistory.replace({pathname: route.project, query: payload.query});
         },
         // 保存
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload, {desc: '添加成功'});
-            browserHistory.push(`${route.project}?pageSize=100`);
+            browserHistory.push(`${route.project}?pageNo=0&pageSize=100`);
         },
         // 添加一项 deployTargetFile
         *addDeployTargetFile({payload}, {call, put, select}) {
