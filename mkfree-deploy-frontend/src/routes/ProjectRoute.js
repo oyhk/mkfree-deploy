@@ -1,12 +1,14 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 
+const {CheckableTag} = Tag;
 
-function ProjectRoute({dispatch, pageResult}) {
+
+function ProjectRoute({dispatch, location, pageResult}) {
     const columns = [{
         title: '项目名称',
         dataIndex: 'name',
@@ -108,7 +110,8 @@ function ProjectRoute({dispatch, pageResult}) {
         key: 'buildLog',
         render: (value, record, columnIndex) => {
             return (
-                record.publishVersion ? <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link> : ''
+                record.publishVersion ?
+                    <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link> : ''
 
             );
         }
@@ -118,9 +121,9 @@ function ProjectRoute({dispatch, pageResult}) {
         key: 'options',
         render: (text, record, columnIndex) => {
             const obj = {
-                children: <div style={{textAlign:'center'}}>
+                children: <div style={{textAlign: 'center'}}>
                     <Link to={route.project_edit_path(record.id)}>编辑</Link> &nbsp;&nbsp;
-                    <Link onClick={()=>{
+                    <Link onClick={() => {
                         dispatch({
                             type: 'projectModel/branchRefresh',
                             payload: {
@@ -160,11 +163,33 @@ function ProjectRoute({dispatch, pageResult}) {
     return (
         <div>
             <div style={{marginBottom: '16px'}}>
-                <Button type="primary"
-                        onClick={() => {
-                            browserHistory.push(route.projectAdd);
-                        }}
-                >添加</Button>
+                <Row>
+                    <Col span={23}>
+                        <Link onClick={() => {
+                            const page = location.query.page ? location.query.page : 0;
+                            const pageSize = location.query.pageSize;
+                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=ALL`);
+                        }}>全部</Link>&nbsp;&nbsp;
+                        <Link onClick={() => {
+                            const page = location.query.page ? location.query.page : 0;
+                            const pageSize = location.query.pageSize;
+                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=[1]`);
+                        }}>后端</Link>&nbsp;&nbsp;
+                        <Link color="red" checked onClick={() => {
+                            const page = location.query.page ? location.query.page : 0;
+                            const pageSize = location.query.pageSize;
+                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=[2]`);
+                        }}>前端</Link>&nbsp;&nbsp;
+
+                    </Col>
+                    <Col span={1}>
+                        <Button type="primary"
+                                onClick={() => {
+                                    browserHistory.push(route.projectAdd);
+                                }}
+                        >添加</Button>
+                    </Col>
+                </Row>
             </div>
             <Table dataSource={pageResult.list}
                    columns={columns}

@@ -70,9 +70,9 @@ public class ProjectController extends BaseController {
             // 1. 清空文件夹所有文件
             String projectPath = project.getSystemPath();
             File projectFile = new File(projectPath);
-            if(projectFile.exists()){
+            if (projectFile.exists()) {
                 FileUtils.cleanDirectory(new File(projectPath));
-            }else{
+            } else {
                 projectFile.mkdirs();
             }
 
@@ -123,17 +123,23 @@ public class ProjectController extends BaseController {
 
 
     @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
-    public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
+    public JsonResult page(Integer pageNo, Integer pageSize, String projectTagId, HttpServletRequest request) {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
 
         // 首先把用户可发布的项目权限分组
         Map<Long, UserProjectPermissionDto> userProjectPermissionDtoMap = userDto.getUserProjectPermissionList().stream().collect(Collectors.toMap(UserProjectPermissionDto::getProjectId, userProjectPermissionDto -> userProjectPermissionDto));
 
         RestDoing doing = (JsonResult jsonResult) -> {
+            Page<Project> page;
+            if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
+                page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+            } else {
+                List<Long> projectTagIdList = objectMapper.readValue(projectTagId, new TypeReference<List<Long>>() {
+                });
+                page = projectRepository.findByProjectTagIdIn(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), projectTagIdList);
+            }
 
             List<ProjectAntTableDto> projectAntTableDtoList = new ArrayList<>();
-            Page<Project> page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
-
 
             // 表格 项目名称合并 rowSpan
             HashMap<Long, Integer> projectNameAntTableRowSpanMap = new HashMap<>();

@@ -96,13 +96,7 @@ public interface BaseDoing<T> {
     }
 
     default void errorLog(Logger log, Exception e) {
-        log.error(e.getMessage());
-        StackTraceElement[] stackTraceElements = e.getStackTrace();
-        for (int i = 0; i < stackTraceElements.length; i++) {
-            StackTraceElement stackTraceElement = stackTraceElements[i];
-            log.error(stackTraceElement.toString());
-        }
-        e.printStackTrace();
+        log.error(ExceptionUtils.getStackTrace(e));
     }
 
     default void showSql(Map<String, Object> params, String sqlName, String sql, Logger log) {

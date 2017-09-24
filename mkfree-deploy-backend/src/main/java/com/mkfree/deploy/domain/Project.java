@@ -28,6 +28,10 @@ public class Project extends IDEntity {
     //项目系统路劲
     @Column(columnDefinition = "varchar(255) comment '项目系统路劲'")
     private String systemPath;
+    @Column(columnDefinition = "bigint comment '项目标签id'")
+    private Long projectTagId;
+    @Column(columnDefinition = "varchar(50) comment '项目标签名称'")
+    private String projectTagName;
 
     public String getSystemPath() {
         return systemPath;
@@ -77,4 +81,19 @@ public class Project extends IDEntity {
         this.moduleName = moduleName;
     }
 
+    public Long getProjectTagId() {
+        return projectTagId;
+    }
+
+    public void setProjectTagId(Long projectTagId) {
+        this.projectTagId = projectTagId;
+    }
+
+    public String getProjectTagName() {
+        return projectTagName;
+    }
+
+    public void setProjectTagName(String projectTagName) {
+        this.projectTagName = projectTagName;
+    }
 }
