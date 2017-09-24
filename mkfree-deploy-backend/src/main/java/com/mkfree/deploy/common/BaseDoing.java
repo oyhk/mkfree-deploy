@@ -2,6 +2,7 @@ package com.mkfree.deploy.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,12 +56,7 @@ public interface BaseDoing<T> {
             jr.setDesc(JsonResult.CD0[1]);
         }
         log.error(e.getMessage());
-        StackTraceElement[] stackTraceElements = e.getStackTrace();
-        for (int i = 0; i < stackTraceElements.length; i++) {
-            StackTraceElement stackTraceElement = stackTraceElements[i];
-            log.error(stackTraceElement.toString());
-        }
-        e.printStackTrace();
+        log.error(ExceptionUtils.getStackTrace(e));
     }
 
     default void showReturnData(JsonResult jr, ObjectMapper objectMapper, Logger log) {

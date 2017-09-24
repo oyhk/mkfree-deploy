@@ -69,9 +69,14 @@ public class ProjectController extends BaseController {
 
             // 1. 清空文件夹所有文件
             String projectPath = project.getSystemPath();
-            FileUtils.cleanDirectory(new File(projectPath));
-            // 2. 重新拉取代码
+            File projectFile = new File(projectPath);
+            if(projectFile.exists()){
+                FileUtils.cleanDirectory(new File(projectPath));
+            }else{
+                projectFile.mkdirs();
+            }
 
+            // 2. 重新拉取代码
             String gitUrl = project.getGitUrl();
             Shell shell = new Shell();
             shell.appendN("echo 'cd #{projectPath}'");
@@ -126,67 +131,85 @@ public class ProjectController extends BaseController {
 
         RestDoing doing = (JsonResult jsonResult) -> {
 
-            List<ProjectDto> projectDtoList = new ArrayList<>();
-
+            List<ProjectAntTableDto> projectAntTableDtoList = new ArrayList<>();
             Page<Project> page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
-            page.getContent().forEach((Project project) -> {
 
-                ProjectDto projectDto = new ProjectDto();
-                projectDto.setName(project.getName());
-                projectDto.setId(project.getId());
-                projectDto.setBranchList(project.getBranchList());
+
+            // 表格 项目名称合并 rowSpan
+            HashMap<Long, Integer> projectNameAntTableRowSpanMap = new HashMap<>();
+            // 表格 项目环境合并 rowSpan
+            HashMap<String, Integer> projectEnvAntTableRowSpanMap = new HashMap<>();
+
+            page.forEach(project -> {
+                Long projectId = project.getId();
+                projectNameAntTableRowSpanMap.put(projectId, 0);
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
+                projectEnvConfigList.forEach(projectEnvConfig -> {
+                    List<String> serverMachineIpList = ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
+                    if (serverMachineIpList != null && serverMachineIpList.size() > 0) {
+                        int ipSize = serverMachineIpList.size();
+                        projectEnvAntTableRowSpanMap.put(projectId + projectEnvConfig.getEnv().toString(), ipSize);
 
-                projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> !projectEnvConfig.getServerMachineIp().equals("[]")).collect(Collectors.toList());
-                List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
-                if (userDto.getRoleType() == RoleType.ADMIN) {
-
-                    this.projectEnvConfigList(projectEnvConfigList, projectEnvConfigDtoList);
-                } else {
-                    UserProjectPermissionDto userProjectPermissionDto = userProjectPermissionDtoMap.get(project.getId());
-                    // 普通操作人员
-                    if (userProjectPermissionDto != null) {
-                        projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> userProjectPermissionDto.getProjectEnv().contains(projectEnvConfig.getEnv())).collect(Collectors.toList());
-                        if (projectEnvConfigList != null) {
-                            this.projectEnvConfigList(projectEnvConfigList, projectEnvConfigDtoList);
-                        }
-                    }
-                }
-                projectDto.setProjectEnvConfigList(projectEnvConfigDtoList);
-
-                if (projectEnvConfigList == null) {
-                    return;
-                }
-
-                Set<String> ipList = new HashSet<>();
-                for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
-                    try {
-                        List<String> ipListTemp = objectMapper.readValue(projectEnvConfig.getServerMachineIp(), new TypeReference<List<String>>() {
+                        Integer projectNameAntTableRowSpan = projectNameAntTableRowSpanMap.get(projectId);
+                        projectNameAntTableRowSpanMap.put(projectId, projectNameAntTableRowSpan + ipSize);
+                        serverMachineIpList.forEach(ip -> {
+                            ProjectAntTableDto projectAntTableDto = new ProjectAntTableDto();
+                            projectAntTableDto.setBranchList(project.getBranchList());
+                            projectAntTableDto.setName(project.getName());
+                            projectAntTableDto.setId(project.getId());
+                            projectAntTableDto.setBranchList(project.getBranchList());
+                            projectAntTableDto.setProjectNameAntTableRowSpan(0);
+                            projectAntTableDto.setProjectEnvAntTableRowSpan(0);
+                            projectAntTableDto.setProjectEnv(projectEnvConfig.getEnv());
+                            projectAntTableDto.setIp(ip);
+                            projectAntTableDtoList.add(projectAntTableDto);
                         });
-                        ipList.addAll(ipListTemp);
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
-                }
-                ipList.remove("");
-
-                List<ProjectBuildLog> projectBuildLogList = projectBuildLogRepository.findByIpInAndProjectIdOrderByCreatedAtDesc(ipList, project.getId());
-                Map<String, List<ProjectBuildLog>> projectBuildLogListMap = new HashMap<>();
-                projectBuildLogList.forEach(projectBuildLogTemp -> {
-                    String key = projectBuildLogTemp.getProjectId() + "_" + projectBuildLogTemp.getIp() + "_" + projectBuildLogTemp.getProjectEnv().toString();
-                    projectBuildLogListMap.computeIfAbsent(key, s -> new ArrayList<>());
-                    projectBuildLogListMap.get(key).add(new ProjectBuildLog(projectBuildLogTemp.getBuildVersion(), projectBuildLogTemp.getCreatedAt()));
                 });
-
-                projectDto.setBuildLog(projectBuildLogListMap);
-
-                projectDtoList.add(projectDto);
 
             });
 
+            final Long[] prevProjectId = new Long[]{0L};
+            final String[] prevProjectEnv = new String[]{"0env"};
+            projectAntTableDtoList.forEach(projectAntTableDto -> {
 
-            jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectDtoList, Routes.PROJECT_PAGE);
+                Long projectId = projectAntTableDto.getId();
+                ProjectEnv projectEnv = projectAntTableDto.getProjectEnv();
+
+                // 项目名称rowSpan 合并单元格
+                Integer projectNameAntTableRowSpan = projectNameAntTableRowSpanMap.get(projectAntTableDto.getId());
+                // 项目环境rowSpan 合并单元格
+                Integer projectEnvAntTableRowSpan = projectEnvAntTableRowSpanMap.get(projectAntTableDto.getId() + projectEnv.toString());
+                if (prevProjectId[0] == 0L) {
+                    prevProjectId[0] = projectAntTableDto.getId();
+                    projectAntTableDto.setProjectNameAntTableRowSpan(projectNameAntTableRowSpan);
+                }
+                if (!Objects.equals(prevProjectId[0], projectAntTableDto.getId())) {
+                    projectAntTableDto.setProjectNameAntTableRowSpan(projectNameAntTableRowSpan);
+                    prevProjectId[0] = projectAntTableDto.getId();
+                }
+
+                if (prevProjectEnv[0].equals("0env")) {
+                    prevProjectEnv[0] = projectAntTableDto.getId() + projectEnv.toString();
+                    projectAntTableDto.setProjectEnvAntTableRowSpan(projectEnvAntTableRowSpan);
+                }
+                if (!prevProjectEnv[0].equals(projectAntTableDto.getId() + projectEnv.toString())) {
+                    projectAntTableDto.setProjectEnvAntTableRowSpan(projectEnvAntTableRowSpan);
+                    prevProjectEnv[0] = projectAntTableDto.getId() + projectEnv.toString();
+                }
+
+
+                // 最新发布时间
+                ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
+                if (projectBuildLog != null) {
+                    projectAntTableDto.setPublishTime(projectBuildLog.getCreatedAt());
+                    projectAntTableDto.setPublishVersion(projectBuildLog.getBuildVersion());
+                }
+            });
+
+
+            jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectAntTableDtoList, Routes.PROJECT_PAGE);
         };
         return doing.go(request, objectMapper, log);
     }
@@ -472,7 +495,7 @@ public class ProjectController extends BaseController {
             for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
                 projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-                projectEnvConfigDto.setServerMachineIpList(ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp()));
+                projectEnvConfigDto.setServerMachineIpList(ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp()));
                 projectEnvConfigDto.setPublicBranch(projectEnvConfig.getPublicBranch());
 
                 // 项目配置环境构建前步骤
@@ -854,7 +877,7 @@ public class ProjectController extends BaseController {
         projectEnvConfigList.forEach(projectEnvConfig -> {
             ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
             projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-            List<String> serverMachineIpList = ObjectMapperHelper.SINGLEONE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
+            List<String> serverMachineIpList = ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
             projectEnvConfigDto.setServerMachineIpList(serverMachineIpList);
             projectEnvConfigDtoList.add(projectEnvConfigDto);
         });

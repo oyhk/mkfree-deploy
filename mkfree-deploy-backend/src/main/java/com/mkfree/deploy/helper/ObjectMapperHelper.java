@@ -11,7 +11,7 @@ import java.util.List;
  */
 public enum ObjectMapperHelper {
 
-    SINGLEONE;
+    SINGLE;
 
     public List<String> jsonToListString(ObjectMapper objectMapper, String value)  {
         try {
