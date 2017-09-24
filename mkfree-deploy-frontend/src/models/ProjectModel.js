@@ -69,6 +69,10 @@ export default {
                 }
             });
         },
+
+        *initGit({payload}, {call, put, select}){
+            yield call(projectService.initGit, payload.id, {desc: '初始化成功'});
+        },
         *update({payload}, {call, put}) {
             yield call(projectService.update, payload, {desc: '修改成功'});
             browserHistory.push(`${route.project}?pageSize=100`);
@@ -86,7 +90,7 @@ export default {
 
         },
         // 删除一个项目
-        *deleted({payload},{call,put,select}){
+        *deleted({payload}, {call, put, select}){
             yield call(projectService.deleted, payload, {desc: '删除成功'});
             browserHistory.push(`${route.project}?pageSize=100`);
         },
@@ -103,13 +107,13 @@ export default {
                 }
             });
 
-            if (!buildLog || buildLog.indexOf('deploy finish') === -1) {
+            if (!buildLog || buildLog.indexOf('################ exec shell end ##################') === -1) {
                 setTimeout(() => {
                     window.location.reload();
                 }, 5000);
 
             }
-            window.scroll(0,10000000);
+            window.scroll(0, 10000000);
 
         },
         *sync({payload}, {call, put, select}) {
@@ -122,7 +126,7 @@ export default {
         },
         // 保存
         *saved({payload}, {call, put, select}) {
-            yield call(projectService.save, payload,{desc: '添加成功'});
+            yield call(projectService.save, payload, {desc: '添加成功'});
             browserHistory.push(`${route.project}?pageSize=100`);
         },
         // 添加一项 deployTargetFile

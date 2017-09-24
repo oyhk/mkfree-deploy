@@ -10,6 +10,7 @@ import com.mkfree.deploy.domain.enumclass.*;
 import com.mkfree.deploy.dto.*;
 import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -60,6 +61,40 @@ public class ProjectController extends BaseController {
     @Autowired
     private ExecutorService commonExecutorService;
 
+    @GetMapping(value = Routes.PROJECT_INIT_GIT)
+    public JsonResult initGit(ProjectDto dto, HttpServletRequest request) {
+        RestDoing doing = jsonResult -> {
+
+            Project project = projectRepository.findOne(dto.getId());
+
+            // 1. 清空文件夹所有文件
+            String projectPath = project.getSystemPath();
+            FileUtils.cleanDirectory(new File(projectPath));
+            // 2. 重新拉取代码
+
+            String gitUrl = project.getGitUrl();
+            Shell shell = new Shell();
+            shell.appendN("echo 'cd #{projectPath}'");
+            shell.appendN("cd #{projectPath}");
+            shell.addParams("projectPath", projectPath);
+
+            shell.appendN("echo 'git clone #{gitUrl} DEFAULT'");
+            shell.appendN("git clone #{gitUrl} DEFAULT");
+            shell.addParams("gitUrl", gitUrl);
+
+            ShellHelper.SINGLEONE.executeShellCommand(shell.getShell(), log);
+            // 2.1 复制到各种环境
+            File defaultProject = new File(projectPath + "/DEFAULT");
+            File devProject = new File(projectPath + "/DEV");
+            File uatProject = new File(projectPath + "/UAT");
+            File prodProject = new File(projectPath + "/PROD");
+            FileUtils.copyDirectory(defaultProject, devProject);
+            FileUtils.copyDirectory(defaultProject, uatProject);
+            FileUtils.copyDirectory(defaultProject, prodProject);
+
+        };
+        return doing.go(request, log);
+    }
 
     @RequestMapping(value = Routes.PROJECT_ENV_LIST, method = RequestMethod.GET)
     public JsonResult envList(HttpServletRequest request) {
@@ -373,26 +408,21 @@ public class ProjectController extends BaseController {
 
             String projectPath = systemConfig.getValue() + File.separator + project.getName();
 
-            Map<String, String> params = new HashMap<>();
-            StringBuilder shellBuilder = new StringBuilder();
-            StrSubstitutor strSubstitutor = new StrSubstitutor(params, "#{", "}");
-
+            Shell shell = new Shell();
             // 1. cd 项目路劲
-            shellBuilder.append("cd #{projectPath}").append("\n");
-            params.put("projectPath", projectPath);
-
+            shell.appendN("cd #{projectPath}/DEFAULT");
+            shell.addParams("projectPath", projectPath);
             // 2. git pull 拉去所有分支
-            shellBuilder.append("git pull").append("\n");
-
+            shell.appendN("git pull");
             // 3. 查看分支列表
-            shellBuilder.append("git branch -a | grep remotes/origin").append("\n");
+            shell.appendN("git branch -a | grep remotes/origin");
 
-            String lastShell = strSubstitutor.replace(shellBuilder.toString());
-            String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell);
+            String lastShell = shell.getShell();
+            String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell, log);
             branchListTemp = branchListTemp.replaceAll("</br>", "");
             branchListTemp = branchListTemp.replaceAll("deploy finish", "");
             String[] branchListArray = branchListTemp.split("remotes/origin/");
-            List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating") && !s.contains("更新")).map(String::trim).sorted().collect(Collectors.toList());
+            List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating") && !s.contains("更新") && !s.contains("++++++")).map(String::trim).sorted().collect(Collectors.toList());
             project.setBranchList(objectMapper.writeValueAsString(branchList));
             projectRepository.save(project);
 
@@ -659,129 +689,124 @@ public class ProjectController extends BaseController {
 
             ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
 
-
-            Map<String, String> params = new HashMap<>();
-
+            Shell shell = new Shell();
             // 公共参数
-            params.put("port", serverMachine.getPort());
-            params.put("username", serverMachine.getUsername());
-            params.put("ip", serverMachine.getIp());
-
+            shell.addParams("port", serverMachine.getPort());
+            shell.addParams("username", serverMachine.getUsername());
+            shell.addParams("ip", serverMachine.getIp());
+            shell.addParams("env", projectEnv.toString());
             // 指定分支发布
             if (StringUtils.isBlank(publishBranch)) {
                 publishBranch = projectEnvConfig.getPublicBranch();
             }
-            params.put("publicBranch", publishBranch);
+            shell.addParams("publicBranch", publishBranch);
             String remoteProjectPath = project.getRemotePath();
-            params.put("remoteProjectPath", remoteProjectPath);
+            shell.addParams("remoteProjectPath", remoteProjectPath);
 
-
-            StringBuilder shellBuilder = new StringBuilder();
-            StrSubstitutor strSubstitutor = new StrSubstitutor(params, "#{", "}");
 
             // 1. cd 项目路劲
             String projectPath = systemConfig.getValue() + File.separator + project.getName();
-            shellBuilder.append("echo cd #{projectPath}").append("\n");
-            shellBuilder.append("cd #{projectPath}").append("\n");
-            params.put("projectPath", projectPath);
+            shell.appendN("echo 'cd #{projectPath}/#{env}'");
+            shell.appendN("cd #{projectPath}/#{env}");
+            shell.addParams("projectPath", projectPath);
 
             // 2. git pull 用git拉去最新代码
-            shellBuilder.append("echo git pull").append("\n");
-            shellBuilder.append("git pull").append("\n");
+            shell.appendN("echo git pull");
+            shell.appendN("git pull");
 
             // 3. git 切换到项目发布分支 并且 拉取发布分支最新代码
             if (StringUtils.isBlank(publishBranch)) {
                 publishBranch = "master"; // 如果不填分支默认 master
             }
-            shellBuilder.append("echo git checkout #{publicBranch}").append("\n");
-            shellBuilder.append("git checkout #{publicBranch}").append("\n");
+            shell.appendN("echo git checkout #{publicBranch}");
+            shell.appendN("git checkout #{publicBranch}");
 
 
-            shellBuilder.append("echo git pull origin #{publicBranch}").append("\n");
-            shellBuilder.append("git pull origin #{publicBranch}").append("\n");
-            params.put("publicBranch", publishBranch);
+            shell.appendN("echo git pull origin #{publicBranch}");
+            shell.appendN("git pull origin #{publicBranch}");
+            shell.addParams("publicBranch", publishBranch);
 
             // 4. 执行构建命令
             List<ProjectBuildStep> beforeProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.BEFORE, projectEnv);
             beforeProjectBuildStepList.forEach(projectStructureStep -> {
-                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
-                shellBuilder.append(projectStructureStep.getStep()).append("\n");
+                shell.appendN("echo ").appendN("'").appendN(projectStructureStep.getStep()).appendN("'");
+                shell.appendN(projectStructureStep.getStep());
             });
 
             // 5. 创建build目录文件夹
             SystemConfig buildSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
             String buildPath = buildSystemConfig.getValue() + File.separator + project.getName();
-            shellBuilder.append("echo mkdir -p #{buildPath}/version").append("\n");
-            shellBuilder.append("mkdir -p #{buildPath}/version").append("\n");
-            params.put("buildPath", buildPath);
+            shell.appendN("echo 'mkdir -p #{buildPath}'");
+            shell.appendN("mkdir -p #{buildPath}");
+            shell.addParams("buildPath", buildPath);
 
             // 6. 创建发布版本文件夹 当前发布时间 + git 分支 + git log version  目录格式：20170608_release_2.1.0_f0a39fe52e3f1f4b3b42ee323623ae71ada21094
-            String getLogVersionShell = "cd " + projectPath + " \n git pull \n git checkout origin " + publishBranch + " \n git pull origin " + publishBranch + " \n echo $(git log -1)";
+            String getLogVersionShell = "cd " + projectPath + "/DEFAULT" + " \n git pull \n git checkout origin " + publishBranch + " \n git pull origin " + publishBranch + " \n echo $(git log -1)";
             String gitLogVersion = ShellHelper.SINGLEONE.executeShellCommand(getLogVersionShell, log);
             if (StringUtils.isNotBlank(gitLogVersion)) {
                 gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
             }
             String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publishBranch.replace("/", "_") + "_" + gitLogVersion;
-            shellBuilder.append("echo mkdir -p #{buildPath}/version/#{projectVersionDir}").append("\n");
-            shellBuilder.append("mkdir -p #{buildPath}/version/#{projectVersionDir}").append("\n");
-            params.put("projectVersionDir", projectVersionDir);
+            shell.appendN("echo 'mkdir -p #{buildPath}/#{env}/version/#{projectVersionDir}'");
+            shell.appendN("mkdir -p #{buildPath}/#{env}/version/#{projectVersionDir}");
+            shell.addParams("projectVersionDir", projectVersionDir);
+
 
             // 7. 把构建好的文件 并且 是需要上传的文件 copy到版本文件夹中
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
             for (int i = 0; i < projectDeployFileList.size(); i++) {
                 ProjectDeployFile projectDeployFile = projectDeployFileList.get(i);
-                shellBuilder.append("echo cp -r #{projectPath}/#{projectDeployFileLocalFilePath").append(i).append("} #{buildPath}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath").append(i).append("}").append("\n");
-                shellBuilder.append("cp -r #{projectPath}/#{projectDeployFileLocalFilePath").append(i).append("} #{buildPath}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath").append(i).append("}").append("\n");
-                params.put("projectDeployFileLocalFilePath" + i, projectDeployFile.getLocalFilePath());
-                params.put("projectDeployFileRemoteFilePath" + i, projectDeployFile.getRemoteFilePath());
+                shell.appendN("echo 'cp -r #{projectPath}/#{env}/#{projectDeployFileLocalFilePath" + i + "} #{buildPath}/#{env}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath" + i + "}'");
+                shell.appendN("cp -r #{projectPath}/#{env}/#{projectDeployFileLocalFilePath" + i + "} #{buildPath}/#{env}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath" + i + "}");
+                shell.addParams("projectDeployFileLocalFilePath" + i, projectDeployFile.getLocalFilePath());
+                shell.addParams("projectDeployFileRemoteFilePath" + i, projectDeployFile.getRemoteFilePath());
             }
 
             // 8. 创建本地最新版本软连接
-            shellBuilder.append("echo ln -sf #{buildPath}/current").append("\n");
-            shellBuilder.append("ln -sf #{buildPath}/current").append("\n");
-            shellBuilder.append("echo rm -rf #{buildPath}/current").append("\n");
-            shellBuilder.append("rm -rf #{buildPath}/current").append("\n");
-            shellBuilder.append("echo ln -s #{buildPath}/version/#{projectVersionDir} #{buildPath}/current").append("\n");
-            shellBuilder.append("ln -s #{buildPath}/version/#{projectVersionDir} #{buildPath}/current").append("\n");
+            shell.appendN("cd #{buildPath}/#{env}");
+            shell.appendN("echo 'ln -sf #{buildPath}/#{env}/current'");
+            shell.appendN("ln -sf #{buildPath}/#{env}/current");
+            shell.appendN("echo 'rm -rf #{buildPath}/#{env}/current'");
+            shell.appendN("rm -rf #{buildPath}/#{env}/current");
+            shell.appendN("echo 'ln -s #{buildPath}/#{env}/version/#{projectVersionDir} #{buildPath}/#{env}/current'");
+            shell.appendN("ln -s #{buildPath}/#{env}/version/#{projectVersionDir} #{buildPath}/#{env}/current");
 
             // 9. 远程服务器: 创建标准目录结构
-            shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} ").append("mkdir -p #{remoteProjectPath}/version").append("\n");
-            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
+            shell.appendN("echo 'ssh -p #{port} #{username}@#{ip} mkdir -p #{remoteProjectPath}/version'");
+            shell.appendN("ssh -p #{port} #{username}@#{ip} 'mkdir -p #{remoteProjectPath}/version'");
 
             // 10. 远程服务器: 上传版本文件
-            shellBuilder.append("echo scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
-            shellBuilder.append("scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+            shell.appendN("echo 'scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version'");
+            shell.appendN("scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
 
             // 11. 远程服务器: 创建当前版本软链接
             // 11.1 删除
-
-            shellBuilder.append("echo exec #{username}@#{ip} shell \n");
-            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ");
-            shellBuilder.append("'").append("\n");
-            shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n")
-                    .append("ln -sf #{remoteProjectPath}/current").append("\n")
-                    .append("echo rm -rf  #{remoteProjectPath}/current").append("\n")
-                    .append("rm -rf  #{remoteProjectPath}/current").append("\n");
+            shell.appendN("echo 'exec #{username}@#{ip} shell'");
+            shell.appendN("ssh -p #{port} #{username}@#{ip} '");
+            shell.appendN("echo \"ln -sf #{remoteProjectPath}/current\"")
+                    .appendN("ln -sf #{remoteProjectPath}/current")
+                    .appendN("echo \"rm -rf  #{remoteProjectPath}/current\"")
+                    .appendN("rm -rf  #{remoteProjectPath}/current");
             // 11.2 创建
-            shellBuilder.append("echo ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
-            shellBuilder.append("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
-            shellBuilder.append("ln -sf ~/current").append("\n").append("rm -rf ~/current").append("\n");
+            shell.appendN("echo \"ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current\"");
+            shell.appendN("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current");
+            shell.appendN("ln -sf ~/current").appendN("rm -rf ~/current");
 
 
             // 12. 查看此版本上传后文件列表
-            shellBuilder.append("echo tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
-            shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+            shell.appendN("echo \"tree #{remoteProjectPath}/version/#{projectVersionDir}\"");
+            shell.appendN("tree #{remoteProjectPath}/version/#{projectVersionDir}");
 
             // 13. 执行构建后命令
             List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.AFTER, projectEnv);
             afterProjectBuildStepList.forEach(projectStructureStep -> {
-                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
-                shellBuilder.append(projectStructureStep.getStep()).append("\n");
+                shell.appendN("echo \"").appendN(projectStructureStep.getStep()).appendN("\"");
+                shell.appendN(projectStructureStep.getStep());
             });
 
-            shellBuilder.append("'");
+            shell.appendN("'");
 
-            String lastShell = strSubstitutor.replace(shellBuilder.toString());
+            String lastShell = shell.getShell();
             String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
 
 
@@ -819,7 +844,7 @@ public class ProjectController extends BaseController {
             if (result == null) {
                 result = new StringBuilder("");
             }
-            jsonResult.data = result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">WARNING</span>");
+            jsonResult.data = result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>");
             jsonResult.data = result.toString().replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>");
         };
         return doing.go(log);

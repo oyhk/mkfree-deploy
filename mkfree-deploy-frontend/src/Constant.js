@@ -11,3 +11,10 @@ export const route = {
     project_edit_path: id => routePath(route.projectEdit, {id}),
     project_build_log_path: id => routePath(route.projectBuildLog, {id}),
 };
+
+const api_prefix = '/api';
+export const api = {
+    projectPage: `${api_prefix}/project/page`,
+    projectInitGit: `${api_prefix}/project/init_git`
+};
+

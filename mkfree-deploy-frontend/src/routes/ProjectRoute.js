@@ -144,6 +144,16 @@ function ProjectRoute({dispatch, pageResult}) {
                     });
                 }} okText="Yes" cancelText="No">
                     <Link>删除</Link>
+                </Popconfirm> &nbsp;&nbsp;
+                <Popconfirm title="确定初始化此项目吗？" onConfirm={() => {
+                    dispatch({
+                        type: 'projectModel/initGit',
+                        payload: {
+                            id: record.id
+                        }
+                    });
+                }} okText="Yes" cancelText="No">
+                    <Link>初始化</Link>
                 </Popconfirm>
             </div>;
         }

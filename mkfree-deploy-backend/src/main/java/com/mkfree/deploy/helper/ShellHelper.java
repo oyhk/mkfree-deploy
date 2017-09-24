@@ -80,7 +80,14 @@ public enum ShellHelper {
      */
     public String executeShellCommand(String command, String key, Logger log) {
 
-        StringBuilder builder = new StringBuilder();
+        String start = "################ exec shell start ##################";
+        String end = "################ exec shell end ##################";
+
+        if (log != null) {
+            log.info(start);
+        }
+        StringBuilder builder = new StringBuilder("</br>");
+        builder.append(start).append("</br>");
         if (StringUtils.isNotBlank(key)) {
             Config.STRING_BUILDER_MAP.put(key, builder);
         }
@@ -91,17 +98,23 @@ public enum ShellHelper {
             while ((line = stdoutReader.readLine()) != null) {
                 // process procs standard output here
                 builder.append(line).append("</br>");
-                if (StringUtils.isNotBlank(key)) {
+                if (log != null) {
                     log.info(line);
                 }
             }
 
-            builder.append("deploy finish");
-            BufferedReader stderrReader = new BufferedReader(
-                    new InputStreamReader(process.getErrorStream()));
+            BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             while ((line = stderrReader.readLine()) != null) {
                 // process procs standard error here
+//                builder.appendN(line).appendN("</br>");
+//                if (log != null) {
+//                    log.info(line);
+//                }
             }
+            if (log != null) {
+                log.info(end);
+            }
+            builder.append("</br>").append(end);
             process.waitFor();
             process.exitValue();
         } catch (IOException | InterruptedException e) {
@@ -117,7 +130,7 @@ public enum ShellHelper {
      * @return
      */
     public String executeShellCommand(String command, Logger log) {
-        return this.executeShellCommand(command, null, log);
+        return this.executeShellCommand(command, null, log).replaceAll("</br>","").replaceAll("################ exec shell start ##################","").replaceAll("################ exec shell end ##################","");
     }
 
     /**
@@ -127,6 +140,10 @@ public enum ShellHelper {
      */
     public String executeShellCommand(String command) {
         return this.executeShellCommand(command, null, null);
+    }
+
+    public String executeShellCommandOutConsoleLog(String command) {
+        return executeShellCommand(command).replaceAll("</br>", System.lineSeparator());
     }
 
 }

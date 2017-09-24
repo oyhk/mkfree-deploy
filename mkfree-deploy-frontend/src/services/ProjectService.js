@@ -1,8 +1,9 @@
 import {request, requestData} from '../utils/Request';
+import {api} from '../Constant';
 import {jsonToUrlParams} from '../utils/Utils';
 
 export async function page(params, remind) {
-    return requestData(`/api/project/page?${jsonToUrlParams(params)}`);
+    return requestData(`${api.projectPage}?${jsonToUrlParams(params)}`);
 }
 
 export async function save(body, remind) {
@@ -10,6 +11,10 @@ export async function save(body, remind) {
 }
 export async function deleted(body, remind) {
     return request('/api/project/delete', {method: 'DELETE', body: JSON.stringify(body), remind});
+}
+
+export async function initGit(id, remind) {
+    return requestData(`${api.projectInitGit}?id=${id}`,{remind});
 }
 
 export async function update(body, remind) {

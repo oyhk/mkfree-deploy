@@ -11,7 +11,7 @@ import java.util.Map;
  * 组装shell脚本
  * <p>
  *     Shell shell = new Shell();
- *     shell.append("cd #{path}").append("ls");
+ *     shell.appendN("cd #{path}").appendN("ls");
  *     shell.addParams("path","/opt");
  *     String lastShell = shell.getShell();
  *     System.out.println(lastShell);
@@ -28,10 +28,15 @@ public class Shell {
      * @param str 例如：cd /mnt/usr/product
      * @return
      */
-    public Shell append(String str) {
+    public Shell appendN(String str) {
         this.shellBuilder.append(str).append("\n");
         return this;
     }
+    public Shell append(String str) {
+        this.shellBuilder.append(str);
+        return this;
+    }
+
 
     /**
      * 添加参数
