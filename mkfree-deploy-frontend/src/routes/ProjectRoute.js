@@ -105,21 +105,13 @@ function ProjectRoute({dispatch, location, pageResult}) {
             );
         }
     }, {
-        title: '构建日志',
-        dataIndex: 'buildLog',
-        key: 'buildLog',
-        render: (value, record, columnIndex) => {
-            return (
-                <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link>
-            );
-        }
-    }, {
         title: '操作',
         dataIndex: 'options',
         key: 'options',
         render: (text, record, columnIndex) => {
             const obj = {
                 children: <div style={{textAlign: 'center'}}>
+                    <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link> &nbsp;&nbsp;
                     <Link to={route.project_edit_path(record.id)}>编辑</Link> &nbsp;&nbsp;
                     <Link onClick={() => {
                         dispatch({
