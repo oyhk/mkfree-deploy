@@ -203,9 +203,14 @@ public class ProjectController extends BaseController {
                     prevProjectEnv[0] = projectAntTableDto.getId() + projectEnv.toString();
                 }
 
+                ProjectBuildLog projectBuildLog;
+                if (projectEnvAntTableRowSpan > 0) {
+                    projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
+                } else {
+                    projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.SYNC, projectEnv);
+                }
 
                 // 最新发布时间
-                ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
                 if (projectBuildLog != null) {
                     projectAntTableDto.setPublishTime(projectBuildLog.getCreatedAt());
                     projectAntTableDto.setPublishVersion(projectBuildLog.getBuildVersion());
@@ -588,6 +593,7 @@ public class ProjectController extends BaseController {
             params.put("port", serverMachine.getPort());
             params.put("username", serverMachine.getUsername());
             params.put("ip", serverMachine.getIp());
+            params.put("env", projectEnv.toString());
 
 
             String publicBranch = projectEnvConfig.getPublicBranch();
@@ -613,8 +619,8 @@ public class ProjectController extends BaseController {
             shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
 
             // 10. 远程服务器: 上传版本文件
-            shellBuilder.append("echo scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
-            shellBuilder.append("scp -P #{port} -r #{buildPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+            shellBuilder.append("echo scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+            shellBuilder.append("scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
 
             // 11. 远程服务器: 创建当前版本软链接
             // 11.1 删除
