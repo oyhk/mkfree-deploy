@@ -33,6 +33,8 @@ public class ServerMachine extends IDEntity {
     @Column(columnDefinition = "varchar(50) comment '机器类型'")
     @Enumerated(EnumType.STRING)
     private ServerMachineType type;
+    @Column(columnDefinition = "bit default 0 comment '是否发布机器'")
+    private Boolean isPublish;
 
     public String getIp() {
         return ip;
@@ -80,5 +82,13 @@ public class ServerMachine extends IDEntity {
 
     public void setType(ServerMachineType type) {
         this.type = type;
+    }
+
+    public Boolean getPublish() {
+        return isPublish;
+    }
+
+    public void setPublish(Boolean publish) {
+        isPublish = publish;
     }
 }

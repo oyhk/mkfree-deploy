@@ -129,6 +129,10 @@ public class ProjectController extends BaseController {
         // 首先把用户可发布的项目权限分组
         Map<Long, UserProjectPermissionDto> userProjectPermissionDtoMap = userDto.getUserProjectPermissionList().stream().collect(Collectors.toMap(UserProjectPermissionDto::getProjectId, userProjectPermissionDto -> userProjectPermissionDto));
 
+
+        List<ServerMachine> serverMachineList = serverMachineRepository.findAll();
+        Map<String, ServerMachine> serverMachineMap = serverMachineList.stream().collect(Collectors.toMap(ServerMachine::getIp, o -> o));
+
         RestDoing doing = (JsonResult jsonResult) -> {
             Page<Project> page;
             if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
@@ -166,7 +170,12 @@ public class ProjectController extends BaseController {
                             projectAntTableDto.setProjectNameAntTableRowSpan(0);
                             projectAntTableDto.setProjectEnvAntTableRowSpan(0);
                             projectAntTableDto.setProjectEnv(projectEnvConfig.getEnv());
+
                             projectAntTableDto.setIp(ip);
+                            ServerMachine serverMachine = serverMachineMap.get(ip);
+                            if (serverMachine != null) {
+                                projectAntTableDto.setPublish(serverMachine.getPublish());
+                            }
                             projectAntTableDtoList.add(projectAntTableDto);
                         });
                     }
@@ -202,15 +211,13 @@ public class ProjectController extends BaseController {
                     projectAntTableDto.setProjectEnvAntTableRowSpan(projectEnvAntTableRowSpan);
                     prevProjectEnv[0] = projectAntTableDto.getId() + projectEnv.toString();
                 }
-
                 ProjectBuildLog projectBuildLog;
-                if (projectEnvAntTableRowSpan > 0) {
+                // 最新发布时间
+                if (projectAntTableDto.getPublish() != null && projectAntTableDto.getPublish()) {
                     projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
                 } else {
                     projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.SYNC, projectEnv);
                 }
-
-                // 最新发布时间
                 if (projectBuildLog != null) {
                     projectAntTableDto.setPublishTime(projectBuildLog.getCreatedAt());
                     projectAntTableDto.setPublishVersion(projectBuildLog.getBuildVersion());

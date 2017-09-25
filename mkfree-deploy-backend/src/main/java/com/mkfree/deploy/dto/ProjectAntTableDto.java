@@ -12,7 +12,11 @@ import java.util.Date;
  */
 public class ProjectAntTableDto extends Project {
 
+    // 服务器ip
     private String ip;
+    // 是否发布机器
+    private Boolean isPublish;
+
     private ProjectEnv projectEnv;
     // 发布时间
     private Date publishTime;
@@ -76,5 +80,13 @@ public class ProjectAntTableDto extends Project {
 
     public void setPublishVersion(String publishVersion) {
         this.publishVersion = publishVersion;
+    }
+
+    public Boolean getPublish() {
+        return isPublish;
+    }
+
+    public void setPublish(Boolean publish) {
+        isPublish = publish;
     }
 }
