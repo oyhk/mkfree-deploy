@@ -15,6 +15,7 @@ export const route = {
 const api_prefix = '/api';
 export const api = {
     projectPage: `${api_prefix}/project/page`,
-    projectInitGit: `${api_prefix}/project/init_git`
+    projectInitGit: `${api_prefix}/project/init_git`,
+    userLogin: `${api_prefix}/user/login`,
 };
 

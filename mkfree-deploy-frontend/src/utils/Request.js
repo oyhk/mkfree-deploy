@@ -1,5 +1,9 @@
 import fetch from 'dva/fetch';
 import {message} from 'antd';
+import cookie from 'react-cookie';
+import {browserHistory} from 'dva/router';
+import {route} from '../Constant';
+
 
 function parseJSON(response) {
     return response.json();
@@ -22,13 +26,13 @@ export function requestData(url, options = {}) {
      * @param options
      * @returns {Promise.<TResult>}
      */
-    const url1 = `${API_HOST}${url}`;
+    url = `${API_HOST}${url}`;
 
     options.headers = {
-        user_token: 'e15fc3c18fecfd8e3937c2b8c8677b4a',
+        user_token: cookie.load('user_token'),
         'Content-Type': 'application/json'
     };
-    return fetch(url1, options)
+    return fetch(url, options)
         .then(checkStatus)
         .then(parseJSON)
         .then((result) => {
@@ -36,6 +40,9 @@ export function requestData(url, options = {}) {
                 message.error(result.desc);
             } else if (result.code === '1' && options.remind) {
                 message.success(options.remind.desc);
+            } else if (result.code === '105' || result.code === '104') {
+                message.warn('登录信息过期，请重新登录');
+                browserHistory.replace(route.signIn);
             } else if (options.remind) {
                 message.warn(result.desc);
             }
@@ -54,14 +61,15 @@ export function requestData(url, options = {}) {
  * @return {object}           An object containing either "data" or "err"
  */
 export function request(url, options = {}) {
-    const url1 = `${API_HOST}${url}`;
+
+    url = `${API_HOST}${url}`;
 
     options.headers = {
-        user_token: 'e15fc3c18fecfd8e3937c2b8c8677b4a',
+        user_token: cookie.load('user_token'),
         'Content-Type': 'application/json'
     };
 
-    return fetch(url1, options)
+    return fetch(url, options)
         .then(checkStatus)
         .then(parseJSON)
         .then((result) => {
@@ -69,8 +77,9 @@ export function request(url, options = {}) {
                 message.error(result.desc);
             } else if (result.code === '1' && options.remind) {
                 message.success(options.remind.desc);
-            } else if (options.remind) {
-                message.warn(result.desc);
+            } else if (result.code === '105' || result.code === '104') {
+                message.warn('登录信息过期，请重新登录');
+                browserHistory.replace(route.signIn);
             }
 
             return result;

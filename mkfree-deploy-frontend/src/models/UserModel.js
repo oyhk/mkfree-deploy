@@ -1,5 +1,7 @@
-import * as projectService from '../services/ProjectService';
-import {addKey} from '../utils/Utils';
+import * as userSerivce from '../services/UserService';
+import cookie from 'react-cookie';
+import {browserHistory} from 'dva/router';
+import {route} from '../Constant';
 
 export default {
 
@@ -8,23 +10,20 @@ export default {
     state: {
         pageResult: {},
     },
-
-    subscriptions: {
-        setup({dispatch, history}) {  // eslint-disable-line
-            dispatch({type: 'page', payload: {}});
-        },
-    },
-
+    subscriptions: {},
     effects: {
-        *fetch({payload}, {call, put}) {  // eslint-disable-line
-            yield put({type: 'save'});
-        },
+        *login({payload}, {call, put, select}) {
+            const result = yield call(userSerivce.login, payload, {desc: '登录成功'});
+            const userToken = result.data;
+            if (result.code === '1') {
+                cookie.save('user_token', userToken, {path: '/', maxAge: 30 * 24 * 60 * 60});
+                browserHistory.push({pathname: route.project, query: {pageNo: 0, pageSize: 100}});
+            }
+        }
     },
-
     reducers: {
         save(state, action) {
             return {...state, ...action.payload};
         },
     },
-
 };

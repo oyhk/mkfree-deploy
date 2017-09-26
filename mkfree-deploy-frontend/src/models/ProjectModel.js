@@ -21,6 +21,7 @@ export default {
             return history.listen((location) => {
                 // 项目管理
                 if (location.pathname === route.project) {
+
                     dispatch({type: 'page', payload: {...location.query}});
                     return;
                 }
@@ -58,7 +59,12 @@ export default {
         },
 
         *page({payload}, {call, put}) {
-            const result = yield call(projectService.page, payload);
+            let result = yield call(projectService.page, payload);
+
+            if (!result) {
+                result = {};
+                result.list = [];
+            }
 
             addKey(result.list);
 
