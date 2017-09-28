@@ -758,11 +758,12 @@ public class ProjectController extends BaseController {
             if (StringUtils.isBlank(publishBranch)) {
                 publishBranch = "master"; // 如果不填分支默认 master
             }
-            shell.appendN("echo git checkout #{publicBranch}");
+            shell.appendN("echo 'git checkout #{publicBranch}'");
+            shell.appendN("git checkout .");
             shell.appendN("git checkout #{publicBranch}");
 
 
-            shell.appendN("echo git pull origin #{publicBranch}");
+            shell.appendN("echo 'git pull origin #{publicBranch}'");
             shell.appendN("git pull origin #{publicBranch}");
             shell.addParams("publicBranch", publishBranch);
 
