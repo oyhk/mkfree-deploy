@@ -180,6 +180,8 @@ public class ProjectController extends BaseController {
                             }
                             if (projectEnvConfig.getEnv() == ProjectEnv.PROD && userDto.getUsername().equals("oyhk")) {
                                 projectAntTableDtoList.add(projectAntTableDto);
+                            }else{
+                                projectAntTableDtoList.add(projectAntTableDto);
                             }
                         });
                     }
