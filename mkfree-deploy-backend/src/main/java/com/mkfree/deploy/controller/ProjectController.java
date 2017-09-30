@@ -153,6 +153,8 @@ public class ProjectController extends BaseController {
                 projectNameAntTableRowSpanMap.put(projectId, 0);
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
+
+
                 projectEnvConfigList.forEach(projectEnvConfig -> {
                     List<String> serverMachineIpList = ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
                     if (serverMachineIpList != null && serverMachineIpList.size() > 0) {
@@ -179,12 +181,7 @@ public class ProjectController extends BaseController {
                                 projectAntTableDto.setPublish(serverMachine.getPublish());
                             }
 
-                            if (projectEnvConfig.getEnv() != ProjectEnv.PROD) {
-                                projectAntTableDtoList.add(projectAntTableDto);
-                            }
-                            if (projectEnvConfig.getEnv() == ProjectEnv.PROD && userDto.getUsername().equals("oyhk")) {
-                                projectAntTableDtoList.add(projectAntTableDto);
-                            }
+                            projectAntTableDtoList.add(projectAntTableDto);
                         });
                     }
                 });
