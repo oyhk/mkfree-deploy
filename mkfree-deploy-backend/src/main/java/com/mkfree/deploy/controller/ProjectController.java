@@ -178,9 +178,11 @@ public class ProjectController extends BaseController {
                             if (serverMachine != null) {
                                 projectAntTableDto.setPublish(serverMachine.getPublish());
                             }
-                            if (projectEnvConfig.getEnv() == ProjectEnv.PROD && userDto.getUsername().equals("oyhk")) {
+
+                            if (projectEnvConfig.getEnv() != ProjectEnv.PROD) {
                                 projectAntTableDtoList.add(projectAntTableDto);
-                            }else{
+                            }
+                            if (projectEnvConfig.getEnv() == ProjectEnv.PROD && userDto.getUsername().equals("oyhk")) {
                                 projectAntTableDtoList.add(projectAntTableDto);
                             }
                         });
