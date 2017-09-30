@@ -153,7 +153,10 @@ public class ProjectController extends BaseController {
                 projectNameAntTableRowSpanMap.put(projectId, 0);
                 // 查询对应项目的部署环境
                 List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
-
+                // 暂时这样做权限控制
+                if (!userDto.getUsername().equals("oyhk")) {
+                    projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnv() != ProjectEnv.PROD).collect(Collectors.toList());
+                }
 
                 projectEnvConfigList.forEach(projectEnvConfig -> {
                     List<String> serverMachineIpList = ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
