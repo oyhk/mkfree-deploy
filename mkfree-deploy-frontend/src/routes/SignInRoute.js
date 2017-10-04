@@ -9,11 +9,23 @@ function SignInRoute({dispatch, form}) {
 
     const {getFieldDecorator, getFieldValue} = form;
 
+    function login() {
+        const username = getFieldValue('username');
+        const password = getFieldValue('password');
+
+        if (!username || !password) {
+            return;
+        }
+        dispatch({
+            type: 'userModel/login', payload: {username, password}
+        });
+    }
+
     return (
         <div style={{
             width: '100%',
             height: '100%',
-            background: `url(${signInBg}) center / cover no-repeat fixed`
+            background: `url(${require('../assets/index-bg.jpg')}) center / cover no-repeat fixed`
         }}>
             <Row justify="center" type="flex" align="middle" style={{height: '100%'}}>
                 <Col xs={20} sm={10} md={8} lg={6}>
@@ -24,7 +36,9 @@ function SignInRoute({dispatch, form}) {
                                 {getFieldDecorator('username', {
                                     rules: [{required: true, message: 'Please input your username!'}],
                                 })(
-                                    <Input prefix={<Icon type="user" style={{fontSize: 13}}/>} placeholder="Username"/>
+                                    <Input prefix={<Icon type="user" style={{fontSize: 13}}/>}
+                                           placeholder="username"
+                                           onPressEnter={login}/>
                                 )}
                             </FormItem>
                             <FormItem>
@@ -32,24 +46,11 @@ function SignInRoute({dispatch, form}) {
                                     rules: [{required: true, message: 'Please input your Password!'}],
                                 })(
                                     <Input prefix={<Icon type="lock" style={{fontSize: 13}}/>} type="password"
-                                           placeholder="Password"/>
+                                           placeholder="Password"
+                                           onPressEnter={login}/>
                                 )}
                             </FormItem>
-                            <Button type="primary" style={{width: '100%'}}
-                                    onClick={() => {
-                                        const username = getFieldValue('username');
-                                        const password = getFieldValue('password');
-
-                                        if (!username || !password) {
-                                            return;
-                                        }
-                                        dispatch({
-                                            type: 'userModel/login', payload: {username, password}
-                                        });
-                                    }}
-                            >
-                                登录
-                            </Button>
+                            <Button type="primary" style={{width: '100%'}} onClick={login}>登录</Button>
                         </Form>
                     </div>
                 </Col>

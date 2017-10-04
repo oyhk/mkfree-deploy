@@ -32,6 +32,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/*.js", "/*.css").addResourceLocations("classpath:/templates/");
+        // 这里注意 classpath:/templates/ 为跟路径，如果访问路径为 /static/index-bg.jpg 那么需要添加 /static/static/index-bg.jpg,所以现在我把addResourceLocations 改成classpath:/templates/static/
+        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/templates/static/");
         registry.setOrder(-1); // 这个是非常重要的
 
     }
