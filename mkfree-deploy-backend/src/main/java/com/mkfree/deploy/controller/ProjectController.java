@@ -461,6 +461,7 @@ public class ProjectController extends BaseController {
             shell.addParams("projectPath", projectPath);
             // 2. git pull 拉去所有分支
             shell.appendN("git pull");
+            shell.appendN("git remote update origin --prune");
             // 3. 查看分支列表
             shell.appendN("git branch -a | grep remotes/origin");
 
