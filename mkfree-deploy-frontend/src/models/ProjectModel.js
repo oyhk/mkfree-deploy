@@ -81,7 +81,7 @@ export default {
         },
         *update({payload}, {call, put}) {
             yield call(projectService.update, payload, {desc: '修改成功'});
-            browserHistory.replace({pathname: route.project, query: payload.query});
+            browserHistory.goBack();
         },
         *info({payload}, {call, put}) {
             const result = yield call(projectService.info, payload.id);
@@ -98,7 +98,7 @@ export default {
         // 删除一个项目
         *deleted({payload}, {call, put, select}){
             yield call(projectService.deleted, payload, {desc: '删除成功'});
-            browserHistory.replace({pathname: route.project, query: payload.query});
+            browserHistory.push(`${route.project}?pageSize=100`);
         },
         *structure({payload}, {call, put, select}) {
             yield call(projectService.structure, payload, {desc: '发布成功'});
@@ -133,7 +133,7 @@ export default {
         // 保存
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload, {desc: '添加成功'});
-            browserHistory.replace({pathname: route.project, query: payload.query});
+            browserHistory.push(`${route.project}?pageNo=0&pageSize=100`);
         },
         // 添加一项 deployTargetFile
         *addDeployTargetFile({payload}, {call, put, select}) {
