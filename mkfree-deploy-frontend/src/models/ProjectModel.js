@@ -81,7 +81,7 @@ export default {
         },
         *update({payload}, {call, put}) {
             yield call(projectService.update, payload, {desc: '修改成功'});
-            browserHistory.push(`${route.project}?pageSize=100`);
+            browserHistory.replace({pathname: route.project, query: payload.query});
         },
         *info({payload}, {call, put}) {
             const result = yield call(projectService.info, payload.id);

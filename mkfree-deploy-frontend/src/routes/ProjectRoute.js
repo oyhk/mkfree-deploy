@@ -112,7 +112,8 @@ function ProjectRoute({dispatch, location, pageResult}) {
             const obj = {
                 children: <div style={{textAlign: 'center'}}>
                     <Link to={route.project_build_log_path(record.id)} target="_blank">查看日志</Link> &nbsp;&nbsp;
-                    <Link to={route.project_edit_path(record.id)}>编辑</Link> &nbsp;&nbsp;
+                    <Link to={route.project_edit_path(record.id)}>编辑</Link> &nbsp;&nbsp;ls
+
                     <Link onClick={() => {
                         dispatch({
                             type: 'projectModel/branchRefresh',
