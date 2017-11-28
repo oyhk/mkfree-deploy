@@ -172,6 +172,11 @@ function ProjectRoute({dispatch, location, pageResult}) {
                             const pageSize = location.query.pageSize;
                             browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=2`);
                         }}>前端</Link>&nbsp;&nbsp;
+                        <Link color="red" checked onClick={() => {
+                            const page = location.query.page ? location.query.page : 0;
+                            const pageSize = location.query.pageSize;
+                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=3`);
+                        }}>antbox-cloud</Link>&nbsp;&nbsp;
 
                     </Col>
                     <Col span={1}>
