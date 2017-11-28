@@ -133,7 +133,7 @@ export default {
         // 保存
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload, {desc: '添加成功'});
-            browserHistory.push(`${route.project}?pageNo=0&pageSize=100`);
+            browserHistory.goBack();
         },
         // 添加一项 deployTargetFile
         *addDeployTargetFile({payload}, {call, put, select}) {
