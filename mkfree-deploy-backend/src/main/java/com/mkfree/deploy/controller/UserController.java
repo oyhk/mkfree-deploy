@@ -1,6 +1,5 @@
 package com.mkfree.deploy.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
@@ -29,10 +28,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -74,12 +71,12 @@ public class UserController extends BaseController {
                 return;
             }
 
-            user.setUserToken(UserHelper.SINGLEONE.getUserToken(user.getId(), user.getUsername()));
+            user.setAccessToken(UserHelper.SINGLEONE.getUserToken(user.getId(), user.getUsername()));
             userRepository.save(user);
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
             UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
 
-            jsonResult.data = user.getUserToken();
+            jsonResult.data = user.getAccessToken();
         };
         return doing.go(request, log);
     }
@@ -87,18 +84,18 @@ public class UserController extends BaseController {
     @RequestMapping(value = Routes.USER_LOGIN_USER_TOKEN, method = RequestMethod.POST)
     public JsonResult loginUserToken(@RequestBody UserDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
-            if (StringUtils.isBlank(dto.getUserToken())) {
+            if (StringUtils.isBlank(dto.getAccessToken())) {
                 jsonResult.errorParam("用户名不能为空", log);
                 return;
             }
-            User user = userRepository.findByUserToken(dto.getUserToken());
+            User user = userRepository.findByAccessToken(dto.getAccessToken());
             if (user == null) {
                 jsonResult.remind("userToken 无效", log);
                 return;
             }
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
             UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
-            jsonResult.data = user.getUserToken();
+            jsonResult.data = user.getAccessToken();
         };
         return doing.go(request, log);
     }
@@ -225,16 +222,13 @@ public class UserController extends BaseController {
         return doing.go(request, log);
     }
 
-
     @RequestMapping(value = Routes.USER_PAGE, method = RequestMethod.GET)
-    public JsonResult page(Integer pageNo, Integer pageSize, HttpServletRequest request) {
-        RestDoing doing = jsonResult -> {
-            PageRequest pageRequest = this.getPageRequest(pageNo, pageSize);
-            Page page = userRepository.findAll(pageRequest);
-            PageResult pageResult = new PageResult(page, Routes.USER_PAGE);
-            jsonResult.data = pageResult;
-        };
-        return doing.go(request, log);
+    public JsonResult page(Integer pageNo, Integer pageSize){
+        JsonResult jsonResult = new JsonResult();
+        PageRequest pageRequest = this.getPageRequest(pageNo, pageSize);
+        Page page = userRepository.findAll(pageRequest);
+        jsonResult.data = new PageResult(page, Routes.USER_PAGE);
+        return jsonResult;
     }
 
 

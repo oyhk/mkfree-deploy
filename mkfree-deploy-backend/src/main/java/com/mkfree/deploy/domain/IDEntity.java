@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @MappedSuperclass
 @JsonInclude(JsonInclude.Include.NON_NULL)//如果为空的属性，去除
-@JsonIgnoreProperties(value = {"updatedAt", "isDelete"})
+@JsonIgnoreProperties(value = {"updatedAt", "delete"})
 public class IDEntity {
 
     @Id
@@ -25,8 +25,8 @@ public class IDEntity {
     protected Date createdAt;
     @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",nullable = false)
     protected Date updatedAt;
-    @Column(columnDefinition = "bit default 0 comment '是否逻辑删除 1 是 , 0 否'",nullable = false)
-    protected Boolean isDelete;
+    @Column(columnDefinition = "bit default 0 comment '是否逻辑删除 1 是 , 0 否'",nullable = false,name="is_delete")
+    protected Boolean delete;
 
     public static final String CHECK_IDENTIFIER_IS_NOT_NULL = "唯一标识不能为空";
     public static final String CHECK_BODY_IS_NOT_NULL = "body 不能为空";
@@ -67,11 +67,11 @@ public class IDEntity {
     }
 
     public Boolean getDelete() {
-        return isDelete;
+        return delete;
     }
 
     public void setDelete(Boolean delete) {
-        isDelete = delete;
+        this.delete = delete;
     }
 
     @Override

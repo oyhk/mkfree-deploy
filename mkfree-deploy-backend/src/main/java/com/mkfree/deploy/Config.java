@@ -37,6 +37,11 @@ public class Config {
     }
 
     @Bean
+    RequestLoggingFilter requestLoggingFilter(){
+        return new RequestLoggingFilter();
+    }
+
+    @Bean
     RoleInterceptor roleInterceptor() {
         return new RoleInterceptor();
     }

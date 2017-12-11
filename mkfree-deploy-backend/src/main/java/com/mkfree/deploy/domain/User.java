@@ -1,5 +1,6 @@
 package com.mkfree.deploy.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mkfree.deploy.domain.enumclass.RoleType;
 
 import javax.persistence.Column;
@@ -12,12 +13,13 @@ import javax.persistence.Enumerated;
  * 用户
  */
 @Entity
+@JsonIgnoreProperties(value = {"password","passwordSalt","updatedAt", "delete","accessToken"})
 public class User extends IDEntity {
 
     public static final String SSO_PASSWORD_ENCODE_KEY = "13fkljsldf324safd123slkdfj";
 
     public static final String LOGIN_USER = "login_user";
-    public static final String LOGIN_USER_TOKEN = "user_token";
+    public static final String LOGIN_ACCESS_TOKEN = "access_token";
 
     //用户名
     @Column(columnDefinition = "varchar (100) comment'用户名'", unique = true)
@@ -29,8 +31,8 @@ public class User extends IDEntity {
     @Column(columnDefinition = "varchar (100) comment'密码盐'")
     private String passwordSalt;
     //登录后的userToken
-    @Column(columnDefinition = "varchar (100) comment'登录后的userToken'")
-    private String userToken;
+    @Column(columnDefinition = "varchar (100) comment'登录后的 accessToken'")
+    private String accessToken;
     //角色类型 ADMIN("超级管理员"), ADMIN("管理员"), COMMON("普通成员")
     @Column(columnDefinition = "varchar(100) comment'角色类型 ADMIN(\"管理员\"), COMMON(\"普通成员\")'")
     @Enumerated(EnumType.STRING)
@@ -53,12 +55,12 @@ public class User extends IDEntity {
         this.password = password;
     }
 
-    public String getUserToken() {
-        return userToken;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public String getPasswordSalt() {

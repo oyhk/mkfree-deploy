@@ -54,7 +54,7 @@ public class PageResult<T> {
         if (pageSize != null) {
             this.pageSize = pageSize;
         }
-        if (this.pageNo.intValue() > 0) {
+        if (this.pageNo > 0) {
             this.offset = this.pageSize * this.pageNo;
         }
         if (totalCount != null) {

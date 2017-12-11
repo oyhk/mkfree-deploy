@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -44,7 +43,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
             if (userDto != null) {
                 return true;
             }
-            String userToken = request.getHeader(User.LOGIN_USER_TOKEN);
+            String userToken = request.getHeader(User.LOGIN_ACCESS_TOKEN);
             if (StringUtils.isBlank(userToken)) {
                 response.addHeader("Access-Control-Allow-Origin","*");
                 response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD104[0],JsonResult.CD104[1])));
@@ -52,7 +51,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
                 return false;
             }
 
-            User user = userRepository.findByUserToken(userToken);
+            User user = userRepository.findByAccessToken(userToken);
             if (user == null) {
                 response.addHeader("Access-Control-Allow-Origin","*");
                 response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD105[0],JsonResult.CD105[1])));

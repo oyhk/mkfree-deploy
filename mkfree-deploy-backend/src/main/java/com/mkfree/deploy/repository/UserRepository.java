@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends BaseRepository<User, Long> {
 
     User findByUsername(String username);
-    User findByUserToken(String userToken);
+    User findByAccessToken(String userToken);
 }
