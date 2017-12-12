@@ -62,7 +62,7 @@ public enum UserHelper {
      * @param username
      * @return
      */
-    public String getUserToken(Long userId, String username) {
+    public String getAccessToken(Long userId, String username) {
         return DigestUtils.md5Hex(new Date().getTime() + userId + username);
     }
 }

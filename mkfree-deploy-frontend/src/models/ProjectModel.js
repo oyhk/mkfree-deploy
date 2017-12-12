@@ -20,7 +20,7 @@ export default {
         setup({dispatch, history}) {  // eslint-disable-line
             return history.listen((location) => {
                 // 项目管理
-                if (location.pathname === route.project) {
+                if (location.pathname === route.project.url) {
 
                     dispatch({type: 'page', payload: {...location.query}});
                     return;

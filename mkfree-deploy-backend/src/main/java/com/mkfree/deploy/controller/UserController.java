@@ -2,8 +2,7 @@ package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
-import com.mkfree.deploy.common.BaseController;
-import com.mkfree.deploy.common.PageResult;
+import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.dto.UserDto;
@@ -12,11 +11,10 @@ import com.mkfree.deploy.helper.UserProjectPermissionHelper;
 import com.mkfree.deploy.repository.ProjectRepository;
 import com.mkfree.deploy.repository.UserProjectPermissionRepository;
 import com.mkfree.deploy.repository.UserRepository;
-import com.mkfree.deploy.common.JsonResult;
-import com.mkfree.deploy.common.RestDoing;
 import com.mkfree.deploy.domain.User;
 import com.mkfree.deploy.helper.UserHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,26 +50,26 @@ public class UserController extends BaseController {
     public JsonResult login(@RequestBody User dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (StringUtils.isBlank(dto.getUsername())) {
-                jsonResult.custom(JsonResult.CD106[0],JsonResult.CD106[1], log);
+                jsonResult.custom(JsonResult.CD106[0], JsonResult.CD106[1], log);
                 return;
             }
             if (StringUtils.isBlank(dto.getPassword())) {
-                jsonResult.custom(JsonResult.CD107[0],JsonResult.CD107[1], log);
+                jsonResult.custom(JsonResult.CD107[0], JsonResult.CD107[1], log);
                 return;
             }
             User user = userRepository.findByUsername(dto.getUsername());
             if (user == null) {
-                jsonResult.custom(JsonResult.CD101[0],JsonResult.CD101[1], log);
+                jsonResult.custom(JsonResult.CD101[0], JsonResult.CD101[1], log);
                 return;
             }
 
             String MD5Password = UserHelper.SINGLEONE.getMd5Password(user.getPasswordSalt(), dto.getPassword());
             if (!user.getPassword().equals(MD5Password)) {
-                jsonResult.custom(JsonResult.CD103[0],JsonResult.CD103[1], log);
+                jsonResult.custom(JsonResult.CD103[0], JsonResult.CD103[1], log);
                 return;
             }
 
-            user.setAccessToken(UserHelper.SINGLEONE.getUserToken(user.getId(), user.getUsername()));
+            user.setAccessToken(UserHelper.SINGLEONE.getAccessToken(user.getId(), user.getUsername()));
             userRepository.save(user);
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
             UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
@@ -143,7 +141,7 @@ public class UserController extends BaseController {
     public JsonResult update(@RequestBody UserDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (dto.getId() == null) {
-                jsonResult.errorParam("id 不能为空", log);
+                jsonResult.errorParam(UserDto.CHECK_ID_IS_NOT_NULL, log);
                 return;
             }
 
@@ -181,7 +179,7 @@ public class UserController extends BaseController {
     public JsonResult delete(@RequestBody UserDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (dto.getId() == null) {
-                jsonResult.errorParam(User.CHECK_IDENTIFIER_IS_NOT_NULL, log);
+                jsonResult.errorParam(User.CHECK_ID_IS_NOT_NULL, log);
                 return;
             }
             // 删除用户项目权限
@@ -197,36 +195,35 @@ public class UserController extends BaseController {
     }
 
     @RequestMapping(value = Routes.USER_INFO, method = RequestMethod.GET)
-    public JsonResult info(Long id, HttpServletRequest request) {
-        RestDoing doing = jsonResult -> {
-            if (id == null) {
-                jsonResult.errorParam(User.CHECK_IDENTIFIER_IS_NOT_NULL, log);
-                return;
-            }
+    public JsonResult info(Long id) {
+        JsonResult jsonResult = new JsonResult();
+        CheckHelper.checkNotNull(id, User.CHECK_ID_IS_NOT_NULL);
 
-            User user = userRepository.findOne(id);
-            if (user == null) {
-                jsonResult.remind(User.REMIND_RECORD_IS_NOT_EXIST, log);
-                return;
-            }
+        User user = userRepository.findOne(id);
+        CheckHelper.remindIsNotExist(user, User.REMIND_RECORD_IS_NOT_EXIST);
 
-            UserDto userDto = new UserDto();
-            userDto.setId(user.getId());
-            userDto.setUsername(user.getUsername());
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+        userDto.setUserProjectPermissionList(UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
 
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-            userDto.setUserProjectPermissionList(UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
+        jsonResult.data = userDto;
 
-            jsonResult.data = userDto;
-        };
-        return doing.go(request, log);
+        return jsonResult;
     }
 
     @RequestMapping(value = Routes.USER_PAGE, method = RequestMethod.GET)
-    public JsonResult page(Integer pageNo, Integer pageSize){
+    public JsonResult page(Integer pageNo, Integer pageSize) {
         JsonResult jsonResult = new JsonResult();
         PageRequest pageRequest = this.getPageRequest(pageNo, pageSize);
-        Page page = userRepository.findAll(pageRequest);
+        Page<User> page = userRepository.findAll(pageRequest);
+
+        page.getContent().forEach(user -> {
+            user.setPassword(null);
+            user.setPasswordSalt(null);
+        });
+
         jsonResult.data = new PageResult(page, Routes.USER_PAGE);
         return jsonResult;
     }

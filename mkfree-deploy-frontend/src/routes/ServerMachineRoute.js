@@ -64,7 +64,7 @@ function ProjectRoute({dispatch, pageResult}) {
         key: 'options',
         render: (text, record) => {
             return <div>
-                <Link to={route.project_edit_path(record.id)}>编辑</Link>
+                <Link to={route.projectEditPath(record.id)}>编辑</Link>
             </div>;
         }
     }];

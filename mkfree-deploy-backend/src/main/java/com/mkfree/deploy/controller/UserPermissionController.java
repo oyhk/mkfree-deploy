@@ -78,7 +78,7 @@ public class UserPermissionController extends BaseController{
     public JsonResult delete(@RequestBody UserProjectPermissionDto dto, HttpServletRequest request) {
         RestDoing doing =jsonResult -> {
             if (dto.getId() == null) {
-                jsonResult.remind(UserProjectPermission.CHECK_IDENTIFIER_IS_NOT_NULL);
+                jsonResult.remind(UserProjectPermission.CHECK_ID_IS_NOT_NULL);
                 return;
             }
             UserProjectPermission permission = userProjectPermissionRepository.findOne(dto.getId());
@@ -96,7 +96,7 @@ public class UserPermissionController extends BaseController{
         RestDoing doing =jsonResult -> {
             for (UserProjectPermissionDto dto : userPermissionDtoList) {
                 if (dto.getId() == null) {
-                    jsonResult.remind(UserProjectPermission.CHECK_IDENTIFIER_IS_NOT_NULL);
+                    jsonResult.remind(UserProjectPermission.CHECK_ID_IS_NOT_NULL);
                     return;
                 }
                 UserProjectPermission permission = userProjectPermissionRepository.findOne(dto.getId());

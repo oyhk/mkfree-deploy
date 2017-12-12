@@ -21,17 +21,18 @@ public class IDEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP",nullable = false)
+    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP", nullable = false)
     protected Date createdAt;
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",nullable = false)
+    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", nullable = false)
     protected Date updatedAt;
-    @Column(columnDefinition = "bit default 0 comment '是否逻辑删除 1 是 , 0 否'",nullable = false,name="is_delete")
+    @Column(columnDefinition = "bit default 0 comment '是否逻辑删除 1 是 , 0 否'", nullable = false, name = "is_delete")
     protected Boolean delete;
 
-    public static final String CHECK_IDENTIFIER_IS_NOT_NULL = "唯一标识不能为空";
-    public static final String CHECK_BODY_IS_NOT_NULL = "body 不能为空";
-    public static final String REMIND_RECORD_IS_NOT_EXIST = "记录不存在";
-    public static final String ATTR_PAGE="page";
+    public static final String CHECK_ID_IS_NOT_NULL = "id is not null";
+    public static final String CHECK_FIELD_IS_NOT_NULL = "%s is not null";
+    public static final String CHECK_BODY_IS_NOT_NULL = "body is not null";
+    public static final String REMIND_RECORD_IS_NOT_EXIST = "record is not exist";
+    public static final String ATTR_PAGE = "page";
 
     public IDEntity() {
     }

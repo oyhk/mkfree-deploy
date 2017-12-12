@@ -4,6 +4,8 @@ import ProjectBuildLogRoute from './ProjectBuildLogRoute';
 import ProjectEditRoute from './ProjectEditRoute';
 import ProjectAddRoute from './ProjectAddRoute';
 import SignInRoute from './SignInRoute';
+import UserRoute from './UserRoute';
+import UserEditRoute from './UserEditRoute';
 
 
 export {
@@ -12,5 +14,7 @@ export {
     ProjectEditRoute,
     ProjectBuildLogRoute,
     SignInRoute,
+    UserRoute,
+    UserEditRoute,
     MainLayout,
 };

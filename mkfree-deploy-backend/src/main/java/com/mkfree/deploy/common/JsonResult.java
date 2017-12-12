@@ -17,13 +17,15 @@ public class JsonResult<T> {
     public static final String CD101[] = {"101", "用户名不存在"};
     public static final String CD102[] = {"102", "用户名状态异常"};
     public static final String CD103[] = {"103", "密码错误"};
-    public static final String CD104[] = {"104", "user_token 不能为空"};
-    public static final String CD105[] = {"105", "user_token 无效"};
+    public static final String CD104[] = {"104", "access_token 不能为空"};
+    public static final String CD105[] = {"105", "access_token 无效"};
     public static final String CD106[] = {"106", "用户名不能为空"};
     public static final String CD107[] = {"107", "密码不能为空"};
 
 
     public JsonResult() {
+        this.code = JsonResult.CD1[0];
+        this.desc = JsonResult.CD1[1];
     }
 
     public JsonResult(String code, String desc) {

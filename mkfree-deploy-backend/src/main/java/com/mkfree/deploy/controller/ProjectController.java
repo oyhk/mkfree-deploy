@@ -1,6 +1,5 @@
 package com.mkfree.deploy.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -443,7 +441,7 @@ public class ProjectController extends BaseController {
     public JsonResult branchRefresh(Long id, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
             if (id == null) {
-                jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
+                jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
                 return;
             }
             Project project = projectRepository.findOne(id);
@@ -582,7 +580,7 @@ public class ProjectController extends BaseController {
             ProjectEnv projectEnv = dto.getEnv();
             String publicServerMachineIp = dto.getServerMachineIp();
             if (projectId == null) {
-                jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
+                jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
                 return;
             }
 
@@ -887,7 +885,7 @@ public class ProjectController extends BaseController {
         RestDoing doing = jsonResult -> {
             Long id = dto.getId();
             if (id == null) {
-                jsonResult.errorParam(Project.CHECK_IDENTIFIER_IS_NOT_NULL);
+                jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
                 return;
             }
             StringBuilder result = Config.STRING_BUILDER_MAP.get("project_log_id_" + dto.getId());

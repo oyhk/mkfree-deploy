@@ -2,7 +2,7 @@ import fetch from 'dva/fetch';
 import {message} from 'antd';
 import cookie from 'react-cookie';
 import {browserHistory} from 'dva/router';
-import {route} from '../Constant';
+import {route, user} from '../Constant';
 
 
 function parseJSON(response) {
@@ -29,7 +29,7 @@ export function requestData(url, options = {}) {
     url = `${API_HOST}${url}`;
 
     options.headers = {
-        user_token: cookie.load('user_token'),
+        access_token: cookie.load(user.accessToken),
         'Content-Type': 'application/json'
     };
     return fetch(url, options)
@@ -65,7 +65,7 @@ export function request(url, options = {}) {
     url = `${API_HOST}${url}`;
 
     options.headers = {
-        user_token: cookie.load('user_token'),
+        access_token: cookie.load(user.accessToken),
         'Content-Type': 'application/json'
     };
 
