@@ -89,10 +89,14 @@ public class ProjectController extends BaseController {
             // 2.1 复制到各种环境
             File defaultProject = new File(projectPath + "/DEFAULT");
             File devProject = new File(projectPath + "/DEV");
+            File testProject = new File(projectPath + "/TEST");
             File uatProject = new File(projectPath + "/UAT");
+            File preprodProject = new File(projectPath + "/PREPROD");
             File prodProject = new File(projectPath + "/PROD");
             FileUtils.copyDirectory(defaultProject, devProject);
+            FileUtils.copyDirectory(defaultProject, testProject);
             FileUtils.copyDirectory(defaultProject, uatProject);
+            FileUtils.copyDirectory(defaultProject, preprodProject);
             FileUtils.copyDirectory(defaultProject, prodProject);
 
         };

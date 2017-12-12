@@ -6,7 +6,7 @@ package com.mkfree.deploy.domain.enumclass;
  */
 public enum ServerMachineType {
 
-    DEV("开发"), UAT("仿真测试"), PROD("生产");
+    DEV("开发"), UAT("仿真测试"),PREPROD("预生产"), PROD("生产");
 
     private String text;
 
