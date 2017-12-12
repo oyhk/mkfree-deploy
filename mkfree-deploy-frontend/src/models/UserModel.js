@@ -54,7 +54,7 @@ export default {
             const userToken = result.data;
             if (result.code === '1') {
                 cookie.save(user.accessToken, userToken, {path: '/', maxAge: 30 * 24 * 60 * 60});
-                browserHistory.push({pathname: route.project, query: {pageNo: 0, pageSize: 100}});
+                browserHistory.push({pathname: route.project.url, query: {pageNo: 0, pageSize: 100}});
             }
         }
     },
