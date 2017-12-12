@@ -161,22 +161,22 @@ function ProjectRoute({dispatch, location, pageResult}) {
                         <Link onClick={() => {
                             const page = location.query.page ? location.query.page : 0;
                             const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=ALL`);
+                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=ALL`);
                         }}>全部</Link>&nbsp;&nbsp;
                         <Link onClick={() => {
                             const page = location.query.page ? location.query.page : 0;
                             const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=1`);
+                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=1`);
                         }}>后端</Link>&nbsp;&nbsp;
                         <Link color="red" checked onClick={() => {
                             const page = location.query.page ? location.query.page : 0;
                             const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=2`);
+                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=2`);
                         }}>前端</Link>&nbsp;&nbsp;
                         <Link color="red" checked onClick={() => {
                             const page = location.query.page ? location.query.page : 0;
                             const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}&projectTagId=3`);
+                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=3`);
                         }}>antbox-cloud</Link>&nbsp;&nbsp;
 
                     </Col>
@@ -197,7 +197,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
                        defaultCurrent: pageResult.pageNo + 1,
                        total: pageResult.totalCount,
                        onChange: (page, pageSize) => {
-                           browserHistory.push(`${route.project}?pageNo=${page}&pageSize=${pageSize}`);
+                           browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}`);
                        }
                    }}/>
         </div>
