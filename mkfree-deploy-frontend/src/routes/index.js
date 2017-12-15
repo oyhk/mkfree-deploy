@@ -6,6 +6,9 @@ import ProjectAddRoute from './ProjectAddRoute';
 import SignInRoute from './SignInRoute';
 import UserRoute from './UserRoute';
 import UserEditRoute from './UserEditRoute';
+import ServerMachineRoute from './ServerMachineRoute';
+import ServerMachineAddRoute from './ServerMachineAddRoute';
+import ServerMachineEditRoute from './ServerMachineEditRoute';
 
 
 export {
@@ -16,5 +19,8 @@ export {
     SignInRoute,
     UserRoute,
     UserEditRoute,
+    ServerMachineRoute,
+    ServerMachineAddRoute,
+    ServerMachineEditRoute,
     MainLayout,
 };

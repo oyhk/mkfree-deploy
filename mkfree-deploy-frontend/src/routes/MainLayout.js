@@ -23,6 +23,11 @@ function MainLayout({dispatch, location, children}) {
         pageTitle = route.user.pageTitle;
         menuSelectKey = route.user.url;
     }
+    if (location.pathname.indexOf(route.serverMachine.url) > -1) {
+        pageTitle = route.serverMachine.pageTitle;
+        menuSelectKey = route.serverMachine.url;
+    }
+
 
     return (
         <Layout className="layout">
@@ -41,7 +46,9 @@ function MainLayout({dispatch, location, children}) {
                     <Menu.Item key={route.user.url}>
                         <Link to={`${route.user.url}?pageSize=100`}>{route.user.pageTitle}</Link>
                     </Menu.Item>
-                    <Menu.Item key="3">服务器管理</Menu.Item>
+                    <Menu.Item key={route.serverMachine.url}>
+                        <Link to={`${route.serverMachine.url}?pageSize=100`}>{route.serverMachine.pageTitle}</Link>
+                    </Menu.Item>
                 </Menu>
             </Header>
             <Content style={{padding: '0 50px'}}>

@@ -1,92 +1,80 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag} from 'antd';
 import {route} from '../Constant';
+import styles from './ProjectRoute.less';
 
-function ProjectRoute({dispatch, pageResult}) {
 
-
+function ServerMachineRoute({dispatch, location, pageResult}) {
     const columns = [{
-        title: '项目名称',
+        title: 'id',
+        dataIndex: 'id',
+        key: 'id',
+    }, {
+        title: '名称',
         dataIndex: 'name',
         key: 'name',
     }, {
-        title: '部署',
-        dataIndex: 'deploy',
-        key: 'deploy',
-        render: (text, record) => {
-
-            const option = record.projectEnvConfigList.map((projectEnvConfig, projectEnvConfigIndex) => {
-                const serverMachineList = projectEnvConfig.serverMachineList.map((serverMachine, serverMachineIndex) => {
-                    return <li key={serverMachineIndex} style={{marginTop: '5px'}}>
-                        <span style={{paddingRight: '5px'}}>{serverMachine.ip}</span>
-                        { true ?
-                            <Button type="primary"
-                                    size="small"
-                                    onClick={() => {
-                                        dispatch({
-                                            type: 'projectModel/structure',
-                                            payload: {
-                                                id: record.id,
-                                                env: projectEnvConfig.env,
-                                                serverMachineIp: serverMachine.ip,
-                                            }
-                                        });
-                                    }}>发布</Button>
-                            :
-                            <Button type="danger"
-                                    size="small"
-                                    onClick={() => {
-
-                                    }}>同步</Button>
-                        }
-                    </li>;
-                });
-                return (
-                    <Row key={projectEnvConfigIndex} type="flex" style={{paddingTop: '10px'}}>
-                        <Col span={3}>{projectEnvConfig.envText} :</Col>
-                        <Col span={21}>
-                            <ul>{serverMachineList}</ul>
-                        </Col>
-                    </Row>
-                );
-            });
-            return (
-                <div>
-                    {option}
-                </div>
-            );
-        },
+        title: '环境',
+        dataIndex: 'envName',
+        key: 'envName',
+    }, {
+        title: '用户名',
+        dataIndex: 'username',
+        key: 'username',
+    }, {
+        title: 'ip',
+        dataIndex: 'ip',
+        key: 'ip',
+    }, {
+        title: '创建时间',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+    }, {
+        title: '更新时间',
+        dataIndex: 'updatedAt',
+        key: 'updatedAt',
     }, {
         title: '操作',
-        dataIndex: 'options',
-        key: 'options',
-        render: (text, record) => {
-            return <div>
-                <Link to={route.projectEditPath(record.id)}>编辑</Link>
-            </div>;
+        dataIndex: 'option',
+        key: 'option',
+        render: (value, record, columnIndex) => {
+            return <div><Link to={route.serverMachineEditPath(record.id)}>编辑</Link> &nbsp;&nbsp;</div>;
         }
     }];
     return (
         <div>
-            <div style={{marginBottom: '16px'}}>
-                <Button type="primary"
-                        onClick={() => {
-                            browserHistory.push(route.projectAdd);
-                        }}
-                >添加</Button>
-            </div>
-            <Table dataSource={pageResult.list} columns={columns}/>
+            <Row style={{marginBottom: '20px'}}>
+                <Col span={23}></Col>
+                <Col span={1}>
+                    <Button type="primary"
+                            onClick={() => {
+                                browserHistory.push(route.serverMachineAdd.url);
+                            }}
+                    >添加</Button>
+                </Col>
+            </Row>
+            <Table dataSource={pageResult.list}
+                   columns={columns}
+                   pagination={{
+                       defaultPageSize: 100,
+                       current: pageResult.pageNo + 1,
+                       defaultCurrent: pageResult.pageNo + 1,
+                       total: pageResult.totalCount,
+                       onChange: (page, pageSize) => {
+                           browserHistory.push(`${route.serverMachine}?pageNo=${page}&pageSize=${pageSize}`);
+                       }
+                   }}/>
         </div>
     );
 }
 
-ProjectRoute.propTypes = {};
+ServerMachineRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {pageResult} = state.projectModel;
+    const {pageResult} = state.serverMachineModel;
     return {pageResult};
 }
 
-export default connect(mapStateToProps)(ProjectRoute);
+export default connect(mapStateToProps)(ServerMachineRoute);

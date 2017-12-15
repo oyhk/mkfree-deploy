@@ -29,12 +29,29 @@ public class ServerMachine extends IDEntity {
     //密码
     @Column(columnDefinition = "varchar(50) comment '密码'")
     private String password;
-    //机器类型
-    @Column(columnDefinition = "varchar(50) comment '机器类型'")
-    @Enumerated(EnumType.STRING)
-    private ServerMachineType type;
+    @Column(columnDefinition = "bigint comment '环境id'")
+    private Long envId;
+    @Column(columnDefinition = "varchar(50) comment '环境名称'")
+    private String envName;
+
     @Column(columnDefinition = "bit default 0 comment '是否发布机器'")
     private Boolean isPublish;
+
+    public Long getEnvId() {
+        return envId;
+    }
+
+    public void setEnvId(Long envId) {
+        this.envId = envId;
+    }
+
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
+    }
 
     public String getIp() {
         return ip;
@@ -74,14 +91,6 @@ public class ServerMachine extends IDEntity {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public ServerMachineType getType() {
-        return type;
-    }
-
-    public void setType(ServerMachineType type) {
-        this.type = type;
     }
 
     public Boolean getPublish() {

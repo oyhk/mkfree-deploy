@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @MappedSuperclass
 @JsonInclude(JsonInclude.Include.NON_NULL)//如果为空的属性，去除
-@JsonIgnoreProperties(value = {"updatedAt", "delete"})
+@JsonIgnoreProperties(value = {"delete"})
 public class IDEntity {
 
     @Id

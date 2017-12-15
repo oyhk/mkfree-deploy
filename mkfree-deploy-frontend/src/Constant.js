@@ -17,8 +17,12 @@ export const route = {
 
     user: {url: `${route_prefix}/user`, pageTitle: '用户管理'},
     userEdit: {url: `${route_prefix}/user/edit/:id`, pageTitle: '用户编辑'},
-
     userEditPath: id => routePath(route.userEdit.url, {id}),
+
+    serverMachine: {url: `${route_prefix}/server_machine`, pageTitle: '服务器管理'},
+    serverMachineAdd: {url: `${route_prefix}/server_machine/add`, pageTitle: '服务器添加'},
+    serverMachineEdit: {url: `${route_prefix}/server_machine/edit/:id`, pageTitle: '服务器编辑'},
+    serverMachineEditPath: id => routePath(route.serverMachineEdit.url, {id})
 };
 export const apiMethod = {
     POST: 'POST',
@@ -36,5 +40,10 @@ export const api = {
     userLogin: `${api_prefix}/user/login`,
     userPage: `${api_prefix}/user/page`,
     userInfo: `${api_prefix}/user/info`,
+    envList: `${api_prefix}/env/list`,
+    serverMachinePage: `${api_prefix}/server_machine/page`,
+    serverMachineInfo: `${api_prefix}/server_machine/info`,
+    serverMachineSave: `${api_prefix}/server_machine/save`,
+    serverMachineUpdate: {url: `${api_prefix}/server_machine/update`, method: apiMethod.PUT},
 };
 
