@@ -138,9 +138,9 @@ public class ProjectController extends BaseController {
         RestDoing doing = (JsonResult jsonResult) -> {
             Page<Project> page;
             if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
-                page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+                page = projectRepository.findAll(this.getPageRequest(pageNo, 100000, Sort.Direction.DESC, "name"));
             } else {
-                page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
+                page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, 100000, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
             }
 
             List<ProjectAntTableDto> projectAntTableDtoList = new ArrayList<>();
