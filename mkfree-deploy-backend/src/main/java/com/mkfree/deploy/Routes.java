@@ -21,6 +21,7 @@ public class Routes {
     public static final String USER_PROJECT_PERMISSION_LIST = API_PREFIX + "/user/project/permission/list";
 
     public static final String PROJECT_PAGE = API_PREFIX + "/project/page";
+    public static final String PROJECT_PAGE_ANT_DESIGN_TABLE = API_PREFIX + "/project/page_ant_design_table";
     public static final String PROJECT_INIT_GIT = API_PREFIX + "/project/init_git";
     public static final String PROJECT_ENV_LIST = API_PREFIX + "/project/env_list";
     public static final String PROJECT_SAVE = API_PREFIX + "/project/save";

@@ -36,6 +36,7 @@ export const apiMethod = {
 const api_prefix = '/api';
 export const api = {
     projectPage: `${api_prefix}/project/page`,
+    projectPageAntDesignTable: {url: `${api_prefix}/project/page`, method: apiMethod.GET},
     projectInitGit: `${api_prefix}/project/init_git`,
     userLogin: `${api_prefix}/user/login`,
     userPage: `${api_prefix}/user/page`,

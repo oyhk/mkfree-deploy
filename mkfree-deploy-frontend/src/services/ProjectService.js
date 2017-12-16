@@ -6,6 +6,11 @@ export async function page(params, remind) {
     return requestData(`${api.projectPage}?${jsonToUrlParams(params)}`);
 }
 
+export async function pageAntDesignTable(params, remind) {
+    return requestData(`${api.projectPageAntDesignTable}?${jsonToUrlParams(params)}`);
+}
+
+
 export async function save(body, remind) {
     return request('/api/project/save', {method: 'POST', body: JSON.stringify(body)});
 }

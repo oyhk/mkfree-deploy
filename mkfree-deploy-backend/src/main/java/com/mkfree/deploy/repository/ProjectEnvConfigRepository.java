@@ -16,4 +16,5 @@ public interface ProjectEnvConfigRepository extends BaseRepository<ProjectEnvCon
 
     ProjectEnvConfig findByProjectIdAndEnv(Long projectId,ProjectEnv env);
     List<ProjectEnvConfig> findByProjectId(Long projectId);
+    List<ProjectEnvConfig> findByProjectIdIn(List<Long> projectIdList);
 }

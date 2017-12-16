@@ -123,9 +123,38 @@ public class ProjectController extends BaseController {
         return doing.go(request, log);
     }
 
-
-    @RequestMapping(value = Routes.PROJECT_PAGE, method = RequestMethod.GET)
+    @GetMapping(value = Routes.PROJECT_PAGE)
     public JsonResult page(Integer pageNo, Integer pageSize, String projectTagId, HttpServletRequest request) {
+        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
+
+        JsonResult jsonResult = new JsonResult();
+
+        Page<Project> page;
+        if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
+            page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+        } else {
+            page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
+        }
+
+        List<Project> projectList = page.getContent();
+
+        List<Long> projectIdList = projectList.stream().map(Project::getId).collect(Collectors.toList());
+
+        List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectIdIn(projectIdList);
+
+        Map<Long, List<ProjectEnvConfig>> projectEnvConfigMap = projectEnvConfigList.stream().collect(Collectors.groupingBy(ProjectEnvConfig::getProjectId));
+
+
+        List<ProjectDto> projectDtoList = new ArrayList<>();
+
+        jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectDtoList, Routes.PROJECT_PAGE);
+
+
+        return jsonResult;
+    }
+
+    @RequestMapping(value = Routes.PROJECT_PAGE_ANT_DESIGN_TABLE, method = RequestMethod.GET)
+    public JsonResult pageAntDesignTable(Integer pageNo, Integer pageSize, String projectTagId, HttpServletRequest request) {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
 
         // 首先把用户可发布的项目权限分组
