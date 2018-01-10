@@ -128,7 +128,7 @@ export default {
         // 项目分支列表
         *branchRefresh({payload}, {call, put, select}) {
             const branchList = yield call(projectService.branchRefresh, payload.id, {desc: '刷新分支成功'});
-            browserHistory.replace({pathname: route.project, query: payload.query});
+            browserHistory.replace({pathname: route.project.url, query: payload.query});
         },
         // 保存
         *saved({payload}, {call, put, select}) {
