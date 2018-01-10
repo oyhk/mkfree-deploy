@@ -186,6 +186,10 @@ public class ProjectController extends BaseController {
         List<Long> projectIdList = projectList.stream().map(Project::getId).collect(Collectors.toList());
 
         List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectIdIn(projectIdList);
+        // 暂时这样做权限控制
+        if (!userDto.getUsername().equals("oyhk")) {
+            projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnv() != ProjectEnv.PROD && projectEnvConfig.getEnv() != ProjectEnv.PREPROD).collect(Collectors.toList());
+        }
 
         Map<Long, List<ProjectEnvConfig>> projectEnvConfigMap = projectEnvConfigList.stream().collect(Collectors.groupingBy(ProjectEnvConfig::getProjectId));
 
