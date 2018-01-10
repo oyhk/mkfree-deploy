@@ -684,118 +684,128 @@ public class ProjectController extends BaseController {
     @Transactional
     @RequestMapping(value = Routes.PROJECT_SYNC, method = RequestMethod.POST)
     public JsonResult sync(@RequestBody ProjectDto dto, HttpServletRequest request) {
+        JsonResult jsonResult = new JsonResult();
+        Date now = new Date();
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
-        RestDoing doing = jsonResult -> {
-            Long projectId = dto.getId();
-            ProjectEnv projectEnv = dto.getEnv();
-            String publicServerMachineIp = dto.getServerMachineIp();
-            if (projectId == null) {
-                jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
-                return;
-            }
+        Long projectId = dto.getId();
+        ProjectEnv projectEnv = dto.getEnv();
+        String publicServerMachineIp = dto.getServerMachineIp();
+        if (projectId == null) {
+            jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
+            return jsonResult;
+        }
 
-            Project project = projectRepository.findOne(projectId);
-            ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
+        Project project = projectRepository.findOne(projectId);
+        ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
 
-            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
-            SystemConfig buildPathSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
-
-
-            ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, projectEnv);
-            if (projectEnvConfig == null) {
-                jsonResult.remind("发布环境不存在", log);
-                return;
-            }
-
-            String projectPath = systemConfig.getValue() + File.separator + project.getName();
-
-            Map<String, String> params = new HashMap<>();
-            StringBuilder shellBuilder = new StringBuilder();
-            StrSubstitutor strSubstitutor = new StrSubstitutor(params, "#{", "}");
-
-            // 公共参数
-            params.put("port", serverMachine.getPort());
-            params.put("username", serverMachine.getUsername());
-            params.put("ip", serverMachine.getIp());
-            params.put("env", projectEnv.toString());
+        SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
+        SystemConfig buildPathSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
 
 
-            String publicBranch = projectEnvConfig.getPublicBranch();
-            params.put("publicBranch", publicBranch);
+        ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, projectEnv);
+        if (projectEnvConfig == null) {
+            jsonResult.remind("发布环境不存在", log);
+            return jsonResult;
+        }
+        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndProjectEnvAndServerIp(projectId, projectEnv, publicServerMachineIp);
+        if (projectEnvIp == null) {
+            jsonResult.remind("发布环境ip不存在", log);
+            return jsonResult;
+        }
 
-            // 1. cd 项目路劲
-            shellBuilder.append("echo cd #{projectPath}").append("\n");
-            shellBuilder.append("cd #{projectPath}").append("\n");
-            params.put("projectPath", projectPath);
-            params.put("remoteProjectPath", project.getRemotePath());
+        String projectPath = systemConfig.getValue() + File.separator + project.getName();
 
-            // 2. 查询项目相同环境最新发布版本
-            ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
-            String projectVersionDir = projectBuildLog.getBuildVersion();
-            params.put("projectVersionDir", projectVersionDir);
+        Map<String, String> params = new HashMap<>();
+        StringBuilder shellBuilder = new StringBuilder();
+        StrSubstitutor strSubstitutor = new StrSubstitutor(params, "#{", "}");
 
-            String buildPath = buildPathSystemConfig.getValue() + File.separator + project.getName();
-            params.put("buildPath", buildPath);
-
-
-            // 9. 远程服务器: 创建标准目录结构
-            shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} ").append("mkdir -p #{remoteProjectPath}/version").append("\n");
-            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
-
-            // 10. 远程服务器: 上传版本文件
-            shellBuilder.append("echo scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
-            shellBuilder.append("scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
-
-            // 11. 远程服务器: 创建当前版本软链接
-            // 11.1 删除
-            shellBuilder.append("echo exec #{username}@#{ip} shell \n");
-            shellBuilder.append("ssh -p #{port} #{username}@#{ip} ");
-            shellBuilder.append("'").append("\n");
-            shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n")
-                    .append("ln -sf #{remoteProjectPath}/current").append("\n")
-                    .append("echo rm -rf  #{remoteProjectPath}/current").append("\n")
-                    .append("rm -rf  #{remoteProjectPath}/current").append("\n");
-            // 11.2 创建
-            shellBuilder.append("echo ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
-            shellBuilder.append("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
-            shellBuilder.append("ln -sf ~/current").append("\n").append("rm -rf ~/current").append("\n");
+        // 公共参数
+        params.put("port", serverMachine.getPort());
+        params.put("username", serverMachine.getUsername());
+        params.put("ip", serverMachine.getIp());
+        params.put("env", projectEnv.toString());
 
 
-            // 12. 查看此版本上传后文件列表
-            shellBuilder.append("echo tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
-            shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+        String publicBranch = projectEnvConfig.getPublicBranch();
+        params.put("publicBranch", publicBranch);
 
-            // 13. 执行构建后命令
-            List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.SYNC, projectEnv);
-            afterProjectBuildStepList.forEach(projectStructureStep -> {
-                shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
-                shellBuilder.append(projectStructureStep.getStep()).append("\n");
-            });
+        // 1. cd 项目路劲
+        shellBuilder.append("echo cd #{projectPath}").append("\n");
+        shellBuilder.append("cd #{projectPath}").append("\n");
+        params.put("projectPath", projectPath);
+        params.put("remoteProjectPath", project.getRemotePath());
 
-            shellBuilder.append("'");
+        // 2. 查询项目相同环境最新发布版本
+        ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
+        String projectVersionDir = projectBuildLog.getBuildVersion();
+        params.put("projectVersionDir", projectVersionDir);
 
-            String lastShell = strSubstitutor.replace(shellBuilder.toString());
-            String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
-
-            // 同步完成添加发布日志
-            ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
-            projectBuildLogNew.setDescription(result);
-            projectBuildLogNew.setProjectId(projectId);
-            projectBuildLogNew.setStatus(ProjectBuildStatus.SUCCESS);
-            projectBuildLogNew.setBuildType(ProjectBuildType.SYNC);
-            projectBuildLogNew.setProjectName(project.getName());
-            projectBuildLogNew.setUserId(userDto.getId());
-            projectBuildLogNew.setUsername(userDto.getUsername());
-            projectBuildLogNew = projectBuildLogRepository.save(projectBuildLogNew);
-            projectBuildLogNew.setName(project.getName() + "_" + projectVersionDir);
-            projectBuildLogNew.setBuildVersion(projectVersionDir);
-            projectBuildLogNew.setIp(publicServerMachineIp);
-            projectBuildLogNew.setProjectEnv(projectEnv);
-            projectBuildLogRepository.save(projectBuildLogNew);
+        String buildPath = buildPathSystemConfig.getValue() + File.separator + project.getName();
+        params.put("buildPath", buildPath);
 
 
-        };
-        return doing.go(userDto, request, objectMapper, log);
+        // 9. 远程服务器: 创建标准目录结构
+        shellBuilder.append("echo ssh -p #{port} #{username}@#{ip} ").append("mkdir -p #{remoteProjectPath}/version").append("\n");
+        shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
+
+        // 10. 远程服务器: 上传版本文件
+        shellBuilder.append("echo scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+        shellBuilder.append("scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+
+        // 11. 远程服务器: 创建当前版本软链接
+        // 11.1 删除
+        shellBuilder.append("echo exec #{username}@#{ip} shell \n");
+        shellBuilder.append("ssh -p #{port} #{username}@#{ip} ");
+        shellBuilder.append("'").append("\n");
+        shellBuilder.append("echo ln -sf #{remoteProjectPath}/current").append("\n")
+                .append("ln -sf #{remoteProjectPath}/current").append("\n")
+                .append("echo rm -rf  #{remoteProjectPath}/current").append("\n")
+                .append("rm -rf  #{remoteProjectPath}/current").append("\n");
+        // 11.2 创建
+        shellBuilder.append("echo ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
+        shellBuilder.append("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current").append("\n");
+        shellBuilder.append("ln -sf ~/current").append("\n").append("rm -rf ~/current").append("\n");
+
+
+        // 12. 查看此版本上传后文件列表
+        shellBuilder.append("echo tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+        shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
+
+        // 13. 执行构建后命令
+        List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.SYNC, projectEnv);
+        afterProjectBuildStepList.forEach(projectStructureStep -> {
+            shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
+            shellBuilder.append(projectStructureStep.getStep()).append("\n");
+        });
+
+        shellBuilder.append("'");
+
+        String lastShell = strSubstitutor.replace(shellBuilder.toString());
+        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
+
+        // 同步完成添加发布日志
+        ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
+        projectBuildLogNew.setDescription(result);
+        projectBuildLogNew.setProjectId(projectId);
+        projectBuildLogNew.setStatus(ProjectBuildStatus.SUCCESS);
+        projectBuildLogNew.setBuildType(ProjectBuildType.SYNC);
+        projectBuildLogNew.setProjectName(project.getName());
+        projectBuildLogNew.setUserId(userDto.getId());
+        projectBuildLogNew.setUsername(userDto.getUsername());
+        projectBuildLogNew = projectBuildLogRepository.save(projectBuildLogNew);
+        projectBuildLogNew.setName(project.getName() + "_" + projectVersionDir);
+        projectBuildLogNew.setBuildVersion(projectVersionDir);
+        projectBuildLogNew.setIp(publicServerMachineIp);
+        projectBuildLogNew.setProjectEnv(projectEnv);
+        projectBuildLogRepository.save(projectBuildLogNew);
+
+        // 最后更新发布时间
+        projectEnvIp.setPublishTime(now);
+        projectEnvIp.setPublishVersion(projectVersionDir);
+        projectEnvIpRepository.save(projectEnvIp);
+
+        return jsonResult;
+
     }
 
 
