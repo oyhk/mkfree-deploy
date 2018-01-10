@@ -28,8 +28,6 @@ public class ProjectDto extends Project {
     // 各种环境配置
     private List<ProjectEnvConfigDto> projectEnvConfigList;
 
-    // 发布机器ip列表
-    private List<String> serverMachineIpList;
     // 发布机器ip
     private String serverMachineIp;
     // 发布分支
@@ -51,14 +49,6 @@ public class ProjectDto extends Project {
 
     public void setPublishBranch(String publishBranch) {
         this.publishBranch = publishBranch;
-    }
-
-    public List<String> getServerMachineIpList() {
-        return serverMachineIpList;
-    }
-
-    public void setServerMachineIpList(List<String> serverMachineIpList) {
-        this.serverMachineIpList = serverMachineIpList;
     }
 
     public String getServerMachineIp() {

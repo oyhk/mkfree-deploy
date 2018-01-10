@@ -2,6 +2,8 @@ package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.ProjectBuildStep;
 import com.mkfree.deploy.domain.ProjectEnvConfig;
+import com.mkfree.deploy.domain.ProjectEnvIp;
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
     //需要发布的服务机器id列表
     private List<Long> serverMachineIdList;
     //需要发布的服务机器ip列表
-    private List<String> serverMachineIpList;
+    private List<ProjectEnvIp> serverMachineIpList;
     // 构建前命令
     private List<ProjectBuildStep> buildBeforeList;
     // 构建后命令
@@ -22,11 +24,11 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
     // 同步后命令
     private List<ProjectBuildStep> buildSyncList;
 
-    public List<String> getServerMachineIpList() {
+    public List<ProjectEnvIp> getServerMachineIpList() {
         return serverMachineIpList;
     }
 
-    public void setServerMachineIpList(List<String> serverMachineIpList) {
+    public void setServerMachineIpList(List<ProjectEnvIp> serverMachineIpList) {
         this.serverMachineIpList = serverMachineIpList;
     }
 

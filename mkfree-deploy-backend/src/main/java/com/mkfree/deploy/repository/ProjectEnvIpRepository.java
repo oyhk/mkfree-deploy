@@ -16,4 +16,6 @@ public interface ProjectEnvIpRepository extends BaseRepository<ProjectEnvIp, Lon
     List<ProjectEnvIp> findByProjectIdIn(List<Long> projectId);
 
     ProjectEnvIp findByProjectIdAndProjectEnvAndServerIp(Long projectId, ProjectEnv projectEnv, String serverIp);
+
+    List<ProjectEnvIp> findByProjectIdAndProjectEnv(Long projectId,ProjectEnv projectEnv);
 }

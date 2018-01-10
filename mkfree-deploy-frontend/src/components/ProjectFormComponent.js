@@ -69,7 +69,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
             newProjectEnvConfigList.push({
                 env: item.env,
                 publicBranch: getFieldValue(`publicBranch${index}`),
-                serverMachineIpList: `${getFieldValue(`serverMachineIpList${index}`)}`.split(','),
+                serverMachineIpList: JSON.parse(getFieldValue(`serverMachineIpList${index}`)),
                 buildBeforeList: newBuildBeforeList,
                 buildAfterList: newBuildAfterList,
                 buildSyncList: newBuildSyncList,
@@ -230,8 +230,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                             </FormItem>
                             <FormItem key={`${index}_2`} {...formItemLayout} label="服务器ip">
                                 {getFieldDecorator(`serverMachineIpList${index}`, {
-                                    initialValue: item.serverMachineIpList ? item.serverMachineIpList : ''
+                                    initialValue: item.serverMachineIpList ? JSON.stringify(item.serverMachineIpList) : ''
                                 })(
+
                                     <Input placeholder="服务器ip, 多个ip用逗号隔开 例如 192.168.2.12,192.168.2.13"/>
                                 )}
                             </FormItem>
