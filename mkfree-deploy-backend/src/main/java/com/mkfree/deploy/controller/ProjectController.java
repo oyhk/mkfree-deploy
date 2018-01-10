@@ -802,6 +802,7 @@ public class ProjectController extends BaseController {
     @Transactional
     @RequestMapping(value = Routes.PROJECT_STRUCTURE, method = RequestMethod.POST)
     public JsonResult structure(@RequestBody ProjectDto dto, HttpServletRequest request) {
+        Date now = new Date();
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
         JsonResult jsonResult = new JsonResult();
         Long projectId = dto.getId();
@@ -989,7 +990,7 @@ public class ProjectController extends BaseController {
         projectBuildLogRepository.save(projectBuildLog);
 
         // 最后更新发布时间
-        projectEnvIp.setPublishTime(new Date());
+        projectEnvIp.setPublishTime(now);
         projectEnvIp.setPublishVersion(projectVersionDir);
         projectEnvIpRepository.save(projectEnvIp);
         return jsonResult;
