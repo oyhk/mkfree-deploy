@@ -1,5 +1,6 @@
 package com.mkfree.deploy.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Config;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.hibernate.annotations.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -230,122 +232,6 @@ public class ProjectController extends BaseController {
         return jsonResult;
     }
 
-    @RequestMapping(value = Routes.PROJECT_PAGE_ANT_DESIGN_TABLE, method = RequestMethod.GET)
-    public JsonResult pageAntDesignTable(Integer pageNo, Integer pageSize, String projectTagId, HttpServletRequest request) {
-        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
-
-        // 首先把用户可发布的项目权限分组
-        Map<Long, UserProjectPermissionDto> userProjectPermissionDtoMap = userDto.getUserProjectPermissionList().stream().collect(Collectors.toMap(UserProjectPermissionDto::getProjectId, userProjectPermissionDto -> userProjectPermissionDto));
-
-
-        List<ServerMachine> serverMachineList = serverMachineRepository.findAll();
-        Map<String, ServerMachine> serverMachineMap = serverMachineList.stream().collect(Collectors.toMap(ServerMachine::getIp, o -> o));
-
-        RestDoing doing = (JsonResult jsonResult) -> {
-            Page<Project> page;
-            if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
-                page = projectRepository.findAll(this.getPageRequest(pageNo, 100000, Sort.Direction.DESC, "name"));
-            } else {
-                page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, 100000, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
-            }
-
-            List<ProjectAntTableDto> projectAntTableDtoList = new ArrayList<>();
-
-            // 表格 项目名称合并 rowSpan
-            HashMap<Long, Integer> projectNameAntTableRowSpanMap = new HashMap<>();
-            // 表格 项目环境合并 rowSpan
-            HashMap<String, Integer> projectEnvAntTableRowSpanMap = new HashMap<>();
-
-            page.forEach(project -> {
-                Long projectId = project.getId();
-                projectNameAntTableRowSpanMap.put(projectId, 0);
-                // 查询对应项目的部署环境
-                List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
-                // 暂时这样做权限控制
-                if (!userDto.getUsername().equals("oyhk")) {
-                    projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnv() != ProjectEnv.PROD).collect(Collectors.toList());
-                }
-
-                projectEnvConfigList.forEach(projectEnvConfig -> {
-                    List<String> serverMachineIpList = ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
-                    if (serverMachineIpList != null && serverMachineIpList.size() > 0) {
-                        int ipSize = serverMachineIpList.size();
-                        projectEnvAntTableRowSpanMap.put(projectId + projectEnvConfig.getEnv().toString(), ipSize);
-
-                        Integer projectNameAntTableRowSpan = projectNameAntTableRowSpanMap.get(projectId);
-                        projectNameAntTableRowSpanMap.put(projectId, projectNameAntTableRowSpan + ipSize);
-                        serverMachineIpList.forEach(ip -> {
-
-
-                            ProjectAntTableDto projectAntTableDto = new ProjectAntTableDto();
-                            projectAntTableDto.setBranchList(project.getBranchList());
-                            projectAntTableDto.setName(project.getName());
-                            projectAntTableDto.setId(project.getId());
-                            projectAntTableDto.setBranchList(project.getBranchList());
-                            projectAntTableDto.setProjectNameAntTableRowSpan(0);
-                            projectAntTableDto.setProjectEnvAntTableRowSpan(0);
-                            projectAntTableDto.setProjectEnv(projectEnvConfig.getEnv());
-
-                            projectAntTableDto.setIp(ip);
-                            ServerMachine serverMachine = serverMachineMap.get(ip);
-                            if (serverMachine != null) {
-                                projectAntTableDto.setPublish(serverMachine.getPublish());
-                            }
-
-                            projectAntTableDtoList.add(projectAntTableDto);
-                        });
-                    }
-                });
-
-            });
-
-            final Long[] prevProjectId = new Long[]{0L};
-            final String[] prevProjectEnv = new String[]{"0env"};
-            projectAntTableDtoList.forEach(projectAntTableDto -> {
-
-                Long projectId = projectAntTableDto.getId();
-                ProjectEnv projectEnv = projectAntTableDto.getProjectEnv();
-
-                // 项目名称rowSpan 合并单元格
-                Integer projectNameAntTableRowSpan = projectNameAntTableRowSpanMap.get(projectAntTableDto.getId());
-                // 项目环境rowSpan 合并单元格
-                Integer projectEnvAntTableRowSpan = projectEnvAntTableRowSpanMap.get(projectAntTableDto.getId() + projectEnv.toString());
-                if (prevProjectId[0] == 0L) {
-                    prevProjectId[0] = projectAntTableDto.getId();
-                    projectAntTableDto.setProjectNameAntTableRowSpan(projectNameAntTableRowSpan);
-                }
-                if (!Objects.equals(prevProjectId[0], projectAntTableDto.getId())) {
-                    projectAntTableDto.setProjectNameAntTableRowSpan(projectNameAntTableRowSpan);
-                    prevProjectId[0] = projectAntTableDto.getId();
-                }
-
-                if (prevProjectEnv[0].equals("0env")) {
-                    prevProjectEnv[0] = projectAntTableDto.getId() + projectEnv.toString();
-                    projectAntTableDto.setProjectEnvAntTableRowSpan(projectEnvAntTableRowSpan);
-                }
-                if (!prevProjectEnv[0].equals(projectAntTableDto.getId() + projectEnv.toString())) {
-                    projectAntTableDto.setProjectEnvAntTableRowSpan(projectEnvAntTableRowSpan);
-                    prevProjectEnv[0] = projectAntTableDto.getId() + projectEnv.toString();
-                }
-                ProjectBuildLog projectBuildLog;
-                // 最新发布时间
-                if (projectAntTableDto.getPublish() != null && projectAntTableDto.getPublish()) {
-                    projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
-                } else {
-                    projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.SYNC, projectEnv);
-                }
-                if (projectBuildLog != null) {
-                    projectAntTableDto.setPublishTime(projectBuildLog.getCreatedAt());
-                    projectAntTableDto.setPublishVersion(projectBuildLog.getBuildVersion());
-                }
-            });
-
-
-            jsonResult.data = new PageResult<>(page.getNumber(), page.getSize(), page.getTotalElements(), projectAntTableDtoList, Routes.PROJECT_PAGE);
-        };
-        return doing.go(request, objectMapper, log);
-    }
-
     @RequestMapping(value = Routes.PROJECT_SAVE, method = RequestMethod.POST)
     @Transactional
     public JsonResult save(@RequestBody ProjectDto dto, HttpServletRequest request) {
@@ -548,43 +434,40 @@ public class ProjectController extends BaseController {
     }
 
     @RequestMapping(value = Routes.PROJECT_BRANCH_REFRESH, method = RequestMethod.GET)
-    public JsonResult branchRefresh(Long id, HttpServletRequest request) {
-        RestDoing doing = jsonResult -> {
-            if (id == null) {
-                jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
-                return;
-            }
-            Project project = projectRepository.findOne(id);
-            if (project == null) {
-                jsonResult.remind(Project.REMIND_RECORD_IS_NOT_EXIST);
-                return;
-            }
-            SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
+    public JsonResult branchRefresh(Long id) throws JsonProcessingException {
 
-            String projectPath = systemConfig.getValue() + File.separator + project.getName();
+        JsonResult jsonResult = new JsonResult();
 
-            Shell shell = new Shell();
-            // 1. cd 项目路劲
-            shell.appendN("cd #{projectPath}/DEFAULT");
-            shell.addParams("projectPath", projectPath);
-            // 2. git pull 拉去所有分支
-            shell.appendN("git pull");
-            shell.appendN("git remote update origin --prune");
-            // 3. 查看分支列表
-            shell.appendN("git branch -a | grep remotes/origin");
 
-            String lastShell = shell.getShell();
-            String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell, log);
-            branchListTemp = branchListTemp.replaceAll("</br>", "");
-            branchListTemp = branchListTemp.replaceAll("deploy finish", "");
-            String[] branchListArray = branchListTemp.split("remotes/origin/");
-            List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating") && !s.contains("更新") && !s.contains("++++++") && !s.contains("+----")).map(String::trim).sorted().collect(Collectors.toList());
-            project.setBranchList(objectMapper.writeValueAsString(branchList));
-            projectRepository.save(project);
+        CheckHelper.checkNotNull(id, Project.CHECK_ID_IS_NOT_NULL);
+        Project project = projectRepository.findOne(id);
+        CheckHelper.remindIsNotExist(project, Project.REMIND_RECORD_IS_NOT_EXIST);
 
-            jsonResult.data = project.getBranchList();
-        };
-        return doing.go(request, objectMapper, log);
+        SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
+
+        String projectPath = systemConfig.getValue() + File.separator + project.getName();
+
+        Shell shell = new Shell();
+        // 1. cd 项目路劲
+        shell.appendN("cd #{projectPath}/DEFAULT");
+        shell.addParams("projectPath", projectPath);
+        // 2. git pull 拉去所有分支
+        shell.appendN("git pull");
+        shell.appendN("git remote update origin --prune");
+        // 3. 查看分支列表
+        shell.appendN("git branch -a | grep remotes/origin");
+
+        String lastShell = shell.getShell();
+        String branchListTemp = ShellHelper.SINGLEONE.executeShellCommand(lastShell, log);
+        branchListTemp = branchListTemp.replaceAll("</br>", "");
+        branchListTemp = branchListTemp.replaceAll("deploy finish", "");
+        String[] branchListArray = branchListTemp.split("remotes/origin/");
+        List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating") && !s.contains("更新") && !s.contains("++++++") && !s.contains("+----")).map(String::trim).sorted().collect(Collectors.toList());
+        project.setBranchList(objectMapper.writeValueAsString(branchList));
+        projectRepository.save(project);
+
+        jsonResult.data = project.getBranchList();
+        return jsonResult;
     }
 
     @RequestMapping(value = Routes.PROJECT_INFO, method = RequestMethod.GET)
@@ -1025,16 +908,6 @@ public class ProjectController extends BaseController {
             jsonResult.data = result.toString().replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>");
         };
         return doing.go(log);
-    }
-
-    private void projectEnvConfigList(List<ProjectEnvConfig> projectEnvConfigList, List<ProjectEnvConfigDto> projectEnvConfigDtoList) {
-        projectEnvConfigList.forEach(projectEnvConfig -> {
-            ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
-            projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-            List<String> serverMachineIpList = ObjectMapperHelper.SINGLE.jsonToListString(objectMapper, projectEnvConfig.getServerMachineIp());
-            projectEnvConfigDto.setServerMachineIpList(serverMachineIpList);
-            projectEnvConfigDtoList.add(projectEnvConfigDto);
-        });
     }
 
 }

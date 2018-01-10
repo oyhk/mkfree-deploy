@@ -96,7 +96,29 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                                                 <Col lg={1}>
                                                                     {
                                                                         projectEnvIp.serverIp ?
-                                                                            projectEnvIp.publish ?
+                                                                            projectEnvIp.publish ? projectEnvIp.projectEnv === 'DEV'?
+                                                                                <Dropdown overlay={<Menu
+                                                                                    onClick={(e) => {
+                                                                                        dispatch({
+                                                                                            type: 'projectModel/structure',
+                                                                                            payload: {
+                                                                                                id: projectEnvIp.projectId,
+                                                                                                env: projectEnvIp.projectEnv,
+                                                                                                serverMachineIp: projectEnvIp.serverIp,
+                                                                                                publishBranch: e.item.props.children
+                                                                                            }
+                                                                                        });
+                                                                                    }}>
+                                                                                    {
+                                                                                        project.branchList && JSON.parse(project.branchList).map((item, branchListIndex) => {
+                                                                                            return <Menu.Item key={`${project.id}_${branchListIndex}`}>{item}</Menu.Item>;
+                                                                                        })
+                                                                                    }</Menu>} trigger={['hover']}>
+                                                                                    <Button size="small" type="primary">
+                                                                                        发布 <Icon type="down"/>
+                                                                                    </Button>
+                                                                                </Dropdown>
+                                                                                :
                                                                                 <Button type="primary"
                                                                                         size="small"
                                                                                         onClick={() => {
