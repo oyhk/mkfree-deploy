@@ -7,13 +7,18 @@ public class Routes {
 
     public static final String API_PREFIX = "/api";
 
-    public static final String USER_PAGE = API_PREFIX +"/user/page";
-    public static final String USER_LOGIN = API_PREFIX +"/user/login";
-    public static final String USER_LOGIN_USER_TOKEN = API_PREFIX +"/user/login_user_token";
-    public static final String USER_SAVE = API_PREFIX +"/user/save";
-    public static final String USER_UPDATE = API_PREFIX +"/user/update";
-    public static final String USER_DELETE = API_PREFIX +"/user/delete";
-    public static final String USER_INFO = API_PREFIX +"/user/info";
+    // 安装
+    public static final String INSTALL = API_PREFIX + "/install";
+    // 是否已安装
+    public static final String INSTALLED = API_PREFIX + "/installed";
+
+    public static final String USER_PAGE = API_PREFIX + "/user/page";
+    public static final String USER_LOGIN = API_PREFIX + "/user/login";
+    public static final String USER_LOGIN_USER_TOKEN = API_PREFIX + "/user/login_user_token";
+    public static final String USER_SAVE = API_PREFIX + "/user/save";
+    public static final String USER_UPDATE = API_PREFIX + "/user/update";
+    public static final String USER_DELETE = API_PREFIX + "/user/delete";
+    public static final String USER_INFO = API_PREFIX + "/user/info";
 
     public static final String USER_PROJECT_PERMISSION_SAVE = API_PREFIX + "/user/project/permission/save";
     public static final String USER_PROJECT_PERMISSION_DELETE = API_PREFIX + "/user/project/permission/delete";
@@ -42,8 +47,8 @@ public class Routes {
     public static final String PROJECT_STRUCTURE_LOG_LIST = API_PREFIX + "/project_structure_log/list";
 
 
-    public static final String PROJECT_STRUCTURE_LOG_INFO =  API_PREFIX + "/project_structure_log/info";
+    public static final String PROJECT_STRUCTURE_LOG_INFO = API_PREFIX + "/project_structure_log/info";
 
 
-    public static final String ENV_LIST = API_PREFIX+"/env/list";
+    public static final String ENV_LIST = API_PREFIX + "/env/list";
 }

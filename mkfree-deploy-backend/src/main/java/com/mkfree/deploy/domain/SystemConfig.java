@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 @Entity
 public class SystemConfig extends IDEntity {
 
+    // 是否已安装
+    public static final String keyIsInstalled = "is_installed";
     //项目根路劲
     public static final String keyProjectPath = "projectPath";
     // 项目构建后目录
