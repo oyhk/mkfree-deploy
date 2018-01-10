@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag, Affix} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 
@@ -45,15 +45,18 @@ function ProjectRoute({dispatch, location, pageResult}) {
                     >添加</Button>
                 </Col>
             </Row>
-            <Row type="flex" align="middle" justify="center" style={{marginBottom: '20px'}}>
-                <Col style={{width: '16.2%'}}><h4>项目名称</h4></Col>
-                <Col style={{width: '7.9%'}}><h4>环境</h4></Col>
-                <Col style={{width: '15.1%'}}><h4>ip</h4></Col>
-                <Col style={{width: '8.7%'}}><h4>发布时间</h4></Col>
-                <Col style={{width: '26%'}}><h4>服务器运行版本</h4></Col>
-                <Col style={{width: '8.1%'}}><h4>发布版本</h4></Col>
-                <Col style={{width: '17%'}}><h4>操作</h4></Col>
-            </Row>
+            <Affix>
+                <Row type="flex" align="middle" justify="center"
+                     style={{paddingBottom: '20px', paddingTop: '20px', backgroundColor: '#ffffff'}}>
+                    <Col style={{width: '16.2%'}}><h4>项目名称</h4></Col>
+                    <Col style={{width: '7.9%'}}><h4>环境</h4></Col>
+                    <Col style={{width: '15.1%'}}><h4>ip</h4></Col>
+                    <Col style={{width: '8.7%'}}><h4>发布时间</h4></Col>
+                    <Col style={{width: '26%'}}><h4>服务器运行版本</h4></Col>
+                    <Col style={{width: '8.1%'}}><h4>发布版本</h4></Col>
+                    <Col style={{width: '17%'}}><h4>操作</h4></Col>
+                </Row>
+            </Affix>
 
             {
                 pageResult.list && pageResult.list.map((project, index) => {
