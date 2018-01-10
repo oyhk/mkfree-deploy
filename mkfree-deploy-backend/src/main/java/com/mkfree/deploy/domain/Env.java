@@ -14,7 +14,7 @@ public class Env extends IDEntity {
 
     @Column(columnDefinition = "varchar(100) comment '环境名称'", unique = true)
     private String name;
-    @Column(columnDefinition = "int(2) common '环境排序'")
+    @Column(columnDefinition = "int(2) comment '环境排序'")
     private Integer sort;
 
     public Integer getSort() {
