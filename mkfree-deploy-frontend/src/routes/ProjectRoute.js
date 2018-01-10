@@ -13,7 +13,8 @@ function ProjectRoute({dispatch, location, pageResult}) {
 
     return (
         <div>
-            <Row>
+            <Affix>
+            <Row style={{paddingBottom: '20px', paddingTop: '20px', backgroundColor: '#ffffff'}}>
                 <Col span={23}>
                     <Link onClick={() => {
                         const page = location.query.page ? location.query.page : 0;
@@ -45,7 +46,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
                     >添加</Button>
                 </Col>
             </Row>
-            <Affix>
+
                 <Row type="flex" align="middle" justify="center"
                      style={{paddingBottom: '20px', paddingTop: '20px', backgroundColor: '#ffffff'}}>
                     <Col style={{width: '16.2%'}}><h4>项目名称</h4></Col>

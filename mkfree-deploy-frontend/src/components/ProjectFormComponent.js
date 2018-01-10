@@ -233,7 +233,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     initialValue: item.serverMachineIpList ? JSON.stringify(item.serverMachineIpList) : ''
                                 })(
 
-                                    <Input placeholder="服务器ip, 多个ip用逗号隔开 例如 192.168.2.12,192.168.2.13"/>
+                                    <Input placeholder='[{"serverIp":"119.23.40.53","publish":false},{"serverIp":"119.23.73.31","publish":true}]'/>
                                 )}
                             </FormItem>
                             {
