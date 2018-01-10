@@ -23,6 +23,8 @@ public class ProjectDto extends Project {
     private List<ProjectDeployFileDto> deployTargetFileList;
     // 项目的发布环境
     private ProjectEnv env;
+    // 项目发布环境列表
+    private List<ProjectEnvDto> projectEnvList;
     // 各种环境配置
     private List<ProjectEnvConfigDto> projectEnvConfigList;
 
@@ -34,6 +36,14 @@ public class ProjectDto extends Project {
     private String publishBranch;
     // 最后发布时间
     private Date lastPublishDate;
+
+    public List<ProjectEnvDto> getProjectEnvList() {
+        return projectEnvList;
+    }
+
+    public void setProjectEnvList(List<ProjectEnvDto> projectEnvList) {
+        this.projectEnvList = projectEnvList;
+    }
 
     public String getPublishBranch() {
         return publishBranch;
