@@ -23,9 +23,6 @@ public class ProjectEnvConfig extends IDEntity {
     @Column(columnDefinition = "varchar(50) comment '环境类型'")
     @Enumerated(EnumType.STRING)
     private ProjectEnv env;
-    //需要发布的服务机器ip列表 ["192.168.1.241","192.168.1.211"]
-    @Column(columnDefinition = "varchar(255) comment '需要发布的服务机器ip列表 [\"192.168.1.241\",\"192.168.1.211\"]'", name = "serverMachineList")
-    private String serverMachineIp;
     //发布分支名称
     @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
     private String publicBranch;
@@ -44,14 +41,6 @@ public class ProjectEnvConfig extends IDEntity {
 
     public void setEnv(ProjectEnv env) {
         this.env = env;
-    }
-
-    public String getServerMachineIp() {
-        return serverMachineIp;
-    }
-
-    public void setServerMachineIp(String serverMachineIp) {
-        this.serverMachineIp = serverMachineIp;
     }
 
     public String getPublicBranch() {

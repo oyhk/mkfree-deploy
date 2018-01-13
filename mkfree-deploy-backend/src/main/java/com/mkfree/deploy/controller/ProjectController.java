@@ -67,46 +67,6 @@ public class ProjectController extends BaseController {
     @Autowired
     private ProjectEnvIpRepository projectEnvIpRepository;
 
-    @GetMapping(value = "/api/project/init_project_env_ip")
-    public JsonResult initProjectEnvIp() {
-        List<ProjectEnvConfig> projectEnvConfigs = projectEnvConfigRepository.findAll();
-        projectEnvConfigs.forEach(projectEnvConfig -> {
-
-
-            try {
-                String ipListJson = projectEnvConfig.getServerMachineIp();
-                if (StringUtils.isNotBlank(ipListJson)) {
-                    List<String> ipList = objectMapper.readValue(ipListJson, new TypeReference<List<String>>() {
-                    });
-                    ipList.forEach(ip -> {
-
-                        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndProjectEnvAndServerIp(projectEnvConfig.getProjectId(), projectEnvConfig.getEnv(), ip);
-                        if (projectEnvIp == null) {
-                            projectEnvIp = new ProjectEnvIp();
-                        }
-
-                        if (StringUtils.isNotBlank(ip)) {
-                            ServerMachine serverMachine = serverMachineRepository.findByIp(ip);
-                            if (serverMachine != null) {
-                                projectEnvIp.setServerName(serverMachine.getName());
-                                projectEnvIp.setServerIp(ip);
-                                projectEnvIp.setPublish(serverMachine.getPublish());
-                            }
-                        }
-                        projectEnvIp.setProjectEnv(projectEnvConfig.getEnv());
-                        projectEnvIp.setProjectName(projectEnvConfig.getProjectName());
-                        projectEnvIp.setProjectId(projectEnvConfig.getProjectId());
-                        projectEnvIpRepository.save(projectEnvIp);
-                    });
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-        return new JsonResult();
-    }
-
     @GetMapping(value = Routes.PROJECT_INIT_GIT)
     public JsonResult initGit(ProjectDto dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
