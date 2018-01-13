@@ -1,0 +1,16 @@
+dist
+node_modules
+.DS_Store
+target
+.idea
+logs
+test-dir
+*.iml
+doc/.DS_Store
+.setting
+.classpath
+.project
+testshell
+jobs
+mydb.db
+build

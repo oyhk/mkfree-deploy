@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <logger name="org.springframework.web" level="INFO"/>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>./logs/mkfree-deploy.log</File>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>[mkfree-deploy] %d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>./logs/mkfree-deploy.log.%d{yyyy-MM-dd}</FileNamePattern>
+        </rollingPolicy>
+    </appender>
+    <!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+        <!--<encoder>-->
+            <!--<pattern>[rockcent-mall-api] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36}-%M-%L - %msg%n</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+    <root level="info">
+        <appender-ref ref="file"/>
+        <!--<appender-ref ref="STDOUT" />-->
+    </root>
+</configuration>
