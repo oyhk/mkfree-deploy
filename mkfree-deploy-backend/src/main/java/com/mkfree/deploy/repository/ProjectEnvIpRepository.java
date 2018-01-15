@@ -12,11 +12,12 @@ import java.util.List;
 @Repository
 public interface ProjectEnvIpRepository extends JpaRepository<ProjectEnvIp, Long> {
 
-    List<ProjectEnvIp> findByProjectIdIn(List<Long> projectId);
+    List<ProjectEnvIp> findByProjectIdIn(List<Long> projectIdList);
+    List<ProjectEnvIp> findByProjectId(Long projectId);
 
     ProjectEnvIp findByProjectIdAndEnvIdAndServerIp(Long projectId, Long envId, String serverIp);
 
     List<ProjectEnvIp> findByProjectIdAndEnvId(Long projectId, Long envId);
 
-    void deleteByProjectIdAndServerIpNotIn(Long projectId, List<String> serverIpList);
+    void deleteByProjectIdAndServerIpIn(Long projectId, List<String> serverIpList);
 }

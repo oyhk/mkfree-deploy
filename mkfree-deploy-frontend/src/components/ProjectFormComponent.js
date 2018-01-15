@@ -69,11 +69,12 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 const newProjectEnvIpList = [];
                 serverMachineList.filter(serverMachine => serverMachine.envId === item.envId).forEach((serverMachine, serverMachineListIndex) => {
                     const serverIpIsCheck = getFieldValue(`projectEnvConfig_projectEnvIp_serverIp_${index}_${serverMachineListIndex}`);
-                    const newServerIp = serverIpIsCheck ? serverMachine.ip : '';
-                    newProjectEnvIpList.push({
-                        serverIp: newServerIp,
-                        publish: getFieldValue(`projectEnvConfig_projectEnvIp_publish_${index}_${serverMachineListIndex}`),
-                    });
+                    if (serverIpIsCheck) {
+                        newProjectEnvIpList.push({
+                            serverIp: serverMachine.ip,
+                            publish: getFieldValue(`projectEnvConfig_projectEnvIp_publish_${index}_${serverMachineListIndex}`),
+                        });
+                    }
                 });
 
                 newProjectEnvConfigList.push({

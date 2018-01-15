@@ -260,19 +260,20 @@ public class ProjectController extends BaseController {
 
                     List<ProjectEnvIp> ipList = projectEnvConfigDto.getProjectEnvIpList();
 
-                    ipList.forEach(projectEnvIp -> {
+                    ipList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).forEach(projectEnvIp -> {
                         ProjectEnvIp dbProjectEnvIp = new ProjectEnvIp();
                         ServerMachine serverMachine = serverMachineRepository.findByIp(projectEnvIp.getServerIp());
                         if (serverMachine != null) {
                             dbProjectEnvIp.setServerIp(serverMachine.getIp());
                             dbProjectEnvIp.setServerName(serverMachine.getName());
+                            dbProjectEnvIp.setProjectId(finalProject.getId());
+                            dbProjectEnvIp.setProjectName(finalProject.getName());
+                            dbProjectEnvIp.setEnvId(envId);
+                            dbProjectEnvIp.setEnvName(projectEnv.getName());
+                            dbProjectEnvIp.setPublish(projectEnvIp.getPublish());
+                            projectEnvIpRepository.save(dbProjectEnvIp);
                         }
-                        dbProjectEnvIp.setProjectId(finalProject.getId());
-                        dbProjectEnvIp.setProjectName(finalProject.getName());
-                        dbProjectEnvIp.setEnvId(envId);
-                        dbProjectEnvIp.setEnvName(projectEnv.getName());
-                        dbProjectEnvIp.setPublish(projectEnvIp.getPublish());
-                        projectEnvIpRepository.save(dbProjectEnvIp);
+
 
                     });
 
@@ -338,7 +339,10 @@ public class ProjectController extends BaseController {
         project = projectRepository.save(project);
         Project finalProject = project;
 
-        List<String> deleteProjectEnvIpList = new ArrayList<>();
+
+        List<ProjectEnvIp> existProjectEnvIpList = projectEnvIpRepository.findByProjectId(projectId);
+        List<String> existProjectEnvIpIdList = existProjectEnvIpList.stream().map(ProjectEnvIp::getServerIp).collect(Collectors.toList());
+
         // 项目环境配置
         List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
         if (projectEnvConfigList != null) {
@@ -384,8 +388,8 @@ public class ProjectController extends BaseController {
 
                 });
 
-                deleteProjectEnvIpList.addAll(projectEnvIpList.stream().map(ProjectEnvIp::getServerIp).collect(Collectors.toList()));
 
+                existProjectEnvIpIdList.removeAll(projectEnvIpList.stream().map(ProjectEnvIp::getServerIp).collect(Collectors.toList()));
 
                 // 项目构建前命令
                 if (projectEnvConfigDto.getBuildBeforeList() != null) {
@@ -424,7 +428,7 @@ public class ProjectController extends BaseController {
             }
 
             // 最后删除 项目环境ip
-            projectEnvIpRepository.deleteByProjectIdAndServerIpNotIn(projectId, deleteProjectEnvIpList);
+            projectEnvIpRepository.deleteByProjectIdAndServerIpIn(projectId, existProjectEnvIpIdList);
         }
         return jsonResult;
     }
@@ -432,29 +436,32 @@ public class ProjectController extends BaseController {
     @RequestMapping(value = Routes.PROJECT_DELETE, method = RequestMethod.DELETE)
     public JsonResult delete(@RequestBody Project dto, HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
-            if (dto.getId() == null) {
+            Long projectId = dto.getId();
+            if (projectId == null) {
                 jsonResult.errorParam("id不能为空");
                 return;
             }
 
             // 删除项目部署文件或目录
-            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(dto.getId());
+            List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
             projectDeployFileRepository.delete(projectDeployFileList);
 
             // 删除对应项目用户分配权限
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(dto.getId());
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(projectId);
             userProjectPermissionRepository.delete(userProjectPermissionList);
 
             // 删除构建步骤
-            List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectId(dto.getId());
+            List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectId(projectId);
             projectBuildStepRepository.delete(projectBuildStepList);
 
             // 删除各个环境配置
-            List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(dto.getId());
+            List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(projectId);
             projectEnvConfigRepository.delete(projectEnvConfigList);
 
+            List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectId(projectId);
+            projectEnvIpRepository.delete(projectEnvIpList);
             // 删除项目基本信息
-            projectRepository.delete(dto.getId());
+            projectRepository.delete(projectId);
         };
         return doing.go(request, log);
     }
@@ -546,14 +553,13 @@ public class ProjectController extends BaseController {
 
 
                 List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdAndEnvId(project.getId(), projectEnvConfig.getEnvId());
-                projectEnvIpList = projectEnvIpList.stream().map(projectEnvIp -> {
+                projectEnvIpList = projectEnvIpList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).map(projectEnvIp -> {
                     ProjectEnvIp projectEnvIpDto = new ProjectEnvIp();
                     projectEnvIpDto.setPublish(projectEnvIp.getPublish());
                     projectEnvIpDto.setSync(projectEnvIp.getSync());
                     projectEnvIpDto.setServerIp(projectEnvIp.getServerIp());
                     return projectEnvIpDto;
                 }).collect(Collectors.toList());
-
                 projectEnvConfigDto.setProjectEnvIpMap(projectEnvIpList.stream().collect(Collectors.toMap(ProjectEnvIp::getServerIp, o -> o)));
                 projectEnvConfigDto.setPublicBranch(projectEnvConfig.getPublicBranch());
 
