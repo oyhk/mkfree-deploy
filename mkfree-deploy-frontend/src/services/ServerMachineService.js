@@ -11,6 +11,10 @@ export async function page(params, remind) {
     return requestData(`${api.serverMachinePage}?${jsonToUrlParams(params)}`, {method: apiMethod.GET});
 }
 
+export async function list(params, remind) {
+    return requestData(api.serverMachineList.url, {method: api.serverMachineList.method});
+}
+
 export async function save(body, remind) {
     return request(`${api.serverMachineSave}`, {method: 'POST', body: JSON.stringify(body)});
 }

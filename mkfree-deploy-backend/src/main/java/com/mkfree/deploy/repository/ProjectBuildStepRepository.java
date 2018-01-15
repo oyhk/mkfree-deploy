@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ProjectBuildStepRepository extends JpaRepository<ProjectBuildStep, Long> {
 
-    List<ProjectBuildStep> findByProjectIdAndTypeAndEnv(Long projectId, ProjectBuildStepType type, ProjectEnv env);
+    List<ProjectBuildStep> findByProjectIdAndTypeAndEnvId(Long projectId, ProjectBuildStepType type, Long envId);
 
     List<ProjectBuildStep> findByProjectId(Long projectId);
 

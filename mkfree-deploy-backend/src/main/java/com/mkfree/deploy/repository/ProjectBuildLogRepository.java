@@ -29,7 +29,7 @@ public interface ProjectBuildLogRepository extends JpaRepository<ProjectBuildLog
      * @param projectId 项目id
      * @return
      */
-    ProjectBuildLog findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(Long projectId, ProjectBuildType buildType, ProjectEnv projectEnv);
+    ProjectBuildLog findTop1ByProjectIdAndBuildTypeAndEnvIdOrderByCreatedAtDesc(Long projectId, ProjectBuildType buildType, Long envId);
 
 
     List<ProjectBuildLog> findByIpInAndProjectIdOrderByCreatedAtDesc(Collection<String> ip, Long projectId);

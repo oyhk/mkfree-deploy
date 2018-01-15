@@ -2,8 +2,7 @@ package com.mkfree.deploy.controller;
 
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.*;
-import com.mkfree.deploy.domain.Env;
-import com.mkfree.deploy.domain.Project;
+import com.mkfree.deploy.domain.ProjectEnv;
 import com.mkfree.deploy.domain.ServerMachine;
 import com.mkfree.deploy.repository.EnvRepository;
 import com.mkfree.deploy.repository.ServerMachineRepository;
@@ -13,10 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Created by oyhk on 2017/2/4.
@@ -38,6 +37,16 @@ public class ServerMachineController extends BaseController {
         CheckHelper.checkNotNull(id, ServerMachine.CHECK_ID_IS_NOT_NULL);
         JsonResult jsonResult = new JsonResult();
         jsonResult.data = serverMachineRepository.findOne(id);
+        return jsonResult;
+    }
+
+    @RequestMapping(value = Routes.SERVER_MACHINE_LIST, method = RequestMethod.GET)
+    public JsonResult list() {
+        JsonResult jsonResult = new JsonResult();
+        List<ServerMachine> serverMachineList = serverMachineRepository.findAll();
+
+        List<ProjectEnv> projectEnvList = envRepository.findAll();
+        jsonResult.data = serverMachineList;
         return jsonResult;
     }
 
@@ -64,13 +73,13 @@ public class ServerMachineController extends BaseController {
         CheckHelper.checkNotNull(ip, "ip 不能为空");
         CheckHelper.checkNotNull(port, "port 不能为空");
 
-        Env env = envRepository.findByName(envName);
-        CheckHelper.remindIsNotExist(env, Env.CLASS_NAME + Env.REMIND_RECORD_IS_NOT_EXIST);
+        ProjectEnv projectEnv = envRepository.findByName(envName);
+        CheckHelper.remindIsNotExist(projectEnv, ProjectEnv.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST);
 
         ServerMachine serverMachine = new ServerMachine();
         BeanUtils.copyProperties(dto, serverMachine);
-        serverMachine.setEnvId(env.getId());
-        serverMachine.setEnvName(env.getName());
+        serverMachine.setEnvId(projectEnv.getId());
+        serverMachine.setEnvName(projectEnv.getName());
 
         jsonResult.data = serverMachineRepository.save(serverMachine);
 
@@ -94,9 +103,9 @@ public class ServerMachineController extends BaseController {
         CheckHelper.remindIsNotExist(serverMachine, ServerMachine.REMIND_RECORD_IS_NOT_EXIST);
 
         if (StringUtils.isNotBlank(envName)) {
-            Env env = envRepository.findByName(envName);
-            CheckHelper.remindIsNotExist(env, Env.CLASS_NAME + Env.REMIND_RECORD_IS_NOT_EXIST);
-            serverMachine.setEnvId(env.getId());
+            ProjectEnv projectEnv = envRepository.findByName(envName);
+            CheckHelper.remindIsNotExist(projectEnv, ProjectEnv.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST);
+            serverMachine.setEnvId(projectEnv.getId());
             serverMachine.setEnvName(envName);
         }
 

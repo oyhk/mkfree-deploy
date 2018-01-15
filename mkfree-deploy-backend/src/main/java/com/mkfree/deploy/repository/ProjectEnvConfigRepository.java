@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ProjectEnvConfigRepository extends JpaRepository<ProjectEnvConfig, Long> {
 
-    ProjectEnvConfig findByProjectIdAndEnv(Long projectId,ProjectEnv env);
+    ProjectEnvConfig findByProjectIdAndEnvId(Long projectId, Long envId);
     List<ProjectEnvConfig> findByProjectId(Long projectId);
     List<ProjectEnvConfig> findByProjectIdIn(List<Long> projectIdList);
 }

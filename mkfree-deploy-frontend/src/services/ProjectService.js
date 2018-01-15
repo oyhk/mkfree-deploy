@@ -39,8 +39,8 @@ export async function branchRefresh(id, remind) {
     return requestData(`/api/project/branch_refresh?id=${id}`, {remind});
 }
 
-export async function envList(remind) {
-    return requestData('/api/project/env_list');
+export async function envConfigList(remind) {
+    return requestData('/api/project/env_config_list');
 }
 
 export async function structure(body, remind) {

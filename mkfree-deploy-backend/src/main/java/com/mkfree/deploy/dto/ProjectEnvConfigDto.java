@@ -3,9 +3,9 @@ package com.mkfree.deploy.dto;
 import com.mkfree.deploy.domain.ProjectBuildStep;
 import com.mkfree.deploy.domain.ProjectEnvConfig;
 import com.mkfree.deploy.domain.ProjectEnvIp;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by oyhk on 2017/2/7.
@@ -13,10 +13,13 @@ import java.util.List;
  */
 public class ProjectEnvConfigDto extends ProjectEnvConfig {
 
+
     //需要发布的服务机器id列表
     private List<Long> serverMachineIdList;
     //需要发布的服务机器ip列表
-    private List<ProjectEnvIp> serverMachineIpList;
+    private List<ProjectEnvIp> projectEnvIpList;
+    // 环境ip map
+    private Map<String,ProjectEnvIp> projectEnvIpMap;
     // 构建前命令
     private List<ProjectBuildStep> buildBeforeList;
     // 构建后命令
@@ -24,12 +27,20 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
     // 同步后命令
     private List<ProjectBuildStep> buildSyncList;
 
-    public List<ProjectEnvIp> getServerMachineIpList() {
-        return serverMachineIpList;
+    public Map<String, ProjectEnvIp> getProjectEnvIpMap() {
+        return projectEnvIpMap;
     }
 
-    public void setServerMachineIpList(List<ProjectEnvIp> serverMachineIpList) {
-        this.serverMachineIpList = serverMachineIpList;
+    public void setProjectEnvIpMap(Map<String, ProjectEnvIp> projectEnvIpMap) {
+        this.projectEnvIpMap = projectEnvIpMap;
+    }
+
+    public List<ProjectEnvIp> getProjectEnvIpList() {
+        return projectEnvIpList;
+    }
+
+    public void setProjectEnvIpList(List<ProjectEnvIp> projectEnvIpList) {
+        this.projectEnvIpList = projectEnvIpList;
     }
 
     public List<Long> getServerMachineIdList() {

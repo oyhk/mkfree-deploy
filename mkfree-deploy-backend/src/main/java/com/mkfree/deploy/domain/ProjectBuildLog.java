@@ -39,9 +39,26 @@ public class ProjectBuildLog extends IDEntity {
     private String description;
     @Column(columnDefinition = "varchar(30) comment '发布ip'")
     private String ip;
-    @Column(columnDefinition = "varchar (100) comment '构建项目环境 DEV(\"开发环境\"), TEST(\"测试环境\"), UAT(\"仿真测试\"), PROD(\"生产\")'")
-    @Enumerated(EnumType.STRING)
-    private ProjectEnv projectEnv;
+    @Column(columnDefinition = "bigint comment '环境id'")
+    private Long envId;
+    @Column(columnDefinition = "varchar(30) comment '环境名称'")
+    private String envName;
+
+    public Long getEnvId() {
+        return envId;
+    }
+
+    public void setEnvId(Long envId) {
+        this.envId = envId;
+    }
+
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
+    }
 
     public ProjectBuildLog() {
         super();
@@ -52,13 +69,6 @@ public class ProjectBuildLog extends IDEntity {
         this.createdAt = createdAt;
     }
 
-    public ProjectEnv getProjectEnv() {
-        return projectEnv;
-    }
-
-    public void setProjectEnv(ProjectEnv projectEnv) {
-        this.projectEnv = projectEnv;
-    }
 
     public String getIp() {
         return ip;

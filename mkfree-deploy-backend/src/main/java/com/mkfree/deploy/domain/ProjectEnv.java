@@ -8,14 +8,24 @@ import javax.persistence.Entity;
  *
  */
 @Entity
-public class Env extends IDEntity {
+public class ProjectEnv extends IDEntity {
 
     public static final String CLASS_NAME = "env";
 
-    @Column(columnDefinition = "varchar(100) comment '环境名称'", unique = true)
+    @Column(columnDefinition = "varchar(30) comment '环境名称'", unique = true)
     private String name;
+    @Column(columnDefinition = "varchar(30) comment '环境名称'", unique = true)
+    private String code;
     @Column(columnDefinition = "int(2) comment '环境排序'")
     private Integer sort;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public Integer getSort() {
         return sort;
@@ -32,4 +42,6 @@ public class Env extends IDEntity {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }

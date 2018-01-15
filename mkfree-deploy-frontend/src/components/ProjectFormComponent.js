@@ -1,13 +1,12 @@
 import React from 'react';
-import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select} from 'antd';
+import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select, Checkbox} from 'antd';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, form, isAdd}) {
+function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, serverMachineList, form, isAdd}) {
 
-
-    const {getFieldDecorator, getFieldValue} = form;
+    const {getFieldDecorator, getFieldValue, getFieldsValue} = form;
 
     function submit() {
 
@@ -36,51 +35,57 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
         projectEnvConfigList.forEach((item, index) => {
 
 
-            const newBuildBeforeList = [];
+                const newBuildBeforeList = [];
 
-            if (!item.buildBeforeList) {
-                item.buildBeforeList = [{}];
-            }
-            if (!item.buildAfterList) {
-                item.buildAfterList = [{}];
-            }
-            if (!item.buildSyncList) {
-                item.buildSyncList = [{}];
-            }
-            item.buildBeforeList.forEach((beforeItem, afterIndex) => {
-                newBuildBeforeList.push({
-                    step: getFieldValue(`stepBefore${index}${afterIndex}`),
+                if (!item.buildBeforeList) {
+                    item.buildBeforeList = [{}];
+                }
+                if (!item.buildAfterList) {
+                    item.buildAfterList = [{}];
+                }
+                if (!item.buildSyncList) {
+                    item.buildSyncList = [{}];
+                }
+                item.buildBeforeList.forEach((beforeItem, afterIndex) => {
+                    newBuildBeforeList.push({
+                        step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${afterIndex}`),
+                    });
                 });
-            });
 
-            const newBuildAfterList = [];
-            item.buildAfterList.forEach((afterItem, afterIndex) => {
-                newBuildAfterList.push({
-                    step: getFieldValue(`stepAfter${index}${afterIndex}`),
+                const newBuildAfterList = [];
+                item.buildAfterList.forEach((afterItem, afterIndex) => {
+                    newBuildAfterList.push({
+                        step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${afterIndex}`),
+                    });
                 });
-            });
 
-            const newBuildSyncList = [];
-            item.buildSyncList.forEach((syncItem, syncIndex) => {
-                newBuildSyncList.push({
-                    step: getFieldValue(`sync${index}${syncIndex}`),
+                const newBuildSyncList = [];
+                item.buildSyncList.forEach((syncItem, syncIndex) => {
+                    newBuildSyncList.push({
+                        step: getFieldValue(`projectEnvConfig_sync_${index}_${syncIndex}`),
+                    });
                 });
-            });
 
-            let serverMachineIpList = getFieldValue(`serverMachineIpList${index}`);
-            const serverMachineIpListJson = serverMachineIpList === '' ? [] : JSON.parse(serverMachineIpList);
+                const newProjectEnvIpList = [];
+                serverMachineList.filter(serverMachine => serverMachine.envId === item.envId).forEach((serverMachine, serverMachineListIndex) => {
+                    const serverIpIsCheck = getFieldValue(`projectEnvConfig_projectEnvIp_serverIp_${index}_${serverMachineListIndex}`);
+                    const newServerIp = serverIpIsCheck ? serverMachine.ip : '';
+                    newProjectEnvIpList.push({
+                        serverIp: newServerIp,
+                        publish: getFieldValue(`projectEnvConfig_projectEnvIp_publish_${index}_${serverMachineListIndex}`),
+                    });
+                });
 
-            console.log(serverMachineIpListJson);
-            newProjectEnvConfigList.push({
-                env: item.env,
-                publicBranch: getFieldValue(`publicBranch${index}`),
-                serverMachineIpList: serverMachineIpListJson,
-                buildBeforeList: newBuildBeforeList,
-                buildAfterList: newBuildAfterList,
-                buildSyncList: newBuildSyncList,
-
-            });
-        });
+                newProjectEnvConfigList.push({
+                    envId: item.envId,
+                    publicBranch: getFieldValue(`projectEnvConfig_publishBranch_${index}`),
+                    projectEnvIpList: newProjectEnvIpList,
+                    buildBeforeList: newBuildBeforeList,
+                    buildAfterList: newBuildAfterList,
+                    buildSyncList: newBuildSyncList,
+                });
+            }
+        );
 
         if (isAdd) {
             dispatch({
@@ -210,14 +215,14 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                             padding: '30px 0 30px 0',
                             borderRadius: '10px'
                         }}>
-                            <h3>{item.envText}</h3>
+                            <h3>{item.envName}</h3>
                             <Row>
                                 <Col offset={2}>
                                     <h4>部署配置</h4>
                                 </Col>
                             </Row>
-                            <FormItem key={`${index}_1`} {...formItemLayout} label="发布分支">
-                                {getFieldDecorator(`publicBranch${index}`, {
+                            <FormItem key={`projectEnvConfig_publishBranch_${index}`} {...formItemLayout} label="发布分支">
+                                {getFieldDecorator(`projectEnvConfig_publishBranch_${index}`, {
                                     initialValue: item.publicBranch ? item.publicBranch : ''
                                 })(
                                     <Select
@@ -226,27 +231,60 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     >
                                         {
                                             project.branchList && JSON.parse(project.branchList).map((item, branchIndex) => {
-                                                return <Option key={`publicBranch${index}${branchIndex}`}
-                                                               value={item}>{item}</Option>;
+                                                return <Option
+                                                    key={`projectEnvConfig_publishBranch_option${index}${branchIndex}`}
+                                                    value={item}>{item}</Option>;
                                             })
                                         }
 
                                     </Select>
                                 )}
                             </FormItem>
-                            <FormItem key={`${index}_2`} {...formItemLayout} label="服务器ip">
-                                {getFieldDecorator(`serverMachineIpList${index}`, {
-                                    initialValue: JSON.stringify(item.serverMachineIpList)
+                            <Row>
+                                <Col span={4}
+                                     style={{textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', paddingRight: '7px'}}>选择服务器
+                                    :</Col>
+                                <Col span={20}>
+                                    {
+
+                                        serverMachineList && serverMachineList.filter(serverMachine => serverMachine.envId === item.envId).map((serverMachine, serverMachineListIndex) => {
+
+                                            const projectEnvIpTemp = item.projectEnvIpMap && item.projectEnvIpMap[serverMachine.ip];
+                                            return <Row style={{paddingBottom: '10px'}}
+                                                        key={`projectEnvConfig_projectEnvIp_${serverMachineListIndex}`}>
+                                                <Col span={8}>
+                                                    {getFieldDecorator(`projectEnvConfig_projectEnvIp_serverIp_${index}_${serverMachineListIndex}`, {
+                                                        valuePropName: 'checked',
+                                                        initialValue: !!(projectEnvIpTemp && projectEnvIpTemp.serverIp)
+                                                    })(
+                                                        <Checkbox>{serverMachine.name}-{serverMachine.ip}</Checkbox>
+                                                    )}
+                                                </Col>
+                                                <Col span={16}>设置为发布服务器 : &nbsp;&nbsp;
+                                                    {getFieldDecorator(`projectEnvConfig_projectEnvIp_publish_${index}_${serverMachineListIndex}`, {
+                                                        valuePropName: 'checked',
+                                                        initialValue: projectEnvIpTemp && projectEnvIpTemp.publish ? projectEnvIpTemp.publish : false
+                                                    })(
+                                                        <Switch/>
+                                                    )}
+                                                </Col>
+                                            </Row>;
+                                        })
+                                    }
+                                </Col>
+                            </Row>
+                            <FormItem key={`projectEnvConfig_sync_${index}`} {...formItemLayout} label="从发布服务器同步功能">
+                                {getFieldDecorator(`sync${index}`, {
+                                    initialValue: item.sync
                                 })(
-                                    <Input
-                                        placeholder='[{"serverIp":"119.23.40.53","publish":false},{"serverIp":"119.23.73.31","publish":true}]'/>
+                                    <Switch/>
                                 )}
                             </FormItem>
                             {
                                 item.buildBeforeList && item.buildBeforeList.length > 0 ? item.buildBeforeList.map((beforeItem, beforeIndex) => {
-                                    return <FormItem key={`${index}_${beforeIndex}_before`} {...formItemLayout}
+                                    return <FormItem key={`${index}_${beforeIndex}_step_before`} {...formItemLayout}
                                                      label="构建命令">
-                                        {getFieldDecorator(`stepBefore${index}${beforeIndex}`, {
+                                        {getFieldDecorator(`projectEnvConfig_stepBefore_${index}_${beforeIndex}`, {
                                             initialValue: beforeItem.step ? beforeItem.step : ''
                                         })(
                                             <Input placeholder="构建命令"/>
@@ -254,7 +292,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     </FormItem>;
                                 }) : <FormItem {...formItemLayout}
                                                label="构建命令">
-                                    {getFieldDecorator(`stepBefore${index}0`, {
+                                    {getFieldDecorator(`projectEnvConfig_stepBefore_${index}_0`, {
                                         initialValue: ''
                                     })(
                                         <Input placeholder="构建命令"/>
@@ -266,7 +304,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     return <FormItem key={`${index}_${afterIndex}_step_after`}
                                                      {...formItemLayout}
                                                      label="构建后命令">
-                                        {getFieldDecorator(`stepAfter${index}${afterIndex}`, {
+                                        {getFieldDecorator(`projectEnvConfig_stepAfter_${index}_${afterIndex}`, {
                                             initialValue: afterItem.step ? afterItem.step : ''
                                         })(
                                             <Input placeholder="构建后命令"/>
@@ -276,7 +314,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     <FormItem
                                         {...formItemLayout}
                                         label="构建后命令">
-                                        {getFieldDecorator(`stepAfter${index}0`, {
+                                        {getFieldDecorator(`projectEnvConfig_stepAfter${index}_0`, {
                                             initialValue: ''
                                         })(
                                             <Input placeholder="构建后命令"/>
@@ -293,7 +331,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     return <FormItem key={`${index}_${syncIndex}_sync`}
                                                      {...formItemLayout}
                                                      label="构建后命令">
-                                        {getFieldDecorator(`sync${index}${syncIndex}`, {
+                                        {getFieldDecorator(`projectEnvConfig_sync_${index}_${syncIndex}`, {
                                             initialValue: syncItem.step ? syncItem.step : ''
                                         })(
                                             <Input placeholder="构建后命令"/>
@@ -303,7 +341,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     <FormItem
                                         {...formItemLayout}
                                         label="同步后命令">
-                                        {getFieldDecorator(`sync${index}0`, {
+                                        {getFieldDecorator(`projectEnvConfig_sync_${index}_0`, {
                                             initialValue: ''
                                         })(
                                             <Input placeholder="同步后命令"/>

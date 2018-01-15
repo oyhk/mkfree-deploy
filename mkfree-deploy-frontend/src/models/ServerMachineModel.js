@@ -23,7 +23,7 @@ export default {
                     return;
                 }
                 if (location.pathname === route.serverMachineAdd.url) {
-                    dispatch({type: 'envList', payload: {}});
+                    dispatch({type: 'envConfigList', payload: {}});
                     return;
                 }
 
@@ -32,7 +32,7 @@ export default {
                 if (edit) {
                     const id = edit[1];
                     dispatch({type: 'info', payload: {id}});
-                    dispatch({type: 'envList', payload: {}});
+                    dispatch({type: 'envConfigList', payload: {}});
                 }
             });
         },

@@ -27,7 +27,7 @@ public class Routes {
 
     public static final String PROJECT_PAGE = API_PREFIX + "/project/page";
     public static final String PROJECT_INIT_GIT = API_PREFIX + "/project/init_git";
-    public static final String PROJECT_ENV_LIST = API_PREFIX + "/project/env_list";
+    public static final String PROJECT_ENV_CONFIG_LIST = API_PREFIX + "/project/env_config_list";
     public static final String PROJECT_SAVE = API_PREFIX + "/project/save";
     public static final String PROJECT_UPDATE = API_PREFIX + "/project/update";
     public static final String PROJECT_INFO = API_PREFIX + "/project/info";
@@ -38,6 +38,7 @@ public class Routes {
     public static final String PROJECT_SYNC = API_PREFIX + "/project/sync"; //同步版本
 
     public static final String SERVER_MACHINE_INFO = API_PREFIX + "/server_machine/info";
+    public static final String SERVER_MACHINE_LIST = API_PREFIX + "/server_machine/list";
     public static final String SERVER_MACHINE_PAGE = API_PREFIX + "/server_machine/page";
     public static final String SERVER_MACHINE_SAVE = API_PREFIX + "/server_machine/save";
     public static final String SERVER_MACHINE_UPDATE = API_PREFIX + "/server_machine/update";

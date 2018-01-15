@@ -1,22 +1,20 @@
 package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.*;
+import com.mkfree.deploy.domain.ProjectEnv;
 import com.mkfree.deploy.domain.enumclass.*;
 import com.mkfree.deploy.dto.*;
 import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.hibernate.annotations.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -24,12 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.aspectj.AnnotationTransactionAspect;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -66,6 +62,8 @@ public class ProjectController extends BaseController {
     private ExecutorService commonExecutorService;
     @Autowired
     private ProjectEnvIpRepository projectEnvIpRepository;
+    @Autowired
+    private EnvRepository envRepository;
 
     @GetMapping(value = Routes.PROJECT_INIT_GIT)
     public JsonResult initGit(ProjectDto dto, HttpServletRequest request) {
@@ -111,21 +109,22 @@ public class ProjectController extends BaseController {
         return doing.go(request, log);
     }
 
-    @RequestMapping(value = Routes.PROJECT_ENV_LIST, method = RequestMethod.GET)
-    public JsonResult envList(HttpServletRequest request) {
+    @RequestMapping(value = Routes.PROJECT_ENV_CONFIG_LIST, method = RequestMethod.GET)
+    public JsonResult envConfigList(HttpServletRequest request) {
         RestDoing doing = jsonResult -> {
+            List<ProjectEnv> projectEnvList = envRepository.findAll();
             List<ProjectEnvConfigDto> projectEnvConfigDtoList = new ArrayList<>();
-
-            for (int i = 0; i < ProjectEnv.values().length; i++) {
-                ProjectEnv projectEnv = ProjectEnv.values()[i];
+            projectEnvList.forEach(env -> {
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
-                projectEnvConfigDto.setEnv(projectEnv);
+                projectEnvConfigDto.setEnvId(env.getId());
+                projectEnvConfigDto.setEnvName(env.getName());
                 // 项目配置环境构建前步骤
                 projectEnvConfigDto.setBuildBeforeList(Collections.singletonList(new ProjectBuildStep()));
                 // 项目配置环境构建后步骤
                 projectEnvConfigDto.setBuildAfterList(Collections.singletonList(new ProjectBuildStep()));
                 projectEnvConfigDtoList.add(projectEnvConfigDto);
-            }
+            });
+
             jsonResult.data = projectEnvConfigDtoList;
         };
         return doing.go(request, log);
@@ -150,14 +149,14 @@ public class ProjectController extends BaseController {
 
         List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectIdIn(projectIdList);
         // 暂时这样做权限控制
-        if (!userDto.getUsername().equals("oyhk")) {
-            projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnv() != ProjectEnv.PROD && projectEnvConfig.getEnv() != ProjectEnv.PREPROD).collect(Collectors.toList());
-        }
+//        if (!userDto.getUsername().equals("oyhk")) {
+//            projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnv() != ProjectEnv.PROD && projectEnvConfig.getEnv() != ProjectEnv.PREPROD).collect(Collectors.toList());
+//        }
 
         Map<Long, List<ProjectEnvConfig>> projectEnvConfigMap = projectEnvConfigList.stream().collect(Collectors.groupingBy(ProjectEnvConfig::getProjectId));
 
         List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdIn(projectIdList);
-        Map<String, List<ProjectEnvIp>> projectEnvIpMap = projectEnvIpList.stream().collect(Collectors.groupingBy(o -> o.getProjectId() + o.getProjectEnv().name()));
+        Map<String, List<ProjectEnvIp>> projectEnvIpMap = projectEnvIpList.stream().collect(Collectors.groupingBy(o -> o.getProjectId() + "_" + o.getEnvId()));
 
 
         List<ProjectDto> projectDtoList = projectList.stream().map(project -> {
@@ -167,18 +166,18 @@ public class ProjectController extends BaseController {
 
             List<ProjectEnvDto> projectEnvList = new ArrayList<>();
             envConfigList.forEach(projectEnvConfig -> {
-                ProjectEnv projectEnv = projectEnvConfig.getEnv();
-
-                ProjectEnvDto projectEnvDto = new ProjectEnvDto();
-                projectEnvDto.setEnv(projectEnv.name());
-                projectEnvDto.setName(projectEnv.getText());
-                List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + projectEnv.name());
-                if (envProjectEnvIpList != null) {
-                    // 排序 publish true 排前面
-                    projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
-                }
-                if (!projectEnvList.contains(projectEnvDto)) {
-                    projectEnvList.add(projectEnvDto);
+                if (projectEnvConfig.getEnvId() != null) {
+                    ProjectEnvDto projectEnvDto = new ProjectEnvDto();
+                    projectEnvDto.setId(projectEnvConfig.getEnvId());
+                    projectEnvDto.setName(projectEnvConfig.getEnvName());
+                    List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
+                    if (envProjectEnvIpList != null) {
+                        // 排序 publish true 排前面
+                        projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
+                    }
+                    if (!projectEnvList.contains(projectEnvDto)) {
+                        projectEnvList.add(projectEnvDto);
+                    }
                 }
 
             });
@@ -242,14 +241,24 @@ public class ProjectController extends BaseController {
             List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
             if (projectEnvConfigList != null) {
                 for (ProjectEnvConfigDto projectEnvConfigDto : projectEnvConfigList) {
+
+                    Long envId = projectEnvConfigDto.getEnvId();
+                    if (envId == null) {
+                        return;
+                    }
+                    ProjectEnv projectEnv = envRepository.findOne(envId);
+                    String envName = projectEnv.getName();
+
+
                     ProjectEnvConfig projectEnvConfig = new ProjectEnvConfig();
-                    projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
+                    projectEnvConfig.setEnvId(projectEnvConfigDto.getEnvId());
+                    projectEnvConfig.setEnvName(projectEnvConfigDto.getEnvName());
                     projectEnvConfig.setProjectId(project.getId());
                     projectEnvConfig.setProjectName(project.getName());
                     projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                     projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
-                    List<ProjectEnvIp> ipList = projectEnvConfigDto.getServerMachineIpList();
+                    List<ProjectEnvIp> ipList = projectEnvConfigDto.getProjectEnvIpList();
 
                     ipList.forEach(projectEnvIp -> {
                         ProjectEnvIp dbProjectEnvIp = new ProjectEnvIp();
@@ -260,7 +269,8 @@ public class ProjectController extends BaseController {
                         }
                         dbProjectEnvIp.setProjectId(finalProject.getId());
                         dbProjectEnvIp.setProjectName(finalProject.getName());
-                        dbProjectEnvIp.setProjectEnv(projectEnvConfigDto.getEnv());
+                        dbProjectEnvIp.setEnvId(envId);
+                        dbProjectEnvIp.setEnvName(projectEnv.getName());
                         dbProjectEnvIp.setPublish(projectEnvIp.getPublish());
                         projectEnvIpRepository.save(dbProjectEnvIp);
 
@@ -269,19 +279,19 @@ public class ProjectController extends BaseController {
                     // 项目构建前命令
                     if (projectEnvConfigDto.getBuildBeforeList() != null) {
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildBeforeList()) {
-                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目构建后命令
                     if (projectEnvConfigDto.getBuildAfterList() != null) {
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildAfterList()) {
-                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                     // 项目同步后命令
                     if (projectEnvConfigDto.getBuildSyncList() != null) {
                         for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildSyncList()) {
-                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                            projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
                 }
@@ -333,23 +343,31 @@ public class ProjectController extends BaseController {
         List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
         if (projectEnvConfigList != null) {
             for (ProjectEnvConfigDto projectEnvConfigDto : projectEnvConfigList) {
-                ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(project.getId(), projectEnvConfigDto.getEnv());
+
+                Long envId = projectEnvConfigDto.getEnvId();
+
+                ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnvId(projectId, envId);
                 if (projectEnvConfig == null) {
                     projectEnvConfig = new ProjectEnvConfig();
-                    projectEnvConfig.setProjectId(project.getId());
+                    projectEnvConfig.setProjectId(projectId);
                 }
-                projectEnvConfig.setEnv(projectEnvConfigDto.getEnv());
+
+
+                ProjectEnv projectEnv = envRepository.findOne(envId);
+                String envName = projectEnv.getName();
+                projectEnvConfig.setEnvId(envId);
+                projectEnvConfig.setEnvName(envName);
                 projectEnvConfig.setProjectName(project.getName());
                 projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                 projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
-                List<ProjectEnvIp> projectEnvIpList = projectEnvConfigDto.getServerMachineIpList().stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).collect(Collectors.toList());
+                List<ProjectEnvIp> projectEnvIpList = projectEnvConfigDto.getProjectEnvIpList().stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).collect(Collectors.toList());
 
 
                 projectEnvIpList.forEach(projectEnvIp -> {
                     ServerMachine serverMachine = serverMachineRepository.findByIp(projectEnvIp.getServerIp());
                     if (serverMachine != null) {
-                        ProjectEnvIp dbProjectEnvIp = projectEnvIpRepository.findByProjectIdAndProjectEnvAndServerIp(finalProject.getId(), projectEnvConfigDto.getEnv(), projectEnvIp.getServerIp());
+                        ProjectEnvIp dbProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(finalProject.getId(), envId, projectEnvIp.getServerIp());
                         if (dbProjectEnvIp == null) {
                             dbProjectEnvIp = new ProjectEnvIp();
                         }
@@ -357,7 +375,8 @@ public class ProjectController extends BaseController {
                         dbProjectEnvIp.setServerName(serverMachine.getName());
                         dbProjectEnvIp.setProjectId(finalProject.getId());
                         dbProjectEnvIp.setProjectName(finalProject.getName());
-                        dbProjectEnvIp.setProjectEnv(projectEnvConfigDto.getEnv());
+                        dbProjectEnvIp.setEnvId(envId);
+                        dbProjectEnvIp.setEnvName(envName);
                         dbProjectEnvIp.setPublish(projectEnvIp.getPublish());
                         dbProjectEnvIp.setSync(projectEnvIp.getSync());
                         projectEnvIpRepository.save(dbProjectEnvIp);
@@ -377,7 +396,7 @@ public class ProjectController extends BaseController {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
                         }
-                        projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                        projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.BEFORE, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                     }
                 }
                 // 项目构建后命令
@@ -388,7 +407,7 @@ public class ProjectController extends BaseController {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
                         }
-                        projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                        projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.AFTER, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                     }
                 }
                 // 项目同步后命令
@@ -399,7 +418,7 @@ public class ProjectController extends BaseController {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
                         }
-                        projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, projectEnvConfig.getEnv(), project.getId(), project.getName(), projectEnvConfig.getId()));
+                        projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                     }
                 }
             }
@@ -516,9 +535,17 @@ public class ProjectController extends BaseController {
             List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(project.getId());
 
             for (ProjectEnvConfig projectEnvConfig : projectEnvConfigList) {
+
+                Long envId = projectEnvConfig.getEnvId();
+                if (envId == null) {
+                    continue;
+                }
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
-                projectEnvConfigDto.setEnv(projectEnvConfig.getEnv());
-                List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdAndProjectEnv(project.getId(), projectEnvConfig.getEnv());
+                projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
+                projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
+
+
+                List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdAndEnvId(project.getId(), projectEnvConfig.getEnvId());
                 projectEnvIpList = projectEnvIpList.stream().map(projectEnvIp -> {
                     ProjectEnvIp projectEnvIpDto = new ProjectEnvIp();
                     projectEnvIpDto.setPublish(projectEnvIp.getPublish());
@@ -526,7 +553,8 @@ public class ProjectController extends BaseController {
                     projectEnvIpDto.setServerIp(projectEnvIp.getServerIp());
                     return projectEnvIpDto;
                 }).collect(Collectors.toList());
-                projectEnvConfigDto.setServerMachineIpList(projectEnvIpList);
+
+                projectEnvConfigDto.setProjectEnvIpMap(projectEnvIpList.stream().collect(Collectors.toMap(ProjectEnvIp::getServerIp, o -> o)));
                 projectEnvConfigDto.setPublicBranch(projectEnvConfig.getPublicBranch());
 
                 // 项目配置环境构建前步骤
@@ -586,12 +614,14 @@ public class ProjectController extends BaseController {
         Date now = new Date();
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
         Long projectId = dto.getId();
-        ProjectEnv projectEnv = dto.getEnv();
+        Long envId = dto.getEnvId();
         String publicServerMachineIp = dto.getServerMachineIp();
         if (projectId == null) {
             jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
             return jsonResult;
         }
+
+        ProjectEnv projectEnv = envRepository.findOne(envId);
 
         Project project = projectRepository.findOne(projectId);
         ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
@@ -600,12 +630,12 @@ public class ProjectController extends BaseController {
         SystemConfig buildPathSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
 
 
-        ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, projectEnv);
+        ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnvId(projectId, envId);
         if (projectEnvConfig == null) {
             jsonResult.remind("发布环境不存在", log);
             return jsonResult;
         }
-        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndProjectEnvAndServerIp(projectId, projectEnv, publicServerMachineIp);
+        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, publicServerMachineIp);
         if (projectEnvIp == null) {
             jsonResult.remind("发布环境ip不存在", log);
             return jsonResult;
@@ -621,7 +651,7 @@ public class ProjectController extends BaseController {
         params.put("port", serverMachine.getPort());
         params.put("username", serverMachine.getUsername());
         params.put("ip", serverMachine.getIp());
-        params.put("env", projectEnv.toString());
+        params.put("projectEnv", projectEnv.getCode());
 
 
         String publicBranch = projectEnvConfig.getPublicBranch();
@@ -634,7 +664,7 @@ public class ProjectController extends BaseController {
         params.put("remoteProjectPath", project.getRemotePath());
 
         // 2. 查询项目相同环境最新发布版本
-        ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndProjectEnvOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, projectEnv);
+        ProjectBuildLog projectBuildLog = projectBuildLogRepository.findTop1ByProjectIdAndBuildTypeAndEnvIdOrderByCreatedAtDesc(projectId, ProjectBuildType.BUILD, envId);
         String projectVersionDir = projectBuildLog.getBuildVersion();
         params.put("projectVersionDir", projectVersionDir);
 
@@ -647,8 +677,8 @@ public class ProjectController extends BaseController {
         shellBuilder.append("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
 
         // 10. 远程服务器: 上传版本文件
-        shellBuilder.append("echo scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
-        shellBuilder.append("scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+        shellBuilder.append("echo scp -P #{port} -r #{buildPath}/#{projectEnv}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
+        shellBuilder.append("scp -P #{port} -r #{buildPath}/#{projectEnv}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version").append("\n");
 
         // 11. 远程服务器: 创建当前版本软链接
         // 11.1 删除
@@ -670,7 +700,7 @@ public class ProjectController extends BaseController {
         shellBuilder.append("tree #{remoteProjectPath}/version/#{projectVersionDir}").append("\n");
 
         // 13. 执行构建后命令
-        List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.SYNC, projectEnv);
+        List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnvId(projectId, ProjectBuildStepType.SYNC, envId);
         afterProjectBuildStepList.forEach(projectStructureStep -> {
             shellBuilder.append("echo ").append(projectStructureStep.getStep()).append("\n");
             shellBuilder.append(projectStructureStep.getStep()).append("\n");
@@ -694,7 +724,8 @@ public class ProjectController extends BaseController {
         projectBuildLogNew.setName(project.getName() + "_" + projectVersionDir);
         projectBuildLogNew.setBuildVersion(projectVersionDir);
         projectBuildLogNew.setIp(publicServerMachineIp);
-        projectBuildLogNew.setProjectEnv(projectEnv);
+        projectBuildLogNew.setEnvId(envId);
+        projectBuildLogNew.setEnvName(projectEnv.getName());
         projectBuildLogRepository.save(projectBuildLogNew);
 
         // 最后更新发布时间
@@ -714,7 +745,8 @@ public class ProjectController extends BaseController {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
         JsonResult jsonResult = new JsonResult();
         Long projectId = dto.getId();
-        ProjectEnv projectEnv = dto.getEnv();
+
+        Long envId = dto.getEnvId();
         String publicServerMachineIp = dto.getServerMachineIp();
         String publishBranch = dto.getPublishBranch();
 
@@ -722,8 +754,8 @@ public class ProjectController extends BaseController {
             jsonResult.errorParam("id不能为空");
             return jsonResult;
         }
-        if (projectEnv == null) {
-            jsonResult.errorParam("发布环境不能为空");
+        if (envId == null) {
+            jsonResult.errorParam("发布环境id不能为空");
             return jsonResult;
         }
         // 需要发布的机器ip
@@ -732,26 +764,28 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
 
+        ProjectEnv projectEnv = envRepository.findOne(envId);
+
         // 发布权限
-        if (userDto.getRoleType() != RoleType.ADMIN) {
-            long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv())).count();
-            if (count == 0) {
-                jsonResult.custom("10021", "没有此项目发布权限", log);
-                return jsonResult;
-            }
-        }
+//        if (userDto.getRoleType() != RoleType.ADMIN) {
+//            long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv())).count();
+//            if (count == 0) {
+//                jsonResult.custom("10021", "没有此项目发布权限", log);
+//                return jsonResult;
+//            }
+//        }
 
         Project project = projectRepository.findOne(dto.getId());
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
 
-        ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnv(projectId, projectEnv);
+        ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnvId(projectId, envId);
         if (projectEnvConfig == null) {
             jsonResult.remind("发布环境不存在", log);
             return jsonResult;
         }
 
-        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndProjectEnvAndServerIp(projectId, projectEnv, publicServerMachineIp);
+        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, publicServerMachineIp);
         if (projectEnvIp == null) {
             jsonResult.remind("发布环境ip不存在", log);
             return jsonResult;
@@ -764,7 +798,7 @@ public class ProjectController extends BaseController {
         shell.addParams("port", serverMachine.getPort());
         shell.addParams("username", serverMachine.getUsername());
         shell.addParams("ip", serverMachine.getIp());
-        shell.addParams("env", projectEnv.toString());
+        shell.addParams("projectEnv", projectEnv.getCode());
         // 指定分支发布
         if (StringUtils.isBlank(publishBranch)) {
             publishBranch = projectEnvConfig.getPublicBranch();
@@ -776,8 +810,8 @@ public class ProjectController extends BaseController {
 
         // 1. cd 项目路劲
         String projectPath = systemConfig.getValue() + File.separator + project.getName();
-        shell.appendN("echo 'cd #{projectPath}/#{env}'");
-        shell.appendN("cd #{projectPath}/#{env}");
+        shell.appendN("echo 'cd #{projectPath}/#{projectEnv}'");
+        shell.appendN("cd #{projectPath}/#{projectEnv}");
         shell.addParams("projectPath", projectPath);
 
         // 2. git pull 用git拉去最新代码
@@ -798,7 +832,7 @@ public class ProjectController extends BaseController {
         shell.addParams("publicBranch", publishBranch);
 
         // 4. 执行构建命令
-        List<ProjectBuildStep> beforeProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.BEFORE, projectEnv);
+        List<ProjectBuildStep> beforeProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnvId(projectId, ProjectBuildStepType.BEFORE, envId);
         beforeProjectBuildStepList.forEach(projectStructureStep -> {
             shell.appendN("echo ").appendN("'").appendN(projectStructureStep.getStep()).appendN("'");
             shell.appendN(projectStructureStep.getStep());
@@ -818,8 +852,8 @@ public class ProjectController extends BaseController {
             gitLogVersion = gitLogVersion.substring(gitLogVersion.indexOf("commit") + 6, gitLogVersion.indexOf("commit") + 19).trim();
         }
         String projectVersionDir = DateFormatUtils.format(new Date(), "yyyyMMdd") + "_" + publishBranch.replace("/", "_") + "_" + gitLogVersion;
-        shell.appendN("echo 'mkdir -p #{buildPath}/#{env}/version/#{projectVersionDir}'");
-        shell.appendN("mkdir -p #{buildPath}/#{env}/version/#{projectVersionDir}");
+        shell.appendN("echo 'mkdir -p #{buildPath}/#{projectEnv}/version/#{projectVersionDir}'");
+        shell.appendN("mkdir -p #{buildPath}/#{projectEnv}/version/#{projectVersionDir}");
         shell.addParams("projectVersionDir", projectVersionDir);
 
 
@@ -827,28 +861,28 @@ public class ProjectController extends BaseController {
         List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
         for (int i = 0; i < projectDeployFileList.size(); i++) {
             ProjectDeployFile projectDeployFile = projectDeployFileList.get(i);
-            shell.appendN("echo 'cp -r #{projectPath}/#{env}/#{projectDeployFileLocalFilePath" + i + "} #{buildPath}/#{env}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath" + i + "}'");
-            shell.appendN("cp -r #{projectPath}/#{env}/#{projectDeployFileLocalFilePath" + i + "} #{buildPath}/#{env}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath" + i + "}");
+            shell.appendN("echo 'cp -r #{projectPath}/#{projectEnv}/#{projectDeployFileLocalFilePath" + i + "} #{buildPath}/#{projectEnv}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath" + i + "}'");
+            shell.appendN("cp -r #{projectPath}/#{projectEnv}/#{projectDeployFileLocalFilePath" + i + "} #{buildPath}/#{projectEnv}/version/#{projectVersionDir}/#{projectDeployFileRemoteFilePath" + i + "}");
             shell.addParams("projectDeployFileLocalFilePath" + i, projectDeployFile.getLocalFilePath());
             shell.addParams("projectDeployFileRemoteFilePath" + i, projectDeployFile.getRemoteFilePath());
         }
 
         // 8. 创建本地最新版本软连接
-        shell.appendN("cd #{buildPath}/#{env}");
-        shell.appendN("echo 'ln -sf #{buildPath}/#{env}/current'");
-        shell.appendN("ln -sf #{buildPath}/#{env}/current");
-        shell.appendN("echo 'rm -rf #{buildPath}/#{env}/current'");
-        shell.appendN("rm -rf #{buildPath}/#{env}/current");
-        shell.appendN("echo 'ln -s #{buildPath}/#{env}/version/#{projectVersionDir} #{buildPath}/#{env}/current'");
-        shell.appendN("ln -s #{buildPath}/#{env}/version/#{projectVersionDir} #{buildPath}/#{env}/current");
+        shell.appendN("cd #{buildPath}/#{projectEnv}");
+        shell.appendN("echo 'ln -sf #{buildPath}/#{projectEnv}/current'");
+        shell.appendN("ln -sf #{buildPath}/#{projectEnv}/current");
+        shell.appendN("echo 'rm -rf #{buildPath}/#{projectEnv}/current'");
+        shell.appendN("rm -rf #{buildPath}/#{projectEnv}/current");
+        shell.appendN("echo 'ln -s #{buildPath}/#{projectEnv}/version/#{projectVersionDir} #{buildPath}/#{projectEnv}/current'");
+        shell.appendN("ln -s #{buildPath}/#{projectEnv}/version/#{projectVersionDir} #{buildPath}/#{projectEnv}/current");
 
         // 9. 远程服务器: 创建标准目录结构
         shell.appendN("echo 'ssh -p #{port} #{username}@#{ip} mkdir -p #{remoteProjectPath}/version'");
         shell.appendN("ssh -p #{port} #{username}@#{ip} 'mkdir -p #{remoteProjectPath}/version'");
 
         // 10. 远程服务器: 上传版本文件
-        shell.appendN("echo 'scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version'");
-        shell.appendN("scp -P #{port} -r #{buildPath}/#{env}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
+        shell.appendN("echo 'scp -P #{port} -r #{buildPath}/#{projectEnv}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version'");
+        shell.appendN("scp -P #{port} -r #{buildPath}/#{projectEnv}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
 
         // 11. 远程服务器: 创建当前版本软链接
         // 11.1 删除
@@ -869,7 +903,7 @@ public class ProjectController extends BaseController {
         shell.appendN("tree #{remoteProjectPath}/version/#{projectVersionDir}");
 
         // 13. 执行构建后命令
-        List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnv(projectId, ProjectBuildStepType.AFTER, projectEnv);
+        List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnvId(projectId, ProjectBuildStepType.AFTER, envId);
         afterProjectBuildStepList.forEach(projectStructureStep -> {
             shell.appendN("echo \"").appendN(projectStructureStep.getStep()).appendN("\"");
             shell.appendN(projectStructureStep.getStep());
@@ -894,7 +928,8 @@ public class ProjectController extends BaseController {
         projectBuildLog.setName(project.getName() + "_" + projectVersionDir);
         projectBuildLog.setBuildVersion(projectVersionDir);
         projectBuildLog.setIp(publicServerMachineIp);
-        projectBuildLog.setProjectEnv(projectEnv);
+        projectBuildLog.setEnvId(envId);
+        projectBuildLog.setEnvName(projectEnv.getName());
         projectBuildLogRepository.save(projectBuildLog);
 
         // 最后更新发布时间

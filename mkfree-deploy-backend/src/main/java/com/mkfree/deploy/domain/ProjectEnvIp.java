@@ -11,14 +11,15 @@ import java.util.Date;
  * Created by oyhk on 2018/1/9.
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"projectEnv", "serverIp", "projectId"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"envId", "serverIp", "projectId"})})
 @DynamicInsert
 @DynamicUpdate
 public class ProjectEnvIp extends IDEntity {
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "varchar(20) comment '项目环境'")
-    private ProjectEnv projectEnv;
+    @Column(columnDefinition = "bigint comment '环境id'")
+    private Long envId;
+    @Column(columnDefinition = "varchar(30) comment '环境名称'")
+    private String envName;
     @Column(columnDefinition = "varchar(20) comment '服务器ip'")
     private String serverIp;
     @Column(columnDefinition = "varchar(20) comment '服务器名称 '")
@@ -36,6 +37,22 @@ public class ProjectEnvIp extends IDEntity {
     @Column(columnDefinition = "bit default 0 comment '是否同步服务器，否：那么从发布机器同步 是：从某台服务器同步项目'")
     private Boolean isSync;
 
+    public Long getEnvId() {
+        return envId;
+    }
+
+    public void setEnvId(Long envId) {
+        this.envId = envId;
+    }
+
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
+    }
+
     public String getPublishVersion() {
         return publishVersion;
     }
@@ -50,14 +67,6 @@ public class ProjectEnvIp extends IDEntity {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public ProjectEnv getProjectEnv() {
-        return projectEnv;
-    }
-
-    public void setProjectEnv(ProjectEnv projectEnv) {
-        this.projectEnv = projectEnv;
     }
 
     public String getServerIp() {

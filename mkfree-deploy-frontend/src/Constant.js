@@ -44,6 +44,10 @@ export const api = {
     projectPage: `${api_prefix}/project/page`,
     projectPageAntDesignTable: {url: `${api_prefix}/project/page`, method: apiMethod.GET},
     projectInitGit: `${api_prefix}/project/init_git`,
+
+    envConfig: {url: `${api_prefix}/project/env_config_list`, method: apiMethod.GET},
+
+
     install: {url: `${api_prefix}/install`, method: apiMethod.POST},
     userLogin: `${api_prefix}/user/login`,
     userPage: `${api_prefix}/user/page`,
@@ -54,6 +58,7 @@ export const api = {
     envSave: {url: `${api_prefix}/env/save`, method: apiMethod.POST},
     envUpdate: {url: `${api_prefix}/env/update`, method: apiMethod.PUT},
     serverMachinePage: `${api_prefix}/server_machine/page`,
+    serverMachineList: {url: `${api_prefix}/server_machine/list`, method: apiMethod.GET},
     serverMachineInfo: `${api_prefix}/server_machine/info`,
     serverMachineSave: `${api_prefix}/server_machine/save`,
     serverMachineUpdate: {url: `${api_prefix}/server_machine/update`, method: apiMethod.PUT},

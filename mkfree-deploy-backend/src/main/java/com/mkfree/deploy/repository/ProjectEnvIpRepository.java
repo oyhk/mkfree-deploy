@@ -1,8 +1,6 @@
 package com.mkfree.deploy.repository;
 
-import com.mkfree.deploy.domain.Env;
 import com.mkfree.deploy.domain.ProjectEnvIp;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,9 +14,9 @@ public interface ProjectEnvIpRepository extends JpaRepository<ProjectEnvIp, Long
 
     List<ProjectEnvIp> findByProjectIdIn(List<Long> projectId);
 
-    ProjectEnvIp findByProjectIdAndProjectEnvAndServerIp(Long projectId, ProjectEnv projectEnv, String serverIp);
+    ProjectEnvIp findByProjectIdAndEnvIdAndServerIp(Long projectId, Long envId, String serverIp);
 
-    List<ProjectEnvIp> findByProjectIdAndProjectEnv(Long projectId,ProjectEnv projectEnv);
+    List<ProjectEnvIp> findByProjectIdAndEnvId(Long projectId, Long envId);
 
-    void deleteByProjectIdAndServerIpNotIn(Long projectId,List<String> serverIpList);
+    void deleteByProjectIdAndServerIpNotIn(Long projectId, List<String> serverIpList);
 }

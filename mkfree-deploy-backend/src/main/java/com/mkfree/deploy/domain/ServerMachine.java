@@ -1,11 +1,9 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import com.mkfree.deploy.domain.enumclass.ServerMachineType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
 /**
  * Created by oyhk on 2017/2/4.
@@ -36,6 +34,17 @@ public class ServerMachine extends IDEntity {
 
     @Column(columnDefinition = "bit default 0 comment '是否发布机器'")
     private Boolean isPublish;
+
+    @Transient
+    private ProjectEnv env;
+
+    public ProjectEnv getEnv() {
+        return env;
+    }
+
+    public void setEnv(ProjectEnv env) {
+        this.env = env;
+    }
 
     public Long getEnvId() {
         return envId;

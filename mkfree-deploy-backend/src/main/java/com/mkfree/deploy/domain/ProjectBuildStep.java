@@ -31,17 +31,25 @@ public class ProjectBuildStep extends IDEntity {
     //项目环境配置id
     @Column(columnDefinition = "bigint comment '项目环境配置id'")
     private Long projectEnvConfigId;
-    //环境
-    @Column(columnDefinition = "varchar(30) comment '环境 DEV(\"开发环境\"), TEST(\"测试环境\"), UAT(\"仿真测试\"), PROD(\"生产\")'")
-    @Enumerated(EnumType.STRING)
-    private ProjectEnv env;
+    @Column(columnDefinition = "bigint comment '环境id'")
+    private Long envId;
+    @Column(columnDefinition = "varchar(30) comment '环境名称'")
+    private String envName;
 
-    public ProjectEnv getEnv() {
-        return env;
+    public Long getEnvId() {
+        return envId;
     }
 
-    public void setEnv(ProjectEnv env) {
-        this.env = env;
+    public void setEnvId(Long envId) {
+        this.envId = envId;
+    }
+
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
     }
 
     public Long getProjectId() {

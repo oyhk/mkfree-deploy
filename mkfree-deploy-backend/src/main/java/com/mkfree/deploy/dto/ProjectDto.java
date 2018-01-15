@@ -2,7 +2,6 @@ package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.ProjectBuildLog;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.Date;
 import java.util.List;
@@ -22,7 +21,7 @@ public class ProjectDto extends Project {
     //部署的项目模块的目标文件或者目录
     private List<ProjectDeployFileDto> deployTargetFileList;
     // 项目的发布环境
-    private ProjectEnv env;
+    private Long envId;
     // 项目发布环境列表
     private List<ProjectEnvDto> projectEnvList;
     // 各种环境配置
@@ -67,14 +66,13 @@ public class ProjectDto extends Project {
         this.moduleName = moduleName;
     }
 
-    public ProjectEnv getEnv() {
-        return env;
+    public Long getEnvId() {
+        return envId;
     }
 
-    public void setEnv(ProjectEnv env) {
-        this.env = env;
+    public void setEnvId(Long envId) {
+        this.envId = envId;
     }
-
 
     public List<ProjectEnvConfigDto> getProjectEnvConfigList() {
         return projectEnvConfigList;

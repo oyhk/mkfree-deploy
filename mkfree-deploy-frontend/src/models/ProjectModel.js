@@ -1,4 +1,5 @@
 import * as projectService from '../services/ProjectService';
+import * as serverMachineService from '../services/ServerMachineService';
 import {addKey, urlPathParams} from '../utils/Utils';
 import {route} from '../Constant';
 import {message, Button} from 'antd';
@@ -14,6 +15,9 @@ export default {
         projectEnvConfigList: [], // 项目环境
         pageResult: {},
         buildLog: undefined, // 构建日志
+
+
+        serverMachineList: [], // 服务器列表
     },
 
     subscriptions: {
@@ -21,7 +25,6 @@ export default {
             return history.listen((location) => {
                 // 项目管理
                 if (location.pathname === route.project.url) {
-
                     dispatch({type: 'page', payload: {...location.query}});
                     return;
                 }
@@ -29,13 +32,13 @@ export default {
                 // 编辑页
                 if (edit) {
                     const id = edit[1];
-                    dispatch({type: 'info', payload: {id}});
+                    dispatch({type: 'edit', payload: {id}});
                 }
 
                 // 新增页
                 if (location.pathname === route.projectAdd) {
                     dispatch({
-                        type: 'initAdd',
+                        type: 'add',
                     });
                 }
 
@@ -83,12 +86,14 @@ export default {
             yield call(projectService.update, payload, {desc: '修改成功'});
             browserHistory.goBack();
         },
-        *info({payload}, {call, put}) {
+        *edit({payload}, {call, put}) {
             const result = yield call(projectService.info, payload.id);
+            const serverMachineList = yield call(serverMachineService.list);
             yield put({
                 type: 'save',
                 payload: {
                     project: result,
+                    serverMachineList,
                     deployTargetFileList: result.deployTargetFileList,
                     projectEnvConfigList: result.projectEnvConfigList,
                 }
@@ -156,14 +161,16 @@ export default {
                 }
             });
         },
-        *initAdd({payload}, {call, put, select}) {
-            const envList = yield call(projectService.envList);
+        *add({payload}, {call, put, select}) {
+            const envList = yield call(projectService.envConfigList);
+            const serverMachineList = yield call(serverMachineService.list);
             yield put({
                 type: 'save',
                 payload: {
                     project: {
                         branchList: '["master"]',
                     },
+                    serverMachineList,
                     projectEnvConfigList: envList,
                     deployTargetFileList: [{}],
 

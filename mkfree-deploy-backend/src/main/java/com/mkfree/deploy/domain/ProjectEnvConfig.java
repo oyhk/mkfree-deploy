@@ -19,28 +19,28 @@ public class ProjectEnvConfig extends IDEntity {
     private Long projectId;
     @Column(columnDefinition = "varchar(50) comment '项目名称'")
     private String projectName;
-    //环境类型
-    @Column(columnDefinition = "varchar(50) comment '环境类型'")
-    @Enumerated(EnumType.STRING)
-    private ProjectEnv env;
+    @Column(columnDefinition = "bigint comment '环境id'")
+    private Long envId;
+    @Column(columnDefinition = "varchar(50) comment '环境名称'")
+    private String envName;
     //发布分支名称
     @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
     private String publicBranch;
 
-
-    public String getEnvText() {
-        if (this.env != null) {
-            return this.env.getText();
-        }
-        return null;
+    public Long getEnvId() {
+        return envId;
     }
 
-    public ProjectEnv getEnv() {
-        return env;
+    public void setEnvId(Long envId) {
+        this.envId = envId;
     }
 
-    public void setEnv(ProjectEnv env) {
-        this.env = env;
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
     }
 
     public String getPublicBranch() {
