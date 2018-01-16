@@ -266,7 +266,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                                         valuePropName: 'checked',
                                                         initialValue: projectEnvIpTemp && projectEnvIpTemp.publish ? projectEnvIpTemp.publish : false
                                                     })(
-                                                        <Switch/>
+                                                        <Switch />
                                                     )}
                                                 </Col>
                                             </Row>;

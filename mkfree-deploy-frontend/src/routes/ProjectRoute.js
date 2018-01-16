@@ -104,7 +104,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                                                                             type: 'projectModel/structure',
                                                                                             payload: {
                                                                                                 id: projectEnvIp.projectId,
-                                                                                                env: projectEnvIp.projectEnv,
+                                                                                                envId: projectEnvIp.envId,
                                                                                                 serverMachineIp: projectEnvIp.serverIp,
                                                                                                 publishBranch: e.item.props.children
                                                                                             }
@@ -128,7 +128,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                                                                                 type: 'projectModel/structure',
                                                                                                 payload: {
                                                                                                     id: projectEnvIp.projectId,
-                                                                                                    env: projectEnvIp.projectEnv,
+                                                                                                    envId: projectEnvIp.envId,
                                                                                                     serverMachineIp: projectEnvIp.serverIp,
                                                                                                 }
                                                                                             });
@@ -140,7 +140,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                                                                                   type: 'projectModel/sync',
                                                                                                   payload: {
                                                                                                       id: projectEnvIp.projectId,
-                                                                                                      env: projectEnvIp.projectEnv,
+                                                                                                      envId: projectEnvIp.envId,
                                                                                                       serverMachineIp: projectEnvIp.serverIp,
                                                                                                   }
                                                                                               });
