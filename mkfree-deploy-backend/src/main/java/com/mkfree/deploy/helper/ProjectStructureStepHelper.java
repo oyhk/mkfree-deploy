@@ -1,7 +1,6 @@
 package com.mkfree.deploy.helper;
 
 import com.mkfree.deploy.domain.ProjectBuildStep;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import com.mkfree.deploy.domain.enumclass.ProjectBuildStepType;
 
 /**

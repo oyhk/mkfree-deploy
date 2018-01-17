@@ -1,8 +1,5 @@
 package com.mkfree.deploy.domain;
 
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
-import com.mkfree.deploy.domain.enumclass.ServerMachineType;
-
 import javax.persistence.*;
 
 /**

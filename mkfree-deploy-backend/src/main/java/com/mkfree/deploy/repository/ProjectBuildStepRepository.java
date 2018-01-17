@@ -2,7 +2,6 @@ package com.mkfree.deploy.repository;
 
 import com.mkfree.deploy.domain.ProjectBuildStep;
 import com.mkfree.deploy.domain.enumclass.ProjectBuildStepType;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

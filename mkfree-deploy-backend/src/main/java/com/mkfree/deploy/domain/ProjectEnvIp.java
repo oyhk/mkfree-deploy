@@ -1,6 +1,5 @@
 package com.mkfree.deploy.domain;
 
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 

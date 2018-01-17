@@ -72,7 +72,6 @@ public class UserController extends BaseController {
             user.setAccessToken(UserHelper.SINGLEONE.getAccessToken(user.getId(), user.getUsername()));
             userRepository.save(user);
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-            UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
 
             jsonResult.data = user.getAccessToken();
         };
@@ -92,7 +91,6 @@ public class UserController extends BaseController {
                 return;
             }
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-            UserHelper.SINGLEONE.setSession(request, user, UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
             jsonResult.data = user.getAccessToken();
         };
         return doing.go(request, log);
@@ -129,7 +127,6 @@ public class UserController extends BaseController {
                     if (project == null) {
                         continue;
                     }
-                    userProjectPermissionRepository.save(UserProjectPermissionHelper.SINGLEONE.create(objectMapper.writeValueAsString(userProjectPermissionDto.getProjectEnv()), project.getId(), project.getName(), user.getId()));
                 }
             }
 
@@ -167,7 +164,6 @@ public class UserController extends BaseController {
                     if (project == null) {
                         continue;
                     }
-                    userProjectPermissionRepository.save(UserProjectPermissionHelper.SINGLEONE.create(objectMapper.writeValueAsString(userProjectPermissionDto.getProjectEnv()), project.getId(), project.getName(), user.getId()));
                 }
             }
             userRepository.save(user);
@@ -206,7 +202,6 @@ public class UserController extends BaseController {
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
         List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
-        userDto.setUserProjectPermissionList(UserProjectPermissionHelper.SINGLEONE.toDtoList(userProjectPermissionList, objectMapper, log));
 
         jsonResult.data = userDto;
 

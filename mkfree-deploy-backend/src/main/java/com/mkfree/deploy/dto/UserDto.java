@@ -1,10 +1,7 @@
 package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.User;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
-import com.mkfree.deploy.domain.enumclass.RoleType;
 
-import javax.persistence.Column;
 import java.util.List;
 
 /**

@@ -13,6 +13,7 @@ import com.mkfree.deploy.helper.*;
 import com.mkfree.deploy.repository.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
@@ -66,9 +67,9 @@ public class ProjectController extends BaseController {
     private EnvRepository envRepository;
 
     @GetMapping(value = Routes.PROJECT_INIT_GIT)
-    public JsonResult initGit(ProjectDto dto, HttpServletRequest request) {
-        RestDoing doing = jsonResult -> {
-
+    public JsonResult initGit(ProjectDto dto) {
+        JsonResult jsonResult = new JsonResult();
+        try {
             Project project = projectRepository.findOne(dto.getId());
 
             // 1. 清空文件夹所有文件
@@ -94,19 +95,17 @@ public class ProjectController extends BaseController {
             ShellHelper.SINGLEONE.executeShellCommand(shell.getShell(), log);
             // 2.1 复制到各种环境
             File defaultProject = new File(projectPath + "/DEFAULT");
-            File devProject = new File(projectPath + "/DEV");
-            File testProject = new File(projectPath + "/TEST");
-            File uatProject = new File(projectPath + "/UAT");
-            File preprodProject = new File(projectPath + "/PREPROD");
-            File prodProject = new File(projectPath + "/PROD");
-            FileUtils.copyDirectory(defaultProject, devProject);
-            FileUtils.copyDirectory(defaultProject, testProject);
-            FileUtils.copyDirectory(defaultProject, uatProject);
-            FileUtils.copyDirectory(defaultProject, preprodProject);
-            FileUtils.copyDirectory(defaultProject, prodProject);
 
-        };
-        return doing.go(request, log);
+            List<ProjectEnv> projectEnvList = envRepository.findByEnable(true);
+            for (ProjectEnv projectEnv : projectEnvList) {
+                File file = new File(projectPath + projectEnv.getCode());
+                FileUtils.copyDirectory(defaultProject, file);
+            }
+
+        } catch (Exception e) {
+            log.error(ExceptionUtils.getStackTrace(e));
+        }
+        return jsonResult;
     }
 
     @RequestMapping(value = Routes.PROJECT_ENV_CONFIG_LIST, method = RequestMethod.GET)

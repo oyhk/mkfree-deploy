@@ -2,7 +2,6 @@ package com.mkfree.deploy.dto;
 
 import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.domain.enumclass.OptionType;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import java.util.List;
 
@@ -17,8 +16,6 @@ public class UserProjectPermissionDto extends UserProjectPermission {
     //项目id
     private Long projectId;
 
-    //项目允许发布环境列表
-    private List<ProjectEnv> projectEnv;
     // 项目 可操作权限
     private List<OptionType> optionTypeList;
 
@@ -48,14 +45,6 @@ public class UserProjectPermissionDto extends UserProjectPermission {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public List<ProjectEnv> getProjectEnv() {
-        return projectEnv;
-    }
-
-    public void setProjectEnv(List<ProjectEnv> projectEnv) {
-        this.projectEnv = projectEnv;
     }
 
     public List<OptionType> getOptionTypeList() {

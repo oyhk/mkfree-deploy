@@ -1,11 +1,7 @@
 package com.mkfree.deploy.domain;
 
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * Created by oyhk on 2017/2/7.

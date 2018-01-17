@@ -52,20 +52,10 @@ public class UserPermissionController extends BaseController{
                     return;
                 }
 
-                if (dto.getProjectEnv() == null || dto.getProjectEnv().size() == 0) {
-                    jsonResult.remind("项目允许发布环境 不能为空");
-                    return;
-                }
-
-                if (StringUtils.isBlank(dto.getProjectName())) {
-                    jsonResult.remind("项目名称 不能为空");
-                    return;
-                }
 
                 UserProjectPermission permission = new UserProjectPermission();
                 permission.setProjectId(dto.getProjectId());
                 permission.setUserId(dto.getUserId());
-                permission.setProjectEnvList(objectMapper.writeValueAsString(dto.getProjectEnv()));
                 permission.setProjectName(dto.getProjectName());
                 userProjectPermissionRepository.save(permission);
             }
@@ -110,9 +100,6 @@ public class UserPermissionController extends BaseController{
 
                 if (dto.getUserId() != null) {
                     permission.setUserId(dto.getUserId());
-                }
-                if (dto.getProjectEnv() != null && dto.getProjectEnv().size() > 0) {
-                    permission.setProjectEnvList(objectMapper.writeValueAsString(dto.getProjectEnv()));
                 }
                 if (StringUtils.isNotBlank(dto.getProjectName())) {
                     permission.setProjectName(dto.getProjectName());

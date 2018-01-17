@@ -18,6 +18,16 @@ public class ProjectEnv extends IDEntity {
     private String code;
     @Column(columnDefinition = "int(11) comment '环境排序'")
     private Integer sort;
+    @Column(columnDefinition = "bit comment '是否启用'")
+    private Boolean enable;
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
 
     public String getCode() {
         return code;

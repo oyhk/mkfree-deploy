@@ -1,7 +1,6 @@
 package com.mkfree.deploy.domain;
 
 import com.mkfree.deploy.domain.enumclass.ProjectBuildStepType;
-import com.mkfree.deploy.domain.enumclass.ProjectEnv;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
