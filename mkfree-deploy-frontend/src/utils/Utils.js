@@ -9,7 +9,7 @@ import pathToRegexp from 'path-to-regexp';
  * @param items
  */
 export function addKey(items) {
-    items.forEach((item, index) => {
+   items && items.forEach((item, index) => {
         item.key = index;
     });
 }

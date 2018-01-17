@@ -21,6 +21,9 @@ export const route = {
     envEdit: {url: `${route_prefix}/env/edit/:id`, pageTitle: '环境编辑'},
     envEditPath: id => routePath(route.envEdit.url, {id}),
 
+    userProjectPermission: {url: `${route_prefix}/user_project_permission/:userId`, pageTitle: '用户权限管理'},
+    userProjectPermissionPath: userId => routePath(route.userProjectPermission.url, {userId}),
+
     user: {url: `${route_prefix}/user`, pageTitle: '用户管理'},
     userEdit: {url: `${route_prefix}/user/edit/:id`, pageTitle: '用户编辑'},
     userEditPath: id => routePath(route.userEdit.url, {id}),
@@ -46,6 +49,15 @@ export const api = {
     projectInitGit: `${api_prefix}/project/init_git`,
 
     envConfig: {url: `${api_prefix}/project/env_config_list`, method: apiMethod.GET},
+
+    userProjectPermissionProjectPage: {
+        url: `${api_prefix}/user_project_permission/project_page`,
+        method: apiMethod.GET
+    },
+    userProjectPermissionProjectAssign: {
+        url: `${api_prefix}/user_project_permission/project_assign`,
+        method: apiMethod.POST
+    },
 
 
     install: {url: `${api_prefix}/install`, method: apiMethod.POST},

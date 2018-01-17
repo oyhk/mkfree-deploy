@@ -8,6 +8,9 @@ import ProjectAddRoute from './ProjectAddRoute';
 
 import SignInRoute from './SignInRoute';
 
+import UserProjectPermissionRoute from './UserProjectPermissionRoute';
+
+
 import UserRoute from './UserRoute';
 import UserEditRoute from './UserEditRoute';
 
@@ -27,12 +30,17 @@ export {
     ProjectEditRoute,
     ProjectBuildLogRoute,
 
+
     EnvRoute,
     EnvAddRoute,
     EnvEditRoute,
 
     SignInRoute,
     UserRoute,
+
+    UserProjectPermissionRoute,
+
+
     UserEditRoute,
     ServerMachineRoute,
     ServerMachineAddRoute,

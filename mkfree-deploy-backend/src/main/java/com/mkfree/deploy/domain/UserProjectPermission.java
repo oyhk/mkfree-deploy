@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 /**
  * Created by oyhk on 2017/1/23.
- * 用户权限
+ * 用户项目权限
  */
 @Entity
 public class UserProjectPermission extends IDEntity {
@@ -18,10 +18,11 @@ public class UserProjectPermission extends IDEntity {
     private Long projectId;
     //项目允许发布环境列表
     @Column(columnDefinition = "varchar(255) comment '项目允许发布环境列表'")
-    private String projectEnvList;
+    private String projectEnvIdList;
     //项目名称
     @Column(columnDefinition = "varchar(255) comment '项目名称'")
     private String projectName;
+
 
     public Long getUserId() {
         return userId;
@@ -39,12 +40,12 @@ public class UserProjectPermission extends IDEntity {
         this.projectId = projectId;
     }
 
-    public String getProjectEnvList() {
-        return projectEnvList;
+    public String getProjectEnvIdList() {
+        return projectEnvIdList;
     }
 
-    public void setProjectEnvList(String projectEnvList) {
-        this.projectEnvList = projectEnvList;
+    public void setProjectEnvIdList(String projectEnvIdList) {
+        this.projectEnvIdList = projectEnvIdList;
     }
 
     public String getProjectName() {

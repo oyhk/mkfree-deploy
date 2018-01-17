@@ -32,7 +32,7 @@ function UserRoute({dispatch, location, pageResult}) {
         dataIndex: 'option',
         key: 'option',
         render: (value, record, columnIndex) => {
-            return <div><Link to={route.userEditPath(record.id)}>编辑</Link> &nbsp;&nbsp;</div>;
+            return <div><Link to={route.userEditPath(record.id)}>编辑</Link> &nbsp;&nbsp;<Link to={route.userProjectPermissionPath(record.id)}>项目权限分配</Link> &nbsp;&nbsp;</div>;
         }
     }];
     return (

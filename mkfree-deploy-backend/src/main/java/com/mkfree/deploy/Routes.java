@@ -21,6 +21,8 @@ public class Routes {
     public static final String USER_INFO = API_PREFIX + "/user/info";
 
     public static final String USER_PROJECT_PERMISSION_SAVE = API_PREFIX + "/user/project/permission/save";
+    public static final String USER_PROJECT_PERMISSION_PROJECT_PAGE = API_PREFIX + "/user_project_permission/project_page";
+    public static final String USER_PROJECT_PERMISSION_PROJECT_ASSIGN = API_PREFIX + "/user_project_permission/project_assign";
     public static final String USER_PROJECT_PERMISSION_DELETE = API_PREFIX + "/user/project/permission/delete";
     public static final String USER_PROJECT_PERMISSION_UPDATE = API_PREFIX + "/user/project/permission/update";
     public static final String USER_PROJECT_PERMISSION_LIST = API_PREFIX + "/user/project/permission/list";

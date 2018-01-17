@@ -446,8 +446,8 @@ public class ProjectController extends BaseController {
             projectDeployFileRepository.delete(projectDeployFileList);
 
             // 删除对应项目用户分配权限
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(projectId);
-            userProjectPermissionRepository.delete(userProjectPermissionList);
+//            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectIdAndUserId(projectId);
+//            userProjectPermissionRepository.delete(userProjectPermissionList);
 
             // 删除构建步骤
             List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectId(projectId);

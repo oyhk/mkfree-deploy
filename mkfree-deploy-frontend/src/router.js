@@ -10,6 +10,7 @@ import {
     EnvRoute,
     EnvEditRoute,
     EnvAddRoute,
+    UserProjectPermissionRoute,
     UserRoute,
     UserEditRoute,
     ServerMachineRoute,
@@ -33,6 +34,7 @@ function RouterConfig({history}) {
                 <Route path={route.projectAdd} component={ProjectAddRoute}/>
                 <Route path={route.projectBuildLog} component={ProjectBuildLogRoute}/>
 
+                <Route path={route.userProjectPermission.url} component={UserProjectPermissionRoute}/>
                 <Route path={route.user.url} component={UserRoute}/>
                 <Route path={route.userEdit.url} component={UserEditRoute}/>
 
