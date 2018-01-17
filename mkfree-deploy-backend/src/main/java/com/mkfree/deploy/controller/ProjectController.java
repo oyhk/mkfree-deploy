@@ -149,9 +149,9 @@ public class ProjectController extends BaseController {
 
         List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectIdIn(projectIdList);
         // 暂时这样做权限控制
-//        if (!userDto.getUsername().equals("oyhk")) {
-//            projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnv() != ProjectEnv.PROD && projectEnvConfig.getEnv() != ProjectEnv.PREPROD).collect(Collectors.toList());
-//        }
+        if (!userDto.getUsername().equals("oyhk")) {
+            projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != 3 && projectEnvConfig.getEnvId() != 4).collect(Collectors.toList());
+        }
 
         Map<Long, List<ProjectEnvConfig>> projectEnvConfigMap = projectEnvConfigList.stream().collect(Collectors.groupingBy(ProjectEnvConfig::getProjectId));
 
@@ -165,7 +165,7 @@ public class ProjectController extends BaseController {
             List<ProjectEnvConfig> envConfigList = projectEnvConfigMap.get(project.getId());
 
             List<ProjectEnvDto> projectEnvList = new ArrayList<>();
-            envConfigList.forEach(projectEnvConfig -> {
+            envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null).sorted(Comparator.comparing(ProjectEnvConfig::getEnvSort)).forEach(projectEnvConfig -> {
                 if (projectEnvConfig.getEnvId() != null) {
                     ProjectEnvDto projectEnvDto = new ProjectEnvDto();
                     projectEnvDto.setId(projectEnvConfig.getEnvId());
@@ -179,7 +179,6 @@ public class ProjectController extends BaseController {
                         projectEnvList.add(projectEnvDto);
                     }
                 }
-
             });
             projectDto.setProjectEnvList(projectEnvList);
             BeanUtils.copyProperties(project, projectDto);
@@ -249,10 +248,10 @@ public class ProjectController extends BaseController {
                     ProjectEnv projectEnv = envRepository.findOne(envId);
                     String envName = projectEnv.getName();
 
-
                     ProjectEnvConfig projectEnvConfig = new ProjectEnvConfig();
                     projectEnvConfig.setEnvId(projectEnvConfigDto.getEnvId());
                     projectEnvConfig.setEnvName(projectEnvConfigDto.getEnvName());
+                    projectEnvConfig.setEnvSort(projectEnv.getSort());
                     projectEnvConfig.setProjectId(project.getId());
                     projectEnvConfig.setProjectName(project.getName());
                     projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
@@ -361,6 +360,7 @@ public class ProjectController extends BaseController {
                 String envName = projectEnv.getName();
                 projectEnvConfig.setEnvId(envId);
                 projectEnvConfig.setEnvName(envName);
+                projectEnvConfig.setEnvSort(projectEnv.getSort());
                 projectEnvConfig.setProjectName(project.getName());
                 projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                 projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);

@@ -23,9 +23,19 @@ public class ProjectEnvConfig extends IDEntity {
     private Long envId;
     @Column(columnDefinition = "varchar(50) comment '环境名称'")
     private String envName;
+    @Column(columnDefinition = "int(11) comment '环境排序'")
+    private Integer envSort;
     //发布分支名称
     @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
     private String publicBranch;
+
+    public Integer getEnvSort() {
+        return envSort;
+    }
+
+    public void setEnvSort(Integer envSort) {
+        this.envSort = envSort;
+    }
 
     public Long getEnvId() {
         return envId;
