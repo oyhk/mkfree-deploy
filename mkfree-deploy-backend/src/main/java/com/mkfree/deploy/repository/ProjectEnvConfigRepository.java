@@ -17,4 +17,6 @@ public interface ProjectEnvConfigRepository extends JpaRepository<ProjectEnvConf
     ProjectEnvConfig findByProjectIdAndEnvId(Long projectId, Long envId);
     List<ProjectEnvConfig> findByProjectId(Long projectId);
     List<ProjectEnvConfig> findByProjectIdIn(List<Long> projectIdList);
+
+    List<ProjectEnvConfig> findByEnvId(Long envId);
 }
