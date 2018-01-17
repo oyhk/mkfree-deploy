@@ -14,7 +14,7 @@ public class ProjectEnv extends IDEntity {
 
     @Column(columnDefinition = "varchar(30) comment '环境名称'", unique = true)
     private String name;
-    @Column(columnDefinition = "varchar(30) comment '环境名称'", unique = true)
+    @Column(columnDefinition = "varchar(30) comment '环境名称'", unique = true, nullable = false)
     private String code;
     @Column(columnDefinition = "int(11) comment '环境排序'")
     private Integer sort;
