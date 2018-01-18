@@ -443,7 +443,9 @@ public class ProjectController extends BaseController {
             }
 
             // 最后删除 项目环境ip
-            projectEnvIpRepository.deleteByProjectIdAndServerIpIn(projectId, existProjectEnvIpIdList);
+            if(existProjectEnvIpIdList != null && existProjectEnvIpIdList.size()>0) {
+                projectEnvIpRepository.deleteByProjectIdAndServerIpIn(projectId, existProjectEnvIpIdList);
+            }
         }
         return jsonResult;
     }
