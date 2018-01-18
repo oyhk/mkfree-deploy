@@ -155,46 +155,63 @@ public class ProjectController extends BaseController {
         List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdIn(projectIdList);
         Map<String, List<ProjectEnvIp>> projectEnvIpMap = projectEnvIpList.stream().collect(Collectors.groupingBy(o -> o.getProjectId() + "_" + o.getEnvId()));
 
-        // 登录用户 项目环境权限
-        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(userDto.getId());
-        Map<Long, List<Long>> userProjectPermissionProjectEnvIdMap = userProjectPermissionList.stream().map(userProjectPermission -> {
-            UserProjectPermission userProjectPermission1 = new UserProjectPermission();
-            userProjectPermission1.setProjectId(userProjectPermission.getProjectId());
-            userProjectPermission1.setUserId(userProjectPermission.getUserId());
-            try {
-                userProjectPermission1.setProjectEnvIdListTemp(objectMapper.readValue(userProjectPermission.getProjectEnvIdList(), new TypeReference<List<Long>>() {
-                }));
-            } catch (IOException e) {
-                log.error(ExceptionUtils.getStackTrace(e));
-            }
-            return userProjectPermission1;
-        }).collect(Collectors.toMap(UserProjectPermission::getProjectId, UserProjectPermission::getProjectEnvIdListTemp));
 
+        Map<Long, List<Long>> userProjectPermissionProjectEnvIdMap = null;
+        if (userDto.getRoleType() == RoleType.COMMON) {
+            // 登录用户 项目环境权限
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(userDto.getId());
+            // 用户对应每个项目的环境部署权限
+            userProjectPermissionProjectEnvIdMap = userProjectPermissionList.stream().map(userProjectPermission -> {
+                UserProjectPermission userProjectPermission1 = new UserProjectPermission();
+                userProjectPermission1.setProjectId(userProjectPermission.getProjectId());
+                userProjectPermission1.setUserId(userProjectPermission.getUserId());
+                try {
+                    userProjectPermission1.setProjectEnvIdListTemp(objectMapper.readValue(userProjectPermission.getProjectEnvIdList(), new TypeReference<List<Long>>() {
+                    }));
+                } catch (IOException e) {
+                    log.error(ExceptionUtils.getStackTrace(e));
+                }
+                return userProjectPermission1;
+            }).collect(Collectors.toMap(UserProjectPermission::getProjectId, UserProjectPermission::getProjectEnvIdListTemp));
+        }
+
+        Map<Long, List<Long>> finalUserProjectPermissionProjectEnvIdMap = userProjectPermissionProjectEnvIdMap;
         List<ProjectDto> projectDtoList = projectList.stream().map(project -> {
             ProjectDto projectDto = new ProjectDto();
 
             Long projectId = project.getId();
             List<ProjectEnvConfig> envConfigList = projectEnvConfigMap.get(projectId);
-            List<Long> userProjectPermissionProjectEnvIdList = userProjectPermissionProjectEnvIdMap.get(projectId);
+
 
             List<ProjectEnvDto> projectEnvList = new ArrayList<>();
-            if (userProjectPermissionProjectEnvIdList != null) {
-                envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null && userProjectPermissionProjectEnvIdList.contains(projectEnvConfig.getEnvId())).sorted(Comparator.comparing(ProjectEnvConfig::getEnvSort)).forEach(projectEnvConfig -> {
-                    if (projectEnvConfig.getEnvId() != null) {
-                        ProjectEnvDto projectEnvDto = new ProjectEnvDto();
-                        projectEnvDto.setId(projectEnvConfig.getEnvId());
-                        projectEnvDto.setName(projectEnvConfig.getEnvName());
-                        List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
-                        if (envProjectEnvIpList != null) {
-                            // 排序 publish true 排前面
-                            projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
-                        }
-                        if (!projectEnvList.contains(projectEnvDto)) {
-                            projectEnvList.add(projectEnvDto);
-                        }
-                    }
-                });
+            // 普通用户对应每个项目的环境部署权限
+            if (finalUserProjectPermissionProjectEnvIdMap != null) {
+                List<Long> userProjectPermissionProjectEnvIdList = finalUserProjectPermissionProjectEnvIdMap.get(projectId);
+                if (userProjectPermissionProjectEnvIdList != null) {
+                    envConfigList = envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null).filter(projectEnvConfig -> userProjectPermissionProjectEnvIdList.contains(projectEnvConfig.getEnvId())).collect(Collectors.toList());
+                }else{
+                    envConfigList = new ArrayList<>();
+                }
             }
+            // 超级管理员 || 管理员
+            else {
+                envConfigList = envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null).collect(Collectors.toList());
+            }
+
+            envConfigList.stream().sorted(Comparator.comparing(ProjectEnvConfig::getEnvSort)).forEach(projectEnvConfig -> {
+                ProjectEnvDto projectEnvDto = new ProjectEnvDto();
+                projectEnvDto.setId(projectEnvConfig.getEnvId());
+                projectEnvDto.setName(projectEnvConfig.getEnvName());
+                List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
+                if (envProjectEnvIpList != null) {
+                    // 排序 publish true 排前面
+                    projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
+                }
+                if (!projectEnvList.contains(projectEnvDto)) {
+                    projectEnvList.add(projectEnvDto);
+                }
+            });
+
             projectDto.setProjectEnvList(projectEnvList);
             BeanUtils.copyProperties(project, projectDto);
             return projectDto;

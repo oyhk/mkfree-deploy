@@ -69,7 +69,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void addInterceptors(InterceptorRegistry registry) {
         super.addInterceptors(registry);
         registry.addInterceptor(userInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/user/login", "/api/installed", "/api/install");
-        registry.addInterceptor(roleInterceptor).addPathPatterns("/api/user/**", "/api/server_machine/**").excludePathPatterns("/api/user/login", "/api/server_machine/page");
+//        registry.addInterceptor(roleInterceptor).addPathPatterns("/api/user/**", "/api/server_machine/**").excludePathPatterns("/api/user/login", "/api/server_machine/page");
     }
 
 

@@ -15,11 +15,11 @@ public class ProjectEnvConfig extends IDEntity {
     private Long projectId;
     @Column(columnDefinition = "varchar(50) comment '项目名称'")
     private String projectName;
-    @Column(columnDefinition = "bigint comment '环境id'")
+    @Column(columnDefinition = "bigint comment '环境id'", nullable = false)
     private Long envId;
-    @Column(columnDefinition = "varchar(50) comment '环境名称'")
+    @Column(columnDefinition = "varchar(50) comment '环境名称'", nullable = false)
     private String envName;
-    @Column(columnDefinition = "int(11) comment '环境排序'")
+    @Column(columnDefinition = "int(11) comment '环境排序'", nullable = false)
     private Integer envSort;
     //发布分支名称
     @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
