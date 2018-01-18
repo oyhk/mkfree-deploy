@@ -55,7 +55,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 const newBuildAfterList = [];
                 item.buildAfterList.forEach((afterItem, afterIndex) => {
                     newBuildAfterList.push({
-                        step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${afterIndex}`),
+                        step: getFieldValue(`projectEnvConfig_stepAfter_${index}_${afterIndex}`),
                     });
                 });
 
