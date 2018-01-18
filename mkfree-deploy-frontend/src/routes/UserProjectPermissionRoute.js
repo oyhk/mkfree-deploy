@@ -37,6 +37,7 @@ function UserProjectPermissionRoute({dispatch, location, projectPageResult, proj
             });
 
             return <CheckboxGroup options={envList}
+                                  defaultValue={record && record.envIdList ? record.envIdList : []}
                                   onChange={(checkedValue) => {
                                       dispatch({
                                           type: 'UserProjectPermissionModel/projectAssign',
@@ -56,7 +57,7 @@ function UserProjectPermissionRoute({dispatch, location, projectPageResult, proj
         <Table dataSource={projectPageResult.list}
                columns={columns}
                pagination={{
-                   defaultPageSize: 10,
+                   defaultPageSize: 50,
                    current: projectPageResult.pageNo + 1,
                    defaultCurrent: projectPageResult.pageNo + 1,
                    total: projectPageResult.totalCount,

@@ -22,13 +22,23 @@ export default {
                 // 编辑页
                 if (userProjectPermission) {
                     const userId = userProjectPermission[1];
-                    dispatch({type: 'projectPage', payload: location.query});
+
+                    location.query.pageNo = location.query.pageNo ? location.query.pageNo : 0;
+                    location.query.pageSize = location.query.pageSize ? location.query.pageSize : 50;
+
+                    dispatch({
+                        type: 'projectPage',
+                        payload: {
+                            userId,
+                            ...location.query
+                        }
+                    });
                 }
             });
         },
     },
     effects: {
-        *projectPage({payload}, {call, put, select}){
+        *projectPage({payload}, {call, put, select}) {
             const envList = yield call(envService.list, {});
 
             const projectPageResult = yield call(userProjectPermissionService.projectPage, payload);
@@ -41,7 +51,7 @@ export default {
                 }
             });
         },
-        *projectAssign({payload}, {call, put, select}){
+        *projectAssign({payload}, {call, put, select}) {
             yield call(userProjectPermissionService.projectAssign, payload, {desc: '分配成功'});
         }
     },

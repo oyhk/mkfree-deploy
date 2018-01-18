@@ -34,6 +34,17 @@ public class ProjectDto extends Project {
     // 最后发布时间
     private Date lastPublishDate;
 
+    // 选中中的环境id列表
+    public List<Long> envIdList;
+
+    public List<Long> getEnvIdList() {
+        return envIdList;
+    }
+
+    public void setEnvIdList(List<Long> envIdList) {
+        this.envIdList = envIdList;
+    }
+
     public List<ProjectEnvDto> getProjectEnvList() {
         return projectEnvList;
     }

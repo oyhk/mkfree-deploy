@@ -1,22 +1,31 @@
 package com.mkfree.deploy.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.UserProjectPermission;
+import com.mkfree.deploy.dto.ProjectDto;
 import com.mkfree.deploy.dto.UserProjectPermissionProjectAssignDto;
 import com.mkfree.deploy.repository.ProjectRepository;
 import com.mkfree.deploy.repository.UserProjectPermissionRepository;
 import com.mkfree.deploy.repository.UserRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by DK on 17/2/6.
@@ -43,10 +52,34 @@ public class UserPermissionController extends BaseController {
      * @return
      */
     @GetMapping(Routes.USER_PROJECT_PERMISSION_PROJECT_PAGE)
-    public JsonResult projectPage(Integer pageNo, Integer pageSize) {
+    public JsonResult projectPage(Integer pageNo, Integer pageSize, Long userId) {
         JsonResult jsonResult = new JsonResult();
-        Page<Project> projectPage = projectRepository.findAll(this.getPageRequest(pageNo, pageSize));
-        jsonResult.data = new PageResult<>(projectPage, Routes.USER_PROJECT_PERMISSION_PROJECT_PAGE);
+        Page<Project> projectPage = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+
+        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(userId);
+        Map<Long, List<Long>> userProjectPermissionEnvIdMap = userProjectPermissionList.stream().map(userProjectPermission -> {
+            UserProjectPermission userProjectPermissionTemp = new UserProjectPermission();
+            String projectEnvIdListJson = userProjectPermission.getProjectEnvIdList();
+            try {
+                List<Long> envIdList = objectMapper.readValue(projectEnvIdListJson, new TypeReference<List<Long>>() {
+                });
+                userProjectPermissionTemp.setProjectEnvIdListTemp(envIdList);
+            } catch (IOException e) {
+                log.error(ExceptionUtils.getStackTrace(e));
+            }
+            userProjectPermissionTemp.setProjectId(userProjectPermission.getProjectId());
+            return userProjectPermissionTemp;
+        }).collect(Collectors.toMap(UserProjectPermission::getProjectId, UserProjectPermission::getProjectEnvIdListTemp));
+
+        List<Project> projectList = projectPage.getContent();
+        List<ProjectDto> projectDtoList = new ArrayList<>();
+        projectList.forEach(project -> {
+            ProjectDto projectDto = new ProjectDto();
+            BeanUtils.copyProperties(project, projectDto);
+            projectDto.setEnvIdList(userProjectPermissionEnvIdMap.get(project.getId()));
+            projectDtoList.add(projectDto);
+        });
+        jsonResult.data = new PageResult<>(projectPage.getNumber(), projectPage.getSize(), projectPage.getTotalElements(), projectDtoList);
         return jsonResult;
     }
 
