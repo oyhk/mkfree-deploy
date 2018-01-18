@@ -51,9 +51,10 @@ export default {
         },
         *login({payload}, {call, put, select}) {
             const result = yield call(userSerivce.login, payload, {desc: '登录成功'});
-            const userToken = result.data;
+            const data = result.data;
             if (result.code === '1') {
-                cookie.save(user.accessToken, userToken, {path: '/', maxAge: 30 * 24 * 60 * 60});
+                cookie.save(user.accessToken, data.accessToken, {path: '/', maxAge: 30 * 24 * 60 * 60});
+                cookie.save(user.username, data.username, {path: '/', maxAge: 30 * 24 * 60 * 60});
                 browserHistory.push({pathname: route.project.url, query: {pageNo: 0, pageSize: 100}});
             }
         }

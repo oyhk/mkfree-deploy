@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -69,9 +71,11 @@ public class UserController extends BaseController {
 
             user.setAccessToken(UserHelper.SINGLEONE.getAccessToken(user.getId(), user.getUsername()));
             userRepository.save(user);
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
 
-            jsonResult.data = user.getAccessToken();
+            Map<String, Object> result = new HashMap<>();
+            result.put("username", user.getUsername());
+            result.put("accessToken", user.getAccessToken());
+            jsonResult.data = result;
         };
         return doing.go(request, log);
     }

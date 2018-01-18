@@ -1,7 +1,8 @@
 import {routePath} from './utils/Utils';
 
 export const user = {
-    accessToken: 'access_token'
+    accessToken: 'access_token',
+    username: 'username'
 };
 
 const route_prefix = '/deploy';
