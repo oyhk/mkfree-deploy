@@ -1,6 +1,7 @@
 package com.mkfree.deploy.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -147,38 +149,52 @@ public class ProjectController extends BaseController {
         List<Long> projectIdList = projectList.stream().map(Project::getId).collect(Collectors.toList());
 
         List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectIdIn(projectIdList);
-        // 暂时这样做权限控制
-        if (!userDto.getUsername().equals("oyhk")) {
-            projectEnvConfigList = projectEnvConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null && projectEnvConfig.getEnvId() != 3 && projectEnvConfig.getEnvId() != 4).collect(Collectors.toList());
-        }
 
         Map<Long, List<ProjectEnvConfig>> projectEnvConfigMap = projectEnvConfigList.stream().collect(Collectors.groupingBy(ProjectEnvConfig::getProjectId));
 
         List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdIn(projectIdList);
         Map<String, List<ProjectEnvIp>> projectEnvIpMap = projectEnvIpList.stream().collect(Collectors.groupingBy(o -> o.getProjectId() + "_" + o.getEnvId()));
 
+        // 登录用户 项目环境权限
+        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(userDto.getId());
+        Map<Long, List<Long>> userProjectPermissionProjectEnvIdMap = userProjectPermissionList.stream().map(userProjectPermission -> {
+            UserProjectPermission userProjectPermission1 = new UserProjectPermission();
+            userProjectPermission1.setProjectId(userProjectPermission.getProjectId());
+            userProjectPermission1.setUserId(userProjectPermission.getUserId());
+            try {
+                userProjectPermission1.setProjectEnvIdListTemp(objectMapper.readValue(userProjectPermission.getProjectEnvIdList(), new TypeReference<List<Long>>() {
+                }));
+            } catch (IOException e) {
+                log.error(ExceptionUtils.getStackTrace(e));
+            }
+            return userProjectPermission1;
+        }).collect(Collectors.toMap(UserProjectPermission::getProjectId, UserProjectPermission::getProjectEnvIdListTemp));
 
         List<ProjectDto> projectDtoList = projectList.stream().map(project -> {
             ProjectDto projectDto = new ProjectDto();
 
-            List<ProjectEnvConfig> envConfigList = projectEnvConfigMap.get(project.getId());
+            Long projectId = project.getId();
+            List<ProjectEnvConfig> envConfigList = projectEnvConfigMap.get(projectId);
+            List<Long> userProjectPermissionProjectEnvIdList = userProjectPermissionProjectEnvIdMap.get(projectId);
 
             List<ProjectEnvDto> projectEnvList = new ArrayList<>();
-            envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null).sorted(Comparator.comparing(ProjectEnvConfig::getEnvSort)).forEach(projectEnvConfig -> {
-                if (projectEnvConfig.getEnvId() != null) {
-                    ProjectEnvDto projectEnvDto = new ProjectEnvDto();
-                    projectEnvDto.setId(projectEnvConfig.getEnvId());
-                    projectEnvDto.setName(projectEnvConfig.getEnvName());
-                    List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
-                    if (envProjectEnvIpList != null) {
-                        // 排序 publish true 排前面
-                        projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
+            if (userProjectPermissionProjectEnvIdList != null) {
+                envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null && userProjectPermissionProjectEnvIdList.contains(projectEnvConfig.getEnvId())).sorted(Comparator.comparing(ProjectEnvConfig::getEnvSort)).forEach(projectEnvConfig -> {
+                    if (projectEnvConfig.getEnvId() != null) {
+                        ProjectEnvDto projectEnvDto = new ProjectEnvDto();
+                        projectEnvDto.setId(projectEnvConfig.getEnvId());
+                        projectEnvDto.setName(projectEnvConfig.getEnvName());
+                        List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
+                        if (envProjectEnvIpList != null) {
+                            // 排序 publish true 排前面
+                            projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
+                        }
+                        if (!projectEnvList.contains(projectEnvDto)) {
+                            projectEnvList.add(projectEnvDto);
+                        }
                     }
-                    if (!projectEnvList.contains(projectEnvDto)) {
-                        projectEnvList.add(projectEnvDto);
-                    }
-                }
-            });
+                });
+            }
             projectDto.setProjectEnvList(projectEnvList);
             BeanUtils.copyProperties(project, projectDto);
             return projectDto;
@@ -446,8 +462,8 @@ public class ProjectController extends BaseController {
             projectDeployFileRepository.delete(projectDeployFileList);
 
             // 删除对应项目用户分配权限
-//            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectIdAndUserId(projectId);
-//            userProjectPermissionRepository.delete(userProjectPermissionList);
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(projectId);
+            userProjectPermissionRepository.delete(userProjectPermissionList);
 
             // 删除构建步骤
             List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectId(projectId);

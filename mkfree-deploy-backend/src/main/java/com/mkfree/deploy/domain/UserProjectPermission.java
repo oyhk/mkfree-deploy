@@ -2,6 +2,8 @@ package com.mkfree.deploy.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
+import java.util.List;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -22,7 +24,16 @@ public class UserProjectPermission extends IDEntity {
     //项目名称
     @Column(columnDefinition = "varchar(255) comment '项目名称'")
     private String projectName;
+    @Transient
+    private List<Long> projectEnvIdListTemp;
 
+    public List<Long> getProjectEnvIdListTemp() {
+        return projectEnvIdListTemp;
+    }
+
+    public void setProjectEnvIdListTemp(List<Long> projectEnvIdListTemp) {
+        this.projectEnvIdListTemp = projectEnvIdListTemp;
+    }
 
     public Long getUserId() {
         return userId;

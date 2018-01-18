@@ -6,7 +6,6 @@ import com.mkfree.deploy.domain.User;
 import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.dto.UserDto;
 import com.mkfree.deploy.helper.UserHelper;
-import com.mkfree.deploy.helper.UserProjectPermissionHelper;
 import com.mkfree.deploy.repository.UserProjectPermissionRepository;
 import com.mkfree.deploy.repository.UserRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +59,7 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
                 return false;
             }
 
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
             UserHelper.SINGLEONE.setSession(request, user, new ArrayList<>());
         }
 

@@ -7,14 +7,12 @@ import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.dto.UserDto;
 import com.mkfree.deploy.dto.UserProjectPermissionDto;
-import com.mkfree.deploy.helper.UserProjectPermissionHelper;
 import com.mkfree.deploy.repository.ProjectRepository;
 import com.mkfree.deploy.repository.UserProjectPermissionRepository;
 import com.mkfree.deploy.repository.UserRepository;
 import com.mkfree.deploy.domain.User;
 import com.mkfree.deploy.helper.UserHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +69,7 @@ public class UserController extends BaseController {
 
             user.setAccessToken(UserHelper.SINGLEONE.getAccessToken(user.getId(), user.getUsername()));
             userRepository.save(user);
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
 
             jsonResult.data = user.getAccessToken();
         };
@@ -90,7 +88,7 @@ public class UserController extends BaseController {
                 jsonResult.remind("userToken 无效", log);
                 return;
             }
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
             jsonResult.data = user.getAccessToken();
         };
         return doing.go(request, log);
@@ -157,7 +155,7 @@ public class UserController extends BaseController {
             }
 
             if (dto.getUserProjectPermissionList() != null) {
-                List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+                List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
                 userProjectPermissionRepository.delete(userProjectPermissionList);
                 for (UserProjectPermissionDto userProjectPermissionDto : dto.getUserProjectPermissionList()) {
                     Project project = projectRepository.findOne(userProjectPermissionDto.getProjectId());
@@ -179,7 +177,7 @@ public class UserController extends BaseController {
                 return;
             }
             // 删除用户项目权限
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(dto.getId());
+            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(dto.getId());
             userProjectPermissionRepository.delete(userProjectPermissionList);
 
             // 删除用户
@@ -201,7 +199,7 @@ public class UserController extends BaseController {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
-        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(user.getId());
+        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
 
         jsonResult.data = userDto;
 
