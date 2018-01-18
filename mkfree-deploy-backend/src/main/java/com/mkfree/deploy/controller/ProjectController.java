@@ -355,7 +355,7 @@ public class ProjectController extends BaseController {
 
 
         List<ProjectEnvIp> existProjectEnvIpList = projectEnvIpRepository.findByProjectId(projectId);
-        List<String> existProjectEnvIpIdList = existProjectEnvIpList.stream().map(ProjectEnvIp::getServerIp).collect(Collectors.toList());
+        List<String> existProjectEnvIpIdList = existProjectEnvIpList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).map(ProjectEnvIp::getServerIp).collect(Collectors.toList());
 
         // 项目环境配置
         List<ProjectEnvConfigDto> projectEnvConfigList = dto.getProjectEnvConfigList();
@@ -443,9 +443,7 @@ public class ProjectController extends BaseController {
             }
 
             // 最后删除 项目环境ip
-            if(existProjectEnvIpIdList != null && existProjectEnvIpIdList.size()>0) {
-                projectEnvIpRepository.deleteByProjectIdAndServerIpIn(projectId, existProjectEnvIpIdList);
-            }
+            projectEnvIpRepository.deleteByProjectIdAndServerIpIn(projectId, existProjectEnvIpIdList);
         }
         return jsonResult;
     }
