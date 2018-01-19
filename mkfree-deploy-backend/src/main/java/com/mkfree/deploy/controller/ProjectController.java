@@ -156,10 +156,30 @@ public class ProjectController extends BaseController {
         Map<String, List<ProjectEnvIp>> projectEnvIpMap = projectEnvIpList.stream().collect(Collectors.groupingBy(o -> o.getProjectId() + "_" + o.getEnvId()));
 
 
+        List<Long> userProjectPermissionProjectIdList = null;
         Map<Long, List<Long>> userProjectPermissionProjectEnvIdMap = null;
         if (userDto.getRoleType() == RoleType.COMMON) {
             // 登录用户 项目环境权限
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByUserId(userDto.getId());
+
+            // 用户对应项目权限列表
+            userProjectPermissionProjectIdList = userProjectPermissionList.stream().filter(userProjectPermission -> {
+                String projectEnvIdListJson = userProjectPermission.getProjectEnvIdList();
+                if (StringUtils.isBlank(projectEnvIdListJson)) {
+                    return false;
+                }
+                try {
+                    List<Long> projectEnvIdList = objectMapper.readValue(projectEnvIdListJson, new TypeReference<List<Long>>() {
+                    });
+                    if (projectEnvIdList.size() > 0) {
+                        return true;
+                    }
+                } catch (IOException e) {
+                    log.error(ExceptionUtils.getStackTrace(e));
+                }
+                return false;
+            }).map(UserProjectPermission::getProjectId).collect(Collectors.toList());
+
             // 用户对应每个项目的环境部署权限
             userProjectPermissionProjectEnvIdMap = userProjectPermissionList.stream().map(userProjectPermission -> {
                 UserProjectPermission userProjectPermission1 = new UserProjectPermission();
@@ -176,12 +196,18 @@ public class ProjectController extends BaseController {
         }
 
         Map<Long, List<Long>> finalUserProjectPermissionProjectEnvIdMap = userProjectPermissionProjectEnvIdMap;
+
+        // 普通用户项目权限列表
+        if (userProjectPermissionProjectIdList != null) {
+            List<Long> finalUserProjectPermissionProjectIdList = userProjectPermissionProjectIdList;
+            projectList = projectList.stream().filter(project -> finalUserProjectPermissionProjectIdList.contains(project.getId())).collect(Collectors.toList());
+        }
+
         List<ProjectDto> projectDtoList = projectList.stream().map(project -> {
             ProjectDto projectDto = new ProjectDto();
 
             Long projectId = project.getId();
             List<ProjectEnvConfig> envConfigList = projectEnvConfigMap.get(projectId);
-
 
             List<ProjectEnvDto> projectEnvList = new ArrayList<>();
             // 普通用户对应每个项目的环境部署权限
@@ -993,9 +1019,9 @@ public class ProjectController extends BaseController {
         if (result == null) {
             result = new StringBuilder("");
         }
-        Map<String,Object> data = new HashMap<>();
-        data.put("log",result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>").replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>"));
-        data.put("project",project);
+        Map<String, Object> data = new HashMap<>();
+        data.put("log", result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>").replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>"));
+        data.put("project", project);
         jsonResult.data = data;
         return jsonResult;
     }
