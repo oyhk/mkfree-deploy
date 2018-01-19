@@ -100,7 +100,7 @@ public class ProjectController extends BaseController {
 
             List<ProjectEnv> projectEnvList = envRepository.findByEnable(true);
             for (ProjectEnv projectEnv : projectEnvList) {
-                File file = new File(projectPath + projectEnv.getCode());
+                File file = new File(projectPath +"/"+ projectEnv.getCode());
                 FileUtils.copyDirectory(defaultProject, file);
             }
 
