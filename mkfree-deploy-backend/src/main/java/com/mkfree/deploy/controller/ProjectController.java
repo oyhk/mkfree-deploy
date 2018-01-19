@@ -100,7 +100,7 @@ public class ProjectController extends BaseController {
 
             List<ProjectEnv> projectEnvList = envRepository.findByEnable(true);
             for (ProjectEnv projectEnv : projectEnvList) {
-                File file = new File(projectPath +"/"+ projectEnv.getCode());
+                File file = new File(projectPath + "/" + projectEnv.getCode());
                 FileUtils.copyDirectory(defaultProject, file);
             }
 
@@ -189,7 +189,7 @@ public class ProjectController extends BaseController {
                 List<Long> userProjectPermissionProjectEnvIdList = finalUserProjectPermissionProjectEnvIdMap.get(projectId);
                 if (userProjectPermissionProjectEnvIdList != null) {
                     envConfigList = envConfigList.stream().filter(projectEnvConfig -> projectEnvConfig.getEnvId() != null).filter(projectEnvConfig -> userProjectPermissionProjectEnvIdList.contains(projectEnvConfig.getEnvId())).collect(Collectors.toList());
-                }else{
+                } else {
                     envConfigList = new ArrayList<>();
                 }
             }
@@ -982,20 +982,22 @@ public class ProjectController extends BaseController {
     @RequestMapping(value = Routes.PROJECT_BUILD_LOG, method = RequestMethod.GET)
     public JsonResult buildLog(ProjectDto dto, HttpServletRequest request) {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
-        RestDoing doing = jsonResult -> {
-            Long id = dto.getId();
-            if (id == null) {
-                jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
-                return;
-            }
-            StringBuilder result = Config.STRING_BUILDER_MAP.get("project_log_id_" + dto.getId());
-            if (result == null) {
-                result = new StringBuilder("");
-            }
-            jsonResult.data = result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>");
-            jsonResult.data = result.toString().replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>");
-        };
-        return doing.go(log);
+        JsonResult jsonResult = new JsonResult();
+        Long id = dto.getId();
+        if (id == null) {
+            jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
+            return jsonResult;
+        }
+        Project project = projectRepository.findOne(id);
+        StringBuilder result = Config.STRING_BUILDER_MAP.get("project_log_id_" + dto.getId());
+        if (result == null) {
+            result = new StringBuilder("");
+        }
+        Map<String,Object> data = new HashMap<>();
+        data.put("log",result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>").replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>"));
+        data.put("project",project);
+        jsonResult.data = data;
+        return jsonResult;
     }
 
 }

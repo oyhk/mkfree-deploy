@@ -7,18 +7,24 @@ import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 
 
-function ProjectBuildLogRoute({dispatch, location, buildLog}) {
-
+function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
+    const pageTitle = document.title;
+    if (pageTitle !== `${project.name} 构建日志`) {
+        document.title = `${project.name} 构建日志`;
+    }
     return (
-        <div dangerouslySetInnerHTML={{__html: buildLog}}/>
+        <div>
+            <h3>{project.name} 构建日志</h3>
+            <div dangerouslySetInnerHTML={{__html: buildLog}}/>
+        </div>
     );
 }
 
 ProjectBuildLogRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {buildLog} = state.projectModel;
-    return {buildLog};
+    const {buildLog, project} = state.projectModel;
+    return {buildLog, project};
 }
 
 export default connect(mapStateToProps)(ProjectBuildLogRoute);

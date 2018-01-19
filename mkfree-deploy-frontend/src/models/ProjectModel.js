@@ -110,11 +110,13 @@ export default {
         },
         // 项目构建日志
         *buildLog({payload}, {call, put, select}) {
-            const buildLog = yield call(projectService.buildLog, payload.id);
+            const data = yield call(projectService.buildLog, payload.id);
+            const buildLog = data.log;
             yield put({
                 type: 'save',
                 payload: {
-                    buildLog
+                    buildLog,
+                    project: data.project
                 }
             });
 
