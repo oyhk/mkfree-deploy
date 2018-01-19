@@ -49,7 +49,8 @@ function ProjectRoute({dispatch, location, pageResult}) {
 
                 <Row type="flex" align="middle" justify="center"
                      style={{paddingBottom: '20px', paddingTop: '20px', backgroundColor: '#f7f7f7'}}>
-                    <Col style={{width: '16.2%'}}><h4>项目名称</h4></Col>
+                    <Col style={{width: '3%'}}><h4>id</h4></Col>
+                    <Col style={{width: '13.2%'}}><h4>项目名称</h4></Col>
                     <Col style={{width: '7.9%'}}><h4>环境</h4></Col>
                     <Col style={{width: '15.1%'}}><h4>ip</h4></Col>
                     <Col style={{width: '8.7%'}}><h4>发布时间</h4></Col>
@@ -67,8 +68,9 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                  borderBottom: pageResult.list && pageResult.list.length - 1 === index ? '' : '1px solid #e9e9e9',
                                  paddingTop: '10px'
                              }}>
-                            <Col lg={4} xl={4} md={4} sm={4} xs={4}>{project.name}</Col>
-                            <Col lg={15} xl={15} md={15} sm={15} xs={15}>
+                            <Col style={{width: '3%'}}>{project.id}</Col>
+                            <Col style={{width: '13.2%'}}>{project.name}</Col>
+                            <Col style={{width: '65.8%'}}>
                                 {
                                     project.projectEnvList && project.projectEnvList.map((projectEnv, projectEnvIndex) => {
                                         return (
@@ -76,25 +78,29 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                                  style={{
                                                      paddingBottom: '10px',
                                                      paddingTop: '10px',
-
                                                      borderBottom: project.projectEnvList && project.projectEnvList.length - 1 === projectEnvIndex ? '' : '1px solid #e9e9e9'
 
                                                  }}>
-                                                <Col lg={3}>{projectEnv.name}</Col>
-                                                <Col lg={20}>
+                                                <Col style={{width: '12.5%'}}>{projectEnv.name}</Col>
+                                                <Col style={{width: '87.5%'}}>
                                                     {
                                                         projectEnv.projectEnvIpList && projectEnv.projectEnvIpList.map((projectEnvIp, projectEnvIpIndex) => {
                                                             return <Row type="flex" align="middle"
                                                                         key={`ipList_${projectEnvIpIndex}`}>
-                                                                <Col lg={7} style={{
+                                                                <Col style={{
+                                                                    width: '26.5%',
                                                                     paddingBottom: '10px',
                                                                     paddingTop: '10px'
                                                                 }}>{projectEnvIp.serverIp ? `${projectEnvIp.serverIp}_${projectEnvIp.serverName}` : ''}</Col>
-                                                                <Col lg={4}>{projectEnvIp.publishTime}</Col>
+                                                                <Col
+                                                                    style={{width: '15%'}}>{projectEnvIp.publishTime}</Col>
 
-                                                                <Col lg={12}
-                                                                     style={{wordWrap: 'break-word'}}>{projectEnvIp.publishVersion}</Col>
-                                                                <Col lg={1}>
+                                                                <Col
+                                                                    style={{
+                                                                        width: '45%',
+                                                                        wordWrap: 'break-word'
+                                                                    }}>{projectEnvIp.publishVersion}</Col>
+                                                                <Col style={{width: '13.5%'}}>
                                                                     {
                                                                         projectEnvIp.serverIp ?
                                                                             projectEnvIp.publish ? projectEnvIp.projectEnv === 'DEV' ?
@@ -157,7 +163,7 @@ function ProjectRoute({dispatch, location, pageResult}) {
                                     })
                                 }
                             </Col>
-                            <Col lg={5} xl={5} md={5} sm={5} xs={5} style={{textAlign: 'center'}}>
+                            <Col style={{width: '17%', textAlign: 'center'}}>
                                 <Link to={route.projectBuildLogPath(project.id)}
                                       target="_blank">查看日志</Link> &nbsp;&nbsp;
                                 <Link to={route.projectEditPath(project.id)}>编辑</Link> &nbsp;&nbsp;

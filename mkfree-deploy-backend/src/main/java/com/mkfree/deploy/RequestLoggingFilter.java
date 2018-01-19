@@ -64,7 +64,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     private String getContentAsString(byte[] buf, String charsetName) throws UnsupportedEncodingException {
         if (buf == null || buf.length == 0)
             return "";
-        int length = Math.min(buf.length, 8192);
+        int length = Math.min(buf.length, 100*1024);
         return new String(buf, 0, length, charsetName);
     }
 
