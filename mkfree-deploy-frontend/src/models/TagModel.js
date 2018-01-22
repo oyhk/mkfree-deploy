@@ -50,7 +50,7 @@ export default {
             }
         },
         *update({payload}, {call, put, select}){
-            const result =yield call(tagService.update, payload, {desc: '环境修改成功'});
+            const result = yield call(tagService.update, payload, {desc: '环境修改成功'});
             if (result.code === '1') {
                 browserHistory.goBack();
             }

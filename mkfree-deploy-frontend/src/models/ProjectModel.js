@@ -1,5 +1,6 @@
 import * as projectService from '../services/ProjectService';
 import * as serverMachineService from '../services/ServerMachineService';
+import * as tagService from '../services/TagService';
 import {addKey, urlPathParams} from '../utils/Utils';
 import {route} from '../Constant';
 import {message, Button} from 'antd';
@@ -18,6 +19,7 @@ export default {
 
 
         serverMachineList: [], // 服务器列表
+        tagList: [], // 标签列表
     },
 
     subscriptions: {
@@ -26,6 +28,7 @@ export default {
                 // 项目管理
                 if (location.pathname === route.project.url) {
                     dispatch({type: 'page', payload: {...location.query}});
+                    dispatch({type: 'tagList', payload: {}});
                     return;
                 }
                 const edit = urlPathParams(route.projectEdit, location.pathname);
@@ -78,7 +81,15 @@ export default {
                 }
             });
         },
-
+        *tagList({payload}, {call, put, select}){
+            const tagList = yield call(tagService.list, payload);
+            yield put({
+                type: 'save',
+                payload: {
+                    tagList
+                }
+            });
+        },
         *initGit({payload}, {call, put, select}){
             yield call(projectService.initGit, payload.id, {desc: '初始化成功'});
         },

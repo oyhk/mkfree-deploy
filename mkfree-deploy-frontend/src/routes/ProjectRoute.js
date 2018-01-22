@@ -8,7 +8,7 @@ import styles from './ProjectRoute.less';
 const {CheckableTag} = Tag;
 
 
-function ProjectRoute({dispatch, location, pageResult}) {
+function ProjectRoute({dispatch, location, pageResult, tagList}) {
 
 
     return (
@@ -21,21 +21,17 @@ function ProjectRoute({dispatch, location, pageResult}) {
                             const pageSize = location.query.pageSize;
                             browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=ALL`);
                         }}>全部</Link>&nbsp;&nbsp;
-                        <Link onClick={() => {
-                            const page = location.query.page ? location.query.page : 0;
-                            const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=1`);
-                        }}>后端</Link>&nbsp;&nbsp;
-                        <Link color="red" checked onClick={() => {
-                            const page = location.query.page ? location.query.page : 0;
-                            const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=2`);
-                        }}>前端</Link>&nbsp;&nbsp;
-                        <Link color="red" checked onClick={() => {
-                            const page = location.query.page ? location.query.page : 0;
-                            const pageSize = location.query.pageSize;
-                            browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=3`);
-                        }}>antbox-cloud</Link>&nbsp;&nbsp;
+                        {
+                            tagList && tagList.map((tag, tagIndex) => {
+                                return <Link key={`tagList_key_index_${tagIndex}`} style={{marginRight: '10px'}}
+                                             onClick={() => {
+                                                 const page = location.query.page ? location.query.page : 0;
+                                                 const pageSize = location.query.pageSize;
+                                                 browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&projectTagId=${tag.id}`);
+                                             }}>{tag.name}</Link>;
+
+                            })
+                        }
 
                     </Col>
                     <Col span={2} style={{textAlign: 'right'}}>
@@ -210,8 +206,8 @@ function ProjectRoute({dispatch, location, pageResult}) {
 ProjectRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {pageResult} = state.projectModel;
-    return {pageResult};
+    const {pageResult, tagList} = state.projectModel;
+    return {pageResult, tagList};
 }
 
 export default connect(mapStateToProps)(ProjectRoute);

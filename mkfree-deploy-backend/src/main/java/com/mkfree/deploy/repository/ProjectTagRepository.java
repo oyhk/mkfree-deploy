@@ -13,4 +13,5 @@ import java.util.List;
 @Repository
 public interface ProjectTagRepository extends JpaRepository<ProjectTag, Long> {
 
+    List<ProjectTag> findByStatus(Boolean status);
 }

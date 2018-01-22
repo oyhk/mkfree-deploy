@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Created by oyhk on 2018/1/22.
  */
@@ -29,6 +31,16 @@ public class TagController extends BaseController {
         jsonResult.data = new PageResult<>(page);
         return jsonResult;
     }
+
+    @GetMapping(Routes.TAG_LIST)
+    public JsonResult list() {
+        JsonResult jsonResult = new JsonResult();
+        jsonResult.data = projectTagRepository.findByStatus(true);
+        return jsonResult;
+    }
+
+
+
 
     @PutMapping(Routes.TAG_ENABLE)
     public JsonResult enable(@RequestBody ProjectTag projectTag) {
