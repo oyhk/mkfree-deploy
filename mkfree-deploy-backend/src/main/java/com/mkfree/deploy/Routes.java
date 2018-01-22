@@ -52,6 +52,15 @@ public class Routes {
     public static final String PROJECT_STRUCTURE_LOG_INFO = API_PREFIX + "/project_structure_log/info";
 
 
+    public static final String TAG_PAGE = API_PREFIX + "/tag/page";
+    public static final String TAG_ENABLE = API_PREFIX + "/tag/enable";
+    public static final String TAG_LIST = API_PREFIX + "/tag/list";
+    public static final String TAG_INFO = API_PREFIX + "/tag/info";
+    public static final String TAG_SAVE = API_PREFIX + "/tag/save";
+    public static final String TAG_UPDATE = API_PREFIX + "/tag/update";
+    public static final String TAG_DELETE = API_PREFIX + "/tag/delete";
+
+
     public static final String ENV_PAGE = API_PREFIX + "/env/page";
     public static final String ENV_LIST = API_PREFIX + "/env/list";
     public static final String ENV_INFO = API_PREFIX + "/env/info";

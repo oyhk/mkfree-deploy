@@ -25,6 +25,9 @@ public class PageResult<T> {
     public PageResult() {
     }
 
+    public PageResult(Page page) {
+        this.init(page.getNumber(), page.getSize(), page.getTotalElements(), page.getContent());
+    }
     public PageResult(Page page, String pageUrl) {
         this.init(page.getNumber(), page.getSize(), page.getTotalElements(), page.getContent());
         this.setUrl(pageUrl);

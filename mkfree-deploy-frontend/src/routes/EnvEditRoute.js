@@ -3,7 +3,7 @@ import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
 import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select} from 'antd';
 import {route} from '../Constant';
-import EnvFormComponent from '../components/EnvFormComponen';
+import EnvFormComponent from '../components/EnvFormComponent';
 import styles from './ProjectRoute.less';
 
 const Option = Select.Option;

@@ -17,6 +17,7 @@ app.model(require('./models/UserModel'));
 app.model(require('./models/EnvModel'));
 app.model(require('./models/ServerMachineModel'));
 app.model(require('./models/UserProjectPermissionModel'));
+app.model(require('./models/TagModel'));
 
 // 4. Router
 app.router(require('./router'));

@@ -7,6 +7,11 @@ import {
     ProjectEditRoute,
     ProjectAddRoute,
     SignInRoute,
+
+    TagRoute,
+    TagEditRoute,
+    TagAddRoute,
+
     EnvRoute,
     EnvEditRoute,
     EnvAddRoute,
@@ -37,6 +42,10 @@ function RouterConfig({history}) {
                 <Route path={route.userProjectPermission.url} component={UserProjectPermissionRoute}/>
                 <Route path={route.user.url} component={UserRoute}/>
                 <Route path={route.userEdit.url} component={UserEditRoute}/>
+
+                <Route path={route.tag.url} component={TagRoute}/>
+                <Route path={route.tagAdd.url} component={TagAddRoute}/>
+                <Route path={route.tagEdit.url} component={TagEditRoute}/>
 
                 <Route path={route.env.url} component={EnvRoute}/>
                 <Route path={route.envAdd.url} component={EnvAddRoute}/>

@@ -34,6 +34,10 @@ function MainLayout({dispatch, location, children}) {
         pageTitle = route.env.pageTitle;
         menuSelectKey = route.env.url;
     }
+    if (location.pathname.indexOf(route.tag.url) > -1) {
+        pageTitle = route.tag.pageTitle;
+        menuSelectKey = route.tag.url;
+    }
 
 
     return (
@@ -62,6 +66,9 @@ function MainLayout({dispatch, location, children}) {
                             <Menu.Item key={route.env.url}>
                                 <Link to={`${route.env.url}?pageSize=100`}>{route.env.pageTitle}</Link>
                             </Menu.Item>
+                            <Menu.Item key={route.tag.url}>
+                                <Link to={`${route.tag.url}?pageSize=100`}>{route.tag.pageTitle}</Link>
+                            </Menu.Item>
                         </Menu>
                     </Col>
                     <Col span={2} style={{textAlign: 'right', color: '#ffffff'}}>
@@ -73,7 +80,7 @@ function MainLayout({dispatch, location, children}) {
                                         window.location.replace(route.signIn.url);
                                     }} okText="Yes" cancelText="No">
                             {cookie.load(user.username)} <Icon type="logout"
-                                                              style={{cursor: 'pointer'}}/></Popconfirm></Col>
+                                                               style={{cursor: 'pointer'}}/></Popconfirm></Col>
                 </Row>
             </Header>
             <Content style={{padding: '0 50px'}}>

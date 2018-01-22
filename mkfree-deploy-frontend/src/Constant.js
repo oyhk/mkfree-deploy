@@ -5,6 +5,17 @@ export const user = {
     username: 'username'
 };
 
+export const models = {
+    tag: 'TagModel',
+    env: 'EnvModel',
+    install: 'InstallModel',
+    project: 'ProjectModel',
+    user: 'UserModel',
+    userProjectPermission: 'UserProjectPermissionModel',
+    serverMachine: 'ServerMachineModel',
+};
+
+
 const route_prefix = '/deploy';
 export const route = {
     signIn: {url: `${route_prefix}/sign_in`, pageTitle: '登录'},
@@ -21,6 +32,12 @@ export const route = {
     envAdd: {url: `${route_prefix}/env/add`, pageTitle: '环境添加'},
     envEdit: {url: `${route_prefix}/env/edit/:id`, pageTitle: '环境编辑'},
     envEditPath: id => routePath(route.envEdit.url, {id}),
+
+    tag: {url: `${route_prefix}/tag`, pageTitle: '标签管理'},
+    tagAdd: {url: `${route_prefix}/tag/add`, pageTitle: '标签添加'},
+    tagEdit: {url: `${route_prefix}/tag/edit/:id`, pageTitle: '标签编辑'},
+    tagEditPath: id => routePath(route.tagEdit.url, {id}),
+
 
     userProjectPermission: {url: `${route_prefix}/user_project_permission/:userId`, pageTitle: '用户权限管理'},
     userProjectPermissionPath: userId => routePath(route.userProjectPermission.url, {userId}),
@@ -65,11 +82,20 @@ export const api = {
     userLogin: `${api_prefix}/user/login`,
     userPage: `${api_prefix}/user/page`,
     userInfo: `${api_prefix}/user/info`,
+
     envList: {url: `${api_prefix}/env/list`, method: apiMethod.GET},
     envPage: {url: `${api_prefix}/env/page`, method: apiMethod.GET},
     envInfo: {url: `${api_prefix}/env/info`, method: apiMethod.GET},
     envSave: {url: `${api_prefix}/env/save`, method: apiMethod.POST},
     envUpdate: {url: `${api_prefix}/env/update`, method: apiMethod.PUT},
+
+    tagList: {url: `${api_prefix}/tag/list`, method: apiMethod.GET},
+    tagPage: {url: `${api_prefix}/tag/page`, method: apiMethod.GET},
+    tagInfo: {url: `${api_prefix}/tag/info`, method: apiMethod.GET},
+    tagSave: {url: `${api_prefix}/tag/save`, method: apiMethod.POST},
+    tagUpdate: {url: `${api_prefix}/tag/update`, method: apiMethod.PUT},
+    tagEnable: {url: `${api_prefix}/tag/enable`, method: apiMethod.PUT},
+
     serverMachinePage: `${api_prefix}/server_machine/page`,
     serverMachineList: {url: `${api_prefix}/server_machine/list`, method: apiMethod.GET},
     serverMachineInfo: `${api_prefix}/server_machine/info`,

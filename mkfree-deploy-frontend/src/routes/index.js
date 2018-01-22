@@ -11,6 +11,11 @@ import SignInRoute from './SignInRoute';
 import UserProjectPermissionRoute from './UserProjectPermissionRoute';
 
 
+import TagRoute from './TagRoute';
+import TagEditRoute from './TagEditRoute';
+import TagAddRoute from './TagAddRoute';
+
+
 import UserRoute from './UserRoute';
 import UserEditRoute from './UserEditRoute';
 
@@ -30,6 +35,10 @@ export {
     ProjectEditRoute,
     ProjectBuildLogRoute,
 
+
+    TagRoute,
+    TagAddRoute,
+    TagEditRoute,
 
     EnvRoute,
     EnvAddRoute,
