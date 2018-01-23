@@ -32,7 +32,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
 
                             })
                         }
-                        | <Link onClick={() => {
+                        |<Link style={{marginLeft: '10px'}} onClick={() => {
                         const page = location.query.page ? location.query.page : 0;
                         const pageSize = location.query.pageSize;
                         browserHistory.push(`${route.project.url}?pageNo=${page}&pageSize=${pageSize}&type=checkSync`);
