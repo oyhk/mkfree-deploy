@@ -1,10 +1,13 @@
 import React from 'react';
-import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select, Checkbox} from 'antd';
+import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select, Checkbox, Radio} from 'antd';
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, serverMachineList, form, isAdd}) {
+function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, serverMachineList, tagList, form, isAdd}) {
 
     const {getFieldDecorator, getFieldValue, getFieldsValue} = form;
 
@@ -20,6 +23,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
             gitUrl: getFieldValue('gitUrl'),
             remotePath: getFieldValue('remotePath'),
             moduleName: getFieldValue('moduleName'),
+            projectTagId: getFieldValue('projectTagId'),
         };
 
         const newDeployTargetFileList = [];
@@ -162,6 +166,21 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                         initialValue: project.moduleName
                     })(
                         <Input placeholder="部署的项目模块名称"/>
+                    )}
+                </FormItem>
+                <FormItem {...formItemLayout} label="所属标签">
+                    {getFieldDecorator('projectTagId', {
+                        initialValue: project && project.projectTagId
+                    })(
+                        <RadioGroup onChange={() => {
+                        }}>
+                            {
+                                tagList && tagList.map((tag, tagListIndex) => {
+                                    return <RadioButton key={`tagListIndex${tagListIndex}`}
+                                                        value={tag.id}>{tag.name}</RadioButton>;
+                                })
+                            }
+                        </RadioGroup>
                     )}
                 </FormItem>
             </div>

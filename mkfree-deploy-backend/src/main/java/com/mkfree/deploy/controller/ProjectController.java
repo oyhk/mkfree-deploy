@@ -64,6 +64,8 @@ public class ProjectController extends BaseController {
     @Autowired
     private ExecutorService commonExecutorService;
     @Autowired
+    private ProjectTagRepository projectTagRepository;
+    @Autowired
     private ProjectEnvIpRepository projectEnvIpRepository;
     @Autowired
     private EnvRepository envRepository;
@@ -269,12 +271,14 @@ public class ProjectController extends BaseController {
                 return;
 
             }
-
-
             SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
             project = new Project();
             BeanUtils.copyProperties(dto, project);
+
+            // 设置项目标签
+            ProjectHelper.setProjectTag(dto.getProjectTagId(), project, projectTagRepository);
+
             project.setSystemPath(systemConfig.getValue() + File.separator + dto.getName());
             project = projectRepository.save(project);
             Project finalProject = project;
@@ -379,6 +383,8 @@ public class ProjectController extends BaseController {
         if (StringUtils.isNotBlank(dto.getModuleName())) {
             project.setModuleName(dto.getModuleName());
         }
+        // 设置项目标签
+        ProjectHelper.setProjectTag(dto.getProjectTagId(), project, projectTagRepository);
 
 
         List<ProjectDeployFileDto> projectDeployFileDtoList = dto.getDeployTargetFileList();
@@ -579,6 +585,7 @@ public class ProjectController extends BaseController {
             projectDto.setGitUrl(project.getGitUrl());
             projectDto.setModuleName(project.getModuleName());
             projectDto.setBranchList(project.getBranchList());
+            projectDto.setProjectTagId(project.getProjectTagId());
 
 
             // 上传部署文件或目录
@@ -1025,5 +1032,6 @@ public class ProjectController extends BaseController {
         jsonResult.data = data;
         return jsonResult;
     }
+
 
 }

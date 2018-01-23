@@ -3,10 +3,10 @@ import {connect} from 'dva';
 import {Button, Table, Row, Col, Form, Input, Switch} from 'antd';
 import ProjectFormComponent from '../components/ProjectFormComponent';
 
-function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvConfigList, serverMachineList}) {
+function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvConfigList, serverMachineList,tagList}) {
     return (
         <ProjectFormComponent dispatch={dispatch} project={project} deployTargetFileList={deployTargetFileList}
-                              serverMachineList={serverMachineList}
+                              serverMachineList={serverMachineList} tagList={tagList}
                               projectEnvConfigList={projectEnvConfigList} isAdd={false}/>
     );
 }
@@ -14,8 +14,8 @@ function ProjectEditRoute({dispatch, project, deployTargetFileList, projectEnvCo
 ProjectEditRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {project, deployTargetFileList, projectEnvConfigList, serverMachineList} = state.projectModel;
-    return {project, deployTargetFileList, projectEnvConfigList,serverMachineList};
+    const {project, deployTargetFileList, projectEnvConfigList, serverMachineList, tagList} = state.projectModel;
+    return {project, deployTargetFileList, projectEnvConfigList, serverMachineList, tagList};
 }
 
 export default connect(mapStateToProps)(ProjectEditRoute);

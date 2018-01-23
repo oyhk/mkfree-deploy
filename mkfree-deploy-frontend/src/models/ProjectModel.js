@@ -36,6 +36,8 @@ export default {
                 if (edit) {
                     const id = edit[1];
                     dispatch({type: 'edit', payload: {id}});
+                    dispatch({type: 'tagList', payload: {}});
+                    return;
                 }
 
                 // 新增页
@@ -43,6 +45,7 @@ export default {
                     dispatch({
                         type: 'add',
                     });
+                    dispatch({type: 'tagList', payload: {}});
                 }
 
                 const urlBuildLog = urlPathParams(route.projectBuildLog, location.pathname);
