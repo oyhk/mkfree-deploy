@@ -17,6 +17,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     Project findByName(String name);
 
-    Page<Project> findByProjectTagId(Pageable pageable,Long projectTagId);
+    Page<Project> findByProjectTagId(Pageable pageable, Long projectTagId);
+
+    Page<Project> findByIdIn(List<Long> idList, Pageable pageable);
 
 }

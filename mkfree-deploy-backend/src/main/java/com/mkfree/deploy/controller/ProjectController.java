@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -134,17 +135,36 @@ public class ProjectController extends BaseController {
     }
 
     @GetMapping(value = Routes.PROJECT_PAGE)
-    public JsonResult page(Integer pageNo, Integer pageSize, String projectTagId, HttpServletRequest request) {
+    public JsonResult page(Integer pageNo, Integer pageSize, String projectTagId, String type, HttpServletRequest request) {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
-
         JsonResult jsonResult = new JsonResult();
 
-        Page<Project> page;
-        if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
-            page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+        Page<Project> page = null;
+        // 检查项目本班不同步功能
+        if (StringUtils.isNotBlank(type) && type.equals("checkSync")) {
+            List<Long> projectIdList = new ArrayList<>();
+            List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findAll();
+            Map<Long, List<ProjectEnvIp>> projectEnvIpMap = projectEnvIpList.stream().collect(Collectors.groupingBy(ProjectEnvIp::getProjectId));
+            projectEnvIpMap.forEach((projectId, groupByProjectEnvIpList) -> {
+                Map<Long, List<ProjectEnvIp>> groupByProjectEnvIpMap = groupByProjectEnvIpList.stream().filter(projectEnvIp -> projectEnvIp.getEnvId() != null).collect(Collectors.groupingBy(ProjectEnvIp::getEnvId));
+                groupByProjectEnvIpMap.forEach((envId, groupByEnvIdProjectEnvIdList) -> {
+                    HashSet<String> publishVersionSet = new HashSet<>(groupByEnvIdProjectEnvIdList.stream().map(ProjectEnvIp::getPublishVersion).collect(Collectors.toList()));
+                    if (publishVersionSet.size() > 1 && !projectEnvIpList.contains(projectId)) {
+                        projectIdList.add(projectId);
+                    }
+                });
+            });
+            page = projectRepository.findByIdIn(projectIdList, new PageRequest(0, 10000, Sort.Direction.DESC, "name"));
+
+
         } else {
-            page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
+            if (StringUtils.isBlank(projectTagId) || projectTagId.equals("ALL")) {
+                page = projectRepository.findAll(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"));
+            } else {
+                page = projectRepository.findByProjectTagId(this.getPageRequest(pageNo, pageSize, Sort.Direction.DESC, "name"), Long.valueOf(projectTagId));
+            }
         }
+
 
         List<Project> projectList = page.getContent();
 
