@@ -233,7 +233,11 @@ public class ProjectController extends BaseController {
                 List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
                 if (envProjectEnvIpList != null) {
                     // 排序 publish true 排前面
-                    projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
+                    projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().map(projectEnvIp -> {
+                        projectEnvIp.setUpdatedAt(null);
+                        projectEnvIp.setCreatedAt(null);
+                        return projectEnvIp;
+                    }).sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
                 }
                 if (!projectEnvList.contains(projectEnvDto)) {
                     projectEnvList.add(projectEnvDto);
@@ -241,7 +245,12 @@ public class ProjectController extends BaseController {
             });
 
             projectDto.setProjectEnvList(projectEnvList);
-            BeanUtils.copyProperties(project, projectDto);
+
+            // 目前渲染这些属性
+            projectDto.setId(project.getId());
+            projectDto.setProjectTagId(project.getId());
+            projectDto.setName(project.getName());
+            projectDto.setBranchList(project.getBranchList());
             return projectDto;
         }).collect(Collectors.toList());
 
