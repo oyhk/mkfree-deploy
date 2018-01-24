@@ -9,9 +9,10 @@ const FormItem = Form.Item;
 
 function ProjectFormComponent({dispatch, project, deployTargetFileList, projectEnvConfigList, serverMachineList, tagList, form, isAdd}) {
 
-    const {getFieldDecorator, getFieldValue, getFieldsValue} = form;
+    const {getFieldDecorator, getFieldValue} = form;
 
     function submit() {
+
 
         if (isAdd) {
             project.id = 0;
@@ -50,9 +51,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 if (!item.buildSyncList) {
                     item.buildSyncList = [{}];
                 }
-                item.buildBeforeList.forEach((beforeItem, afterIndex) => {
+                item.buildBeforeList.forEach((beforeItem, buildBeforeListIndex) => {
                     newBuildBeforeList.push({
-                        step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${afterIndex}`),
+                        step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${buildBeforeListIndex}`),
                     });
                 });
 
@@ -230,7 +231,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     alignItems: 'center',
                                     height: '100%'
                                 }}>
-                                    <Button shape="circle" icon="close"
+                                    <Button shape="circle" icon="minus"
                                             onClick={() => {
                                                 dispatch({
                                                     type: 'projectModel/deleteDeployTargetFile',
@@ -311,32 +312,65 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     }
                                 </Col>
                             </Row>
-                            <FormItem key={`projectEnvConfig_sync_${index}`} {...formItemLayout} label="从发布服务器同步功能">
+                            <FormItem key={`projectEnvConfig_sync_${index}`} {...formItemLayout} label="从发布服务器同步">
                                 {getFieldDecorator(`sync${index}`, {
                                     initialValue: item.sync
                                 })(
                                     <Switch/>
                                 )}
                             </FormItem>
-                            {
-                                item.buildBeforeList && item.buildBeforeList.length > 0 ? item.buildBeforeList.map((beforeItem, beforeIndex) => {
-                                    return <FormItem key={`${index}_${beforeIndex}_step_before`} {...formItemLayout}
-                                                     label="构建命令">
-                                        {getFieldDecorator(`projectEnvConfig_stepBefore_${index}_${beforeIndex}`, {
-                                            initialValue: beforeItem.step ? beforeItem.step : ''
-                                        })(
-                                            <Input placeholder="构建命令"/>
-                                        )}
-                                    </FormItem>;
-                                }) : <FormItem {...formItemLayout}
-                                               label="构建命令">
-                                    {getFieldDecorator(`projectEnvConfig_stepBefore_${index}_0`, {
-                                        initialValue: ''
-                                    })(
-                                        <Input placeholder="构建命令"/>
-                                    )}
-                                </FormItem>
-                            }
+                            <Row>
+                                <Col span={4}
+                                     style={{textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', paddingRight: '7px'}}>构建命令
+                                    :</Col>
+                                <Col span={20}>
+                                    <Row>
+                                        {
+                                            item.buildBeforeList ? item.buildBeforeList.map((beforeItem, beforeIndex) => {
+                                                return <div key={`buildBeforeList_${beforeIndex}`}>
+                                                    <Col span={20}>
+                                                        <FormItem
+                                                            key={`${index}_${beforeIndex}_step_before`} {...formItemLayout}>
+                                                            {getFieldDecorator(`projectEnvConfig_stepBefore_${index}_${beforeIndex}`, {
+                                                                initialValue: beforeItem.step ? beforeItem.step : ''
+                                                            })(
+                                                                <Input placeholder="构建命令"/>
+                                                            )}
+                                                        </FormItem>
+                                                    </Col>
+                                                    <Col span={4}>
+                                                        { beforeIndex === 0 ?
+                                                            <Button shape="circle" icon="plus"
+                                                                    onClick={() => {
+                                                                        dispatch({
+                                                                            type: 'projectModel/addProjectEnvConfigBuildBefore',
+                                                                            payload: {envId: item.envId}
+                                                                        });
+                                                                    }}
+                                                            /> :
+                                                            <Button shape="circle" icon="minus"
+                                                                    onClick={() => {
+                                                                        dispatch({
+                                                                            type: 'projectModel/deleteProjectEnvConfigBuildBefore',
+                                                                            payload: {
+                                                                                envId: item.envId,
+                                                                                uuid: beforeItem.uuid
+                                                                            }
+                                                                        });
+                                                                    }}
+                                                            />}
+                                                    </Col>
+                                                </div>;
+                                            }) : <FormItem {...formItemLayout}>
+                                                {getFieldDecorator(`projectEnvConfig_stepBefore_${index}_0`, {
+                                                    initialValue: ''
+                                                })(
+                                                    <Input placeholder="构建命令"/>
+                                                )}
+                                            </FormItem>
+                                        }
+                                    </Row>
+                                </Col></Row>
                             {
                                 item.buildAfterList && item.buildAfterList.length > 0 ? item.buildAfterList.map((afterItem, afterIndex) => {
                                     return <FormItem key={`${index}_${afterIndex}_step_after`}

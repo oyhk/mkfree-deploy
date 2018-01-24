@@ -15,6 +15,19 @@
 
 <script src="/index.js"></script>
 <script type="text/javascript">
+    /**
+     * 扩展Array groupBy 方法
+     * @param prop
+     * @returns {*}
+     */
+    Array.prototype.groupBy = function (prop) {
+        return this.reduce((groups, item) => {
+            const val = item[prop];
+            groups[val] = groups[val] || [];
+            groups[val].push(item);
+            return groups;
+        }, {});
+    };
 
     if (location.pathname !== '/deploy/install') {
         fetch(API_HOST + '/api/installed').then(response => response.json())

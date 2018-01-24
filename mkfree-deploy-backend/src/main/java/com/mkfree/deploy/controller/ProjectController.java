@@ -667,7 +667,9 @@ public class ProjectController extends BaseController {
                 }
                 // 环境没有添加时，默认添加
                 if (projectEnvConfigDto.getBuildBeforeList().size() == 0) {
-                    projectEnvConfigDto.getBuildBeforeList().add(new ProjectBuildStep());
+                    ProjectBuildStep projectBuildStep = new ProjectBuildStep();
+                    projectBuildStep.setEnvId(envId);
+                    projectEnvConfigDto.getBuildBeforeList().add(projectBuildStep);
                 }
 
 
