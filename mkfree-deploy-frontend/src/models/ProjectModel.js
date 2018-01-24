@@ -1,7 +1,7 @@
 import * as projectService from '../services/ProjectService';
 import * as serverMachineService from '../services/ServerMachineService';
 import * as tagService from '../services/TagService';
-import {addKey, urlPathParams} from '../utils/Utils';
+import {addKey, urlPathParams, uuid} from '../utils/Utils';
 import {route} from '../Constant';
 import {message, Button} from 'antd';
 import {browserHistory} from 'dva/router';
@@ -84,7 +84,7 @@ export default {
                 }
             });
         },
-        *tagList({payload}, {call, put, select}){
+        *tagList({payload}, {call, put, select}) {
             const tagList = yield call(tagService.list, payload);
             yield put({
                 type: 'save',
@@ -93,7 +93,7 @@ export default {
                 }
             });
         },
-        *initGit({payload}, {call, put, select}){
+        *initGit({payload}, {call, put, select}) {
             yield call(projectService.initGit, payload.id, {desc: '初始化成功'});
         },
         *update({payload}, {call, put}) {
@@ -103,6 +103,11 @@ export default {
         *edit({payload}, {call, put}) {
             const result = yield call(projectService.info, payload.id);
             const serverMachineList = yield call(serverMachineService.list);
+            if (result.deployTargetFileList) {
+                result.deployTargetFileList.forEach((deployTargetFile) => {
+                    deployTargetFile.uuid = uuid();
+                });
+            }
             yield put({
                 type: 'save',
                 payload: {
@@ -115,7 +120,7 @@ export default {
 
         },
         // 删除一个项目
-        *deleted({payload}, {call, put, select}){
+        *deleted({payload}, {call, put, select}) {
             yield call(projectService.deleted, payload, {desc: '删除成功'});
             browserHistory.push(`${route.project.url}?pageSize=100`);
         },
@@ -162,7 +167,7 @@ export default {
             yield put({
                 type: 'save',
                 payload: {
-                    deployTargetFileList: deployTargetFileList.concat([{}])
+                    deployTargetFileList: deployTargetFileList.concat([{uuid: uuid()}])
                 }
             });
         },
@@ -170,10 +175,18 @@ export default {
         // 删除一项 deployTargetFile
         *deleteDeployTargetFile({payload}, {call, put, select}) {
             const {deployTargetFileList} = (yield select(state => state.projectModel));
+
+            const newDeployTargetFileList = [].concat(deployTargetFileList);
+            deployTargetFileList.forEach((deployTargetFile, index) => {
+                if (deployTargetFile.uuid === payload.uuid) {
+                    delete newDeployTargetFileList[index];
+                }
+            });
+
             yield put({
                 type: 'save',
                 payload: {
-                    deployTargetFileList: deployTargetFileList.concat([{}])
+                    deployTargetFileList: newDeployTargetFileList
                 }
             });
         },

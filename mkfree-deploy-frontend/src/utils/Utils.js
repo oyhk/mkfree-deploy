@@ -9,11 +9,23 @@ import pathToRegexp from 'path-to-regexp';
  * @param items
  */
 export function addKey(items) {
-   items && items.forEach((item, index) => {
+    items && items.forEach((item, index) => {
         item.key = index;
     });
 }
-
+/**
+ * 生成uuid
+ * @returns {string}
+ */
+export function uuid() {
+    /**
+     * @return {string}
+     */
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+    return (`${S4() + S4()}-${S4()}-${S4()}-${S4()}-${S4()}${S4()}${S4()}`);
+}
 /**
  * 把url转换成 实际url
  * 例如：

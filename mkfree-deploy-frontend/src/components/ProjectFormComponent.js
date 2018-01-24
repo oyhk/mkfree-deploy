@@ -192,36 +192,54 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                     }}>添加一项</Button>
                 </FormItem>
                 {
-                    deployTargetFileList.map((item, index) => {
+                    deployTargetFileList.filter((item) => item !== undefined).map((item, index) => {
                         return <div key={`deploy_div_${index}`}>
-                            <FormItem key={`deploy_${index}_0`} {...formItemLayout}
-                                      label={`( ${index + 1} ) 上传文件路劲`}>
-                                {getFieldDecorator(`localFilePath${index}`, {
-                                    initialValue: item.localFilePath ? item.localFilePath : ''
-                                })(
-                                    <Input placeholder="上传文件路劲"/>
-                                )}
-                            </FormItem>
-                            <FormItem key={`deploy_${index}_1`} {...formItemLayout} label="服务器路劲">
-                                {getFieldDecorator(`remoteFilePath${index}`, {
-                                    initialValue: item.remoteFilePath ? item.remoteFilePath : ''
-                                })(
-                                    <Input placeholder="服务器路劲"/>
-                                )}
-                            </FormItem>
-                            <FormItem
-                                key={`deploy_${index}_2`}
-                                {...formItemLayout}
-                                label="是否启用"
-                            >
-                                {getFieldDecorator(`isEnable${index}`, {
-                                    valuePropName: 'checked',
-                                    initialValue: item.enable
-                                })(
-                                    <Switch />
-                                )}
-                            </FormItem>
-
+                            <Row type="flex" align="middle">
+                                <Col span={21}>
+                                    <FormItem key={`deploy_${index}_0`} {...formItemLayout}
+                                              label={`( ${index + 1} ) 上传文件路劲`}>
+                                        {getFieldDecorator(`localFilePath${index}`, {
+                                            initialValue: item.localFilePath ? item.localFilePath : ''
+                                        })(
+                                            <Input placeholder="上传文件路劲"/>
+                                        )}
+                                    </FormItem>
+                                    <FormItem key={`deploy_${index}_1`} {...formItemLayout} label="服务器路劲">
+                                        {getFieldDecorator(`remoteFilePath${index}`, {
+                                            initialValue: item.remoteFilePath ? item.remoteFilePath : ''
+                                        })(
+                                            <Input placeholder="服务器路劲"/>
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        key={`deploy_${index}_2`}
+                                        {...formItemLayout}
+                                        label="是否启用"
+                                    >
+                                        {getFieldDecorator(`isEnable${index}`, {
+                                            valuePropName: 'checked',
+                                            initialValue: item.enable
+                                        })(
+                                            <Switch />
+                                        )}
+                                    </FormItem>
+                                </Col>
+                                <Col span={3} style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '100%'
+                                }}>
+                                    <Button shape="circle" icon="close"
+                                            onClick={() => {
+                                                dispatch({
+                                                    type: 'projectModel/deleteDeployTargetFile',
+                                                    payload: {uuid: item.uuid}
+                                                });
+                                            }}
+                                    />
+                                </Col>
+                            </Row>
                         </div>;
                     })
                 }
