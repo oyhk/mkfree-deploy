@@ -1,12 +1,12 @@
 import * as envService from '../services/EnvService';
 import cookie from 'react-cookie';
 import {browserHistory} from 'dva/router';
-import {route} from '../Constant';
+import {route, models} from '../Constant';
 import {addKey, urlPathParams} from '../utils/Utils';
 
 export default {
 
-    namespace: 'envModel',
+    namespace: models.env,
 
     state: {
         env: {},
@@ -33,7 +33,6 @@ export default {
         },
     },
     effects: {
-
         *info({payload}, {call, put, select}){
             const env = yield call(envService.info, payload);
             yield put({

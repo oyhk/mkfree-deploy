@@ -19,7 +19,7 @@ function EnvAddRoute({dispatch, location, env}) {
 EnvAddRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {env} = state.envModel;
+    const {env} = state.EnvModel;
     return {env};
 }
 

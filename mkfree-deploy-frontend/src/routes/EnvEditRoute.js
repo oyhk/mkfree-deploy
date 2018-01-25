@@ -19,7 +19,7 @@ function EnvEditRoute({dispatch, location, form, env}) {
 EnvEditRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {env} = state.envModel;
+    const {env} = state.EnvModel;
     return {env};
 }
 

@@ -32,7 +32,7 @@ export default {
                 if (edit) {
                     const id = edit[1];
                     dispatch({type: 'info', payload: {id}});
-                    dispatch({type: 'envConfigList', payload: {}});
+                    dispatch({type: 'envList', payload: {}});
                 }
             });
         },

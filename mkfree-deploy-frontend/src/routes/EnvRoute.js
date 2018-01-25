@@ -63,7 +63,7 @@ function EnvRoute({dispatch, location, pageResult}) {
 EnvRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {pageResult} = state.envModel;
+    const {pageResult} = state.EnvModel;
     return {pageResult};
 }
 

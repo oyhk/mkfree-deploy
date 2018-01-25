@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
 import {Button, Table, Row, Col, Icon, Form, Input, Switch, Select} from 'antd';
-
+import {models} from '../Constant';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
@@ -63,7 +63,7 @@ function EnvFormComponent({dispatch, location, form, env, title, isAdd}) {
                             onClick={() => {
                                 if (isAdd) {
                                     dispatch({
-                                        type: 'envModel/saved',
+                                        type: `${models.env}/saved`,
                                         payload: {
                                             name: getFieldValue('name'),
                                             sort: getFieldValue('sort')
@@ -71,7 +71,7 @@ function EnvFormComponent({dispatch, location, form, env, title, isAdd}) {
                                     });
                                 } else {
                                     dispatch({
-                                        type: 'envModel/update',
+                                        type: `${models.env}/update`,
                                         payload: {id: env.id, name: getFieldValue('name'), sort: getFieldValue('sort')}
                                     });
                                 }
