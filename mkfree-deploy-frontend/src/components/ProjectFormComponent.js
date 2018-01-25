@@ -371,28 +371,60 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                         }
                                     </Row>
                                 </Col></Row>
-                            {
-                                item.buildAfterList && item.buildAfterList.length > 0 ? item.buildAfterList.map((afterItem, afterIndex) => {
-                                    return <FormItem key={`${index}_${afterIndex}_step_after`}
-                                                     {...formItemLayout}
-                                                     label="构建后命令">
-                                        {getFieldDecorator(`projectEnvConfig_stepAfter_${index}_${afterIndex}`, {
-                                            initialValue: afterItem.step ? afterItem.step : ''
-                                        })(
-                                            <Input placeholder="构建后命令"/>
-                                        )}
-                                    </FormItem>;
-                                }) :
-                                    <FormItem
-                                        {...formItemLayout}
-                                        label="构建后命令">
-                                        {getFieldDecorator(`projectEnvConfig_stepAfter${index}_0`, {
-                                            initialValue: ''
-                                        })(
-                                            <Input placeholder="构建后命令"/>
-                                        )}
-                                    </FormItem>
-                            }
+                            <Row>
+                                <Col span={4}
+                                     style={{textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', paddingRight: '7px'}}>构建后命令
+                                    :</Col>
+                                <Col span={20}>
+                                    {
+                                        item.buildAfterList && item.buildAfterList.length > 0 ? item.buildAfterList.map((afterItem, afterIndex) => {
+                                            return <div key={`buildAfterList${afterIndex}`}>
+                                                <Col span={20}>
+                                                    <FormItem
+                                                        key={`${index}_${afterIndex}_step_after`}{...formItemLayout}>
+                                                        {getFieldDecorator(`projectEnvConfig_stepAfter_${index}_${afterIndex}`, {
+                                                            initialValue: afterItem.step ? afterItem.step : ''
+                                                        })(
+                                                            <Input placeholder="构建后命令"/>
+                                                        )}
+                                                    </FormItem>
+                                                </Col>
+                                                <Col span={4}>
+                                                    { afterIndex === 0 ?
+                                                        <Button shape="circle" icon="plus"
+                                                                onClick={() => {
+                                                                    dispatch({
+                                                                        type: 'projectModel/addProjectEnvConfigBuildAfter',
+                                                                        payload: {envId: item.envId}
+                                                                    });
+                                                                }}
+                                                        /> :
+                                                        <Button shape="circle" icon="minus"
+                                                                onClick={() => {
+                                                                    dispatch({
+                                                                        type: 'projectModel/deleteProjectEnvConfigBuildAfter',
+                                                                        payload: {
+                                                                            envId: item.envId,
+                                                                            uuid: afterItem.uuid
+                                                                        }
+                                                                    });
+                                                                }}
+                                                        />}
+                                                </Col>
+                                            </div>;
+                                        }) :
+                                            <FormItem
+                                                {...formItemLayout}
+                                                label="构建后命令">
+                                                {getFieldDecorator(`projectEnvConfig_stepAfter${index}_0`, {
+                                                    initialValue: ''
+                                                })(
+                                                    <Input placeholder="构建后命令"/>
+                                                )}
+                                            </FormItem>
+                                    }
+                                </Col>
+                            </Row>
                             <Row>
                                 <Col offset={2}>
                                     <h4>同步配置</h4>

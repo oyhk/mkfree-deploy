@@ -98,7 +98,6 @@ export default {
             yield call(projectService.initGit, payload.id, {desc: '初始化成功'});
         },
         *update({payload}, {call, put}) {
-            console.log(234234234234);
             yield call(projectService.update, payload, {desc: '修改成功'});
             browserHistory.goBack();
         },
@@ -113,6 +112,10 @@ export default {
             result.projectEnvConfigList.forEach((projectEnvConfig, projectEnvConfigListIndex) => {
                 projectEnvConfig.buildBeforeList.forEach((buildBefore, buildBeforeListIndex) => {
                     buildBefore.uuid = uuid();
+                });
+
+                projectEnvConfig.buildAfterList.forEach((buildAfter, buildBeforeListIndex) => {
+                    buildAfter.uuid = uuid();
                 });
             });
             yield put({
@@ -167,6 +170,53 @@ export default {
         *saved({payload}, {call, put, select}) {
             yield call(projectService.save, payload, {desc: '添加成功'});
             browserHistory.goBack();
+        },
+        // 添加一项 projectEnvConfig.buildAfter
+        *addProjectEnvConfigBuildAfter({payload}, {call, put, select}) {
+            const {projectEnvConfigList} = (yield select(state => state.projectModel));
+            const projectEnvConfigMap = projectEnvConfigList.reduce((map, obj) => {
+                map[obj.envId] = obj;
+                return map;
+            }, {});
+            const projectEnvConfig = projectEnvConfigMap[payload.envId];
+            projectEnvConfig.buildAfterList = projectEnvConfig.buildAfterList.concat([{uuid: uuid()}]);
+
+            const newProjectEnvConfigList = Object.keys(projectEnvConfigMap).map((key) => {
+                return projectEnvConfigMap[key];
+            });
+
+            yield put({
+                type: 'save',
+                payload: {
+                    projectEnvConfigList: newProjectEnvConfigList
+                }
+            });
+        },
+        // 删除一项 projectEnvConfig.buildAfter
+        *deleteProjectEnvConfigBuildAfter({payload}, {call, put, select}) {
+            const {projectEnvConfigList} = (yield select(state => state.projectModel));
+            const projectEnvConfigMap = projectEnvConfigList.reduce((map, obj) => {
+                map[obj.envId] = obj;
+                return map;
+            }, {});
+            const projectEnvConfig = projectEnvConfigMap[payload.envId];
+
+            projectEnvConfig.buildAfterList.forEach((buildBeforeItem, index) => {
+                if (buildBeforeItem.uuid === payload.uuid) {
+                    delete projectEnvConfig.buildAfterList[index];
+                }
+            });
+
+            const newProjectEnvConfigList = Object.keys(projectEnvConfigMap).map((key) => {
+                return projectEnvConfigMap[key];
+            });
+
+            yield put({
+                type: 'save',
+                payload: {
+                    projectEnvConfigList: newProjectEnvConfigList
+                }
+            });
         },
         // 添加一项 projectEnvConfig.buildBefore
         *addProjectEnvConfigBuildBefore({payload}, {call, put, select}) {
