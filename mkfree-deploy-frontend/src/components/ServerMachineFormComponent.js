@@ -64,6 +64,17 @@ function ServerMachineFormComponent({dispatch, location, form, serverMachine, en
                     <Input placeholder="ssh用户名"/>
                 )}
             </FormItem>
+            <FormItem {...formItemLayout} label="ssh用户名">
+                {getFieldDecorator('password', {
+                    rules: [{
+                        required: true,
+                        message: 'ssh密码不能为空',
+                    }],
+                    initialValue: serverMachine.password
+                })(
+                    <Input placeholder="ssh密码"/>
+                )}
+            </FormItem>
             <FormItem {...formItemLayout} label="ssh端口">
                 {getFieldDecorator('port', {
                     rules: [{

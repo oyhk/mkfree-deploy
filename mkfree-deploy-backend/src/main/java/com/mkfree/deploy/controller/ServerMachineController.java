@@ -6,6 +6,7 @@ import com.mkfree.deploy.domain.ProjectEnv;
 import com.mkfree.deploy.domain.ServerMachine;
 import com.mkfree.deploy.repository.EnvRepository;
 import com.mkfree.deploy.repository.ServerMachineRepository;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,17 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
+import javax.crypto.*;
+import javax.crypto.spec.DESKeySpec;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 /**
@@ -64,12 +74,14 @@ public class ServerMachineController extends BaseController {
         String envName = dto.getEnvName();
         String name = dto.getName();
         String username = dto.getUsername();
+        String password = dto.getPassword();
         String ip = dto.getIp();
         String port = dto.getPort();
 
         CheckHelper.checkNotBlank(envName, "envName 不能为空");
         CheckHelper.checkNotBlank(name, "name 不能为空");
         CheckHelper.checkNotNull(username, "username 不能为空");
+        CheckHelper.checkNotNull(password, "password 不能为空");
         CheckHelper.checkNotNull(ip, "ip 不能为空");
         CheckHelper.checkNotNull(port, "port 不能为空");
 
@@ -78,6 +90,10 @@ public class ServerMachineController extends BaseController {
 
         ServerMachine serverMachine = new ServerMachine();
         BeanUtils.copyProperties(dto, serverMachine);
+
+        String encryptionPassword = DESUtils.encryption(password);
+        serverMachine.setPassword(encryptionPassword);
+
         serverMachine.setEnvId(projectEnv.getId());
         serverMachine.setEnvName(projectEnv.getName());
 
@@ -94,6 +110,7 @@ public class ServerMachineController extends BaseController {
         String envName = dto.getEnvName();
         String name = dto.getName();
         String username = dto.getUsername();
+        String password = dto.getPassword();
         String ip = dto.getIp();
         String port = dto.getPort();
 
@@ -114,6 +131,10 @@ public class ServerMachineController extends BaseController {
         }
         if (StringUtils.isNotBlank(username)) {
             serverMachine.setUsername(username);
+        }
+        if (StringUtils.isNotBlank(password)) {
+            String encryptionPassword = DESUtils.encryption(password);
+            serverMachine.setPassword(encryptionPassword);
         }
         if (StringUtils.isNotBlank(ip)) {
             serverMachine.setIp(ip);
