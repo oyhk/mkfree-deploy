@@ -152,7 +152,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                          serverMachineIp: projectEnvIp.serverIp,
                                                                                                      }
                                                                                                  });
-                                                                                             }}>本地同步</Button>&nbsp;&nbsp;
+                                                                                             }}>从本地同步</Button>&nbsp;&nbsp;
                                                                                     {projectEnvConfig.serverSync ?
                                                                                         <Button type="danger"
                                                                                                 size="small"
@@ -165,7 +165,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                             serverMachineIp: projectEnvIp.serverIp,
                                                                                                         }
                                                                                                     });
-                                                                                                }}>服务器同步</Button> : ''}
+                                                                                                }}>从发布服务器同步</Button> : ''}
                                                                                 </div>
                                                                             : ''
                                                                     }
