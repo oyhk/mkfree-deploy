@@ -1,5 +1,8 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.common.DESUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.*;
 
 /**
@@ -33,6 +36,7 @@ public class ServerMachine extends IDEntity {
 
     @Column(columnDefinition = "bit default 0 comment '是否发布机器'")
     private Boolean isPublish;
+
     public String getIntranetIp() {
         return intranetIp;
     }
@@ -82,6 +86,9 @@ public class ServerMachine extends IDEntity {
     }
 
     public String getPassword() {
+        if (StringUtils.isNotBlank(this.password)) {
+            return DESUtils.decryption(this.password);
+        }
         return password;
     }
 
