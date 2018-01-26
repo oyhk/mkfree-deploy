@@ -24,8 +24,18 @@ public class ProjectEnvConfig extends IDEntity {
     //发布分支名称
     @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
     private String publicBranch;
+    @Column(columnDefinition = "bit default 0 comment '选择分支发布'")
+    private Boolean selectBranch;
     @Column(columnDefinition = "bit default 0 comment '从服务器同步'")
     private Boolean serverSync;
+
+    public Boolean getSelectBranch() {
+        return selectBranch;
+    }
+
+    public void setSelectBranch(Boolean selectBranch) {
+        this.selectBranch = selectBranch;
+    }
 
     public Boolean getServerSync() {
         return serverSync;

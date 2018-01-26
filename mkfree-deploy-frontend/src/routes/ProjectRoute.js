@@ -104,7 +104,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                 <Col style={{width: '28.5%'}}>
                                                                     {
                                                                         projectEnvIp.serverIp ?
-                                                                            projectEnvIp.publish ? projectEnvIp.projectEnv === 'DEV' ?
+                                                                            projectEnvIp.publish ? projectEnvConfig.selectBranch ?
                                                                                 <Dropdown overlay={<Menu
                                                                                     onClick={(e) => {
                                                                                         dispatch({

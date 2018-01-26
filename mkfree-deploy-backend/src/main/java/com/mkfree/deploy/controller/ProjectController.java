@@ -254,6 +254,7 @@ public class ProjectController extends BaseController {
                 projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
                 projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
                 projectEnvConfigDto.setServerSync(projectEnvConfig.getServerSync());
+                projectEnvConfigDto.setSelectBranch(projectEnvConfig.getSelectBranch());
 
                 List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
                 if (envProjectEnvIpList != null) {
@@ -462,6 +463,7 @@ public class ProjectController extends BaseController {
                 projectEnvConfig.setEnvSort(projectEnv.getSort());
                 projectEnvConfig.setProjectName(project.getName());
                 projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
+                projectEnvConfig.setSelectBranch(projectEnvConfigDto.getSelectBranch());
                 projectEnvConfig = projectEnvConfigRepository.save(projectEnvConfig);
 
                 List<ProjectEnvIp> projectEnvIpList = projectEnvConfigDto.getProjectEnvIpList().stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).collect(Collectors.toList());
@@ -651,6 +653,7 @@ public class ProjectController extends BaseController {
                 projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
                 projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
                 projectEnvConfigDto.setServerSync(projectEnvConfig.getServerSync());
+                projectEnvConfigDto.setSelectBranch(projectEnvConfig.getSelectBranch());
 
                 List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdAndEnvId(project.getId(), projectEnvConfig.getEnvId());
                 projectEnvIpList = projectEnvIpList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).map(projectEnvIp -> {

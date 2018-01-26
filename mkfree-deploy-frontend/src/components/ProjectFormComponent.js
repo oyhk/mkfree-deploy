@@ -52,6 +52,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                     item.buildSyncList = [{}];
                 }
                 item.serverSync = getFieldValue(`projectEnvConfigServerSync${index}`);
+                item.selectBranch = getFieldValue(`projectEnvConfigSelectBranch${index}`);
                 item.buildBeforeList.forEach((beforeItem, buildBeforeListIndex) => {
                     newBuildBeforeList.push({
                         step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${buildBeforeListIndex}`),
@@ -86,6 +87,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 newProjectEnvConfigList.push({
                     envId: item.envId,
                     serverSync: item.serverSync,
+                    selectBranch: item.selectBranch,
                     publicBranch: getFieldValue(`projectEnvConfig_publishBranch_${index}`),
                     projectEnvIpList: newProjectEnvIpList,
                     buildBeforeList: newBuildBeforeList,
@@ -314,6 +316,14 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     }
                                 </Col>
                             </Row>
+                            <FormItem key={`projectEnvConfig_selectBranch_${index}`} {...formItemLayout} label="可选择分支发布">
+                                {getFieldDecorator(`projectEnvConfigSelectBranch${index}`, {
+                                    valuePropName: 'checked',
+                                    initialValue: item.selectBranch
+                                })(
+                                    <Switch/>
+                                )}
+                            </FormItem>
                             <FormItem key={`projectEnvConfig_sync_${index}`} {...formItemLayout} label="从发布服务器同步">
                                 {getFieldDecorator(`projectEnvConfigServerSync${index}`, {
                                     valuePropName: 'checked',
