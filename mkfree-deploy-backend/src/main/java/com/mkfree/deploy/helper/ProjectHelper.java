@@ -57,7 +57,7 @@ public class ProjectHelper {
     public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log,StringBuilder stringBuilder) {
         try {
             Shell shell = new Shell();
-            shell.append("scp -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
+            shell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
             shell.addParams("port", serverPort);
             shell.addParams("projectVersionDir", publishVersion);
             shell.addParams("username", serverUsername);
