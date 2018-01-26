@@ -54,8 +54,8 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                     <Col style={{width: '7.9%'}}><h4>环境</h4></Col>
                     <Col style={{width: '15.1%'}}><h4>ip</h4></Col>
                     <Col style={{width: '8.7%'}}><h4>发布时间</h4></Col>
-                    <Col style={{width: '26%'}}><h4>服务器运行版本</h4></Col>
-                    <Col style={{width: '8.1%'}}><h4>发布版本</h4></Col>
+                    <Col style={{width: '17.2%'}}><h4>服务器运行版本</h4></Col>
+                    <Col style={{width: '16.9%'}}><h4>发布版本</h4></Col>
                     <Col style={{width: '17%'}}><h4>操作</h4></Col>
                 </Row>
             </Affix>
