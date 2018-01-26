@@ -86,9 +86,6 @@ public class ServerMachine extends IDEntity {
     }
 
     public String getPassword() {
-        if (StringUtils.isNotBlank(this.password)) {
-            return DESUtils.decryption(this.password);
-        }
         return password;
     }
 

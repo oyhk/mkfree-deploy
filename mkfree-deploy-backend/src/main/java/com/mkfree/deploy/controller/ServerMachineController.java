@@ -46,7 +46,11 @@ public class ServerMachineController extends BaseController {
     public JsonResult info(Long id) {
         CheckHelper.checkNotNull(id, ServerMachine.CHECK_ID_IS_NOT_NULL);
         JsonResult jsonResult = new JsonResult();
-        jsonResult.data = serverMachineRepository.findOne(id);
+        ServerMachine serverMachine = serverMachineRepository.findOne(id);
+        if (StringUtils.isNotBlank(serverMachine.getPassword())) {
+            serverMachine.setPassword(DESUtils.decryption(serverMachine.getPassword()));
+        }
+        jsonResult.data = serverMachine;
         return jsonResult;
     }
 
@@ -63,7 +67,11 @@ public class ServerMachineController extends BaseController {
     @RequestMapping(value = Routes.SERVER_MACHINE_PAGE, method = RequestMethod.GET)
     public JsonResult page(Integer pageNo, Integer pageSize) {
         JsonResult jsonResult = new JsonResult();
-        Page page = serverMachineRepository.findAll(this.getPageRequest(pageNo, pageSize));
+        Page<ServerMachine> page = serverMachineRepository.findAll(this.getPageRequest(pageNo, pageSize));
+        page.getContent().stream().map(serverMachine -> {
+            serverMachine.setPassword(null);
+            return serverMachine;
+        });
         jsonResult.data = new PageResult(page, Routes.PROJECT_PAGE);
         return jsonResult;
     }

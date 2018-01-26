@@ -27,6 +27,10 @@ function ServerMachineRoute({dispatch, location, pageResult}) {
         title: 'ip',
         dataIndex: 'ip',
         key: 'ip',
+    },{
+        title: '内网ip',
+        dataIndex: 'intranetIp',
+        key: 'intranetIp',
     }, {
         title: '创建时间',
         dataIndex: 'createdAt',
