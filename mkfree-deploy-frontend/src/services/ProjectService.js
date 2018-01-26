@@ -50,3 +50,6 @@ export async function structure(body, remind) {
 export async function sync(body, remind) {
     return request('/api/project/sync', {method: 'POST', body: JSON.stringify(body)});
 }
+export async function serverSync(body, remind) {
+    return request('/api/project/server_sync', {method: 'POST', body: JSON.stringify(body)});
+}

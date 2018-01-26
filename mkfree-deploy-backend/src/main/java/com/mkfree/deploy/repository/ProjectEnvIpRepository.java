@@ -17,6 +17,8 @@ public interface ProjectEnvIpRepository extends JpaRepository<ProjectEnvIp, Long
 
     ProjectEnvIp findByProjectIdAndEnvIdAndServerIp(Long projectId, Long envId, String serverIp);
 
+    ProjectEnvIp findByProjectIdAndEnvIdAndPublish(Long projectId,Long envId,Boolean publish);
+
     List<ProjectEnvIp> findByProjectIdAndEnvId(Long projectId, Long envId);
 
     void deleteByProjectIdAndServerIpIn(Long projectId, List<String> serverIpList);

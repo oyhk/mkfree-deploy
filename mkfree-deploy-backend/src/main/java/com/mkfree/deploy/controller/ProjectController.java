@@ -3,6 +3,8 @@ package com.mkfree.deploy.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.*;
@@ -28,8 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -231,7 +232,7 @@ public class ProjectController extends BaseController {
             Long projectId = project.getId();
             List<ProjectEnvConfig> envConfigList = projectEnvConfigMap.get(projectId);
 
-            List<ProjectEnvDto> projectEnvList = new ArrayList<>();
+            List<ProjectEnvConfigDto> projectEnvList = new ArrayList<>();
             // 普通用户对应每个项目的环境部署权限
             if (finalUserProjectPermissionProjectEnvIdMap != null) {
                 List<Long> userProjectPermissionProjectEnvIdList = finalUserProjectPermissionProjectEnvIdMap.get(projectId);
@@ -247,24 +248,28 @@ public class ProjectController extends BaseController {
             }
 
             envConfigList.stream().sorted(Comparator.comparing(ProjectEnvConfig::getEnvSort)).forEach(projectEnvConfig -> {
-                ProjectEnvDto projectEnvDto = new ProjectEnvDto();
-                projectEnvDto.setId(projectEnvConfig.getEnvId());
-                projectEnvDto.setName(projectEnvConfig.getEnvName());
+
+                ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
+                projectEnvConfigDto.setId(projectEnvConfig.getId());
+                projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
+                projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
+                projectEnvConfigDto.setServerSync(projectEnvConfig.getServerSync());
+
                 List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
                 if (envProjectEnvIpList != null) {
                     // 排序 publish true 排前面
-                    projectEnvDto.setProjectEnvIpList(envProjectEnvIpList.stream().map(projectEnvIp -> {
+                    projectEnvConfigDto.setProjectEnvIpList(envProjectEnvIpList.stream().map(projectEnvIp -> {
                         projectEnvIp.setUpdatedAt(null);
                         projectEnvIp.setCreatedAt(null);
                         return projectEnvIp;
                     }).sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
                 }
-                if (!projectEnvList.contains(projectEnvDto)) {
-                    projectEnvList.add(projectEnvDto);
+                if (!projectEnvList.contains(projectEnvConfigDto)) {
+                    projectEnvList.add(projectEnvConfigDto);
                 }
             });
 
-            projectDto.setProjectEnvList(projectEnvList);
+            projectDto.setProjectEnvConfigList(projectEnvList);
 
             // 目前渲染这些属性
             projectDto.setId(project.getId());
@@ -453,6 +458,7 @@ public class ProjectController extends BaseController {
                 String envName = projectEnv.getName();
                 projectEnvConfig.setEnvId(envId);
                 projectEnvConfig.setEnvName(envName);
+                projectEnvConfig.setServerSync(projectEnvConfigDto.getServerSync());
                 projectEnvConfig.setEnvSort(projectEnv.getSort());
                 projectEnvConfig.setProjectName(project.getName());
                 projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
@@ -644,7 +650,7 @@ public class ProjectController extends BaseController {
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
                 projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
                 projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
-
+                projectEnvConfigDto.setServerSync(projectEnvConfig.getServerSync());
 
                 List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdAndEnvId(project.getId(), projectEnvConfig.getEnvId());
                 projectEnvIpList = projectEnvIpList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).map(projectEnvIp -> {
@@ -708,6 +714,112 @@ public class ProjectController extends BaseController {
         };
         return doing.go(request, log);
     }
+
+    @Transactional
+    @RequestMapping(value = Routes.PROJECT_SERVER_SYNC, method = RequestMethod.POST)
+    public JsonResult serverSync(@RequestBody ProjectDto dto, HttpServletRequest request) {
+        JsonResult jsonResult = new JsonResult();
+
+        Date now = new Date();
+        UserDto userDto = UserHelper.SINGLEONE.getSession(request);
+        Long projectId = dto.getId();
+        Long envId = dto.getEnvId();
+        String syncServerMachineIp = dto.getServerMachineIp();
+        if (projectId == null) {
+            jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
+            return jsonResult;
+        }
+
+        Project project = projectRepository.findOne(projectId);
+        ServerMachine serverMachine = serverMachineRepository.findByIp(syncServerMachineIp);
+
+        ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnvId(projectId, envId);
+        if (projectEnvConfig == null) {
+            jsonResult.remind("发布环境不存在", log);
+            return jsonResult;
+        }
+        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, syncServerMachineIp);
+        if (projectEnvIp == null) {
+            jsonResult.remind("发布环境ip不存在", log);
+            return jsonResult;
+        }
+
+        // 发布服务器信息 start
+        ProjectEnvIp publishProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndPublish(projectId, envId, true);
+        ServerMachine publishServerMachine = serverMachineRepository.findByIp(publishProjectEnvIp.getServerIp());
+
+        String publishServerUsername = publishServerMachine.getUsername();
+        String publishServerPassword = DESUtils.decryption(publishServerMachine.getPassword());
+        int publishServerPort = Integer.valueOf(publishServerMachine.getPort());
+        String publishServerIp = publishServerMachine.getIp();
+        String publishVersion = publishProjectEnvIp.getPublishVersion();
+        // 发布服务器信息 end
+
+        String projectRemotePath = project.getRemotePath();
+        String serverUsername = serverMachine.getUsername();
+        String serverPassword = DESUtils.decryption(serverMachine.getPassword());
+        String serverPort = serverMachine.getPort();
+        // 有限使用内网ip
+        String serverIntranetIp = serverMachine.getIntranetIp();
+        String serverIp = serverMachine.getIp();
+        StringBuilder logStringBuilder = new StringBuilder("server sync start</br>################ exec shell start ##################</br>");
+        if (StringUtils.isNotBlank("project_log_id_" + projectId)) {
+            Config.STRING_BUILDER_MAP.put("project_log_id_" + projectId, logStringBuilder);
+        }
+        // 执行scp同步
+        ProjectHelper.serverSync(publishServerUsername, publishServerIp, publishServerPort, publishServerPassword, serverUsername, StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp, serverPort, serverPassword, publishVersion, projectRemotePath, log, logStringBuilder);
+        // exec
+        Session session = JschUtils.createSession(serverUsername, serverPassword, serverIp, Integer.valueOf(serverPort));
+        Shell shell = new Shell();
+        // 11.1 更新软链接
+        shell.appendN("echo \"ln -sf #{remoteProjectPath}/current\"")
+                .appendN("ln -sf #{remoteProjectPath}/current")
+                .appendN("echo \"rm -rf  #{remoteProjectPath}/current\"")
+                .appendN("rm -rf  #{remoteProjectPath}/current");
+        // 11.2 创建
+        shell.appendN("echo \"ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current\"");
+        shell.appendN("ln -s #{remoteProjectPath}/version/#{projectVersionDir} #{remoteProjectPath}/current");
+        shell.appendN("ln -sf ~/current").appendN("rm -rf ~/current");
+
+        // 12. 执行构建后命令
+        List<ProjectBuildStep> afterProjectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndEnvId(projectId, ProjectBuildStepType.SYNC, envId);
+        afterProjectBuildStepList.forEach(projectStructureStep -> {
+            shell.appendN("echo " + projectStructureStep.getStep());
+            shell.appendN(projectStructureStep.getStep());
+        });
+
+        shell.addParams("username", serverUsername);
+        shell.addParams("ip", serverIp);
+        shell.addParams("remoteProjectPath", projectRemotePath);
+        shell.addParams("projectVersionDir", publishVersion);
+
+
+        JschUtils.exec(session, shell.getShell(), logStringBuilder);
+        logStringBuilder.append("################ exec shell end ##################");
+
+        // 同步完成添加发布日志
+        ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
+        projectBuildLogNew.setDescription(logStringBuilder.toString());
+        projectBuildLogNew.setProjectId(projectId);
+        projectBuildLogNew.setStatus(ProjectBuildStatus.SUCCESS);
+        projectBuildLogNew.setBuildType(ProjectBuildType.PUBLISH_SERVER_SYNC);
+        projectBuildLogNew.setProjectName(project.getName());
+        projectBuildLogNew.setUserId(userDto.getId());
+        projectBuildLogNew.setUsername(userDto.getUsername());
+        projectBuildLogNew = projectBuildLogRepository.save(projectBuildLogNew);
+        projectBuildLogNew.setName(project.getName() + "_" + publishVersion);
+        projectBuildLogNew.setBuildVersion(publishVersion);
+        projectBuildLogNew.setIp(syncServerMachineIp);
+        projectBuildLogNew.setEnvId(envId);
+        projectBuildLogNew.setEnvName(projectEnvIp.getEnvName());
+        projectBuildLogRepository.save(projectBuildLogNew);
+
+        projectEnvIp.setPublishVersion(publishVersion);
+        projectEnvIp.setPublishTime(now);
+        projectEnvIpRepository.save(projectEnvIp);
+        return jsonResult;
+    }
+
 
     @Transactional
     @RequestMapping(value = Routes.PROJECT_SYNC, method = RequestMethod.POST)

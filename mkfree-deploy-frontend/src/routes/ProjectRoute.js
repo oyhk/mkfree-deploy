@@ -72,19 +72,20 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                             <Col style={{width: '13.2%'}}>{project.name}</Col>
                             <Col style={{width: '65.8%'}}>
                                 {
-                                    project.projectEnvList && project.projectEnvList.map((projectEnv, projectEnvIndex) => {
+                                    project.projectEnvConfigList && project.projectEnvConfigList.map((projectEnvConfig, projectEnvIndex) => {
                                         return (
-                                            <Row type="flex" align="middle" key={`projectEnvList_${projectEnvIndex}`}
+                                            <Row type="flex" align="middle"
+                                                 key={`projectEnvConfigList_${projectEnvIndex}`}
                                                  style={{
                                                      paddingBottom: '10px',
                                                      paddingTop: '10px',
-                                                     borderBottom: project.projectEnvList && project.projectEnvList.length - 1 === projectEnvIndex ? '' : '1px solid #e9e9e9'
+                                                     borderBottom: project.projectEnvConfigList && project.projectEnvConfigList.length - 1 === projectEnvIndex ? '' : '1px solid #e9e9e9'
 
                                                  }}>
-                                                <Col style={{width: '12.5%'}}>{projectEnv.name}</Col>
+                                                <Col style={{width: '12.5%'}}>{projectEnvConfig.envName}</Col>
                                                 <Col style={{width: '87.5%'}}>
                                                     {
-                                                        projectEnv.projectEnvIpList && projectEnv.projectEnvIpList.map((projectEnvIp, projectEnvIpIndex) => {
+                                                        projectEnvConfig.projectEnvIpList && projectEnvConfig.projectEnvIpList.map((projectEnvIp, projectEnvIpIndex) => {
                                                             return <Row type="flex" align="middle"
                                                                         key={`ipList_${projectEnvIpIndex}`}>
                                                                 <Col style={{
@@ -97,10 +98,10 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
 
                                                                 <Col
                                                                     style={{
-                                                                        width: '45%',
+                                                                        width: '30%',
                                                                         wordWrap: 'break-word'
                                                                     }}>{projectEnvIp.publishVersion}</Col>
-                                                                <Col style={{width: '13.5%'}}>
+                                                                <Col style={{width: '28.5%'}}>
                                                                     {
                                                                         projectEnvIp.serverIp ?
                                                                             projectEnvIp.publish ? projectEnvIp.projectEnv === 'DEV' ?
@@ -139,18 +140,33 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                 }
                                                                                             });
                                                                                         }}>发布</Button>
-                                                                                : <Button type="danger"
-                                                                                          size="small"
-                                                                                          onClick={() => {
-                                                                                              dispatch({
-                                                                                                  type: 'projectModel/sync',
-                                                                                                  payload: {
-                                                                                                      id: projectEnvIp.projectId,
-                                                                                                      envId: projectEnvIp.envId,
-                                                                                                      serverMachineIp: projectEnvIp.serverIp,
-                                                                                                  }
-                                                                                              });
-                                                                                          }}>同步</Button>
+                                                                                :
+                                                                                <div><Button type="danger"
+                                                                                             size="small"
+                                                                                             onClick={() => {
+                                                                                                 dispatch({
+                                                                                                     type: 'projectModel/sync',
+                                                                                                     payload: {
+                                                                                                         id: projectEnvIp.projectId,
+                                                                                                         envId: projectEnvIp.envId,
+                                                                                                         serverMachineIp: projectEnvIp.serverIp,
+                                                                                                     }
+                                                                                                 });
+                                                                                             }}>本地同步</Button>&nbsp;&nbsp;
+                                                                                    {projectEnvConfig.serverSync ?
+                                                                                        <Button type="danger"
+                                                                                                size="small"
+                                                                                                onClick={() => {
+                                                                                                    dispatch({
+                                                                                                        type: 'projectModel/serverSync',
+                                                                                                        payload: {
+                                                                                                            id: projectEnvIp.projectId,
+                                                                                                            envId: projectEnvIp.envId,
+                                                                                                            serverMachineIp: projectEnvIp.serverIp,
+                                                                                                        }
+                                                                                                    });
+                                                                                                }}>服务器同步</Button> : ''}
+                                                                                </div>
                                                                             : ''
                                                                     }
                                                                 </Col>

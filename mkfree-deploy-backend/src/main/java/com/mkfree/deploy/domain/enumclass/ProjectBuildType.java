@@ -6,7 +6,7 @@ package com.mkfree.deploy.domain.enumclass;
  */
 public enum ProjectBuildType {
 
-    BUILD("构建"), SYNC("同步命令");
+    BUILD("构建"), SYNC("同步命令"),PUBLISH_SERVER_SYNC("发布服务器同步");
 
     private String text;
 

@@ -51,6 +51,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 if (!item.buildSyncList) {
                     item.buildSyncList = [{}];
                 }
+                item.serverSync = getFieldValue(`projectEnvConfigServerSync${index}`);
                 item.buildBeforeList.forEach((beforeItem, buildBeforeListIndex) => {
                     newBuildBeforeList.push({
                         step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${buildBeforeListIndex}`),
@@ -84,6 +85,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
 
                 newProjectEnvConfigList.push({
                     envId: item.envId,
+                    serverSync: item.serverSync,
                     publicBranch: getFieldValue(`projectEnvConfig_publishBranch_${index}`),
                     projectEnvIpList: newProjectEnvIpList,
                     buildBeforeList: newBuildBeforeList,
@@ -193,7 +195,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                     }}>添加一项</Button>
                 </FormItem>
                 {
-                    deployTargetFileList.filter((item) => item !== undefined).map((item, index) => {
+                    deployTargetFileList.filter(item => item !== undefined).map((item, index) => {
                         return <div key={`deploy_div_${index}`}>
                             <Row type="flex" align="middle">
                                 <Col span={21}>
@@ -313,8 +315,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 </Col>
                             </Row>
                             <FormItem key={`projectEnvConfig_sync_${index}`} {...formItemLayout} label="从发布服务器同步">
-                                {getFieldDecorator(`sync${index}`, {
-                                    initialValue: item.sync
+                                {getFieldDecorator(`projectEnvConfigServerSync${index}`, {
+                                    valuePropName: 'checked',
+                                    initialValue: item.serverSync
                                 })(
                                     <Switch/>
                                 )}

@@ -112,6 +112,7 @@ public class ServerMachineController extends BaseController {
         String username = dto.getUsername();
         String password = dto.getPassword();
         String ip = dto.getIp();
+        String intranetIp = dto.getIntranetIp();
         String port = dto.getPort();
 
         CheckHelper.checkNotNull(id, ServerMachine.CHECK_ID_IS_NOT_NULL);
@@ -138,6 +139,9 @@ public class ServerMachineController extends BaseController {
         }
         if (StringUtils.isNotBlank(ip)) {
             serverMachine.setIp(ip);
+        }
+        if (StringUtils.isNotBlank(intranetIp)) {
+            serverMachine.setIntranetIp(intranetIp);
         }
         if (StringUtils.isNotBlank(port)) {
             serverMachine.setPort(port);

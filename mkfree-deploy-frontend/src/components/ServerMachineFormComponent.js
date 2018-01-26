@@ -86,15 +86,26 @@ function ServerMachineFormComponent({dispatch, location, form, serverMachine, en
                     <Input placeholder="ssh端口"/>
                 )}
             </FormItem>
-            <FormItem {...formItemLayout} label="ip地址">
+            <FormItem {...formItemLayout} label="公网ip地址">
                 {getFieldDecorator('ip', {
                     rules: [{
                         required: true,
-                        message: 'ip不能为空',
+                        message: '公网ip不能为空',
                     }],
                     initialValue: serverMachine.ip
                 })(
-                    <Input placeholder="ip"/>
+                    <Input placeholder="公网ip"/>
+                )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="内网ip地址">
+                {getFieldDecorator('intranetIp', {
+                    rules: [{
+                        required: true,
+                        message: '内网ip不能为空',
+                    }],
+                    initialValue: serverMachine.intranetIp
+                })(
+                    <Input placeholder="内网ip"/>
                 )}
             </FormItem>
             <FormItem{...formItemLayout} label="环境">
@@ -125,8 +136,10 @@ function ServerMachineFormComponent({dispatch, location, form, serverMachine, en
                                 id: serverMachine.id,
                                 name: getFieldValue('name'),
                                 username: getFieldValue('username'),
+                                password: getFieldValue('password'),
                                 port: getFieldValue('port'),
                                 ip: getFieldValue('ip'),
+                                intranetIp: getFieldValue('intranetIp'),
                                 envName: getFieldValue('envName'),
                             }
                         });
@@ -137,8 +150,10 @@ function ServerMachineFormComponent({dispatch, location, form, serverMachine, en
                                 id: serverMachine.id,
                                 name: getFieldValue('name'),
                                 username: getFieldValue('username'),
+                                password: getFieldValue('password'),
                                 port: getFieldValue('port'),
                                 ip: getFieldValue('ip'),
+                                intranetIp: getFieldValue('intranetIp'),
                                 envName: getFieldValue('envName'),
                             }
                         });

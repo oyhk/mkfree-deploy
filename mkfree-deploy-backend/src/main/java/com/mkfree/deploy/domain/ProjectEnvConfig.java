@@ -24,6 +24,16 @@ public class ProjectEnvConfig extends IDEntity {
     //发布分支名称
     @Column(columnDefinition = "varchar(255) comment '发布分支名称'")
     private String publicBranch;
+    @Column(columnDefinition = "bit default 0 comment '从服务器同步'")
+    private Boolean serverSync;
+
+    public Boolean getServerSync() {
+        return serverSync;
+    }
+
+    public void setServerSync(Boolean serverSync) {
+        this.serverSync = serverSync;
+    }
 
     public Integer getEnvSort() {
         return envSort;

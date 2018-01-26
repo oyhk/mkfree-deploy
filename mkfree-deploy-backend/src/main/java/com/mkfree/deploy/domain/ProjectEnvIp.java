@@ -1,6 +1,5 @@
 package com.mkfree.deploy.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -11,7 +10,9 @@ import java.util.Date;
  * Created by oyhk on 2018/1/9.
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"envId", "serverIp", "projectId"})})
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"envId", "serverIp", "projectId"})
+})
 @DynamicInsert
 @DynamicUpdate
 public class ProjectEnvIp extends IDEntity {
@@ -29,13 +30,13 @@ public class ProjectEnvIp extends IDEntity {
     @Column(columnDefinition = "varchar(50) comment '项目名称'")
     private String projectName;
     @Column(columnDefinition = "datetime comment '发布时间'")
-    public Date publishTime;
+    private Date publishTime;
     @Column(columnDefinition = "varchar(50) comment '发布版本'")
-    public String publishVersion;
-    @Column(columnDefinition = "bit default 0 comment '是否发布服务器'")
-    private Boolean isPublish;
-    @Column(columnDefinition = "bit default 0 comment '是否同步服务器，否：那么从发布机器同步 是：从某台服务器同步项目'")
-    private Boolean isSync;
+    private String publishVersion;
+    @Column(columnDefinition = "bit default 0 comment '是否发布服务器'", name = "is_publish")
+    private Boolean publish;
+    @Column(columnDefinition = "bit default 0 comment '是否同步服务器，否：那么从发布机器同步 是：从某台服务器同步项目'", name = "is_sync")
+    private Boolean sync;
 
     public Long getEnvId() {
         return envId;
@@ -102,18 +103,18 @@ public class ProjectEnvIp extends IDEntity {
     }
 
     public Boolean getPublish() {
-        return isPublish;
+        return publish;
     }
 
     public void setPublish(Boolean publish) {
-        isPublish = publish;
+        this.publish = publish;
     }
 
     public Boolean getSync() {
-        return isSync;
+        return sync;
     }
 
     public void setSync(Boolean sync) {
-        isSync = sync;
+        this.sync = sync;
     }
 }

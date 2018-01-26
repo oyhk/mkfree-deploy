@@ -10,8 +10,10 @@ import javax.persistence.*;
 public class ServerMachine extends IDEntity {
 
     //IP地址
-    @Column(columnDefinition = "varchar(50) comment 'IP地址'")
+    @Column(columnDefinition = "varchar(50) comment '公网IP地址'")
     private String ip;
+    @Column(columnDefinition = "varchar(50) comment '内网IP地址'")
+    private String intranetIp;
     //名称
     @Column(columnDefinition = "varchar(50) comment '名称'")
     private String name;
@@ -31,16 +33,12 @@ public class ServerMachine extends IDEntity {
 
     @Column(columnDefinition = "bit default 0 comment '是否发布机器'")
     private Boolean isPublish;
-
-    @Transient
-    private ProjectEnv env;
-
-    public ProjectEnv getEnv() {
-        return env;
+    public String getIntranetIp() {
+        return intranetIp;
     }
 
-    public void setEnv(ProjectEnv env) {
-        this.env = env;
+    public void setIntranetIp(String intranetIp) {
+        this.intranetIp = intranetIp;
     }
 
     public Long getEnvId() {

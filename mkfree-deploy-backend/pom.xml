@@ -69,5 +69,11 @@
             <artifactId>commons-codec</artifactId>
             <version>1.9</version>
         </dependency>
+        <!--linux 操作库-->
+        <dependency>
+            <groupId>com.jcabi</groupId>
+            <artifactId>jcabi-ssh</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 </project>

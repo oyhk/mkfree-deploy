@@ -161,6 +161,9 @@ export default {
         *sync({payload}, {call, put, select}) {
             yield call(projectService.sync, payload);
         },
+        *serverSync({payload}, {call, put, select}) {
+            yield call(projectService.serverSync, payload);
+        },
         // 项目分支列表
         *branchRefresh({payload}, {call, put, select}) {
             const branchList = yield call(projectService.branchRefresh, payload.id, {desc: '刷新分支成功'});

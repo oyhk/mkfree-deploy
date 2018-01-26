@@ -38,6 +38,7 @@ public class Routes {
     public static final String PROJECT_STRUCTURE = API_PREFIX + "/project/structure";
     public static final String PROJECT_BUILD_LOG = API_PREFIX + "/project/build_log";
     public static final String PROJECT_SYNC = API_PREFIX + "/project/sync"; //同步版本
+    public static final String PROJECT_SERVER_SYNC = API_PREFIX + "/project/server_sync"; //发布服务器同步版本
 
     public static final String SERVER_MACHINE_INFO = API_PREFIX + "/server_machine/info";
     public static final String SERVER_MACHINE_LIST = API_PREFIX + "/server_machine/list";
