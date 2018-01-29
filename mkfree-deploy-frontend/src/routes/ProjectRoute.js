@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag, Affix} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag, Affix, Tooltip} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 
@@ -159,19 +159,22 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                      }
                                                                                                  });
                                                                                              }}>从本地同步</Button>&nbsp;&nbsp;
-                                                                                    {projectEnvConfig.serverSync ?
-                                                                                        <Button type="danger"
-                                                                                                size="small"
-                                                                                                onClick={() => {
-                                                                                                    dispatch({
-                                                                                                        type: 'projectModel/serverSync',
-                                                                                                        payload: {
-                                                                                                            id: projectEnvIp.projectId,
-                                                                                                            envId: projectEnvIp.envId,
-                                                                                                            serverMachineIp: projectEnvIp.serverIp,
-                                                                                                        }
-                                                                                                    });
-                                                                                                }}>从发布服务器同步</Button> : ''}
+                                                                                    {projectEnvConfig.syncServerMachineId ?
+                                                                                        <Tooltip placement="topRight"
+                                                                                                 title={`从 ${projectEnvConfig.syncServerMachineName}-${projectEnvConfig.syncServerMachineIp} 服务器同步`}>
+                                                                                            <Button type="danger"
+                                                                                                    size="small"
+                                                                                                    onClick={() => {
+                                                                                                        dispatch({
+                                                                                                            type: 'projectModel/serverSync',
+                                                                                                            payload: {
+                                                                                                                id: projectEnvIp.projectId,
+                                                                                                                envId: projectEnvIp.envId,
+                                                                                                                serverMachineIp: projectEnvIp.serverIp,
+                                                                                                            }
+                                                                                                        });
+                                                                                                    }}>从服务器同步</Button>
+                                                                                        </Tooltip> : ''}
                                                                                 </div>
                                                                             : ''
                                                                     }

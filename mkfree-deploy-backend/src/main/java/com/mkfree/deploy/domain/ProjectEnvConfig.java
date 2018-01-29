@@ -26,17 +26,35 @@ public class ProjectEnvConfig extends IDEntity {
     private String publicBranch;
     @Column(columnDefinition = "bit default 0 comment '选择分支发布'")
     private Boolean selectBranch;
-    @Column(columnDefinition = "bit default 0 comment '从服务器同步'")
-    private Boolean serverSync;
     @Column(columnDefinition = "bigint comment '同步服务器id'")
-    private Long serverSyncServerMachineId;
+    private Long syncServerMachineId;
+    @Column(columnDefinition = "varchar(100) comment '同步服务器ip'")
+    private String syncServerMachineIp;
+    @Column(columnDefinition = "varchar(100) comment '同步服务器名称'")
+    private String syncServerMachineName;
 
-    public Long getServerSyncServerMachineId() {
-        return serverSyncServerMachineId;
+    public String getSyncServerMachineIp() {
+        return syncServerMachineIp;
     }
 
-    public void setServerSyncServerMachineId(Long serverSyncServerMachineId) {
-        this.serverSyncServerMachineId = serverSyncServerMachineId;
+    public void setSyncServerMachineIp(String syncServerMachineIp) {
+        this.syncServerMachineIp = syncServerMachineIp;
+    }
+
+    public String getSyncServerMachineName() {
+        return syncServerMachineName;
+    }
+
+    public void setSyncServerMachineName(String syncServerMachineName) {
+        this.syncServerMachineName = syncServerMachineName;
+    }
+
+    public Long getSyncServerMachineId() {
+        return syncServerMachineId;
+    }
+
+    public void setSyncServerMachineId(Long syncServerMachineId) {
+        this.syncServerMachineId = syncServerMachineId;
     }
 
     public Boolean getSelectBranch() {
@@ -47,13 +65,6 @@ public class ProjectEnvConfig extends IDEntity {
         this.selectBranch = selectBranch;
     }
 
-    public Boolean getServerSync() {
-        return serverSync;
-    }
-
-    public void setServerSync(Boolean serverSync) {
-        this.serverSync = serverSync;
-    }
 
     public Integer getEnvSort() {
         return envSort;

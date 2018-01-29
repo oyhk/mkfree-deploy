@@ -253,8 +253,10 @@ public class ProjectController extends BaseController {
                 projectEnvConfigDto.setId(projectEnvConfig.getId());
                 projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
                 projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
-                projectEnvConfigDto.setServerSync(projectEnvConfig.getServerSync());
                 projectEnvConfigDto.setSelectBranch(projectEnvConfig.getSelectBranch());
+                projectEnvConfigDto.setSyncServerMachineId(projectEnvConfig.getSyncServerMachineId());
+                projectEnvConfigDto.setSyncServerMachineIp(projectEnvConfig.getSyncServerMachineIp());
+                projectEnvConfigDto.setSyncServerMachineName(projectEnvConfig.getSyncServerMachineName());
 
                 List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
                 if (envProjectEnvIpList != null) {
@@ -459,8 +461,16 @@ public class ProjectController extends BaseController {
                 String envName = projectEnv.getName();
                 projectEnvConfig.setEnvId(envId);
                 projectEnvConfig.setEnvName(envName);
-                projectEnvConfig.setServerSync(projectEnvConfigDto.getServerSync());
                 projectEnvConfig.setEnvSort(projectEnv.getSort());
+
+                if(projectEnvConfigDto.getSyncServerMachineId() != null) {
+                    ServerMachine syncServerMachine = serverMachineRepository.findOne(projectEnvConfigDto.getSyncServerMachineId());
+                    if (syncServerMachine != null) {
+                        projectEnvConfig.setSyncServerMachineId(syncServerMachine.getId());
+                        projectEnvConfig.setSyncServerMachineIp(syncServerMachine.getIp());
+                        projectEnvConfig.setSyncServerMachineName(syncServerMachine.getName());
+                    }
+                }
                 projectEnvConfig.setProjectName(project.getName());
                 projectEnvConfig.setPublicBranch(projectEnvConfigDto.getPublicBranch());
                 projectEnvConfig.setSelectBranch(projectEnvConfigDto.getSelectBranch());
@@ -652,8 +662,8 @@ public class ProjectController extends BaseController {
                 ProjectEnvConfigDto projectEnvConfigDto = new ProjectEnvConfigDto();
                 projectEnvConfigDto.setEnvId(projectEnvConfig.getEnvId());
                 projectEnvConfigDto.setEnvName(projectEnvConfig.getEnvName());
-                projectEnvConfigDto.setServerSync(projectEnvConfig.getServerSync());
                 projectEnvConfigDto.setSelectBranch(projectEnvConfig.getSelectBranch());
+                projectEnvConfigDto.setSyncServerMachineId(projectEnvConfig.getSyncServerMachineId());
 
                 List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectIdAndEnvId(project.getId(), projectEnvConfig.getEnvId());
                 projectEnvIpList = projectEnvIpList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getServerIp())).map(projectEnvIp -> {
@@ -750,7 +760,7 @@ public class ProjectController extends BaseController {
         // 发布服务器信息 start
         ProjectEnvIp publishProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndPublish(projectId, envId, true);
 
-        ServerMachine serverSyncServerMachine = serverMachineRepository.findOne(projectEnvConfig.getServerSyncServerMachineId());
+        ServerMachine serverSyncServerMachine = serverMachineRepository.findOne(projectEnvConfig.getSyncServerMachineId());
 
         String publishServerIp;
         if (serverSyncServerMachine != null) {

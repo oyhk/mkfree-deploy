@@ -51,8 +51,8 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 if (!item.buildSyncList) {
                     item.buildSyncList = [{}];
                 }
-                item.serverSync = getFieldValue(`projectEnvConfigServerSync${index}`);
-                item.selectBranch = getFieldValue(`projectEnvConfigSelectBranch${index}`);
+                item.syncServerMachineId = getFieldValue(`projectEnvConfigSyncServerMachineId_${index}`);
+                item.selectBranch = getFieldValue(`projectEnvConfigSelectBranch_${index}`);
                 item.buildBeforeList.forEach((beforeItem, buildBeforeListIndex) => {
                     newBuildBeforeList.push({
                         step: getFieldValue(`projectEnvConfig_stepBefore_${index}_${buildBeforeListIndex}`),
@@ -86,7 +86,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
 
                 newProjectEnvConfigList.push({
                     envId: item.envId,
-                    serverSync: item.serverSync,
+                    syncServerMachineId: item.syncServerMachineId,
                     selectBranch: item.selectBranch,
                     publicBranch: getFieldValue(`projectEnvConfig_publishBranch_${index}`),
                     projectEnvIpList: newProjectEnvIpList,
@@ -253,12 +253,12 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
             <div style={{border: '1px solid #e9e9e9', padding: '15px', marginTop: '20px', borderRadius: '10px'}}>
                 <h2 style={{paddingTop: '20px'}}>环境配置</h2>
                 {
-                    projectEnvConfigList.map((item, index) => {
+                    projectEnvConfigList.map((projectEnvConfig, index) => {
                         return <div key={`div_${index}`} style={{
                             padding: '30px 0 30px 0',
                             borderRadius: '10px'
                         }}>
-                            <h3>{item.envName}</h3>
+                            <h3>{projectEnvConfig.envName}</h3>
                             <Row>
                                 <Col offset={2}>
                                     <h4>部署配置</h4>
@@ -266,7 +266,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                             </Row>
                             <FormItem key={`projectEnvConfig_publishBranch_${index}`} {...formItemLayout} label="发布分支">
                                 {getFieldDecorator(`projectEnvConfig_publishBranch_${index}`, {
-                                    initialValue: item.publicBranch ? item.publicBranch : ''
+                                    initialValue: projectEnvConfig.publicBranch ? projectEnvConfig.publicBranch : ''
                                 })(
                                     <Select
                                         placeholder="发布分支"
@@ -290,9 +290,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 <Col span={20}>
                                     {
 
-                                        serverMachineList && serverMachineList.filter(serverMachine => serverMachine.envId === item.envId).map((serverMachine, serverMachineListIndex) => {
+                                        serverMachineList && serverMachineList.filter(serverMachine => serverMachine.envId === projectEnvConfig.envId).map((serverMachine, serverMachineListIndex) => {
 
-                                            const projectEnvIpTemp = item.projectEnvIpMap && item.projectEnvIpMap[serverMachine.ip];
+                                            const projectEnvIpTemp = projectEnvConfig.projectEnvIpMap && projectEnvConfig.projectEnvIpMap[serverMachine.ip];
                                             return <Row style={{paddingBottom: '10px'}}
                                                         key={`projectEnvConfig_projectEnvIp_${serverMachineListIndex}`}>
                                                 <Col span={8}>
@@ -316,20 +316,28 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     }
                                 </Col>
                             </Row>
-                            <FormItem key={`projectEnvConfig_selectBranch_${index}`} {...formItemLayout} label="可选择分支发布">
-                                {getFieldDecorator(`projectEnvConfigSelectBranch${index}`, {
+                            <FormItem key={`projectEnvConfig_selectBranch_${index}`} {...formItemLayout}
+                                      label="可选择分支发布">
+                                {getFieldDecorator(`projectEnvConfigSelectBranch_${index}`, {
                                     valuePropName: 'checked',
-                                    initialValue: item.selectBranch
+                                    initialValue: projectEnvConfig.selectBranch
                                 })(
                                     <Switch/>
                                 )}
                             </FormItem>
-                            <FormItem key={`projectEnvConfig_sync_${index}`} {...formItemLayout} label="从发布服务器同步">
-                                {getFieldDecorator(`projectEnvConfigServerSync${index}`, {
-                                    valuePropName: 'checked',
-                                    initialValue: item.serverSync
+                            <FormItem {...formItemLayout} label="选择同步服务器">
+                                {getFieldDecorator(`projectEnvConfigSyncServerMachineId_${index}`, {
+                                    initialValue: projectEnvConfig && projectEnvConfig.syncServerMachineId
                                 })(
-                                    <Switch/>
+                                    <RadioGroup onChange={() => {
+                                    }}>
+                                        {
+                                            serverMachineList && serverMachineList.map((serverMachine, serverMachineListIndex) => {
+                                                return <Radio key={`serverMachineListIndex${serverMachineListIndex}`}
+                                                              value={serverMachine.id}>{serverMachine.name}-{serverMachine.ip}</Radio>;
+                                            })
+                                        }
+                                    </RadioGroup>
                                 )}
                             </FormItem>
                             <Row>
@@ -339,7 +347,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 <Col span={20}>
                                     <Row>
                                         {
-                                            item.buildBeforeList ? item.buildBeforeList.map((beforeItem, beforeIndex) => {
+                                            projectEnvConfig.buildBeforeList ? projectEnvConfig.buildBeforeList.map((beforeItem, beforeIndex) => {
                                                 return <div key={`buildBeforeList_${beforeIndex}`}>
                                                     <Col span={20}>
                                                         <FormItem
@@ -357,7 +365,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                                                     onClick={() => {
                                                                         dispatch({
                                                                             type: 'projectModel/addProjectEnvConfigBuildBefore',
-                                                                            payload: {envId: item.envId}
+                                                                            payload: {envId: projectEnvConfig.envId}
                                                                         });
                                                                     }}
                                                             /> :
@@ -366,7 +374,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                                                         dispatch({
                                                                             type: 'projectModel/deleteProjectEnvConfigBuildBefore',
                                                                             payload: {
-                                                                                envId: item.envId,
+                                                                                envId: projectEnvConfig.envId,
                                                                                 uuid: beforeItem.uuid
                                                                             }
                                                                         });
@@ -390,7 +398,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     :</Col>
                                 <Col span={20}>
                                     {
-                                        item.buildAfterList && item.buildAfterList.length > 0 ? item.buildAfterList.map((afterItem, afterIndex) => {
+                                        projectEnvConfig.buildAfterList && projectEnvConfig.buildAfterList.length > 0 ? projectEnvConfig.buildAfterList.map((afterItem, afterIndex) => {
                                             return <div key={`buildAfterList${afterIndex}`}>
                                                 <Col span={20}>
                                                     <FormItem
@@ -408,7 +416,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                                                 onClick={() => {
                                                                     dispatch({
                                                                         type: 'projectModel/addProjectEnvConfigBuildAfter',
-                                                                        payload: {envId: item.envId}
+                                                                        payload: {envId: projectEnvConfig.envId}
                                                                     });
                                                                 }}
                                                         /> :
@@ -417,7 +425,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                                                     dispatch({
                                                                         type: 'projectModel/deleteProjectEnvConfigBuildAfter',
                                                                         payload: {
-                                                                            envId: item.envId,
+                                                                            envId: projectEnvConfig.envId,
                                                                             uuid: afterItem.uuid
                                                                         }
                                                                     });
@@ -444,7 +452,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 </Col>
                             </Row>
                             {
-                                item.buildSyncList && item.buildSyncList.length > 0 ? item.buildSyncList.map((syncItem, syncIndex) => {
+                                projectEnvConfig.buildSyncList && projectEnvConfig.buildSyncList.length > 0 ? projectEnvConfig.buildSyncList.map((syncItem, syncIndex) => {
                                     return <FormItem key={`${index}_${syncIndex}_sync`}
                                                      {...formItemLayout}
                                                      label="构建后命令">
