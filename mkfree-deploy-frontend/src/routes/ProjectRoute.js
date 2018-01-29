@@ -147,21 +147,23 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                     });
                                                                                                 }}>发布</Button>
                                                                                 :
-                                                                                <div><Button type="danger"
-                                                                                             size="small"
-                                                                                             onClick={() => {
-                                                                                                 dispatch({
-                                                                                                     type: 'projectModel/sync',
-                                                                                                     payload: {
-                                                                                                         id: projectEnvIp.projectId,
-                                                                                                         envId: projectEnvIp.envId,
-                                                                                                         serverMachineIp: projectEnvIp.serverIp,
-                                                                                                     }
-                                                                                                 });
-                                                                                             }}>从本地同步</Button>&nbsp;&nbsp;
-                                                                                    {projectEnvConfig.syncServerMachineId ?
-                                                                                        <Tooltip placement="topRight"
-                                                                                                 title={`从 ${projectEnvConfig.syncServerMachineName}-${projectEnvConfig.syncServerMachineIp} 服务器同步`}>
+                                                                                <div>
+                                                                                    {!projectEnvConfig.syncServerMachineId ?
+                                                                                        <Button
+                                                                                            style={{marginRight: '10px'}}
+                                                                                            type="danger"
+                                                                                            size="small"
+                                                                                            onClick={() => {
+                                                                                                dispatch({
+                                                                                                    type: 'projectModel/sync',
+                                                                                                    payload: {
+                                                                                                        id: projectEnvIp.projectId,
+                                                                                                        envId: projectEnvIp.envId,
+                                                                                                        serverMachineIp: projectEnvIp.serverIp,
+                                                                                                    }
+                                                                                                });
+                                                                                            }}>从本地同步</Button> :  <Tooltip placement="topRight"
+                                                                                                                          title={`从 ${projectEnvConfig.syncServerMachineName}-${projectEnvConfig.syncServerMachineIp} 服务器同步`}>
                                                                                             <Button type="danger"
                                                                                                     size="small"
                                                                                                     onClick={() => {
@@ -174,7 +176,8 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                             }
                                                                                                         });
                                                                                                     }}>从服务器同步</Button>
-                                                                                        </Tooltip> : ''}
+                                                                                        </Tooltip>
+                                                                                    }
                                                                                 </div>
                                                                             : ''
                                                                     }
