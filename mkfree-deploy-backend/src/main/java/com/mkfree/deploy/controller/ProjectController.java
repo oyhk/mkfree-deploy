@@ -749,12 +749,22 @@ public class ProjectController extends BaseController {
 
         // 发布服务器信息 start
         ProjectEnvIp publishProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndPublish(projectId, envId, true);
+
+        ServerMachine serverSyncServerMachine = serverMachineRepository.findOne(projectEnvConfig.getServerSyncServerMachineId());
+
+        String publishServerIp;
+        if (serverSyncServerMachine != null) {
+            publishServerIp = serverSyncServerMachine.getIp();
+        } else {
+            publishServerIp = publishProjectEnvIp.getServerIp();
+        }
+
         ServerMachine publishServerMachine = serverMachineRepository.findByIp(publishProjectEnvIp.getServerIp());
 
         String publishServerUsername = publishServerMachine.getUsername();
         String publishServerPassword = DESUtils.decryption(publishServerMachine.getPassword());
         int publishServerPort = Integer.valueOf(publishServerMachine.getPort());
-        String publishServerIp = publishServerMachine.getIp();
+
         String publishVersion = publishProjectEnvIp.getPublishVersion();
         // 发布服务器信息 end
 

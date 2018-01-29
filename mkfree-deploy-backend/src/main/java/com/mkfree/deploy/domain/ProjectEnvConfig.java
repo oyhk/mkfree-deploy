@@ -28,6 +28,16 @@ public class ProjectEnvConfig extends IDEntity {
     private Boolean selectBranch;
     @Column(columnDefinition = "bit default 0 comment '从服务器同步'")
     private Boolean serverSync;
+    @Column(columnDefinition = "bigint comment '同步服务器id'")
+    private Long serverSyncServerMachineId;
+
+    public Long getServerSyncServerMachineId() {
+        return serverSyncServerMachineId;
+    }
+
+    public void setServerSyncServerMachineId(Long serverSyncServerMachineId) {
+        this.serverSyncServerMachineId = serverSyncServerMachineId;
+    }
 
     public Boolean getSelectBranch() {
         return selectBranch;
