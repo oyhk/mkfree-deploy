@@ -760,10 +760,11 @@ public class ProjectController extends BaseController {
 
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
+        Long syncEnvId = projectEnvConfig.getEnvId();
         ServerMachine syncServerMachine = serverMachineRepository.findOne(syncServerMachineId);
         String syncServerIp = syncServerMachine.getIp();
         // 同步项目环境ip信息 start
-        ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, syncServerMachine.getIp());
+        ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, syncEnvId, syncServerMachine.getIp());
         String publishVersion = syncProjectEnvIp.getPublishVersion();
 
         String publishServerUsername = syncServerMachine.getUsername();

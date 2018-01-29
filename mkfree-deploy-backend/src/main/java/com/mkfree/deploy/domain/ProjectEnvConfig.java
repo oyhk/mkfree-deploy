@@ -26,12 +26,22 @@ public class ProjectEnvConfig extends IDEntity {
     private String publicBranch;
     @Column(columnDefinition = "bit default 0 comment '选择分支发布'")
     private Boolean selectBranch;
+    @Column(columnDefinition = "bigint comment '同步环境id'")
+    private Long syncEnvId;
     @Column(columnDefinition = "bigint comment '同步服务器id'")
     private Long syncServerMachineId;
     @Column(columnDefinition = "varchar(100) comment '同步服务器ip'")
     private String syncServerMachineIp;
     @Column(columnDefinition = "varchar(100) comment '同步服务器名称'")
     private String syncServerMachineName;
+
+    public Long getSyncEnvId() {
+        return syncEnvId;
+    }
+
+    public void setSyncEnvId(Long syncEnvId) {
+        this.syncEnvId = syncEnvId;
+    }
 
     public String getSyncServerMachineIp() {
         return syncServerMachineIp;
