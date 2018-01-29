@@ -737,21 +737,21 @@ public class ProjectController extends BaseController {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
         Long projectId = dto.getId();
         Long envId = dto.getEnvId();
-        String syncServerMachineIp = dto.getServerMachineIp();
+        String serverMachineIp = dto.getServerMachineIp();
         if (projectId == null) {
             jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
             return jsonResult;
         }
 
         Project project = projectRepository.findOne(projectId);
-        ServerMachine serverMachine = serverMachineRepository.findByIp(syncServerMachineIp);
+        ServerMachine serverMachine = serverMachineRepository.findByIp(serverMachineIp);
 
         ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnvId(projectId, envId);
         if (projectEnvConfig == null) {
             jsonResult.remind("发布环境不存在", log);
             return jsonResult;
         }
-        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, syncServerMachineIp);
+        ProjectEnvIp projectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, serverMachineIp);
         if (projectEnvIp == null) {
             jsonResult.remind("发布环境ip不存在", log);
             return jsonResult;
@@ -769,11 +769,10 @@ public class ProjectController extends BaseController {
             publishServerIp = publishProjectEnvIp.getServerIp();
         }
 
-        ServerMachine publishServerMachine = serverMachineRepository.findByIp(publishProjectEnvIp.getServerIp());
 
-        String publishServerUsername = publishServerMachine.getUsername();
-        String publishServerPassword = DESUtils.decryption(publishServerMachine.getPassword());
-        int publishServerPort = Integer.valueOf(publishServerMachine.getPort());
+        String publishServerUsername = serverSyncServerMachine.getUsername();
+        String publishServerPassword = DESUtils.decryption(serverSyncServerMachine.getPassword());
+        int publishServerPort = Integer.valueOf(serverSyncServerMachine.getPort());
 
         String publishVersion = publishProjectEnvIp.getPublishVersion();
         // 发布服务器信息 end
@@ -832,7 +831,7 @@ public class ProjectController extends BaseController {
         projectBuildLogNew = projectBuildLogRepository.save(projectBuildLogNew);
         projectBuildLogNew.setName(project.getName() + "_" + publishVersion);
         projectBuildLogNew.setBuildVersion(publishVersion);
-        projectBuildLogNew.setIp(syncServerMachineIp);
+        projectBuildLogNew.setIp(serverMachineIp);
         projectBuildLogNew.setEnvId(envId);
         projectBuildLogNew.setEnvName(projectEnvIp.getEnvName());
         projectBuildLogRepository.save(projectBuildLogNew);
