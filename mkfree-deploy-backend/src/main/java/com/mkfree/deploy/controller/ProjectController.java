@@ -463,7 +463,7 @@ public class ProjectController extends BaseController {
                 projectEnvConfig.setEnvName(envName);
                 projectEnvConfig.setEnvSort(projectEnv.getSort());
 
-                if(projectEnvConfigDto.getSyncServerMachineId() != null) {
+                if (projectEnvConfigDto.getSyncServerMachineId() != null) {
                     ServerMachine syncServerMachine = serverMachineRepository.findOne(projectEnvConfigDto.getSyncServerMachineId());
                     if (syncServerMachine != null) {
                         projectEnvConfig.setSyncServerMachineId(syncServerMachine.getId());
@@ -757,24 +757,19 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
 
-        // 发布服务器信息 start
-        ProjectEnvIp publishProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndPublish(projectId, envId, true);
 
-        ServerMachine serverSyncServerMachine = serverMachineRepository.findOne(projectEnvConfig.getSyncServerMachineId());
+        // 同步服务器id
+        Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
+        ServerMachine syncServerMachine = serverMachineRepository.findOne(syncServerMachineId);
+        String syncServerIp = syncServerMachine.getIp();
+        // 同步项目环境ip信息 start
+        ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, envId, syncServerMachine.getIp());
+        String publishVersion = syncProjectEnvIp.getPublishVersion();
 
-        String publishServerIp;
-        if (serverSyncServerMachine != null) {
-            publishServerIp = serverSyncServerMachine.getIp();
-        } else {
-            publishServerIp = publishProjectEnvIp.getServerIp();
-        }
+        String publishServerUsername = syncServerMachine.getUsername();
+        String publishServerPassword = DESUtils.decryption(syncServerMachine.getPassword());
+        int publishServerPort = Integer.valueOf(syncServerMachine.getPort());
 
-
-        String publishServerUsername = serverSyncServerMachine.getUsername();
-        String publishServerPassword = DESUtils.decryption(serverSyncServerMachine.getPassword());
-        int publishServerPort = Integer.valueOf(serverSyncServerMachine.getPort());
-
-        String publishVersion = publishProjectEnvIp.getPublishVersion();
         // 发布服务器信息 end
 
         String projectRemotePath = project.getRemotePath();
@@ -789,7 +784,7 @@ public class ProjectController extends BaseController {
             Config.STRING_BUILDER_MAP.put("project_log_id_" + projectId, logStringBuilder);
         }
         // 执行scp同步
-        ProjectHelper.serverSync(publishServerUsername, publishServerIp, publishServerPort, publishServerPassword, serverUsername, StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp, serverPort, serverPassword, publishVersion, projectRemotePath, log, logStringBuilder);
+        ProjectHelper.serverSync(publishServerUsername, syncServerIp, publishServerPort, publishServerPassword, serverUsername, StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp, serverPort, serverPassword, publishVersion, projectRemotePath, log, logStringBuilder);
         // exec
         Session session = JschUtils.createSession(serverUsername, serverPassword, serverIp, Integer.valueOf(serverPort));
         Shell shell = new Shell();
