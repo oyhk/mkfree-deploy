@@ -3,7 +3,6 @@ package com.mkfree.deploy.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
@@ -27,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -983,16 +983,8 @@ public class ProjectController extends BaseController {
 
         ProjectEnv projectEnv = envRepository.findOne(envId);
 
-        // 发布权限
-//        if (userDto.getRoleType() != RoleType.ADMIN) {
-//            long count = userDto.getUserProjectPermissionList().stream().filter(userProjectPermissionDto -> Objects.equals(userProjectPermissionDto.getProjectId(), dto.getId())).filter(userProjectPermissionDto -> userProjectPermissionDto.getProjectEnv().contains(dto.getEnv())).count();
-//            if (count == 0) {
-//                jsonResult.custom("10021", "没有此项目发布权限", log);
-//                return jsonResult;
-//            }
-//        }
-
         Project project = projectRepository.findOne(dto.getId());
+
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
 
@@ -1007,6 +999,16 @@ public class ProjectController extends BaseController {
             jsonResult.remind("发布环境ip不存在", log);
             return jsonResult;
         }
+
+        BuildStatus buildStatus = projectEnvIp.getBuildStatus();
+        if (buildStatus == BuildStatus.PROCESSING) {
+            jsonResult.remind("项目正在构建中");
+            return jsonResult;
+        }
+        projectEnvIp.setBuildStatus(BuildStatus.PROCESSING);
+        projectEnvIpRepository.save(projectEnvIp);
+        // 先更新项目构建状态、构建开始时间
+        TransactionAspectSupport.currentTransactionStatus().flush();
 
         ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
 
@@ -1149,9 +1151,10 @@ public class ProjectController extends BaseController {
         projectBuildLog.setEnvName(projectEnv.getName());
         projectBuildLogRepository.save(projectBuildLog);
 
-        // 最后更新发布时间
+        // 最后更新发布时间、构建成功把项目构建状态设置为成功
         projectEnvIp.setPublishTime(now);
         projectEnvIp.setPublishVersion(projectVersionDir);
+        projectEnvIp.setBuildStatus(BuildStatus.IDLE);
         projectEnvIpRepository.save(projectEnvIp);
         return jsonResult;
 

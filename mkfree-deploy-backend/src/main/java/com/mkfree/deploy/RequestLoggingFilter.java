@@ -57,7 +57,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         if (StringUtils.isNotBlank(responseBody)) {
             log.info("=> [{}] {} {} , response body:\n{}", startTime, method, uri, responseBody);
         }
-        log.info("<= [{}] {} {} , processing time {} ms ", startTime, method, uri, (System.currentTimeMillis() - startTime));
+        log.info("<= [{}] {} {} , PROCESSING time {} ms ", startTime, method, uri, (System.currentTimeMillis() - startTime));
         responseWrapper.copyBodyToResponse();
     }
 

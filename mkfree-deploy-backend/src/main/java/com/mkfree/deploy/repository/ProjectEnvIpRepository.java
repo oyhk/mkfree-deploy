@@ -1,6 +1,7 @@
 package com.mkfree.deploy.repository;
 
 import com.mkfree.deploy.domain.ProjectEnvIp;
+import com.mkfree.deploy.domain.enumclass.BuildStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,9 @@ import java.util.List;
  */
 @Repository
 public interface ProjectEnvIpRepository extends JpaRepository<ProjectEnvIp, Long> {
+
+
+    List<ProjectEnvIp> findByBuildStatus(BuildStatus buildStatus);
 
     List<ProjectEnvIp> findByProjectIdIn(List<Long> projectIdList);
     List<ProjectEnvIp> findByProjectId(Long projectId);

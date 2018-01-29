@@ -1,7 +1,12 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.BuildStatus;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import java.util.Date;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -32,6 +37,7 @@ public class Project extends IDEntity {
     private Long projectTagId;
     @Column(columnDefinition = "varchar(50) comment '项目标签名称'")
     private String projectTagName;
+    @Column(columnDefinition = "varchar(20) comment '项目构建状态'")
 
     public String getSystemPath() {
         return systemPath;

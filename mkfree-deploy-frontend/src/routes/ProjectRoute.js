@@ -104,42 +104,48 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                 <Col style={{width: '28.5%'}}>
                                                                     {
                                                                         projectEnvIp.serverIp ?
-                                                                            projectEnvIp.publish ? projectEnvConfig.selectBranch ?
-                                                                                <Dropdown overlay={<Menu
-                                                                                    onClick={(e) => {
-                                                                                        dispatch({
-                                                                                            type: 'projectModel/structure',
-                                                                                            payload: {
-                                                                                                id: projectEnvIp.projectId,
-                                                                                                envId: projectEnvIp.envId,
-                                                                                                serverMachineIp: projectEnvIp.serverIp,
-                                                                                                publishBranch: e.item.props.children
-                                                                                            }
-                                                                                        });
-                                                                                    }}>
-                                                                                    {
-                                                                                        project.branchList && JSON.parse(project.branchList).map((item, branchListIndex) => {
-                                                                                            return <Menu.Item
-                                                                                                key={`${project.id}_${branchListIndex}`}>{item}</Menu.Item>;
-                                                                                        })
-                                                                                    }</Menu>} trigger={['hover']}>
-                                                                                    <Button size="small" type="primary">
-                                                                                        发布 <Icon type="down"/>
-                                                                                    </Button>
-                                                                                </Dropdown>
-                                                                                :
-                                                                                <Button type="primary"
-                                                                                        size="small"
-                                                                                        onClick={() => {
-                                                                                            dispatch({
-                                                                                                type: 'projectModel/structure',
-                                                                                                payload: {
-                                                                                                    id: projectEnvIp.projectId,
-                                                                                                    envId: projectEnvIp.envId,
-                                                                                                    serverMachineIp: projectEnvIp.serverIp,
-                                                                                                }
-                                                                                            });
-                                                                                        }}>发布</Button>
+                                                                            projectEnvIp.publish ?
+
+                                                                                projectEnvIp.buildStatus === 'PROCESSING' ? '构建中...' :
+
+                                                                                    projectEnvConfig.selectBranch ?
+                                                                                        <Dropdown overlay={<Menu
+                                                                                            onClick={(e) => {
+                                                                                                dispatch({
+                                                                                                    type: 'projectModel/structure',
+                                                                                                    payload: {
+                                                                                                        id: projectEnvIp.projectId,
+                                                                                                        envId: projectEnvIp.envId,
+                                                                                                        serverMachineIp: projectEnvIp.serverIp,
+                                                                                                        publishBranch: e.item.props.children
+                                                                                                    }
+                                                                                                });
+                                                                                            }}>
+                                                                                            {
+                                                                                                project.branchList && JSON.parse(project.branchList).map((item, branchListIndex) => {
+                                                                                                    return <Menu.Item
+                                                                                                        key={`${project.id}_${branchListIndex}`}>{item}</Menu.Item>;
+                                                                                                })
+                                                                                            }</Menu>}
+                                                                                                  trigger={['hover']}>
+                                                                                            <Button size="small"
+                                                                                                    type="primary">
+                                                                                                发布 <Icon type="down"/>
+                                                                                            </Button>
+                                                                                        </Dropdown>
+                                                                                        :
+                                                                                        <Button type="primary"
+                                                                                                size="small"
+                                                                                                onClick={() => {
+                                                                                                    dispatch({
+                                                                                                        type: 'projectModel/structure',
+                                                                                                        payload: {
+                                                                                                            id: projectEnvIp.projectId,
+                                                                                                            envId: projectEnvIp.envId,
+                                                                                                            serverMachineIp: projectEnvIp.serverIp,
+                                                                                                        }
+                                                                                                    });
+                                                                                                }}>发布</Button>
                                                                                 :
                                                                                 <div><Button type="danger"
                                                                                              size="small"

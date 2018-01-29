@@ -54,7 +54,7 @@ public interface RestDoing<T> extends BaseDoing<T> {
             jr.desc = JsonResult.CD0[1];
         } finally {
             this.showReturnData(jr, objectMapper, log);
-            log.info("current run method {} , processing time {} ms -------------------------------------------", Thread.currentThread().getStackTrace()[3].getMethodName(), (System.currentTimeMillis() - startTime));
+            log.info("current run method {} , PROCESSING time {} ms -------------------------------------------", Thread.currentThread().getStackTrace()[3].getMethodName(), (System.currentTimeMillis() - startTime));
         }
         return jr;
     }

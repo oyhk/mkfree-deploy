@@ -1,5 +1,6 @@
 package com.mkfree.deploy.domain;
 
+import com.mkfree.deploy.domain.enumclass.BuildStatus;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -37,6 +38,16 @@ public class ProjectEnvIp extends IDEntity {
     private Boolean publish;
     @Column(columnDefinition = "bit default 0 comment '是否同步服务器，否：那么从发布机器同步 是：从某台服务器同步项目'", name = "is_sync")
     private Boolean sync;
+    @Enumerated(EnumType.STRING)
+    private BuildStatus buildStatus;
+
+    public BuildStatus getBuildStatus() {
+        return buildStatus;
+    }
+
+    public void setBuildStatus(BuildStatus buildStatus) {
+        this.buildStatus = buildStatus;
+    }
 
     public Long getEnvId() {
         return envId;

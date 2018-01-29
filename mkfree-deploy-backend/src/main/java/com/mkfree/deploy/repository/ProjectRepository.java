@@ -2,6 +2,7 @@ package com.mkfree.deploy.repository;
 
 import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.User;
+import com.mkfree.deploy.domain.enumclass.BuildStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
