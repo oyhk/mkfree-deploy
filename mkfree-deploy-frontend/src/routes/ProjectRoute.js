@@ -92,7 +92,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                     width: '26.5%',
                                                                     paddingBottom: '10px',
                                                                     paddingTop: '10px'
-                                                                }}>{projectEnvIp.serverIp ? `${projectEnvIp.serverIp}_${projectEnvIp.serverName}` : ''}</Col>
+                                                                }}>{projectEnvIp.serverIp ? `${projectEnvIp.serverName}_${projectEnvIp.serverIp}` : ''}</Col>
                                                                 <Col
                                                                     style={{width: '15%'}}>{projectEnvIp.publishTime}</Col>
 
