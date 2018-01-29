@@ -760,11 +760,11 @@ public class ProjectController extends BaseController {
 
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
-        Long syncEnvId = projectEnvConfig.getEnvId();
+        Long syncEnvId = projectEnvConfig.getSyncEnvId();
         ServerMachine syncServerMachine = serverMachineRepository.findOne(syncServerMachineId);
-        String syncServerIp = syncServerMachine.getIp();
+        String syncServerMachineIp = syncServerMachine.getIp();
         // 同步项目环境ip信息 start
-        ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, syncEnvId, syncServerMachine.getIp());
+        ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, syncEnvId, syncServerMachineIp);
         String publishVersion = syncProjectEnvIp.getPublishVersion();
 
         String publishServerUsername = syncServerMachine.getUsername();
@@ -785,7 +785,7 @@ public class ProjectController extends BaseController {
             Config.STRING_BUILDER_MAP.put("project_log_id_" + projectId, logStringBuilder);
         }
         // 执行scp同步
-        ProjectHelper.serverSync(publishServerUsername, syncServerIp, publishServerPort, publishServerPassword, serverUsername, StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp, serverPort, serverPassword, publishVersion, projectRemotePath, log, logStringBuilder);
+        ProjectHelper.serverSync(publishServerUsername, syncServerMachineIp, publishServerPort, publishServerPassword, serverUsername, StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp, serverPort, serverPassword, publishVersion, projectRemotePath, log, logStringBuilder);
         // exec
         Session session = JschUtils.createSession(serverUsername, serverPassword, serverIp, Integer.valueOf(serverPort));
         Shell shell = new Shell();
