@@ -467,6 +467,8 @@ public class ProjectController extends BaseController {
                     ServerMachine syncServerMachine = serverMachineRepository.findOne(projectEnvConfigDto.getSyncServerMachineId());
                     if (syncServerMachine != null) {
                         projectEnvConfig.setSyncServerMachineId(syncServerMachine.getId());
+                        projectEnvConfig.setSyncEnvId(syncServerMachine.getEnvId());
+                        projectEnvConfig.setSyncEnvName(syncServerMachine.getEnvName());
                         projectEnvConfig.setSyncServerMachineIp(syncServerMachine.getIp());
                         projectEnvConfig.setSyncServerMachineName(syncServerMachine.getName());
                     }
