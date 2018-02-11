@@ -57,14 +57,10 @@ public class ProjectHelper {
     public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log,StringBuilder stringBuilder) {
         try {
             Shell mkdirSheel = new Shell();
-            mkdirSheel.appendN("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'");
-            mkdirSheel.addParams("port", serverPort);
-            mkdirSheel.addParams("projectVersionDir", publishVersion);
-            mkdirSheel.addParams("username", serverUsername);
-            mkdirSheel.addParams("ip", serverIp);
+            mkdirSheel.appendN("mkdir -p #{remoteProjectPath}/version");
             mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
             JSch mkdirJsch = new JSch();
-            Session mkdirSession = mkdirJsch.getSession(publishServerUsername, publishServerIp, publishServerPort);
+            Session mkdirSession = mkdirJsch.getSession(serverUsername, serverIp, Integer.valueOf(serverPort));
             mkdirSession.setConfig("StrictHostKeyChecking", "no");
             mkdirSession.setPassword(publishServerPassword);
             mkdirSession.connect();
