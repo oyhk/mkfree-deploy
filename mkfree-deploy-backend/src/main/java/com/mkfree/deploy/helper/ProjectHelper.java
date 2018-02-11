@@ -57,6 +57,7 @@ public class ProjectHelper {
     public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log,StringBuilder stringBuilder) {
         try {
             Shell shell = new Shell();
+            shell.appendN("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'");
             shell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
             shell.addParams("port", serverPort);
             shell.addParams("projectVersionDir", publishVersion);
@@ -81,7 +82,7 @@ public class ProjectHelper {
             channelExec.connect();
             InputStream inputStream = channelExec.getInputStream();
             // 这里为什么需要睡眠2秒，由于session连接后发送命令需要时间
-            Thread.sleep(2000);
+            Thread.sleep(3000);
             OutputStream out = channelExec.getOutputStream();
             out.write((serverPassword + "\n").getBytes());
             out.flush();

@@ -779,7 +779,7 @@ public class ProjectController extends BaseController {
         String serverUsername = serverMachine.getUsername();
         String serverPassword = DESUtils.decryption(serverMachine.getPassword());
         String serverPort = serverMachine.getPort();
-        // 有限使用内网ip
+        // 优先使用内网ip
         String serverIntranetIp = serverMachine.getIntranetIp();
         String serverIp = serverMachine.getIp();
         StringBuilder logStringBuilder = new StringBuilder("server sync start</br>################ exec shell start ##################</br>");
