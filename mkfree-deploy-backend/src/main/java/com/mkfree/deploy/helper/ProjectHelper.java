@@ -56,15 +56,51 @@ public class ProjectHelper {
      */
     public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log,StringBuilder stringBuilder) {
         try {
-            Shell shell = new Shell();
-            shell.appendN("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'");
-            shell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
-            shell.addParams("port", serverPort);
-            shell.addParams("projectVersionDir", publishVersion);
-            shell.addParams("username", serverUsername);
-            shell.addParams("ip", serverIp);
-            shell.addParams("remoteProjectPath", projectRemotePath);
-            String scpCommand = shell.getShell();
+            Shell mkdirSheel = new Shell();
+            mkdirSheel.appendN("ssh -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'");
+            mkdirSheel.addParams("port", serverPort);
+            mkdirSheel.addParams("projectVersionDir", publishVersion);
+            mkdirSheel.addParams("username", serverUsername);
+            mkdirSheel.addParams("ip", serverIp);
+            mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
+            JSch mkdirJsch = new JSch();
+            Session mkdirSession = mkdirJsch.getSession(publishServerUsername, publishServerIp, publishServerPort);
+            mkdirSession.setConfig("StrictHostKeyChecking", "no");
+            mkdirSession.setPassword(publishServerPassword);
+            mkdirSession.connect();
+            com.jcraft.jsch.ChannelExec mkdirChannelExec = (com.jcraft.jsch.ChannelExec) mkdirSession.openChannel("exec");
+            mkdirChannelExec.setCommand(mkdirSheel.getShell());
+            mkdirChannelExec.setPty(true);
+            mkdirChannelExec.setErrStream(System.err);
+            mkdirChannelExec.setInputStream(null);
+            mkdirChannelExec.connect();
+            InputStream mkdirInputStream = mkdirChannelExec.getInputStream();
+            // 这里为什么需要睡眠2秒，由于session连接后发送命令需要时间
+            Thread.sleep(3000);
+            OutputStream mkdirOutputStream = mkdirChannelExec.getOutputStream();
+            mkdirOutputStream.write((serverPassword + "\n").getBytes());
+            mkdirOutputStream.flush();
+            BufferedReader mkdirReader = new BufferedReader(new InputStreamReader(mkdirInputStream, Charset.forName("UTF-8")));
+            String mkdirBuf;
+            while ((mkdirBuf = mkdirReader.readLine()) != null) {
+                log.info(mkdirBuf);
+                stringBuilder.append(mkdirBuf).append("</br>");
+            }
+            while (!mkdirChannelExec.isClosed())
+                Thread.sleep(500);
+
+            mkdirChannelExec.disconnect();
+            mkdirSession.disconnect();
+
+
+            Shell scpShell = new Shell();
+            scpShell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
+            scpShell.addParams("port", serverPort);
+            scpShell.addParams("projectVersionDir", publishVersion);
+            scpShell.addParams("username", serverUsername);
+            scpShell.addParams("ip", serverIp);
+            scpShell.addParams("remoteProjectPath", projectRemotePath);
+            String scpCommand = scpShell.getShell();
             log.info("Starting from the publish server synchronization...");
             log.info("exec command");
             log.info(scpCommand);
