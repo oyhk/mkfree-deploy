@@ -36,7 +36,7 @@ public class JschUtils {
         return session;
     }
 
-    public static void exec(Session session, String command,StringBuilder stringBuilder) {
+    public static void execCommand(Session session, String command, StringBuilder stringBuilder) {
         try {
             ChannelExec channelExec = (com.jcraft.jsch.ChannelExec) session.openChannel("exec");
             channelExec.setCommand(command);
@@ -44,6 +44,44 @@ public class JschUtils {
             channelExec.setInputStream(null);
             channelExec.connect();
             InputStream inputStream = channelExec.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            String buf;
+            while ((buf = reader.readLine()) != null) {
+                log.info(buf);
+                if (stringBuilder != null) {
+                    stringBuilder.append(buf).append("</br>");
+                }
+            }
+            while (!channelExec.isClosed())
+                Thread.sleep(500);
+            channelExec.disconnect();
+            session.disconnect();
+        } catch (Exception e) {
+            log.error(ExceptionUtils.getStackTrace(e));
+        }
+    }
+
+    /**
+     * 连接上服务器，从服务器scp
+     * @param session
+     * @param command
+     * @param serverPassword scp服务器密码
+     * @param stringBuilder
+     */
+    public static void execScp(Session session, String command,String serverPassword, StringBuilder stringBuilder) {
+        try {
+            com.jcraft.jsch.ChannelExec channelExec = (com.jcraft.jsch.ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(command);
+            channelExec.setPty(true);
+            channelExec.setErrStream(System.err);
+            channelExec.setInputStream(null);
+            channelExec.connect();
+            InputStream inputStream = channelExec.getInputStream();
+            // 这里为什么需要睡眠2秒，由于session连接后发送命令需要时间
+            Thread.sleep(3000);
+            OutputStream out = channelExec.getOutputStream();
+            out.write((serverPassword + "\n").getBytes());
+            out.flush();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
             String buf;
             while ((buf = reader.readLine()) != null) {

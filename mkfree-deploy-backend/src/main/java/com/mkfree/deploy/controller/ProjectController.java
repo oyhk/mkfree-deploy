@@ -769,14 +769,15 @@ public class ProjectController extends BaseController {
         ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, syncEnvId, syncServerMachineIp);
         String publishVersion = syncProjectEnvIp.getPublishVersion();
 
-        String publishServerUsername = syncServerMachine.getUsername();
-        String publishServerPassword = DESUtils.decryption(syncServerMachine.getPassword());
-        int publishServerPort = Integer.valueOf(syncServerMachine.getPort());
+        String syncServerUsername = syncServerMachine.getUsername();
+        String syncServerPassword = DESUtils.decryption(syncServerMachine.getPassword());
+        int syncServerPort = Integer.valueOf(syncServerMachine.getPort());
 
         // 发布服务器信息 end
 
         String projectRemotePath = project.getRemotePath();
         String serverUsername = serverMachine.getUsername();
+        String serverName = serverMachine.getName();
         String serverPassword = DESUtils.decryption(serverMachine.getPassword());
         String serverPort = serverMachine.getPort();
         // 优先使用内网ip
@@ -786,8 +787,35 @@ public class ProjectController extends BaseController {
         if (StringUtils.isNotBlank("project_log_id_" + projectId)) {
             Config.STRING_BUILDER_MAP.put("project_log_id_" + projectId, logStringBuilder);
         }
+
+        // 当文件夹不存在，先创建文件夹
+        Session mkdirSession = JschUtils.createSession(serverUsername, serverPassword, serverIp, Integer.valueOf(serverPort));
+        Shell mkdirSheel = new Shell();
+        mkdirSheel.appendN("echo 'connection to server #{serverName} #{username}@#{ip}, mkdir -p #{remoteProjectPath}/version '");
+        mkdirSheel.append("mkdir -p #{remoteProjectPath}/version");
+        mkdirSheel.addParams("username", serverUsername);
+        mkdirSheel.addParams("serverName", serverName);
+        mkdirSheel.addParams("port", serverPort);
+        mkdirSheel.addParams("ip", serverIp);
+        mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
+        String mkdirCommand = mkdirSheel.getShell();
+        JschUtils.execCommand(mkdirSession, mkdirCommand, logStringBuilder);
+
         // 执行scp同步
-        ProjectHelper.serverSync(publishServerUsername, syncServerMachineIp, publishServerPort, publishServerPassword, serverUsername, StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp, serverPort, serverPassword, publishVersion, projectRemotePath, log, logStringBuilder);
+        Session scpSession = JschUtils.createSession(syncServerUsername, syncServerPassword, syncServerMachineIp, syncServerPort);
+        Shell scpShell = new Shell();
+        scpShell.appendN("echo 'Starting from the publish server synchronization...'");
+        scpShell.appendN("echo 'scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version'");
+        scpShell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
+        scpShell.addParams("port", serverPort);
+        scpShell.addParams("projectVersionDir", publishVersion);
+        scpShell.addParams("username", serverUsername);
+        scpShell.addParams("ip", StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp);
+        scpShell.addParams("remoteProjectPath", projectRemotePath);
+        String scpCommand = scpShell.getShell();
+        JschUtils.execScp(scpSession, scpCommand, serverPassword, logStringBuilder);
+
+
         // exec
         Session session = JschUtils.createSession(serverUsername, serverPassword, serverIp, Integer.valueOf(serverPort));
         Shell shell = new Shell();
@@ -814,7 +842,7 @@ public class ProjectController extends BaseController {
         shell.addParams("projectVersionDir", publishVersion);
 
 
-        JschUtils.exec(session, shell.getShell(), logStringBuilder);
+        JschUtils.execCommand(session, shell.getShell(), logStringBuilder);
         logStringBuilder.append("################ exec shell end ##################");
 
         // 同步完成添加发布日志

@@ -57,55 +57,46 @@ public class ProjectHelper {
     public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log, StringBuilder stringBuilder) {
         try {
 
-            // 当文件夹不存在，先创建文件夹
-            Shell mkdirSheel = new Shell();
-            mkdirSheel.append("ssh -o StrictHostKeyChecking=no -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
-            mkdirSheel.addParams("username", serverUsername);
-            mkdirSheel.addParams("port", serverPort);
-            mkdirSheel.addParams("ip", serverIp);
-            mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
-            ShellHelper.SINGLEONE.executeShellCommand(mkdirSheel.getShell());
+            Shell scpShell = new Shell();
+            scpShell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
+            scpShell.addParams("port", serverPort);
+            scpShell.addParams("projectVersionDir", publishVersion);
+            scpShell.addParams("username", serverUsername);
+            scpShell.addParams("ip", serverIp);
+            scpShell.addParams("remoteProjectPath", projectRemotePath);
+            String scpCommand = scpShell.getShell();
+            log.info("Starting from the publish server synchronization...");
+            log.info("exec command");
+            log.info(scpCommand);
 
-//            Shell scpShell = new Shell();
-//            scpShell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
-//            scpShell.addParams("port", serverPort);
-//            scpShell.addParams("projectVersionDir", publishVersion);
-//            scpShell.addParams("username", serverUsername);
-//            scpShell.addParams("ip", serverIp);
-//            scpShell.addParams("remoteProjectPath", projectRemotePath);
-//            String scpCommand = scpShell.getShell();
-//            log.info("Starting from the publish server synchronization...");
-//            log.info("exec command");
-//            log.info(scpCommand);
-//
-//            JSch jsch = new JSch();
-//            Session session = jsch.getSession(publishServerUsername, publishServerIp, publishServerPort);
-//            session.setConfig("StrictHostKeyChecking", "no");
-//            session.setPassword(publishServerPassword);
-//            session.connect();
-//            com.jcraft.jsch.ChannelExec channelExec = (com.jcraft.jsch.ChannelExec) session.openChannel("exec");
-//            channelExec.setCommand(scpCommand);
-//            channelExec.setPty(true);
-//            channelExec.setErrStream(System.err);
-//            channelExec.setInputStream(null);
-//            channelExec.connect();
-//            InputStream inputStream = channelExec.getInputStream();
-//            // 这里为什么需要睡眠2秒，由于session连接后发送命令需要时间
-//            Thread.sleep(3000);
-//            OutputStream out = channelExec.getOutputStream();
-//            out.write((serverPassword + "\n").getBytes());
-//            out.flush();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
-//            String buf;
-//            while ((buf = reader.readLine()) != null) {
-//                log.info(buf);
-//                stringBuilder.append(buf).append("</br>");
-//            }
-//            while (!channelExec.isClosed())
-//                Thread.sleep(500);
-//
-//            channelExec.disconnect();
-//            session.disconnect();
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(publishServerUsername, publishServerIp, publishServerPort);
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.setPassword(publishServerPassword);
+            session.connect();
+            com.jcraft.jsch.ChannelExec channelExec = (com.jcraft.jsch.ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(scpCommand);
+            channelExec.setPty(true);
+            channelExec.setErrStream(System.err);
+            channelExec.setInputStream(null);
+            channelExec.connect();
+            InputStream inputStream = channelExec.getInputStream();
+            // 这里为什么需要睡眠2秒，由于session连接后发送命令需要时间
+            Thread.sleep(3000);
+            OutputStream out = channelExec.getOutputStream();
+            out.write((serverPassword + "\n").getBytes());
+            out.flush();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            String buf;
+            while ((buf = reader.readLine()) != null) {
+                log.info(buf);
+                stringBuilder.append(buf).append("</br>");
+            }
+            while (!channelExec.isClosed())
+                Thread.sleep(500);
+
+            channelExec.disconnect();
+            session.disconnect();
         } catch (Exception e) {
             log.error(ExceptionUtils.getStackTrace(e));
         }
