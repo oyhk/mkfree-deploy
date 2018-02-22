@@ -54,40 +54,17 @@ public class ProjectHelper {
      * @param projectRemotePath
      * @param log
      */
-    public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log,StringBuilder stringBuilder) {
+    public static void serverSync(String publishServerUsername, String publishServerIp, int publishServerPort, String publishServerPassword, String serverUsername, String serverIp, String serverPort, String serverPassword, String publishVersion, String projectRemotePath, Logger log, StringBuilder stringBuilder) {
         try {
-//            Shell mkdirSheel = new Shell();
-//            mkdirSheel.appendN("mkdir -p #{remoteProjectPath}/version");
-//            mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
-//            JSch mkdirJsch = new JSch();
-//            Session mkdirSession = mkdirJsch.getSession(serverUsername, serverIp, Integer.valueOf(serverPort));
-//            mkdirSession.setConfig("StrictHostKeyChecking", "no");
-//            mkdirSession.setPassword(publishServerPassword);
-//            mkdirSession.connect();
-//            com.jcraft.jsch.ChannelExec mkdirChannelExec = (com.jcraft.jsch.ChannelExec) mkdirSession.openChannel("exec");
-//            mkdirChannelExec.setCommand(mkdirSheel.getShell());
-//            mkdirChannelExec.setPty(true);
-//            mkdirChannelExec.setErrStream(System.err);
-//            mkdirChannelExec.setInputStream(null);
-//            mkdirChannelExec.connect();
-//            InputStream mkdirInputStream = mkdirChannelExec.getInputStream();
-//            // 这里为什么需要睡眠2秒，由于session连接后发送命令需要时间
-//            Thread.sleep(3000);
-//            OutputStream mkdirOutputStream = mkdirChannelExec.getOutputStream();
-//            mkdirOutputStream.write((serverPassword + "\n").getBytes());
-//            mkdirOutputStream.flush();
-//            BufferedReader mkdirReader = new BufferedReader(new InputStreamReader(mkdirInputStream, Charset.forName("UTF-8")));
-//            String mkdirBuf;
-//            while ((mkdirBuf = mkdirReader.readLine()) != null) {
-//                log.info(mkdirBuf);
-//                stringBuilder.append(mkdirBuf).append("</br>");
-//            }
-//            while (!mkdirChannelExec.isClosed())
-//                Thread.sleep(500);
-//
-//            mkdirChannelExec.disconnect();
-//            mkdirSession.disconnect();
 
+            // 当文件夹不存在，先创建文件夹
+            Shell mkdirSheel = new Shell();
+            mkdirSheel.append("ssh -o StrictHostKeyChecking=no -p #{port} #{username}@#{ip} ").append("'").append("mkdir -p #{remoteProjectPath}/version").append("'").append("\n");
+            mkdirSheel.addParams("username", serverUsername);
+            mkdirSheel.addParams("port", serverPort);
+            mkdirSheel.addParams("ip", serverIp);
+            mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
+            ShellHelper.SINGLEONE.executeShellCommand(mkdirSheel.getShell());
 
             Shell scpShell = new Shell();
             scpShell.append("scp -o StrictHostKeyChecking=no -P #{port} -r #{remoteProjectPath}/version/#{projectVersionDir}  #{username}@#{ip}:#{remoteProjectPath}/version");
