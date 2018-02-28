@@ -25,7 +25,7 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
     // 构建后命令
     private List<ProjectBuildStep> buildAfterList;
     // 同步后命令
-    private List<ProjectBuildStep> buildSyncList;
+    private List<ProjectBuildStep> syncAfterList;
 
     public Map<String, ProjectEnvIp> getProjectEnvIpMap() {
         return projectEnvIpMap;
@@ -67,11 +67,11 @@ public class ProjectEnvConfigDto extends ProjectEnvConfig {
         this.buildAfterList = buildAfterList;
     }
 
-    public List<ProjectBuildStep> getBuildSyncList() {
-        return buildSyncList;
+    public List<ProjectBuildStep> getSyncAfterList() {
+        return syncAfterList;
     }
 
-    public void setBuildSyncList(List<ProjectBuildStep> buildSyncList) {
-        this.buildSyncList = buildSyncList;
+    public void setSyncAfterList(List<ProjectBuildStep> syncAfterList) {
+        this.syncAfterList = syncAfterList;
     }
 }

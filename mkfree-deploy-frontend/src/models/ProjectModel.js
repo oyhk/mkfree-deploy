@@ -114,8 +114,11 @@ export default {
                     buildBefore.uuid = uuid();
                 });
 
-                projectEnvConfig.buildAfterList.forEach((buildAfter, buildBeforeListIndex) => {
+                projectEnvConfig.buildAfterList.forEach((buildAfter, buildAfterListIndex) => {
                     buildAfter.uuid = uuid();
+                });
+                projectEnvConfig.syncAfterList.forEach((syncAfter, syncAfterListIndex) => {
+                    syncAfter.uuid = uuid();
                 });
             });
             yield put({
@@ -204,8 +207,8 @@ export default {
             }, {});
             const projectEnvConfig = projectEnvConfigMap[payload.envId];
 
-            projectEnvConfig.buildAfterList.forEach((buildBeforeItem, index) => {
-                if (buildBeforeItem.uuid === payload.uuid) {
+            projectEnvConfig.buildAfterList.forEach((buildAfterItem, index) => {
+                if (buildAfterItem.uuid === payload.uuid) {
                     delete projectEnvConfig.buildAfterList[index];
                 }
             });
@@ -251,9 +254,57 @@ export default {
             }, {});
             const projectEnvConfig = projectEnvConfigMap[payload.envId];
 
-            projectEnvConfig.buildBeforeList.forEach((buildBeforeItem, index) => {
-                if (buildBeforeItem.uuid === payload.uuid) {
+            projectEnvConfig.buildBeforeList.forEach((syncAfterItem, index) => {
+                if (syncAfterItem.uuid === payload.uuid) {
                     delete projectEnvConfig.buildBeforeList[index];
+                }
+            });
+
+            const newProjectEnvConfigList = Object.keys(projectEnvConfigMap).map((key) => {
+                return projectEnvConfigMap[key];
+            });
+
+            yield put({
+                type: 'save',
+                payload: {
+                    projectEnvConfigList: newProjectEnvConfigList
+                }
+            });
+        },
+
+        // 添加一项 projectEnvConfig.syncAfter
+        *addProjectEnvConfigSyncAfter({payload}, {call, put, select}) {
+            const {projectEnvConfigList} = (yield select(state => state.projectModel));
+            const projectEnvConfigMap = projectEnvConfigList.reduce((map, obj) => {
+                map[obj.envId] = obj;
+                return map;
+            }, {});
+            const projectEnvConfig = projectEnvConfigMap[payload.envId];
+            projectEnvConfig.syncAfterList = projectEnvConfig.syncAfterList.concat([{uuid: uuid()}]);
+
+            const newProjectEnvConfigList = Object.keys(projectEnvConfigMap).map((key) => {
+                return projectEnvConfigMap[key];
+            });
+
+            yield put({
+                type: 'save',
+                payload: {
+                    projectEnvConfigList: newProjectEnvConfigList
+                }
+            });
+        },
+        // 删除一项 projectEnvConfig.syncAfter
+        *deleteProjectEnvConfigSyncAfter({payload}, {call, put, select}) {
+            const {projectEnvConfigList} = (yield select(state => state.projectModel));
+            const projectEnvConfigMap = projectEnvConfigList.reduce((map, obj) => {
+                map[obj.envId] = obj;
+                return map;
+            }, {});
+            const projectEnvConfig = projectEnvConfigMap[payload.envId];
+
+            projectEnvConfig.syncAfterList.forEach((syncAfterItem, index) => {
+                if (syncAfterItem.uuid === payload.uuid) {
+                    delete projectEnvConfig.syncAfterList[index];
                 }
             });
 

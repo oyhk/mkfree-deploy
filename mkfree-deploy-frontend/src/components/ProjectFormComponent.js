@@ -48,8 +48,8 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                 if (!item.buildAfterList) {
                     item.buildAfterList = [{}];
                 }
-                if (!item.buildSyncList) {
-                    item.buildSyncList = [{}];
+                if (!item.syncAfterList) {
+                    item.syncAfterList = [{}];
                 }
                 item.syncServerMachineId = getFieldValue(`projectEnvConfigSyncServerMachineId_${index}`);
                 item.selectBranch = getFieldValue(`projectEnvConfigSelectBranch_${index}`);
@@ -66,9 +66,9 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                     });
                 });
 
-                const newBuildSyncList = [];
-                item.buildSyncList.forEach((syncItem, syncIndex) => {
-                    newBuildSyncList.push({
+                const newsyncAfterList = [];
+                item.syncAfterList.forEach((syncItem, syncIndex) => {
+                    newsyncAfterList.push({
                         step: getFieldValue(`projectEnvConfig_sync_${index}_${syncIndex}`),
                     });
                 });
@@ -92,7 +92,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                     projectEnvIpList: newProjectEnvIpList,
                     buildBeforeList: newBuildBeforeList,
                     buildAfterList: newBuildAfterList,
-                    buildSyncList: newBuildSyncList,
+                    syncAfterList: newsyncAfterList,
                 });
             }
         );
@@ -394,8 +394,7 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                 </Col></Row>
                             <Row>
                                 <Col span={4}
-                                     style={{textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', paddingRight: '7px'}}>构建后命令
-                                    :</Col>
+                                     style={{textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', paddingRight: '7px'}}>构建后命令:</Col>
                                 <Col span={20}>
                                     {
                                         projectEnvConfig.buildAfterList && projectEnvConfig.buildAfterList.length > 0 ? projectEnvConfig.buildAfterList.map((afterItem, afterIndex) => {
@@ -451,28 +450,71 @@ function ProjectFormComponent({dispatch, project, deployTargetFileList, projectE
                                     <h4>同步配置</h4>
                                 </Col>
                             </Row>
-                            {
-                                projectEnvConfig.buildSyncList && projectEnvConfig.buildSyncList.length > 0 ? projectEnvConfig.buildSyncList.map((syncItem, syncIndex) => {
-                                    return <FormItem key={`${index}_${syncIndex}_sync`}
-                                                     {...formItemLayout}
-                                                     label="构建后命令">
-                                        {getFieldDecorator(`projectEnvConfig_sync_${index}_${syncIndex}`, {
-                                            initialValue: syncItem.step ? syncItem.step : ''
-                                        })(
-                                            <Input placeholder="构建后命令"/>
-                                        )}
-                                    </FormItem>;
-                                }) :
-                                    <FormItem
-                                        {...formItemLayout}
-                                        label="同步后命令">
-                                        {getFieldDecorator(`projectEnvConfig_sync_${index}_0`, {
-                                            initialValue: ''
-                                        })(
-                                            <Input placeholder="同步后命令"/>
-                                        )}
-                                    </FormItem>
-                            }
+                            <Row style={{marginTop:'10px'}}>
+                                <Col span={4}
+                                     style={{textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', paddingRight: '7px'}}>构建后命令:</Col>
+                                <Col span={20}>
+                                    {
+                                        projectEnvConfig.syncAfterList && projectEnvConfig.syncAfterList.length > 0 ? projectEnvConfig.syncAfterList.map((syncItem, syncIndex) => {
+                                            return <div key={`syncAfterList${syncIndex}`}>
+                                                <Col span={20}>
+                                                    <FormItem
+                                                        key={`${index}_${syncIndex}_step_after`} {...formItemLayout}>
+                                                        {getFieldDecorator(`projectEnvConfig_sync_${index}_${syncIndex}`, {
+                                                            initialValue: syncItem.step ? syncItem.step : ''
+                                                        })(
+                                                            <Input placeholder="构建后命令"/>
+                                                        )}
+                                                    </FormItem>
+                                                </Col>
+                                                <Col span={4}>
+                                                    { syncIndex === 0 ?
+                                                        <Button shape="circle" icon="plus"
+                                                                onClick={() => {
+                                                                    dispatch({
+                                                                        type: 'projectModel/addProjectEnvConfigSyncAfter',
+                                                                        payload: {envId: projectEnvConfig.envId}
+                                                                    });
+                                                                }}
+                                                        /> :
+                                                        <Button shape="circle" icon="minus"
+                                                                onClick={() => {
+                                                                    dispatch({
+                                                                        type: 'projectModel/deleteProjectEnvConfigSyncAfter',
+                                                                        payload: {
+                                                                            envId: projectEnvConfig.envId,
+                                                                            uuid: syncItem.uuid
+                                                                        }
+                                                                    });
+                                                                }}
+                                                        />}
+                                                </Col>
+                                            </div>;
+                                        }) :
+                                            <div>
+                                                <Col span={20}>
+                                                    <FormItem {...formItemLayout}>
+                                                        {getFieldDecorator(`projectEnvConfig_sync_${index}_0`, {
+                                                            initialValue: ''
+                                                        })(
+                                                            <Input placeholder="同步后命令"/>
+                                                        )}
+                                                    </FormItem>
+                                                </Col>
+                                                <Col span={4}>
+                                                    <Button shape="circle" icon="plus"
+                                                            onClick={() => {
+                                                                dispatch({
+                                                                    type: 'projectModel/addProjectEnvConfigSyncAfter',
+                                                                    payload: {envId: projectEnvConfig.envId}
+                                                                });
+                                                            }}
+                                                    />
+                                                </Col>
+                                            </div>
+                                    }
+                                </Col>
+                            </Row>
                         </div>;
                     })
                 }

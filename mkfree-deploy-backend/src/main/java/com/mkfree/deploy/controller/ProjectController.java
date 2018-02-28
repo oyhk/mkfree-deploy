@@ -388,8 +388,8 @@ public class ProjectController extends BaseController {
                         }
                     }
                     // 项目同步后命令
-                    if (projectEnvConfigDto.getBuildSyncList() != null) {
-                        for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildSyncList()) {
+                    if (projectEnvConfigDto.getSyncAfterList() != null) {
+                        for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getSyncAfterList()) {
                             projectBuildStepRepository.save(ProjectStructureStepHelper.SINGLEONE.create(projectStructureStep.getStep(), ProjectBuildStepType.SYNC, envId, envName, project.getId(), project.getName(), projectEnvConfig.getId()));
                         }
                     }
@@ -528,10 +528,10 @@ public class ProjectController extends BaseController {
                     }
                 }
                 // 项目同步后命令
-                if (projectEnvConfigDto.getBuildSyncList() != null) {
+                if (projectEnvConfigDto.getSyncAfterList() != null) {
                     List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
                     projectBuildStepRepository.delete(projectBuildStepList);
-                    for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildSyncList()) {
+                    for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getSyncAfterList()) {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
                         }
@@ -708,16 +708,16 @@ public class ProjectController extends BaseController {
                 }
 
                 // 项目配置环境构建后步骤
-                if (projectEnvConfigDto.getBuildSyncList() == null) {
-                    projectEnvConfigDto.setBuildSyncList(new ArrayList<>());
+                if (projectEnvConfigDto.getSyncAfterList() == null) {
+                    projectEnvConfigDto.setSyncAfterList(new ArrayList<>());
                 }
                 List<ProjectBuildStep> projectStructureSyncList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
                 for (ProjectBuildStep projectStructureStep : projectStructureSyncList) {
-                    projectEnvConfigDto.getBuildSyncList().add(projectStructureStep);
+                    projectEnvConfigDto.getSyncAfterList().add(projectStructureStep);
                 }
                 // 环境没有添加时，默认添加
-                if (projectEnvConfigDto.getBuildSyncList().size() == 0) {
-                    projectEnvConfigDto.getBuildSyncList().add(new ProjectBuildStep());
+                if (projectEnvConfigDto.getSyncAfterList().size() == 0) {
+                    projectEnvConfigDto.getSyncAfterList().add(new ProjectBuildStep());
                 }
 
                 projectEnvConfigDtoList.add(projectEnvConfigDto);
