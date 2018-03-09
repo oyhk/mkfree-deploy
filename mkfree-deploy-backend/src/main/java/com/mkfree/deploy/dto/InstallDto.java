@@ -6,9 +6,19 @@ package com.mkfree.deploy.dto;
 public class InstallDto {
     private String projectPath;
     private String buildPath;
+    // 安装域名或者ip
+    private String domain;
 
     private String username;
     private String password;
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
 
     public String getUsername() {
         return username;

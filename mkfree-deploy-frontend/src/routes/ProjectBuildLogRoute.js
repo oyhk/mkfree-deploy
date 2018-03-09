@@ -12,8 +12,9 @@ function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
 
     if (project.id) {
         const username = cookie.load('username');
+        const domain = localStorage.getItem('domain');
 
-        const ws = new WebSocket(`ws://localhost:8091/api/websocket?username=${username}&type=buildLog&projectId=${project.id}`);
+        const ws = new WebSocket(`ws://${domain}:8091/api/websocket?username=${username}&type=buildLog&projectId=${project.id}`);
         ws.onopen = () => {
         };
         ws.onmessage = (evt) => {

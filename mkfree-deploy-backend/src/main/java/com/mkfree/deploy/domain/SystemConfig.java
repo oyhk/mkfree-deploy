@@ -14,6 +14,7 @@ public class SystemConfig extends IDEntity {
     public static final String keyIsInstalled = "is_installed";
     //项目根路劲
     public static final String keyProjectPath = "projectPath";
+    public static final String KeyDomain = "domain";
     // 项目构建后目录
     public static final String keyBuildPath = "buildPath";
 

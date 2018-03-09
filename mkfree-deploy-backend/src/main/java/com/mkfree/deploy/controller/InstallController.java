@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by oyhk on 2018/1/10.
  */
@@ -37,11 +40,18 @@ public class InstallController extends BaseController {
     public JsonResult isInstalled() {
         JsonResult jsonResult = new JsonResult();
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyIsInstalled);
+        Map<String, Object> result = new HashMap<>();
+        result.put("installed", true);
         if (systemConfig == null) {
-            jsonResult.data = false;
+            result.put("installed", false);
             return jsonResult;
         }
-        jsonResult.data = !systemConfig.getValue().equals("false");
+
+        SystemConfig domainSystemConfig = systemConfigRepository.findByKey(SystemConfig.KeyDomain);
+
+        result.put("domain", domainSystemConfig.getValue());
+
+        jsonResult.data = result;
         return jsonResult;
     }
 
@@ -57,15 +67,17 @@ public class InstallController extends BaseController {
         String projectPath = installDto.getProjectPath();
         String username = installDto.getUsername();
         String password = installDto.getPassword();
+        String domain = installDto.getDomain();
 
         CheckHelper.checkNotBlank(buildPath, "buildPath 不能为空");
         CheckHelper.checkNotBlank(projectPath, "projectPath 不能为空");
         CheckHelper.checkNotBlank(username, "username 不能为空");
         CheckHelper.checkNotBlank(password, "password 不能为空");
+        CheckHelper.checkNotBlank(domain, "KeyDomain 不能为空");
 
 
         SystemConfig buildPathSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyBuildPath);
-        if(buildPathSystemConfig == null){
+        if (buildPathSystemConfig == null) {
             buildPathSystemConfig = new SystemConfig();
         }
         buildPathSystemConfig.setKey(SystemConfig.keyBuildPath);
@@ -74,15 +86,23 @@ public class InstallController extends BaseController {
 
 
         SystemConfig projectPathSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
-        if(projectPathSystemConfig == null){
+        if (projectPathSystemConfig == null) {
             projectPathSystemConfig = new SystemConfig();
         }
         projectPathSystemConfig.setKey(SystemConfig.keyProjectPath);
         projectPathSystemConfig.setValue(projectPath);
         systemConfigRepository.save(projectPathSystemConfig);
 
+        SystemConfig domainSystemConfig = systemConfigRepository.findByKey(SystemConfig.KeyDomain);
+        if (domainSystemConfig == null) {
+            domainSystemConfig = new SystemConfig();
+        }
+        domainSystemConfig.setKey(SystemConfig.KeyDomain);
+        domainSystemConfig.setValue(domain);
+        systemConfigRepository.save(domainSystemConfig);
+
         SystemConfig isInstalledSystemConfig = systemConfigRepository.findByKey(SystemConfig.keyIsInstalled);
-        if(isInstalledSystemConfig == null){
+        if (isInstalledSystemConfig == null) {
             isInstalledSystemConfig = new SystemConfig();
         }
         isInstalledSystemConfig.setKey(SystemConfig.keyIsInstalled);

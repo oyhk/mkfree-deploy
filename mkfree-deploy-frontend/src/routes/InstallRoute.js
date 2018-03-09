@@ -14,13 +14,14 @@ function InstallRoute({dispatch, form}) {
         const buildPath = getFieldValue('buildPath');
         const username = getFieldValue('username');
         const password = getFieldValue('password');
+        const domain = getFieldValue('domain');
 
-        if (!username || !password || !projectPath || !buildPath) {
+        if (!username || !password || !projectPath || !buildPath || !domain) {
             validateFields();
             return;
         }
         dispatch({
-            type: 'installModel/install', payload: {username, password, projectPath, buildPath}
+            type: 'installModel/install', payload: {username, password, projectPath, buildPath, domain}
         });
     }
 
@@ -55,7 +56,15 @@ function InstallRoute({dispatch, form}) {
                                            onPressEnter={login}/>
                                 )}
                             </FormItem>
-
+                            <FormItem>
+                                {getFieldDecorator('domain', {
+                                    rules: [{required: true, message: 'Please input domain!'}],
+                                })(
+                                    <Input prefix={<Icon type="tool" style={{fontSize: 13}}/>}
+                                           placeholder="安装域名或者ip"
+                                           onPressEnter={login}/>
+                                )}
+                            </FormItem>
                             <h4 style={{marginBottom: '10px'}}>超级管理员信息：</h4>
                             <FormItem>
                                 {getFieldDecorator('username', {
