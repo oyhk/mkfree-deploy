@@ -1201,6 +1201,10 @@ public class ProjectController extends BaseController {
         projectEnvIp.setPublishVersion(projectVersionDir);
         projectEnvIp.setBuildStatus(BuildStatus.IDLE);
         projectEnvIpRepository.save(projectEnvIp);
+
+        // 清空jvm项目构建日志
+        Config.STRING_BUILDER_MAP.put("type=buildLog&projectId=" + projectId, null);
+
         return jsonResult;
 
     }
@@ -1216,7 +1220,7 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
         Project project = projectRepository.findOne(id);
-        StringBuilder result = Config.STRING_BUILDER_MAP.get("project_log_id_" + dto.getId());
+        StringBuilder result = Config.STRING_BUILDER_MAP.get("type=buildLog&projectId=" + dto.getId());
         if (result == null) {
             result = new StringBuilder("");
         }
