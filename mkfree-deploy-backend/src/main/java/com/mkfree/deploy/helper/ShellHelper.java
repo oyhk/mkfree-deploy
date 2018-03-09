@@ -2,6 +2,7 @@ package com.mkfree.deploy.helper;
 
 import com.mkfree.deploy.Bootstrap;
 import com.mkfree.deploy.Config;
+import com.mkfree.deploy.WebSocketMK;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -96,25 +97,38 @@ public enum ShellHelper {
             BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = stdoutReader.readLine()) != null) {
-                // process procs standard output here
-                builder.append(line).append("</br>");
                 if (log != null) {
                     log.info(line);
                 }
+                // process procs standard output here
+                line = line + "</br>";
+                builder.append(line);
+                // 实时推送日志
+                WebSocketMK.sendMessageAll(key, line);
+
             }
 
             BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             while ((line = stderrReader.readLine()) != null) {
                 // process procs standard error here
-//                builder.appendN(line).appendN("</br>");
 //                if (log != null) {
-//                    log.info(line);
+//                    log.error(line);
+//                }
+//                line = line + "</br>";
+//                builder.append(line);
+//                if (isWebSocket) {
+//                    WebSocketMK webSocketMK = WebSocketMK.WEB_SOCKET_SESSION_MAP.get("userId=1&projectId=1&type=log");
+//                    if (webSocketMK != null) {
+//                        webSocketMK.sendMessage(line);
+//                    }
 //                }
             }
             if (log != null) {
                 log.info(end);
             }
             builder.append("</br>").append(end);
+            // 实时推送日志
+            WebSocketMK.sendMessageAll(key, "</br>" + end);
             process.waitFor();
             process.exitValue();
         } catch (IOException | InterruptedException e) {
@@ -130,7 +144,7 @@ public enum ShellHelper {
      * @return
      */
     public String executeShellCommand(String command, Logger log) {
-        return this.executeShellCommand(command, null, log).replaceAll("</br>","").replaceAll("################ exec shell start ##################","").replaceAll("################ exec shell end ##################","");
+        return this.executeShellCommand(command, null, log).replaceAll("</br>", "").replaceAll("################ exec shell start ##################", "").replaceAll("################ exec shell end ##################", "");
     }
 
     /**
@@ -142,8 +156,5 @@ public enum ShellHelper {
         return this.executeShellCommand(command, null, null);
     }
 
-    public String executeShellCommandOutConsoleLog(String command) {
-        return executeShellCommand(command).replaceAll("</br>", System.lineSeparator());
-    }
 
 }

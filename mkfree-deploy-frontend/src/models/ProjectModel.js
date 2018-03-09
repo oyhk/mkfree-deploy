@@ -152,13 +152,13 @@ export default {
                 }
             });
 
-            if (!buildLog || buildLog.indexOf('################ exec shell end ##################') === -1) {
-                setTimeout(() => {
-                    window.location.reload();
-                }, 5000);
-
-            }
-            window.scroll(0, 10000000);
+            // if (!buildLog || buildLog.indexOf('################ exec shell end ##################') === -1) {
+            //     setTimeout(() => {
+            //         window.location.reload();
+            //     }, 5000);
+			//
+            // }
+            // window.scroll(0, 10000000);
 
         },
         *sync({payload}, {call, put, select}) {

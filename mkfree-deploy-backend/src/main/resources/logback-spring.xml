@@ -4,21 +4,19 @@
 
     <logger name="org.springframework.web" level="INFO"/>
 
-    <springProfile name="prod">
-        <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <File>./logs/mkfree-deploy.log</File>
-            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[mkfree-deploy] %d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>./logs/mkfree-deploy.log</File>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>[mkfree-deploy] %d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
 
-            </encoder>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <FileNamePattern>./logs/mkfree-deploy.log.%d{yyyy-MM-dd}</FileNamePattern>
-            </rollingPolicy>
-        </appender>
-        <root level="info">
-            <appender-ref ref="file"/>
-        </root>
-    </springProfile>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>./logs/mkfree-deploy.log.%d{yyyy-MM-dd}</FileNamePattern>
+        </rollingPolicy>
+    </appender>
+    <root level="info">
+        <appender-ref ref="file"/>
+    </root>
     <springProfile name="">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>

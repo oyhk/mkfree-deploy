@@ -21,6 +21,7 @@ export const route = {
     signIn: {url: `${route_prefix}/sign_in`, pageTitle: '登录'},
     install: {url: `${route_prefix}/install`, pageTitle: '系统安装'},
     project: {url: `${route_prefix}/project`, pageTitle: '项目管理'},
+    projectInfo: `${route_prefix}/project/info`,
     projectEdit: `${route_prefix}/project/edit/:id`,
     projectDelete: `${route_prefix}/project/delete`,
     projectAdd: `${route_prefix}/project/add`,

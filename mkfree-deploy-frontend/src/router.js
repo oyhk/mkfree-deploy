@@ -3,6 +3,7 @@ import {Router, Route} from 'dva/router';
 import {
     ProjectBuildLogRoute,
     ProjectRoute,
+    ProjectInfoRoute,
     InstallRoute,
     ProjectEditRoute,
     ProjectAddRoute,
@@ -37,7 +38,11 @@ function RouterConfig({history}) {
                 <Route path={route.project.url} component={ProjectRoute}/>
                 <Route path={route.projectEdit} component={ProjectEditRoute}/>
                 <Route path={route.projectAdd} component={ProjectAddRoute}/>
-                <Route path={route.projectBuildLog} component={ProjectBuildLogRoute}/>
+
+                <Route path={route.projectInfo} component={ProjectInfoRoute}>
+                    <Route path={route.projectBuildLog} component={ProjectBuildLogRoute}/>
+                </Route>
+
 
                 <Route path={route.userProjectPermission.url} component={UserProjectPermissionRoute}/>
                 <Route path={route.user.url} component={UserRoute}/>

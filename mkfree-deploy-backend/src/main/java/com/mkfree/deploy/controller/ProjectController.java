@@ -971,7 +971,7 @@ public class ProjectController extends BaseController {
         shellBuilder.append("'");
 
         String lastShell = strSubstitutor.replace(shellBuilder.toString());
-        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
+        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "type=buildLog&projectId=" + projectId, log);
 
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
@@ -1176,7 +1176,7 @@ public class ProjectController extends BaseController {
         shell.appendN("'");
 
         String lastShell = shell.getShell();
-        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "project_log_id_" + projectId, log);
+        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "type=buildLog&projectId=" + projectId, log);
 
 
         // 发布完成添加发布日志

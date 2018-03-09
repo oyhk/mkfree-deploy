@@ -2,6 +2,7 @@ import MainLayout from './MainLayout';
 import InstallRoute from './InstallRoute';
 
 import ProjectRoute from './ProjectRoute';
+import ProjectInfoRoute from './ProjectInfoRoute';
 import ProjectBuildLogRoute from './ProjectBuildLogRoute';
 import ProjectEditRoute from './ProjectEditRoute';
 import ProjectAddRoute from './ProjectAddRoute';
@@ -31,6 +32,7 @@ import ServerMachineEditRoute from './ServerMachineEditRoute';
 export {
     InstallRoute,
     ProjectRoute,
+    ProjectInfoRoute,
     ProjectAddRoute,
     ProjectEditRoute,
     ProjectBuildLogRoute,
