@@ -1203,7 +1203,7 @@ public class ProjectController extends BaseController {
         projectEnvIpRepository.save(projectEnvIp);
 
         // 清空jvm项目构建日志
-        Config.STRING_BUILDER_MAP.put("type=buildLog&projectId=" + projectId, null);
+//        Config.STRING_BUILDER_MAP.put("type=buildLog&projectId=" + projectId, null);
 
         return jsonResult;
 
