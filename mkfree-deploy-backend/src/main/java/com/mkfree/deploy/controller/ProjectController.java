@@ -870,6 +870,10 @@ public class ProjectController extends BaseController {
         projectEnvIp.setPublishVersion(publishVersion);
         projectEnvIp.setPublishTime(now);
         projectEnvIpRepository.save(projectEnvIp);
+
+        // 清空jvm项目构建日志
+        Config.STRING_BUILDER_MAP.put(WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, new StringBuilder());
+
         return jsonResult;
     }
 
