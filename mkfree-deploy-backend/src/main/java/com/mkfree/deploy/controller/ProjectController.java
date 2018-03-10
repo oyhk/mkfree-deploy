@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcraft.jsch.Session;
 import com.mkfree.deploy.Config;
 import com.mkfree.deploy.Routes;
+import com.mkfree.deploy.WebSocketMK;
 import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.*;
 import com.mkfree.deploy.domain.ProjectEnv;
@@ -774,7 +775,6 @@ public class ProjectController extends BaseController {
         int syncServerPort = Integer.valueOf(syncServerMachine.getPort());
 
         // 发布服务器信息 end
-
         String projectRemotePath = project.getRemotePath();
         String serverUsername = serverMachine.getUsername();
         String serverName = serverMachine.getName();
@@ -784,8 +784,12 @@ public class ProjectController extends BaseController {
         String serverIntranetIp = serverMachine.getIntranetIp();
         String serverIp = serverMachine.getIp();
         StringBuilder logStringBuilder = new StringBuilder("server sync start</br>################ exec shell start ##################</br>");
-        if (StringUtils.isNotBlank("project_log_id_" + projectId)) {
-            Config.STRING_BUILDER_MAP.put("project_log_id_" + projectId, logStringBuilder);
+
+        String buildLogSessionKeyPatten = WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId;
+
+        if (StringUtils.isNotBlank(buildLogSessionKeyPatten)) {
+            Config.STRING_BUILDER_MAP.put(buildLogSessionKeyPatten, logStringBuilder);
+            WebSocketMK.sendMessageAll(buildLogSessionKeyPatten, logStringBuilder.toString());
         }
 
         // 当文件夹不存在，先创建文件夹
@@ -799,7 +803,7 @@ public class ProjectController extends BaseController {
         mkdirSheel.addParams("ip", serverIp);
         mkdirSheel.addParams("remoteProjectPath", projectRemotePath);
         String mkdirCommand = mkdirSheel.getShell();
-        JschUtils.execCommand(mkdirSession, mkdirCommand, logStringBuilder);
+        JschUtils.execCommand(mkdirSession, mkdirCommand, logStringBuilder, buildLogSessionKeyPatten);
 
         // 执行scp同步
         Session scpSession = JschUtils.createSession(syncServerUsername, syncServerPassword, syncServerMachineIp, syncServerPort);
@@ -813,7 +817,7 @@ public class ProjectController extends BaseController {
         scpShell.addParams("ip", StringUtils.isNotBlank(serverIntranetIp) ? serverIntranetIp : serverIp);
         scpShell.addParams("remoteProjectPath", projectRemotePath);
         String scpCommand = scpShell.getShell();
-        JschUtils.execScp(scpSession, scpCommand, serverPassword, logStringBuilder);
+        JschUtils.execScp(scpSession, scpCommand, serverPassword, logStringBuilder, buildLogSessionKeyPatten);
 
 
         // exec
@@ -834,6 +838,7 @@ public class ProjectController extends BaseController {
         afterProjectBuildStepList.forEach(projectStructureStep -> {
             shell.appendN("echo " + projectStructureStep.getStep());
             shell.appendN(projectStructureStep.getStep());
+
         });
 
         shell.addParams("username", serverUsername);
@@ -842,7 +847,7 @@ public class ProjectController extends BaseController {
         shell.addParams("projectVersionDir", publishVersion);
 
 
-        JschUtils.execCommand(session, shell.getShell(), logStringBuilder);
+        JschUtils.execCommand(session, shell.getShell(), logStringBuilder, buildLogSessionKeyPatten);
         logStringBuilder.append("################ exec shell end ##################");
 
         // 同步完成添加发布日志
@@ -971,7 +976,7 @@ public class ProjectController extends BaseController {
         shellBuilder.append("'");
 
         String lastShell = strSubstitutor.replace(shellBuilder.toString());
-        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "type=buildLog&projectId=" + projectId, log);
+        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, log);
 
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
@@ -1176,7 +1181,7 @@ public class ProjectController extends BaseController {
         shell.appendN("'");
 
         String lastShell = shell.getShell();
-        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, "type=buildLog&projectId=" + projectId, log);
+        String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, log);
 
 
         // 发布完成添加发布日志
@@ -1203,7 +1208,7 @@ public class ProjectController extends BaseController {
         projectEnvIpRepository.save(projectEnvIp);
 
         // 清空jvm项目构建日志
-        Config.STRING_BUILDER_MAP.put("type=buildLog&projectId=" + projectId, new StringBuilder());
+        Config.STRING_BUILDER_MAP.put(WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, new StringBuilder());
 
         return jsonResult;
 
@@ -1220,7 +1225,7 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
         Project project = projectRepository.findOne(id);
-        StringBuilder result = Config.STRING_BUILDER_MAP.get("type=buildLog&projectId=" + dto.getId());
+        StringBuilder result = Config.STRING_BUILDER_MAP.get(WebSocketMK.WEB_SOCKET_LOG_PREFIX + dto.getId());
         if (result == null) {
             result = new StringBuilder("");
         }

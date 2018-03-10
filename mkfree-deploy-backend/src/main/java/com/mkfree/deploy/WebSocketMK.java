@@ -14,16 +14,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by oyhk on 2018/3/5.
- *
- * {type} 群发、一对一
- * {bType} 业务类型
  */
 @ServerEndpoint(value = "/api/websocket")
 @Component
 public class WebSocketMK {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
+
     public static final ConcurrentHashMap<String, WebSocketMK> WEB_SOCKET_SESSION_MAP = new ConcurrentHashMap<>();
+
+    // 构建日志websocket session key
+    public static final String WEB_SOCKET_LOG_PREFIX = "type=buildLog&projectId=";
 
     private Session session;
 

@@ -4,6 +4,7 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.mkfree.deploy.WebSocketMK;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class JschUtils {
         return session;
     }
 
-    public static void execCommand(Session session, String command, StringBuilder stringBuilder) {
+    public static void execCommand(Session session, String command, StringBuilder stringBuilder, String webSocketSessionKeyPatten) {
         try {
             ChannelExec channelExec = (com.jcraft.jsch.ChannelExec) session.openChannel("exec");
             channelExec.setCommand(command);
@@ -49,8 +50,11 @@ public class JschUtils {
             while ((buf = reader.readLine()) != null) {
                 log.info(buf);
                 if (stringBuilder != null) {
+                    String a = buf + "</br>";
                     stringBuilder.append(buf).append("</br>");
+                    WebSocketMK.sendMessageAll(webSocketSessionKeyPatten, a);
                 }
+
             }
             while (!channelExec.isClosed())
                 Thread.sleep(500);
@@ -68,7 +72,7 @@ public class JschUtils {
      * @param serverPassword scp服务器密码
      * @param stringBuilder
      */
-    public static void execScp(Session session, String command,String serverPassword, StringBuilder stringBuilder) {
+    public static void execScp(Session session, String command, String serverPassword, StringBuilder stringBuilder, String webSocketSessionKeyPatten) {
         try {
             com.jcraft.jsch.ChannelExec channelExec = (com.jcraft.jsch.ChannelExec) session.openChannel("exec");
             channelExec.setCommand(command);
@@ -86,7 +90,9 @@ public class JschUtils {
             String buf;
             while ((buf = reader.readLine()) != null) {
                 log.info(buf);
+                String a = buf + "</br>";
                 stringBuilder.append(buf).append("</br>");
+                WebSocketMK.sendMessageAll(webSocketSessionKeyPatten, a);
             }
             while (!channelExec.isClosed())
                 Thread.sleep(500);
