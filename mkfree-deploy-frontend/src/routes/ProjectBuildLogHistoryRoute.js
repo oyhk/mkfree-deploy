@@ -23,7 +23,8 @@ function ProjectBuildLogHistoryRoute({dispatch, location, buildLog, project}) {
                     <h3>{project.name} 历史日志</h3>
                 </Col>
                 <Col span={12} style={{textAlign:'right'}}>
-                    <p>构建时间 {buildLog.createdAt}</p>
+                    <span>版本 {buildLog.buildVersion}</span>
+                    <span>构建时间 {buildLog.createdAt}</span>
                 </Col>
             </Row>
             <TextArea readOnly value={buildLog.description} style={{overflowY: 'scroll', height: 'inherit'}}/>

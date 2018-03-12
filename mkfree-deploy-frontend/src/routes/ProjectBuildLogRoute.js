@@ -29,7 +29,7 @@ function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
     }
     return (
         <div style={{height: '100%'}}>
-            <h3>{project.name} 构建日志</h3>
+            <h3 style={{paddingBottom: '10px'}}>{project.name} 构建日志</h3>
             <TextArea id="build_log" readOnly style={{overflowY: 'scroll', height: 'inherit'}}/>
         </div>
     );
