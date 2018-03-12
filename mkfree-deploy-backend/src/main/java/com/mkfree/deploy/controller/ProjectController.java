@@ -762,7 +762,7 @@ public class ProjectController extends BaseController {
 
         BuildStatus buildStatus = projectEnvIp.getBuildStatus();
 
-        CheckHelper.check(buildStatus != BuildStatus.IDLE, "项目正在同步中");
+        CheckHelper.check(buildStatus != BuildStatus.SYNCING, "项目正在同步中");
 
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
