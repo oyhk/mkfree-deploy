@@ -18,12 +18,14 @@ function ProjectBuildLogHistoryRoute({dispatch, location, buildLog, project}) {
     }
     return (
         <div style={{height: '100%'}}>
-            <Row type="flex" style={{paddingBottom:'10px'}}>
+            <Row type="flex" style={{paddingBottom: '10px'}}>
                 <Col span={12}>
                     <h3>{project.name} 历史日志</h3>
                 </Col>
-                <Col span={12} style={{textAlign:'right'}}>
+                <Col span={6} style={{textAlign: 'right'}}>
                     <span>版本 {buildLog.buildVersion}</span>
+                </Col>
+                <Col span={6} style={{textAlign: 'right'}}>
                     <span>构建时间 {buildLog.createdAt}</span>
                 </Col>
             </Row>
