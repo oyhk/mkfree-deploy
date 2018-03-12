@@ -745,6 +745,8 @@ public class ProjectController extends BaseController {
         }
 
         Project project = projectRepository.findOne(projectId);
+        Long buildLogSeqNo = this.getBuildLogSeqNo(project);
+
         ServerMachine serverMachine = serverMachineRepository.findByIp(serverMachineIp);
 
         ProjectEnvConfig projectEnvConfig = projectEnvConfigRepository.findByProjectIdAndEnvId(projectId, envId);
@@ -758,6 +760,14 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
 
+        BuildStatus buildStatus = projectEnvIp.getBuildStatus();
+
+        CheckHelper.check(buildStatus != BuildStatus.IDLE, "项目正在同步中");
+
+        projectEnvIp.setBuildStatus(BuildStatus.SYNCING);
+        projectEnvIpRepository.save(projectEnvIp);
+        TransactionAspectSupport.currentTransactionStatus().flush();
+
 
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
@@ -767,6 +777,7 @@ public class ProjectController extends BaseController {
         // 同步项目环境ip信息 start
         ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, syncEnvId, syncServerMachineIp);
         String publishVersion = syncProjectEnvIp.getPublishVersion();
+
 
         String syncServerUsername = syncServerMachine.getUsername();
         String syncServerPassword = DESUtils.decryption(syncServerMachine.getPassword());
@@ -850,12 +861,6 @@ public class ProjectController extends BaseController {
         logStringBuilder.append(end);
         WebSocketMK.sendMessageAll(buildLogSessionKeyPatten, end);
 
-        Long buildLogSeqNo = project.getBuildLogSeqNo();
-        buildLogSeqNo++;
-        // 更新构建日志序列
-        project.setBuildLogSeqNo(buildLogSeqNo);
-        projectRepository.save(project);
-
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
         projectBuildLogNew.setServerMachineName(serverMachine.getName() + "_" + serverMachine.getIp());
@@ -877,6 +882,7 @@ public class ProjectController extends BaseController {
 
         projectEnvIp.setPublishVersion(publishVersion);
         projectEnvIp.setPublishTime(now);
+        projectEnvIp.setBuildStatus(BuildStatus.IDLE);
         projectEnvIpRepository.save(projectEnvIp);
 
         // 清空jvm项目构建日志
@@ -903,6 +909,8 @@ public class ProjectController extends BaseController {
         ProjectEnv projectEnv = envRepository.findOne(envId);
 
         Project project = projectRepository.findOne(projectId);
+        Long buildLogSeqNo = this.getBuildLogSeqNo(project);
+
         ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
 
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
@@ -919,6 +927,12 @@ public class ProjectController extends BaseController {
             jsonResult.remind("发布环境ip不存在", log);
             return jsonResult;
         }
+
+        CheckHelper.check(projectEnvIp.getBuildStatus() != BuildStatus.IDLE, "项目正在同步中");
+
+        projectEnvIp.setBuildStatus(BuildStatus.SYNCING);
+        projectEnvIpRepository.save(projectEnvIp);
+        TransactionAspectSupport.currentTransactionStatus().flush();
 
         String projectPath = systemConfig.getValue() + File.separator + project.getName();
 
@@ -990,12 +1004,6 @@ public class ProjectController extends BaseController {
         String lastShell = strSubstitutor.replace(shellBuilder.toString());
         String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, log);
 
-        Long buildLogSeqNo = project.getBuildLogSeqNo();
-        buildLogSeqNo++;
-        // 更新构建日志序列
-        project.setBuildLogSeqNo(buildLogSeqNo);
-        projectRepository.save(project);
-
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
         projectBuildLog.setSeqNo(buildLogSeqNo);
@@ -1017,6 +1025,7 @@ public class ProjectController extends BaseController {
         // 最后更新发布时间
         projectEnvIp.setPublishTime(now);
         projectEnvIp.setPublishVersion(projectVersionDir);
+        projectEnvIp.setBuildStatus(BuildStatus.IDLE);
         projectEnvIpRepository.save(projectEnvIp);
 
         return jsonResult;
@@ -1053,6 +1062,7 @@ public class ProjectController extends BaseController {
         ProjectEnv projectEnv = envRepository.findOne(envId);
 
         Project project = projectRepository.findOne(dto.getId());
+        Long buildLogSeqNo = this.getBuildLogSeqNo(project);
 
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
@@ -1070,7 +1080,7 @@ public class ProjectController extends BaseController {
         }
 
         BuildStatus buildStatus = projectEnvIp.getBuildStatus();
-        if (buildStatus == BuildStatus.PROCESSING) {
+        if (buildStatus != BuildStatus.IDLE) {
             jsonResult.remind("项目正在构建中");
             return jsonResult;
         }
@@ -1202,11 +1212,6 @@ public class ProjectController extends BaseController {
         String lastShell = shell.getShell();
         String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, log);
 
-        Long buildLogSeqNo = project.getBuildLogSeqNo();
-        buildLogSeqNo++;
-        // 更新构建日志序列
-        project.setBuildLogSeqNo(buildLogSeqNo);
-        projectRepository.save(project);
         // 发布完成添加发布日志
         ProjectBuildLog projectBuildLog = new ProjectBuildLog();
         projectBuildLog.setServerMachineName(serverMachine.getName() + "_" + serverMachine.getIp());
@@ -1258,6 +1263,19 @@ public class ProjectController extends BaseController {
         data.put("log", result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>").replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>"));
         jsonResult.data = data;
         return jsonResult;
+    }
+
+    /**
+     * 更新构建序号
+     * @param project
+     */
+    private Long getBuildLogSeqNo(Project project) {
+        Long buildLogSeqNo = project.getBuildLogSeqNo();
+        buildLogSeqNo++;
+        // 更新构建日志序列
+        project.setBuildLogSeqNo(buildLogSeqNo);
+        projectRepository.save(project);
+        return buildLogSeqNo;
     }
 
 

@@ -6,7 +6,7 @@ package com.mkfree.deploy.domain.enumclass;
  */
 public enum BuildStatus {
 
-    IDLE("空闲"), PROCESSING("构建中"),SYNCING("");
+    IDLE("空闲"), PROCESSING("构建中"), SYNCING("同步中");
 
     private String text;
 

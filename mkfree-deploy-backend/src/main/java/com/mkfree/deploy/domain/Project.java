@@ -41,7 +41,6 @@ public class Project extends IDEntity {
     @Column(columnDefinition = "bigint comment '日志序号，每次构建加1'")
     private Long buildLogSeqNo;
 
-
     public Long getBuildLogSeqNo() {
         return buildLogSeqNo;
     }
