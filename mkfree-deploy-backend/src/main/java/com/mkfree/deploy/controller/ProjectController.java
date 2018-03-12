@@ -141,7 +141,7 @@ public class ProjectController extends BaseController {
         UserDto userDto = UserHelper.SINGLEONE.getSession(request);
         JsonResult jsonResult = new JsonResult();
 
-        Page<Project> page = null;
+        Page<Project> page;
         // 检查项目本班不同步功能
         if (StringUtils.isNotBlank(type) && type.equals("checkSync")) {
             List<Long> projectIdList = new ArrayList<>();
@@ -150,7 +150,7 @@ public class ProjectController extends BaseController {
             projectEnvIpMap.forEach((projectId, groupByProjectEnvIpList) -> {
                 Map<Long, List<ProjectEnvIp>> groupByProjectEnvIpMap = groupByProjectEnvIpList.stream().filter(projectEnvIp -> projectEnvIp.getEnvId() != null).collect(Collectors.groupingBy(ProjectEnvIp::getEnvId));
                 groupByProjectEnvIpMap.forEach((envId, groupByEnvIdProjectEnvIdList) -> {
-                    HashSet<String> publishVersionSet = new HashSet<>(groupByEnvIdProjectEnvIdList.stream().map(ProjectEnvIp::getPublishVersion).collect(Collectors.toList()));
+                    HashSet<String> publishVersionSet = new HashSet<>(groupByEnvIdProjectEnvIdList.stream().filter(projectEnvIp -> StringUtils.isNotBlank(projectEnvIp.getPublishVersion())).map(ProjectEnvIp::getPublishVersion).collect(Collectors.toList()));
                     if (publishVersionSet.size() > 1 && !projectEnvIpList.contains(projectId)) {
                         projectIdList.add(projectId);
                     }
