@@ -22,14 +22,17 @@ function ProjectBuildLogHistoryRoute({dispatch, location, buildLog, project}) {
                 <Col span={6}>
                     <h3>{project.name} 历史日志</h3>
                 </Col>
-                <Col span={6} style={{textAlign: 'right'}}>
-                    <span>服务器 {buildLog.serverMachineName}</span>
+                <Col span={3} style={{textAlign: 'right'}}>
+                    <span>同步类型：{buildLog.buildTypeText}</span>
+                </Col>
+                <Col span={5} style={{textAlign: 'right'}}>
+                    <span>服务器：{buildLog.serverMachineName}</span>
                 </Col>
                 <Col span={6} style={{textAlign: 'right'}}>
-                    <span>版本 {buildLog.buildVersion}</span>
+                    <span>版本：{buildLog.buildVersion}</span>
                 </Col>
-                <Col span={6} style={{textAlign: 'right'}}>
-                    <span>构建时间 {buildLog.createdAt}</span>
+                <Col span={4} style={{textAlign: 'right'}}>
+                    <span>构建时间：{buildLog.createdAt}</span>
                 </Col>
             </Row>
             <TextArea readOnly value={buildLog.description} style={{overflowY: 'scroll', height: 'inherit'}}/>

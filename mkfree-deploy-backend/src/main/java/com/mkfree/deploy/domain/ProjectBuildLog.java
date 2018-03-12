@@ -47,6 +47,13 @@ public class ProjectBuildLog extends IDEntity {
     @Column(columnDefinition = "varchar(30) comment '服务器名称'")
     private String serverMachineName;
 
+    public String getBuildTypeText() {
+        if (this.buildType != null) {
+            return buildType.getText();
+        }
+        return null;
+    }
+
     public String getServerMachineName() {
         return serverMachineName;
     }
