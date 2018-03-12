@@ -10,17 +10,23 @@ import cookie from 'react-cookie';
 const {TextArea} = Input;
 
 
-function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
+function ProjectBuildLogRoute({dispatch, location, buildLogDescription, project}) {
 
     if (project.id) {
         const username = cookie.load('username');
         const domain = localStorage.getItem('domain');
+        const textArea = document.getElementById('build_log');
+        // 首先设置初始化值
+        if (buildLogDescription) {
+            textArea.value = buildLogDescription;
+        }
 
         const ws = new WebSocket(`ws://${domain}:8091/api/websocket?username=${username}&type=buildLog&projectId=${project.id}`);
+
         ws.onopen = () => {
         };
         ws.onmessage = (evt) => {
-            document.getElementById('build_log').value += evt.data;
+            textArea.value += evt.data;
         };
     }
     const pageTitle = document.title;
@@ -38,8 +44,8 @@ function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
 ProjectBuildLogRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {historyBuildLogList, project} = state.ProjectInfoModel;
-    return {historyBuildLogList, project};
+    const {historyBuildLogList, project, buildLogDescription} = state.ProjectInfoModel;
+    return {historyBuildLogList, project, buildLogDescription};
 }
 
 export default connect(mapStateToProps)(ProjectBuildLogRoute);

@@ -44,6 +44,16 @@ public class ProjectBuildLog extends IDEntity {
     private String envName;
     @Column(columnDefinition = "bigint comment '日志序号'")
     private Long seqNo;
+    @Column(columnDefinition = "varchar(30) comment '服务器名称'")
+    private String serverMachineName;
+
+    public String getServerMachineName() {
+        return serverMachineName;
+    }
+
+    public void setServerMachineName(String serverMachineName) {
+        this.serverMachineName = serverMachineName;
+    }
 
     public Long getSeqNo() {
         return seqNo;

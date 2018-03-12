@@ -858,6 +858,7 @@ public class ProjectController extends BaseController {
 
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
+        projectBuildLogNew.setServerMachineName(serverMachine.getName() + "_" + serverMachine.getIp());
         projectBuildLogNew.setSeqNo(buildLogSeqNo);
         projectBuildLogNew.setDescription(logStringBuilder.toString());
         projectBuildLogNew.setProjectId(projectId);
@@ -1208,6 +1209,7 @@ public class ProjectController extends BaseController {
         projectRepository.save(project);
         // 发布完成添加发布日志
         ProjectBuildLog projectBuildLog = new ProjectBuildLog();
+        projectBuildLog.setServerMachineName(serverMachine.getName() + "_" + serverMachine.getIp());
         projectBuildLog.setSeqNo(buildLogSeqNo);
         projectBuildLog.setDescription(result);
         projectBuildLog.setProjectId(projectId);
@@ -1248,14 +1250,12 @@ public class ProjectController extends BaseController {
             jsonResult.errorParam(Project.CHECK_ID_IS_NOT_NULL);
             return jsonResult;
         }
-        Project project = projectRepository.findOne(id);
         StringBuilder result = Config.STRING_BUILDER_MAP.get(WebSocketMK.WEB_SOCKET_LOG_PREFIX + dto.getId());
         if (result == null) {
             result = new StringBuilder("");
         }
         Map<String, Object> data = new HashMap<>();
         data.put("log", result.toString().replaceAll("ERROR", "<span style=\"color:#c9302c\">ERROR</span>").replaceAll("WARNING", "<span style=\"color:#ffbf00\">WARNING</span>"));
-        data.put("project", project);
         jsonResult.data = data;
         return jsonResult;
     }

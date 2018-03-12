@@ -139,27 +139,6 @@ export default {
         *structure({payload}, {call, put, select}) {
             yield call(projectService.structure, payload, {desc: '发布成功'});
         },
-        // 项目构建日志
-        *buildLog({payload}, {call, put, select}) {
-            const data = yield call(projectService.buildLog, payload.id);
-            const buildLog = data.log;
-            yield put({
-                type: 'save',
-                payload: {
-                    buildLog,
-                    project: data.project
-                }
-            });
-
-            // if (!buildLog || buildLog.indexOf('################ exec shell end ##################') === -1) {
-            //     setTimeout(() => {
-            //         window.location.reload();
-            //     }, 5000);
-            //
-            // }
-            // window.scroll(0, 10000000);
-
-        },
         *sync({payload}, {call, put, select}) {
             yield call(projectService.sync, payload);
         },

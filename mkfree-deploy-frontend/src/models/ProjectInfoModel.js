@@ -12,6 +12,7 @@ export default {
         project: {},
         historyBuildLogList: [],
         buildLog: {},
+        buildLogDescription: ''
 
 
     },
@@ -19,7 +20,7 @@ export default {
         setup({dispatch, history}) {
             return history.listen((location) => {
 
-                // 项目信息layout
+                // 项目信息layout start
                 let projectId;
                 const buildLog = urlPathParams(route.projectBuildLog, location.pathname);
                 const buildLogInfo = urlPathParams(route.projectBuildLogInfo, location.pathname);
@@ -30,20 +31,21 @@ export default {
                     projectId = buildLogInfo[1];
                 }
                 if (projectId) {
-                    dispatch({
-                        type: 'buildLogList',
-                        payload: {
-                            projectId
-                        }
-                    });
-                    dispatch({
-                        type: 'projectInfo',
-                        payload: {
-                            projectId
-                        }
-                    });
+                    dispatch({type: 'buildLogList', payload: {projectId}});
+                    dispatch({type: 'projectInfo', payload: {projectId}});
                 }
-                // 项目信息layout
+                // 项目信息layout end
+
+                // 构建日志页
+                if (buildLog) {
+                    dispatch({
+                        type: 'buildLogCurrent',
+                        payload: {
+                            projectId
+                        }
+                    });
+                    return;
+                }
 
                 // 日志详情页
                 if (buildLogInfo) {
@@ -78,6 +80,17 @@ export default {
                 type: 'save',
                 payload: {
                     buildLog
+                }
+            });
+        },
+        // 项目构建日志
+        *buildLogCurrent({payload}, {call, put, select}) {
+            const data = yield call(projectService.buildLog, payload.projectId);
+            const buildLogDescription = data.log;
+            yield put({
+                type: 'save',
+                payload: {
+                    buildLogDescription,
                 }
             });
         },
