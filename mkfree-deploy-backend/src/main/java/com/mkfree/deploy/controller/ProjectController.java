@@ -764,11 +764,6 @@ public class ProjectController extends BaseController {
 
         CheckHelper.check(buildStatus != BuildStatus.IDLE, "项目正在同步中");
 
-        projectEnvIp.setBuildStatus(BuildStatus.SYNCING);
-        projectEnvIpRepository.save(projectEnvIp);
-        TransactionAspectSupport.currentTransactionStatus().flush();
-
-
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
         Long syncEnvId = projectEnvConfig.getSyncEnvId();
@@ -1062,7 +1057,7 @@ public class ProjectController extends BaseController {
         ProjectEnv projectEnv = envRepository.findOne(envId);
 
         Project project = projectRepository.findOne(dto.getId());
-        Long buildLogSeqNo = this.getBuildLogSeqNo(project);
+
 
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
@@ -1084,11 +1079,17 @@ public class ProjectController extends BaseController {
             jsonResult.remind("项目正在构建中");
             return jsonResult;
         }
-        projectEnvIp.setBuildStatus(BuildStatus.PROCESSING);
-        projectEnvIpRepository.save(projectEnvIp);
-        // 先更新项目构建状态、构建开始时间
-        TransactionAspectSupport.currentTransactionStatus().flush();
+        // 更新项目环境ip构建状态
+        commonExecutorService.execute(() -> {
+            projectEnvIp.setBuildStatus(BuildStatus.PROCESSING);
+            this.updateProjectEnvIp(projectEnvIp);
+        });
 
+        // 获取、更新构建项目序号
+        final Long[] buildLogSeqNo = new Long[1];
+        commonExecutorService.execute(() -> {
+            buildLogSeqNo[0] = this.getBuildLogSeqNo(project);
+        });
         ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
 
         Shell shell = new Shell();
@@ -1215,7 +1216,7 @@ public class ProjectController extends BaseController {
         // 发布完成添加发布日志
         ProjectBuildLog projectBuildLog = new ProjectBuildLog();
         projectBuildLog.setServerMachineName(serverMachine.getName() + "_" + serverMachine.getIp());
-        projectBuildLog.setSeqNo(buildLogSeqNo);
+        projectBuildLog.setSeqNo(buildLogSeqNo[0]);
         projectBuildLog.setDescription(result);
         projectBuildLog.setProjectId(projectId);
         projectBuildLog.setStatus(ProjectBuildStatus.SUCCESS);
@@ -1232,10 +1233,12 @@ public class ProjectController extends BaseController {
         projectBuildLogRepository.save(projectBuildLog);
 
         // 最后更新发布时间、构建成功把项目构建状态设置为成功
-        projectEnvIp.setPublishTime(now);
-        projectEnvIp.setPublishVersion(projectVersionDir);
-        projectEnvIp.setBuildStatus(BuildStatus.IDLE);
-        projectEnvIpRepository.save(projectEnvIp);
+        commonExecutorService.execute(() -> {
+            projectEnvIp.setPublishTime(now);
+            projectEnvIp.setPublishVersion(projectVersionDir);
+            projectEnvIp.setBuildStatus(BuildStatus.IDLE);
+            this.updateProjectEnvIp(projectEnvIp);
+        });
 
 
         // 清空jvm项目构建日志
@@ -1265,10 +1268,16 @@ public class ProjectController extends BaseController {
         return jsonResult;
     }
 
+    @Transactional
+    private void updateProjectEnvIp(ProjectEnvIp projectEnvIp) {
+        projectEnvIpRepository.save(projectEnvIp);
+    }
+
     /**
      * 更新构建序号
      * @param project
      */
+    @Transactional
     private Long getBuildLogSeqNo(Project project) {
         Long buildLogSeqNo = project.getBuildLogSeqNo();
         buildLogSeqNo++;
