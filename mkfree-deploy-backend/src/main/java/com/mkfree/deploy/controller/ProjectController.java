@@ -372,8 +372,6 @@ public class ProjectController extends BaseController {
                             dbProjectEnvIp.setPublish(projectEnvIp.getPublish());
                             projectEnvIpRepository.save(dbProjectEnvIp);
                         }
-
-
                     });
 
                     // 项目构建前命令
@@ -783,7 +781,7 @@ public class ProjectController extends BaseController {
         // 优先使用内网ip
         String serverIntranetIp = serverMachine.getIntranetIp();
         String serverIp = serverMachine.getIp();
-        StringBuilder logStringBuilder = new StringBuilder("server sync start</br>################ exec shell start ##################</br>");
+        StringBuilder logStringBuilder = new StringBuilder("server sync start \n ################ exec shell start ################## \n");
 
         String buildLogSessionKeyPatten = WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId;
 
@@ -847,11 +845,20 @@ public class ProjectController extends BaseController {
         shell.addParams("projectVersionDir", publishVersion);
 
 
+        String end = "################ exec shell end ##################";
         JschUtils.execCommand(session, shell.getShell(), logStringBuilder, buildLogSessionKeyPatten);
-        logStringBuilder.append("################ exec shell end ##################");
+        logStringBuilder.append(end);
+        WebSocketMK.sendMessageAll(buildLogSessionKeyPatten, end);
+
+        Long buildLogSeqNo = project.getBuildLogSeqNo();
+        buildLogSeqNo++;
+        // 更新构建日志序列
+        project.setBuildLogSeqNo(buildLogSeqNo);
+        projectRepository.save(project);
 
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
+        projectBuildLogNew.setSeqNo(buildLogSeqNo);
         projectBuildLogNew.setDescription(logStringBuilder.toString());
         projectBuildLogNew.setProjectId(projectId);
         projectBuildLogNew.setStatus(ProjectBuildStatus.SUCCESS);
@@ -982,8 +989,15 @@ public class ProjectController extends BaseController {
         String lastShell = strSubstitutor.replace(shellBuilder.toString());
         String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, log);
 
+        Long buildLogSeqNo = project.getBuildLogSeqNo();
+        buildLogSeqNo++;
+        // 更新构建日志序列
+        project.setBuildLogSeqNo(buildLogSeqNo);
+        projectRepository.save(project);
+
         // 同步完成添加发布日志
         ProjectBuildLog projectBuildLogNew = new ProjectBuildLog();
+        projectBuildLog.setSeqNo(buildLogSeqNo);
         projectBuildLogNew.setDescription(result);
         projectBuildLogNew.setProjectId(projectId);
         projectBuildLogNew.setStatus(ProjectBuildStatus.SUCCESS);
@@ -1187,9 +1201,14 @@ public class ProjectController extends BaseController {
         String lastShell = shell.getShell();
         String result = ShellHelper.SINGLEONE.executeShellCommand(lastShell, WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, log);
 
-
+        Long buildLogSeqNo = project.getBuildLogSeqNo();
+        buildLogSeqNo++;
+        // 更新构建日志序列
+        project.setBuildLogSeqNo(buildLogSeqNo);
+        projectRepository.save(project);
         // 发布完成添加发布日志
         ProjectBuildLog projectBuildLog = new ProjectBuildLog();
+        projectBuildLog.setSeqNo(buildLogSeqNo);
         projectBuildLog.setDescription(result);
         projectBuildLog.setProjectId(projectId);
         projectBuildLog.setStatus(ProjectBuildStatus.SUCCESS);
@@ -1210,6 +1229,7 @@ public class ProjectController extends BaseController {
         projectEnvIp.setPublishVersion(projectVersionDir);
         projectEnvIp.setBuildStatus(BuildStatus.IDLE);
         projectEnvIpRepository.save(projectEnvIp);
+
 
         // 清空jvm项目构建日志
         Config.STRING_BUILDER_MAP.put(WebSocketMK.WEB_SOCKET_LOG_PREFIX + projectId, new StringBuilder());

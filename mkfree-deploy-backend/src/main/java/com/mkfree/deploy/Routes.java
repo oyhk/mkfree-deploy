@@ -47,10 +47,10 @@ public class Routes {
     public static final String SERVER_MACHINE_UPDATE = API_PREFIX + "/server_machine/update";
     public static final String SERVER_MACHINE_DELETE = API_PREFIX + "/server_machine/delete";
 
-    public static final String PROJECT_STRUCTURE_LOG_LIST = API_PREFIX + "/project_structure_log/list";
+    public static final String PROJECT_BUILD_LOG_LIST = API_PREFIX + "/project_build_log/list";
 
 
-    public static final String PROJECT_STRUCTURE_LOG_INFO = API_PREFIX + "/project_structure_log/info";
+    public static final String PROJECT_BUILD_LOG_INFO = API_PREFIX + "/project_build_log/info";
 
 
     public static final String TAG_PAGE = API_PREFIX + "/tag/page";

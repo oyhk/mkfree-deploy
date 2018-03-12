@@ -2,10 +2,12 @@ import React from 'react';
 import {connect} from 'dva';
 import {addKey, urlPathParams} from '../utils/Utils';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col, Menu, Dropdown, Icon} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Input} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
 import cookie from 'react-cookie';
+
+const {TextArea} = Input;
 
 
 function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
@@ -18,7 +20,7 @@ function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
         ws.onopen = () => {
         };
         ws.onmessage = (evt) => {
-            document.getElementById('build_log').innerHTML += evt.data;
+            document.getElementById('build_log').value += evt.data;
         };
     }
     const pageTitle = document.title;
@@ -26,9 +28,9 @@ function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
         document.title = `${project.name} 构建日志`;
     }
     return (
-        <div>
+        <div style={{height: '100%'}}>
             <h3>{project.name} 构建日志</h3>
-            <div id="build_log" dangerouslySetInnerHTML={{__html: buildLog}}/>
+            <TextArea id="build_log" readOnly style={{overflowY: 'scroll', height: 'inherit'}}/>
         </div>
     );
 }
@@ -36,8 +38,8 @@ function ProjectBuildLogRoute({dispatch, location, buildLog, project}) {
 ProjectBuildLogRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {buildLog, project} = state.projectModel;
-    return {buildLog, project};
+    const {historyBuildLogList, project} = state.ProjectInfoModel;
+    return {historyBuildLogList, project};
 }
 
 export default connect(mapStateToProps)(ProjectBuildLogRoute);

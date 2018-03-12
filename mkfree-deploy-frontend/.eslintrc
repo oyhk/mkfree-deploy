@@ -43,8 +43,8 @@
     "no-shadow":[0],
     "object-curly-spacing":[0],
     "react/jsx-space-before-closing":[0],
-    "eslint-disable key-spacin":[0],
-      "eslint-disable no-unused-vars":[0]
+    "key-spacin":[0],
+      "no-unused-vars":[0]
   },
   "parserOptions": {
     "ecmaFeatures": {

@@ -37,7 +37,18 @@ public class Project extends IDEntity {
     private Long projectTagId;
     @Column(columnDefinition = "varchar(50) comment '项目标签名称'")
     private String projectTagName;
-    @Column(columnDefinition = "varchar(20) comment '项目构建状态'")
+    //    @Column(columnDefinition = "varchar(20) comment '项目构建状态'")
+    @Column(columnDefinition = "bigint comment '日志序号，每次构建加1'")
+    private Long buildLogSeqNo;
+
+
+    public Long getBuildLogSeqNo() {
+        return buildLogSeqNo;
+    }
+
+    public void setBuildLogSeqNo(Long buildLogSeqNo) {
+        this.buildLogSeqNo = buildLogSeqNo;
+    }
 
     public String getSystemPath() {
         return systemPath;

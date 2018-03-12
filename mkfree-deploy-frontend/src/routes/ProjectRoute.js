@@ -162,8 +162,9 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                         serverMachineIp: projectEnvIp.serverIp,
                                                                                                     }
                                                                                                 });
-                                                                                            }}>从本地同步</Button> :  <Tooltip placement="topRight"
-                                                                                                                          title={`从 ${projectEnvConfig.syncServerMachineName}-${projectEnvConfig.syncServerMachineIp} 服务器同步`}>
+                                                                                            }}>从本地同步</Button> :
+                                                                                        <Tooltip placement="topRight"
+                                                                                                 title={`从 ${projectEnvConfig.syncServerMachineName}-${projectEnvConfig.syncServerMachineIp} 服务器同步`}>
                                                                                             <Button type="danger"
                                                                                                     size="small"
                                                                                                     onClick={() => {

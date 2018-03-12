@@ -10,6 +10,7 @@ export const models = {
     env: 'EnvModel',
     install: 'InstallModel',
     project: 'ProjectModel',
+    projectInfo: 'ProjectInfoModel',
     user: 'UserModel',
     userProjectPermission: 'UserProjectPermissionModel',
     serverMachine: 'ServerMachineModel',
@@ -23,11 +24,13 @@ export const route = {
     project: {url: `${route_prefix}/project`, pageTitle: '项目管理'},
     projectInfo: `${route_prefix}/project/info`,
     projectEdit: `${route_prefix}/project/edit/:id`,
+    projectEditPath: id => routePath(route.projectEdit, {id}),
     projectDelete: `${route_prefix}/project/delete`,
     projectAdd: `${route_prefix}/project/add`,
-    projectBuildLog: `${route_prefix}/project/build_log/:id`,
-    projectEditPath: id => routePath(route.projectEdit, {id}),
+    projectBuildLog: `${route_prefix}/project/:id/build_log`,
+    projectBuildLogInfo: `${route_prefix}/project/:id/build_log/info`,
     projectBuildLogPath: id => routePath(route.projectBuildLog, {id}),
+    projectBuildLogInfoPath: id => routePath(route.projectBuildLogInfo, {id}),
 
     env: {url: `${route_prefix}/env`, pageTitle: '环境管理'},
     envAdd: {url: `${route_prefix}/env/add`, pageTitle: '环境添加'},
@@ -66,6 +69,9 @@ export const api = {
     projectPage: `${api_prefix}/project/page`,
     projectPageAntDesignTable: {url: `${api_prefix}/project/page`, method: apiMethod.GET},
     projectInitGit: `${api_prefix}/project/init_git`,
+
+    projectBuildLogList: {url: `${api_prefix}/project_build_log/list`, method: apiMethod.GET},
+    projectBuildLogInfo: {url: `${api_prefix}/project_build_log/info`, method: apiMethod.GET},
 
     envConfig: {url: `${api_prefix}/project/env_config_list`, method: apiMethod.GET},
 

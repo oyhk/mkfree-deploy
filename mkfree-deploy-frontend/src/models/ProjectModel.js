@@ -67,7 +67,6 @@ export default {
         *fetch({payload}, {call, put}) {  // eslint-disable-line
             yield put({type: 'save'});
         },
-
         *page({payload}, {call, put}) {
             let result = yield call(projectService.page, payload);
 
@@ -156,7 +155,7 @@ export default {
             //     setTimeout(() => {
             //         window.location.reload();
             //     }, 5000);
-			//
+            //
             // }
             // window.scroll(0, 10000000);
 

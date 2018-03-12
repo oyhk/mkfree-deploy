@@ -2,6 +2,7 @@ import React from 'react';
 import {Router, Route} from 'dva/router';
 import {
     ProjectBuildLogRoute,
+    ProjectBuildLogHistoryRoute,
     ProjectRoute,
     ProjectInfoRoute,
     InstallRoute,
@@ -41,6 +42,7 @@ function RouterConfig({history}) {
 
                 <Route path={route.projectInfo} component={ProjectInfoRoute}>
                     <Route path={route.projectBuildLog} component={ProjectBuildLogRoute}/>
+                    <Route path={route.projectBuildLogInfo} component={ProjectBuildLogHistoryRoute}/>
                 </Route>
 
 

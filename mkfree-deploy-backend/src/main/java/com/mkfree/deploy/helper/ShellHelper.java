@@ -87,8 +87,8 @@ public enum ShellHelper {
         if (log != null) {
             log.info(start);
         }
-        StringBuilder builder = new StringBuilder("</br>");
-        builder.append(start).append("</br>");
+        StringBuilder builder = new StringBuilder("\n");
+        builder.append(start).append("\n");
         if (StringUtils.isNotBlank(key)) {
             Config.STRING_BUILDER_MAP.put(key, builder);
         }
@@ -101,7 +101,7 @@ public enum ShellHelper {
                     log.info(line);
                 }
                 // process procs standard output here
-                line = line + "</br>";
+                line = line + "\n";
                 builder.append(line);
                 // 实时推送日志
                 WebSocketMK.sendMessageAll(key, line);
@@ -114,7 +114,7 @@ public enum ShellHelper {
 //                if (log != null) {
 //                    log.error(line);
 //                }
-//                line = line + "</br>";
+//                line = line + "\n";
 //                builder.append(line);
 //                if (isWebSocket) {
 //                    WebSocketMK webSocketMK = WebSocketMK.WEB_SOCKET_SESSION_MAP.get("userId=1&projectId=1&type=log");
@@ -126,9 +126,9 @@ public enum ShellHelper {
             if (log != null) {
                 log.info(end);
             }
-            builder.append("</br>").append(end);
+            builder.append("\n").append(end);
             // 实时推送日志
-            WebSocketMK.sendMessageAll(key, "</br>" + end);
+            WebSocketMK.sendMessageAll(key, "\n" + end);
             process.waitFor();
             process.exitValue();
         } catch (IOException | InterruptedException e) {
@@ -144,7 +144,7 @@ public enum ShellHelper {
      * @return
      */
     public String executeShellCommand(String command, Logger log) {
-        return this.executeShellCommand(command, null, log).replaceAll("</br>", "").replaceAll("################ exec shell start ##################", "").replaceAll("################ exec shell end ##################", "");
+        return this.executeShellCommand(command, null, log).replaceAll("\n", "").replaceAll("################ exec shell start ##################", "").replaceAll("################ exec shell end ##################", "");
     }
 
     /**

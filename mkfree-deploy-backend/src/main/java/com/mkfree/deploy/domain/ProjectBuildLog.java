@@ -42,6 +42,16 @@ public class ProjectBuildLog extends IDEntity {
     private Long envId;
     @Column(columnDefinition = "varchar(30) comment '环境名称'")
     private String envName;
+    @Column(columnDefinition = "bigint comment '日志序号'")
+    private Long seqNo;
+
+    public Long getSeqNo() {
+        return seqNo;
+    }
+
+    public void setSeqNo(Long seqNo) {
+        this.seqNo = seqNo;
+    }
 
     public Long getEnvId() {
         return envId;

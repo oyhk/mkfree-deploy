@@ -13,6 +13,7 @@ const app = dva({
 // 3. Model
 app.model(require('./models/InstallModel'));
 app.model(require('./models/ProjectModel'));
+app.model(require('./models/ProjectInfoModel'));
 app.model(require('./models/UserModel'));
 app.model(require('./models/EnvModel'));
 app.model(require('./models/ServerMachineModel'));

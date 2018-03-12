@@ -4,6 +4,7 @@ import InstallRoute from './InstallRoute';
 import ProjectRoute from './ProjectRoute';
 import ProjectInfoRoute from './ProjectInfoRoute';
 import ProjectBuildLogRoute from './ProjectBuildLogRoute';
+import ProjectBuildLogHistoryRoute from './ProjectBuildLogHistoryRoute';
 import ProjectEditRoute from './ProjectEditRoute';
 import ProjectAddRoute from './ProjectAddRoute';
 
@@ -36,6 +37,7 @@ export {
     ProjectAddRoute,
     ProjectEditRoute,
     ProjectBuildLogRoute,
+    ProjectBuildLogHistoryRoute,
 
 
     TagRoute,

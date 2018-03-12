@@ -29,16 +29,5 @@ public interface ProjectBuildLogRepository extends JpaRepository<ProjectBuildLog
      */
     ProjectBuildLog findTop1ByProjectIdAndBuildTypeAndEnvIdOrderByCreatedAtDesc(Long projectId, ProjectBuildType buildType, Long envId);
 
-
-    List<ProjectBuildLog> findByIpInAndProjectIdOrderByCreatedAtDesc(Collection<String> ip, Long projectId);
-
-    /**
-     * 查找指定构建版本的日志信息
-     *
-     * @param projectId 项目id
-     * @param name      构建名
-     * @return
-     */
-    ProjectBuildLog findTop1ByProjectIdAndNameOrderByIdDesc(Long projectId, String name);
-
+    ProjectBuildLog findByProjectIdAndSeqNo(Long projectId,Long seqNo);
 }

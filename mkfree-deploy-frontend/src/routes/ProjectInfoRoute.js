@@ -11,27 +11,33 @@ import styles from './ProjectRoute.less';
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
 
-function ProjectInfoRoute({dispatch, location,children}) {
+function ProjectInfoRoute({dispatch, location, children, historyBuildLogList, project}) {
+
     return (
-        <Row type="flex">
+        <Row type="flex" style={{height: '73vh'}}>
             <Col span={4}>
                 <Menu mode="inline" defaultSelectedKeys={['current_log']} inlineCollapsed={false}
-                      openKeys={['history_build_log_lists', 'history_sync_log_lists']}>
-                    <SubMenu key="history_build_log_lists" title={<span><Icon type="file"/><span>历史构建日志</span></span>}>
-                        <Menu.Item key="current_log">构建中日志</Menu.Item>
-                        <Menu.Item key="6">20180222_release_2.13.0_3c6c1175243b</Menu.Item>
-                        <Menu.Item key="7">20180129_release_2.12.0_2d7f23d36d43</Menu.Item>
-                        <Menu.Item key="8">20180129_release_2.12.0_60b6122bbb62</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="history_sync_log_lists" title={<span><Icon type="file"/><span>历史同步日志</span></span>}>
-                        <Menu.Item key="9">20180222_release_2.13.0_3c6c1175243b</Menu.Item>
-                        <Menu.Item key="10">20180129_release_2.12.0_2d7f23d36d43</Menu.Item>
-                        <Menu.Item key="11">20180129_release_2.12.0_60b6122bbb62</Menu.Item>
-                    </SubMenu>
+                      openKeys={['history_build_log_lists']}>
                     <Menu.Item key="info">
-                        <Icon type="video-camera"/>
+                        <Icon type="info"/>
                         <span className="nav-text">详情</span>
                     </Menu.Item>
+                    <Menu.Item key="current_log">
+                        <Link to={project.id ? route.projectBuildLogPath(project.id) : ''}>
+                            <Icon type="loading"/>
+                            <span className="nav-text">构建中日志</span>
+                        </Link>
+                    </Menu.Item>
+                    <SubMenu key="history_build_log_lists" title={<span><Icon type="file"/><span>历史构建日志</span></span>}>
+                        {
+                            historyBuildLogList.map((item, index) => {
+                                return <Menu.Item key={`history_build_log_list_${index}`}>
+                                    <Link
+                                        to={ project.id ? `${route.projectBuildLogInfoPath(project.id)}?seqNo=${item.seqNo}` : ''}>#{item.seqNo}</Link></Menu.Item>;
+                            })
+                        }
+
+                    </SubMenu>
                 </Menu>
             </Col>
             <Col span={20} style={{paddingLeft: '20px'}}>
@@ -44,8 +50,8 @@ function ProjectInfoRoute({dispatch, location,children}) {
 ProjectInfoRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {} = state.projectModel;
-    return {};
+    const {historyBuildLogList, project} = state.ProjectInfoModel;
+    return {historyBuildLogList, project};
 }
 
 export default connect(mapStateToProps)(ProjectInfoRoute);

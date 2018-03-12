@@ -50,8 +50,8 @@ public class JschUtils {
             while ((buf = reader.readLine()) != null) {
                 log.info(buf);
                 if (stringBuilder != null) {
-                    String a = buf + "</br>";
-                    stringBuilder.append(buf).append("</br>");
+                    String a = buf + "\n";
+                    stringBuilder.append(buf).append("\n");
                     WebSocketMK.sendMessageAll(webSocketSessionKeyPatten, a);
                 }
 
@@ -90,8 +90,8 @@ public class JschUtils {
             String buf;
             while ((buf = reader.readLine()) != null) {
                 log.info(buf);
-                String a = buf + "</br>";
-                stringBuilder.append(buf).append("</br>");
+                String a = buf + "\n";
+                stringBuilder.append(buf).append("\n");
                 WebSocketMK.sendMessageAll(webSocketSessionKeyPatten, a);
             }
             while (!channelExec.isClosed())
