@@ -762,7 +762,7 @@ public class ProjectController extends BaseController {
 
         BuildStatus buildStatus = projectEnvIp.getBuildStatus();
 
-        CheckHelper.check(buildStatus != BuildStatus.SYNCING, "项目正在同步中");
+//        CheckHelper.check(buildStatus != BuildStatus.SYNCING, "项目正在同步中");
 
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
@@ -1076,7 +1076,7 @@ public class ProjectController extends BaseController {
 
         BuildStatus buildStatus = projectEnvIp.getBuildStatus();
 
-        CheckHelper.check(BuildStatus.IDLE != buildStatus, "项目正在构建中");
+//        CheckHelper.check(BuildStatus.IDLE != buildStatus, "项目正在构建中");
 
         // 获取、更新构建项目序号
         final Long[] buildLogSeqNo = new Long[1];
