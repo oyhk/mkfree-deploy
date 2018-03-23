@@ -1075,15 +1075,8 @@ public class ProjectController extends BaseController {
         }
 
         BuildStatus buildStatus = projectEnvIp.getBuildStatus();
-        if (buildStatus != BuildStatus.IDLE) {
-            jsonResult.remind("项目正在构建中");
-            return jsonResult;
-        }
-        // 更新项目环境ip构建状态
-        commonExecutorService.execute(() -> {
-            projectEnvIp.setBuildStatus(BuildStatus.PROCESSING);
-            this.updateProjectEnvIp(projectEnvIp);
-        });
+
+        CheckHelper.check(BuildStatus.IDLE != buildStatus, "项目正在构建中");
 
         // 获取、更新构建项目序号
         final Long[] buildLogSeqNo = new Long[1];
@@ -1233,12 +1226,10 @@ public class ProjectController extends BaseController {
         projectBuildLogRepository.save(projectBuildLog);
 
         // 最后更新发布时间、构建成功把项目构建状态设置为成功
-        commonExecutorService.execute(() -> {
-            projectEnvIp.setPublishTime(now);
-            projectEnvIp.setPublishVersion(projectVersionDir);
-            projectEnvIp.setBuildStatus(BuildStatus.IDLE);
-            this.updateProjectEnvIp(projectEnvIp);
-        });
+        projectEnvIp.setPublishTime(now);
+        projectEnvIp.setPublishVersion(projectVersionDir);
+        projectEnvIp.setBuildStatus(BuildStatus.IDLE);
+        this.updateProjectEnvIp(projectEnvIp);
 
 
         // 清空jvm项目构建日志

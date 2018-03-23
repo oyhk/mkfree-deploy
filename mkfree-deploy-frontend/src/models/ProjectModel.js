@@ -146,7 +146,10 @@ export default {
             yield call(projectService.sync, payload);
         },
         *serverSync({payload}, {call, put, select}) {
-            yield call(projectService.serverSync, payload);
+            const result = yield call(projectService.serverSync, payload, {desc: '同步成功'});
+            if (result.code !== '1') {
+                message.warn(result.desc);
+            }
         },
         // 项目分支列表
         *branchRefresh({payload}, {call, put, select}) {
