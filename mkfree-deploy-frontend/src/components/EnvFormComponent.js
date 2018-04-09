@@ -48,7 +48,7 @@ function EnvFormComponent({dispatch, location, form, env, title, isAdd}) {
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="编码">
-                    {getFieldDecorator('name', {
+                    {getFieldDecorator('code', {
                         rules: [{
                             required: true,
                             message: '编码不能为空',
