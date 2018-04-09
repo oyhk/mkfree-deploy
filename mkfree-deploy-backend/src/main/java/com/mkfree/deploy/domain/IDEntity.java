@@ -3,6 +3,8 @@ package com.mkfree.deploy.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,9 +23,9 @@ public class IDEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-    @Column(columnDefinition = " datetime NOT NULL DEFAULT CURRENT_TIMESTAMP",insertable = false, updatable = false, nullable = false)
+    @CreationTimestamp
     protected Date createdAt;
-    @Column(columnDefinition = " datetime NOT NULL on update CURRENT_TIMESTAMP",insertable = false, updatable = false, nullable = false)
+    @UpdateTimestamp
     protected Date updatedAt;
 
     public static final String CHECK_ID_IS_NOT_NULL = "id is not null";
