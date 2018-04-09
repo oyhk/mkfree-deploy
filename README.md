@@ -5,6 +5,9 @@
 - mkfree-deploy 一个web部署系统工具，配置简单、功能完善、界面流畅、开箱即用！支持git版本管理，支持各种web代码发布，PHP，Python，JAVA等代码的发布、回滚，可以通过web来一键完成。
 - 其实还有很多功能没有完善。
 
+## demo
+http://demo.deploy.mkfree.com:8091/deploy/project 账号：admin 密码：admin
+
 ### 技术栈
 - 语言：java、shell、javascript、es6、html、less
 - 后端： spring-boot、spring、spring-mvc、spring-data-jpa
@@ -73,9 +76,6 @@ mvn clean package
 ````
 java -jar target/mkfree-deploy-backend-1.0.0.jar --spring.profiles.active=prod
 ````
-
-## demo
-http://demo.deploy.mkfree.com:8091/deploy/project
 
 ------
 
