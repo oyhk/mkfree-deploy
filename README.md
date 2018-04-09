@@ -74,8 +74,8 @@ mvn clean package
 java -jar target/mkfree-deploy-backend-1.0.0.jar --spring.profiles.active=prod
 ````
 
-打开浏览器
-http://127.0.0.1:8091/deploy/project?pageSize=100
+## demo
+http://demo.deploy.mkfree.com:8091/deploy/project
 
 ------
 
@@ -90,14 +90,3 @@ http://127.0.0.1:8091/deploy/project?pageSize=100
 		- 用户名：超级管理员用户名
 		- 密码：超级管理密码
 	- ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mkfree-install.jpeg)
-
-- 创建项目环境
-	- 环境管理
-		- ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mkfree-env-manager.jpeg)
-	- 添加
-		- ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mkfree-env-add.jpeg)
-- 创建服务器
-	- 服务器管理
-		- ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mkfree-server-manager.jpeg)
-	- 添加
-		- ![image](https://gitee.com/381895649/mkfree-deploy/raw/master/doc/images/mkfree-server-add.jpeg)
