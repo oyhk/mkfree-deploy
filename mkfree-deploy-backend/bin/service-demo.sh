@@ -1,5 +1,6 @@
 #!/bin/sh
-APP_HOME=/root/project/mkfree-deploy/mkfree-deploy-backend
+JAVA_HOME="/mnt/usr/module/java/current"
+APP_HOME=/mnt/usr/project/mkfree-deploy/mkfree-deploy-backend
 APP_MAINCLASS=target/mkfree-deploy-backend-1.0.0.jar
 psid=0
 checkpid() {
@@ -19,7 +20,7 @@ start() {
    else
       echo -n "Starting $APP_MAINCLASS ..."
       cd $APP_HOME
-      nohup java -jar $APP_HOME/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
+      nohup $JAVA_HOME/bin/java -jar $APP_HOME/$APP_MAINCLASS --spring.profiles.active=prod >/dev/null 2>&1 &
 
       checkpid
       if [ $psid -ne 0 ]; then
