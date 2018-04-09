@@ -24,7 +24,7 @@ public class IDEntity {
     @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP", nullable = false)
     protected Date createdAt;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", updatable = false, nullable = false)
+    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", updatable = false, insertable = false, nullable = false)
     protected Date updatedAt;
 
     public static final String CHECK_ID_IS_NOT_NULL = "id is not null";
