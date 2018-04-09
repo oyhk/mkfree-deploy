@@ -21,9 +21,9 @@ public class IDEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(columnDefinition = " datetime NOT NULL DEFAULT CURRENT_TIMESTAMP",insertable = false, updatable = false, nullable = false)
     protected Date createdAt;
-    @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    @Column(columnDefinition = " datetime NOT NULL on update CURRENT_TIMESTAMP",insertable = false, updatable = false, nullable = false)
     protected Date updatedAt;
 
     public static final String CHECK_ID_IS_NOT_NULL = "id is not null";
