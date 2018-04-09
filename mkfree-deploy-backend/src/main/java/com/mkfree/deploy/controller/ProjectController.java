@@ -263,7 +263,6 @@ public class ProjectController extends BaseController {
                 if (envProjectEnvIpList != null) {
                     // 排序 publish true 排前面
                     projectEnvConfigDto.setProjectEnvIpList(envProjectEnvIpList.stream().map(projectEnvIp -> {
-                        projectEnvIp.setUpdatedAt(null);
                         projectEnvIp.setCreatedAt(null);
                         return projectEnvIp;
                     }).sorted(Comparator.comparing(ProjectEnvIp::getPublish).reversed()).collect(Collectors.toList()));
