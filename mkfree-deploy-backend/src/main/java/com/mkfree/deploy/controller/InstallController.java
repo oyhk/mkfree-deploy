@@ -11,6 +11,7 @@ import com.mkfree.deploy.dto.InstallDto;
 import com.mkfree.deploy.helper.UserHelper;
 import com.mkfree.deploy.repository.SystemConfigRepository;
 import com.mkfree.deploy.repository.UserRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,10 +42,9 @@ public class InstallController extends BaseController {
         JsonResult jsonResult = new JsonResult();
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyIsInstalled);
         Map<String, Object> result = new HashMap<>();
-        result.put("installed", true);
-        if (systemConfig == null) {
-            result.put("installed", false);
-            return jsonResult;
+        result.put("installed", false);
+        if (systemConfig != null && StringUtils.isNotBlank(systemConfig.getValue()) && systemConfig.getValue().equals("true")) {
+            result.put("installed", true);
         }
 
         SystemConfig domainSystemConfig = systemConfigRepository.findByKey(SystemConfig.KeyDomain);
