@@ -23,6 +23,7 @@ public class IDEntity {
     protected Long id;
     @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP", nullable = false)
     protected Date createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(columnDefinition = " timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", updatable = false, nullable = false)
     protected Date updatedAt;
 
