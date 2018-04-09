@@ -47,6 +47,17 @@ function EnvFormComponent({dispatch, location, form, env, title, isAdd}) {
                         <Input placeholder="名称"/>
                     )}
                 </FormItem>
+                <FormItem {...formItemLayout} label="编码">
+                    {getFieldDecorator('name', {
+                        rules: [{
+                            required: true,
+                            message: '编码不能为空',
+                        }],
+                        initialValue: env.code
+                    })(
+                        <Input placeholder="编码"/>
+                    )}
+                </FormItem>
                 <FormItem {...formItemLayout} label="序号">
                     {getFieldDecorator('sort', {
                         rules: [{
@@ -66,13 +77,19 @@ function EnvFormComponent({dispatch, location, form, env, title, isAdd}) {
                                         type: `${models.env}/saved`,
                                         payload: {
                                             name: getFieldValue('name'),
+                                            code: getFieldValue('code'),
                                             sort: getFieldValue('sort')
                                         }
                                     });
                                 } else {
                                     dispatch({
                                         type: `${models.env}/update`,
-                                        payload: {id: env.id, name: getFieldValue('name'), sort: getFieldValue('sort')}
+                                        payload: {
+                                            id: env.id,
+                                            name: getFieldValue('name'),
+                                            code: getFieldValue('code'),
+                                            sort: getFieldValue('sort')
+                                        }
                                     });
                                 }
                             }}
