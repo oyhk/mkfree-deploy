@@ -348,8 +348,8 @@ public class ProjectController extends BaseController {
                     String envName = projectEnv.getName();
 
                     ProjectEnvConfig projectEnvConfig = new ProjectEnvConfig();
-                    projectEnvConfig.setEnvId(projectEnvConfigDto.getEnvId());
-                    projectEnvConfig.setEnvName(projectEnvConfigDto.getEnvName());
+                    projectEnvConfig.setEnvId(envId);
+                    projectEnvConfig.setEnvName(envName);
                     projectEnvConfig.setEnvSort(projectEnv.getSort());
                     projectEnvConfig.setProjectId(project.getId());
                     projectEnvConfig.setProjectName(project.getName());
