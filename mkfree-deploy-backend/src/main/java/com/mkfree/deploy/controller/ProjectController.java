@@ -607,6 +607,7 @@ public class ProjectController extends BaseController {
         branchListTemp = branchListTemp.replaceAll("deploy finish", "");
         String[] branchListArray = branchListTemp.split("remotes/origin/");
         List<String> branchList = Arrays.stream(branchListArray).filter(s -> !s.contains("Already") && !s.contains("HEAD") && !s.contains("Updating") && !s.contains("更新") && !s.contains("++++++") && !s.contains("+----")).map(String::trim).sorted().collect(Collectors.toList());
+        Collections.reverse(branchList);
         project.setBranchList(objectMapper.writeValueAsString(branchList));
         projectRepository.save(project);
 
