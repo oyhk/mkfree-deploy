@@ -21,6 +21,7 @@ function ProjectBuildLogRoute({dispatch, location, buildLogDescription, project}
             textArea.value = buildLogDescription;
         }
 
+
         const ws = new WebSocket(`ws://${domain}:9998/api/websocket?username=${username}&type=buildLog&projectId=${project.id}&timestamp=${new Date().getTime()}`);
 
         ws.onopen = () => {
