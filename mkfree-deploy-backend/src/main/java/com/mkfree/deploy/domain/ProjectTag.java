@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 @Entity
 public class ProjectTag extends IDEntity {
 
+    public static final String CLASS_NAME="ProjectTag ";
     //项目tag名称
     @Column(columnDefinition = "varchar (50) comment '名称'", unique = true)
     private String name;

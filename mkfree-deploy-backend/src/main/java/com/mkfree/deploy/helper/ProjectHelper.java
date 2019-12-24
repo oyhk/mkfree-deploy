@@ -19,8 +19,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by oyhk on 2017/8/13.
@@ -31,11 +33,12 @@ public class ProjectHelper {
 
     public static void setProjectTag(Long projectTagId, Project project, ProjectTagRepository projectTagRepository) {
         if (projectTagId != null) {
-            ProjectTag projectTag = projectTagRepository.findOne(projectTagId);
-            if (projectTag != null) {
+            Optional<ProjectTag> optionalProjectTag = projectTagRepository.findById(projectTagId);
+
+            optionalProjectTag.ifPresent(projectTag -> {
                 project.setProjectTagId(projectTagId);
                 project.setProjectTagName(projectTag.getName());
-            }
+            });
         }
     }
 
@@ -86,7 +89,7 @@ public class ProjectHelper {
             OutputStream out = channelExec.getOutputStream();
             out.write((serverPassword + "\n").getBytes());
             out.flush();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             String buf;
             while ((buf = reader.readLine()) != null) {
                 log.info(buf);

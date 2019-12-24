@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by oyhk on 2017/1/23.
@@ -122,11 +119,11 @@ public class UserController extends BaseController {
             String passwordSalt = new Date().getTime() + "";
             user.setPassword(UserHelper.SINGLEONE.getMd5Password(passwordSalt, dto.getPassword()));
             user.setPasswordSalt(passwordSalt);
-            user = userRepository.save(user);
+            userRepository.save(user);
             if (dto.getUserProjectPermissionList() != null) {
                 for (UserProjectPermissionDto userProjectPermissionDto : dto.getUserProjectPermissionList()) {
-                    Project project = projectRepository.findOne(userProjectPermissionDto.getProjectId());
-                    if (project == null) {
+                    Optional<Project> optionalProject = projectRepository.findById(userProjectPermissionDto.getProjectId());
+                    if (optionalProject.isEmpty()) {
                         continue;
                     }
                 }
@@ -144,11 +141,10 @@ public class UserController extends BaseController {
                 return;
             }
 
-            User user = userRepository.findOne(dto.getId());
-            if (user == null) {
-                jsonResult.remind(User.REMIND_RECORD_IS_NOT_EXIST);
-                return;
-            }
+            Optional<User> optionalUser = userRepository.findById(dto.getId());
+            optionalUser.orElseThrow(() -> new RemindException(User.CLASS_NAME + User.REMIND_RECORD_IS_NOT_EXIST));
+            User user = optionalUser.get();
+
             if (StringUtils.isNotBlank(user.getUsername())) {
                 user.setUsername(dto.getUsername());
             }
@@ -160,10 +156,10 @@ public class UserController extends BaseController {
 
             if (dto.getUserProjectPermissionList() != null) {
                 List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
-                userProjectPermissionRepository.delete(userProjectPermissionList);
+                userProjectPermissionRepository.deleteAll(userProjectPermissionList);
                 for (UserProjectPermissionDto userProjectPermissionDto : dto.getUserProjectPermissionList()) {
-                    Project project = projectRepository.findOne(userProjectPermissionDto.getProjectId());
-                    if (project == null) {
+                    Optional<Project> optionalProject = projectRepository.findById(userProjectPermissionDto.getProjectId());
+                    if (optionalProject.isEmpty()) {
                         continue;
                     }
                 }
@@ -182,12 +178,9 @@ public class UserController extends BaseController {
             }
             // 删除用户项目权限
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(dto.getId());
-            userProjectPermissionRepository.delete(userProjectPermissionList);
-
+            userProjectPermissionRepository.deleteAll(userProjectPermissionList);
             // 删除用户
-            User user = userRepository.findOne(dto.getId());
-            userRepository.delete(user);
-
+            userRepository.deleteById(dto.getId());
         };
         return doing.go(request, log);
     }
@@ -197,8 +190,9 @@ public class UserController extends BaseController {
         JsonResult jsonResult = new JsonResult();
         CheckHelper.checkNotNull(id, User.CHECK_ID_IS_NOT_NULL);
 
-        User user = userRepository.findOne(id);
-        CheckHelper.remindIsNotExist(user, User.REMIND_RECORD_IS_NOT_EXIST);
+        Optional<User> optionalUser = userRepository.findById(id);
+        optionalUser.orElseThrow(() -> new RemindException(User.CLASS_NAME + User.REMIND_RECORD_IS_NOT_EXIST));
+        User user = optionalUser.get();
 
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());

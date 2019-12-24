@@ -20,6 +20,7 @@ public class User extends IDEntity {
 
     public static final String LOGIN_USER = "login_user";
     public static final String LOGIN_ACCESS_TOKEN = "access_token";
+    public static final String CLASS_NAME="User ";
 
     @Column(columnDefinition = "varchar (100) comment'用户名'", unique = true)
     private String username;

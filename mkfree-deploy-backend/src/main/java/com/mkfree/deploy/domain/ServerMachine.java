@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 public class ServerMachine extends IDEntity {
 
+    public static final String CLASS_NAME = "ServerMachine ";
     //IP地址
     @Column(columnDefinition = "varchar(50) comment '公网IP地址'")
     private String ip;

@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 @SpringBootApplication
-@EnableAutoConfiguration
 @EnableScheduling
 public class Bootstrap {
 

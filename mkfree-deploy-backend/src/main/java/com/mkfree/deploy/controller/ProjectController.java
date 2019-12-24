@@ -77,7 +77,11 @@ public class ProjectController extends BaseController {
     public JsonResult initGit(ProjectDto dto) {
         JsonResult jsonResult = new JsonResult();
         try {
-            Project project = projectRepository.findOne(dto.getId());
+            Optional<Project> optionalProject = projectRepository.findById(dto.getId());
+            optionalProject.orElseThrow(() -> {
+                throw new RemindException(Project.REMIND_RECORD_IS_NOT_EXIST);
+            });
+            Project project = optionalProject.get();
 
             // 1. 清空文件夹所有文件
             String projectPath = project.getSystemPath();
@@ -156,7 +160,7 @@ public class ProjectController extends BaseController {
                     }
                 });
             });
-            page = projectRepository.findByIdIn(projectIdList, new PageRequest(0, 10000, Sort.Direction.DESC, "name"));
+            page = projectRepository.findByIdIn(projectIdList, getPageRequest(0, 10000, Sort.Direction.DESC, "name"));
 
 
         } else {
@@ -344,7 +348,12 @@ public class ProjectController extends BaseController {
                     if (envId == null) {
                         return;
                     }
-                    ProjectEnv projectEnv = envRepository.findOne(envId);
+
+
+                    Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(envId);
+                    optionalProjectEnv.orElseThrow(() -> new RemindException(ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
+
+                    ProjectEnv projectEnv = optionalProjectEnv.get();
                     String envName = projectEnv.getName();
 
                     ProjectEnvConfig projectEnvConfig = new ProjectEnvConfig();
@@ -405,7 +414,9 @@ public class ProjectController extends BaseController {
         CheckHelper.checkNotNull(dto.getId(), Project.CHECK_ID_IS_NOT_NULL);
         Long projectId = dto.getId();
 
-        Project project = projectRepository.findOne(dto.getId());
+        Optional<Project> optionalProject = projectRepository.findById(dto.getId());
+        optionalProject.orElseThrow(() -> new RemindException(Project.REMIND_RECORD_IS_NOT_EXIST));
+        Project project = optionalProject.get();
         if (StringUtils.isNotBlank(dto.getName())) {
             project.setName(dto.getName());
         }
@@ -427,7 +438,7 @@ public class ProjectController extends BaseController {
 
             // 删除之前的数据，再添加
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(project.getId());
-            projectDeployFileRepository.delete(projectDeployFileList);
+            projectDeployFileRepository.deleteAll(projectDeployFileList);
 
             for (ProjectDeployFileDto projectDeployFileDto : projectDeployFileDtoList) {
                 ProjectDeployFile projectDeployFile = ProjectDeployFileHelper.SINGLEONE.create(projectDeployFileDto.getEnable(), projectDeployFileDto.getLocalFilePath(), projectDeployFileDto.getRemoteFilePath(), project.getId(), project.getName());
@@ -454,16 +465,22 @@ public class ProjectController extends BaseController {
                     projectEnvConfig.setProjectId(projectId);
                 }
 
+                Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(envId);
 
-                ProjectEnv projectEnv = envRepository.findOne(envId);
+                optionalProject.orElseThrow(() -> new RemindException(ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
+
+                ProjectEnv projectEnv = optionalProjectEnv.get();
                 String envName = projectEnv.getName();
                 projectEnvConfig.setEnvId(envId);
                 projectEnvConfig.setEnvName(envName);
                 projectEnvConfig.setEnvSort(projectEnv.getSort());
 
                 if (projectEnvConfigDto.getSyncServerMachineId() != null) {
-                    ServerMachine syncServerMachine = serverMachineRepository.findOne(projectEnvConfigDto.getSyncServerMachineId());
-                    if (syncServerMachine != null) {
+
+                    Optional<ServerMachine> optionalServerMachine = serverMachineRepository.findById(projectEnvConfigDto.getSyncServerMachineId());
+
+                    if (optionalServerMachine.isPresent()) {
+                        ServerMachine syncServerMachine = optionalServerMachine.get();
                         projectEnvConfig.setSyncServerMachineId(syncServerMachine.getId());
                         projectEnvConfig.setSyncEnvId(syncServerMachine.getEnvId());
                         projectEnvConfig.setSyncEnvName(syncServerMachine.getEnvName());
@@ -506,7 +523,7 @@ public class ProjectController extends BaseController {
                 if (projectEnvConfigDto.getBuildBeforeList() != null) {
 
                     List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.BEFORE, projectEnvConfig.getId());
-                    projectBuildStepRepository.delete(projectBuildStepList);
+                    projectBuildStepRepository.deleteAll(projectBuildStepList);
                     for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildBeforeList()) {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
@@ -517,7 +534,7 @@ public class ProjectController extends BaseController {
                 // 项目构建后命令
                 if (projectEnvConfigDto.getBuildAfterList() != null) {
                     List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.AFTER, projectEnvConfig.getId());
-                    projectBuildStepRepository.delete(projectBuildStepList);
+                    projectBuildStepRepository.deleteAll(projectBuildStepList);
                     for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getBuildAfterList()) {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
@@ -528,7 +545,7 @@ public class ProjectController extends BaseController {
                 // 项目同步后命令
                 if (projectEnvConfigDto.getSyncAfterList() != null) {
                     List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectIdAndTypeAndProjectEnvConfigId(project.getId(), ProjectBuildStepType.SYNC, projectEnvConfig.getId());
-                    projectBuildStepRepository.delete(projectBuildStepList);
+                    projectBuildStepRepository.deleteAll(projectBuildStepList);
                     for (ProjectBuildStep projectStructureStep : projectEnvConfigDto.getSyncAfterList()) {
                         if (StringUtils.isBlank(projectStructureStep.getStep())) {
                             continue;
@@ -555,24 +572,24 @@ public class ProjectController extends BaseController {
 
             // 删除项目部署文件或目录
             List<ProjectDeployFile> projectDeployFileList = projectDeployFileRepository.findByProjectId(projectId);
-            projectDeployFileRepository.delete(projectDeployFileList);
+            projectDeployFileRepository.deleteAll(projectDeployFileList);
 
             // 删除对应项目用户分配权限
             List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(projectId);
-            userProjectPermissionRepository.delete(userProjectPermissionList);
+            userProjectPermissionRepository.deleteAll(userProjectPermissionList);
 
             // 删除构建步骤
             List<ProjectBuildStep> projectBuildStepList = projectBuildStepRepository.findByProjectId(projectId);
-            projectBuildStepRepository.delete(projectBuildStepList);
+            projectBuildStepRepository.deleteAll(projectBuildStepList);
 
             // 删除各个环境配置
             List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByProjectId(projectId);
-            projectEnvConfigRepository.delete(projectEnvConfigList);
+            projectEnvConfigRepository.deleteAll(projectEnvConfigList);
 
             List<ProjectEnvIp> projectEnvIpList = projectEnvIpRepository.findByProjectId(projectId);
-            projectEnvIpRepository.delete(projectEnvIpList);
+            projectEnvIpRepository.deleteAll(projectEnvIpList);
             // 删除项目基本信息
-            projectRepository.delete(projectId);
+            projectRepository.deleteById(projectId);
         };
         return doing.go(request, log);
     }
@@ -584,8 +601,9 @@ public class ProjectController extends BaseController {
 
 
         CheckHelper.checkNotNull(id, Project.CHECK_ID_IS_NOT_NULL);
-        Project project = projectRepository.findOne(id);
-        CheckHelper.remindIsNotExist(project, Project.REMIND_RECORD_IS_NOT_EXIST);
+        Optional<Project> optionalProject = projectRepository.findById(id);
+        optionalProject.orElseThrow(() -> new RemindException(Project.REMIND_RECORD_IS_NOT_EXIST));
+        Project project = optionalProject.get();
 
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
 
@@ -622,12 +640,11 @@ public class ProjectController extends BaseController {
                 jsonResult.errorParam("id不能为空");
                 return;
             }
-            Project project = projectRepository.findOne(id);
-            if (project == null) {
-                jsonResult.remind(Project.REMIND_RECORD_IS_NOT_EXIST);
-                return;
-            }
 
+            Optional<Project> optionalProject = projectRepository.findById(id);
+            optionalProject.orElseThrow(() -> new RemindException(Project.REMIND_RECORD_IS_NOT_EXIST));
+
+            Project project = optionalProject.get();
             ProjectDto projectDto = new ProjectDto();
             projectDto.setId(project.getId());
             projectDto.setGitUrl(project.getGitUrl());
@@ -744,7 +761,10 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
 
-        Project project = projectRepository.findOne(projectId);
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        optionalProject.orElseThrow(() -> new RemindException(Project.REMIND_RECORD_IS_NOT_EXIST));
+
+        Project project = optionalProject.get();
         Long buildLogSeqNo = this.getBuildLogSeqNo(project);
 
         ServerMachine serverMachine = serverMachineRepository.findByIp(serverMachineIp);
@@ -767,7 +787,9 @@ public class ProjectController extends BaseController {
         // 同步服务器id
         Long syncServerMachineId = projectEnvConfig.getSyncServerMachineId();
         Long syncEnvId = projectEnvConfig.getSyncEnvId();
-        ServerMachine syncServerMachine = serverMachineRepository.findOne(syncServerMachineId);
+        Optional<ServerMachine> optionalServerMachine = serverMachineRepository.findById(syncServerMachineId);
+        optionalServerMachine.orElseThrow(() -> new RemindException(ServerMachine.REMIND_RECORD_IS_NOT_EXIST));
+        ServerMachine syncServerMachine = optionalServerMachine.get();
         String syncServerMachineIp = syncServerMachine.getIp();
         // 同步项目环境ip信息 start
         ProjectEnvIp syncProjectEnvIp = projectEnvIpRepository.findByProjectIdAndEnvIdAndServerIp(projectId, syncEnvId, syncServerMachineIp);
@@ -901,9 +923,13 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
 
-        ProjectEnv projectEnv = envRepository.findOne(envId);
+        Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(envId);
+        optionalProjectEnv.orElseThrow(() -> new RemindException(ProjectEnv.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        optionalProject.orElseThrow(() -> new RemindException(Project.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
 
-        Project project = projectRepository.findOne(projectId);
+        Project project = optionalProject.get();
+        ProjectEnv projectEnv = optionalProjectEnv.get();
         Long buildLogSeqNo = this.getBuildLogSeqNo(project);
 
         ServerMachine serverMachine = serverMachineRepository.findByIp(publicServerMachineIp);
@@ -1054,9 +1080,13 @@ public class ProjectController extends BaseController {
             return jsonResult;
         }
 
-        ProjectEnv projectEnv = envRepository.findOne(envId);
+        Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(envId);
+        optionalProjectEnv.orElseThrow(() -> new RemindException(ProjectEnv.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        optionalProject.orElseThrow(() -> new RemindException(Project.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
 
-        Project project = projectRepository.findOne(dto.getId());
+        Project project = optionalProject.get();
+        ProjectEnv projectEnv = optionalProjectEnv.get();
 
 
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfig.keyProjectPath);
@@ -1260,7 +1290,7 @@ public class ProjectController extends BaseController {
     }
 
     @Transactional
-    private void updateProjectEnvIp(ProjectEnvIp projectEnvIp) {
+    void updateProjectEnvIp(ProjectEnvIp projectEnvIp) {
         projectEnvIpRepository.save(projectEnvIp);
     }
 
@@ -1269,7 +1299,7 @@ public class ProjectController extends BaseController {
      * @param project
      */
     @Transactional
-    private Long getBuildLogSeqNo(Project project) {
+    Long getBuildLogSeqNo(Project project) {
         Long buildLogSeqNo = project.getBuildLogSeqNo();
         buildLogSeqNo++;
         // 更新构建日志序列

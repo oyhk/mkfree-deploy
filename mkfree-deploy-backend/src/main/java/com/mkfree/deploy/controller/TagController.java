@@ -1,10 +1,7 @@
 package com.mkfree.deploy.controller;
 
 import com.mkfree.deploy.Routes;
-import com.mkfree.deploy.common.BaseController;
-import com.mkfree.deploy.common.CheckHelper;
-import com.mkfree.deploy.common.JsonResult;
-import com.mkfree.deploy.common.PageResult;
+import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.ProjectTag;
 import com.mkfree.deploy.repository.ProjectTagRepository;
@@ -14,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by oyhk on 2018/1/22.
@@ -40,40 +38,39 @@ public class TagController extends BaseController {
     }
 
 
-
-
     @PutMapping(Routes.TAG_ENABLE)
-    public JsonResult enable(@RequestBody ProjectTag projectTag) {
+    public JsonResult enable(@RequestBody ProjectTag params) {
         JsonResult jsonResult = new JsonResult();
-        Long id = projectTag.getId();
+        Long id = params.getId();
         CheckHelper.checkNotNull(id, Project.CHECK_ID_IS_NOT_NULL);
-        ProjectTag dbProjectTag = projectTagRepository.findOne(id);
-        CheckHelper.remindIsNotExist(dbProjectTag, ProjectTag.REMIND_RECORD_IS_NOT_EXIST);
-
-        dbProjectTag.setStatus(projectTag.getStatus());
-        projectTagRepository.save(dbProjectTag);
+        Optional<ProjectTag> optionalProjectTag = projectTagRepository.findById(id);
+        optionalProjectTag.orElseThrow(() -> new RemindException(ProjectTag.CLASS_NAME + ProjectTag.REMIND_RECORD_IS_NOT_EXIST));
+        ProjectTag projectTag = optionalProjectTag.get();
+        projectTag.setStatus(params.getStatus());
+        projectTagRepository.save(projectTag);
 
         return jsonResult;
     }
 
     @PutMapping(Routes.TAG_UPDATE)
-    public JsonResult update(@RequestBody ProjectTag projectTag) {
+    public JsonResult update(@RequestBody ProjectTag params) {
         JsonResult jsonResult = new JsonResult();
-        Long id = projectTag.getId();
+        Long id = params.getId();
         CheckHelper.checkNotNull(id, Project.CHECK_ID_IS_NOT_NULL);
-        ProjectTag dbProjectTag = projectTagRepository.findOne(id);
-        CheckHelper.remindIsNotExist(dbProjectTag, ProjectTag.REMIND_RECORD_IS_NOT_EXIST);
+        Optional<ProjectTag> optionalProjectTag = projectTagRepository.findById(id);
+        optionalProjectTag.orElseThrow(() -> new RemindException(ProjectTag.CLASS_NAME + ProjectTag.REMIND_RECORD_IS_NOT_EXIST));
+        ProjectTag projectTag = optionalProjectTag.get();
 
-        String name = projectTag.getName();
-        Boolean status = projectTag.getStatus();
-        if(StringUtils.isNotBlank(name)){
-            dbProjectTag.setName(name);
+        String name = params.getName();
+        Boolean status = params.getStatus();
+        if (StringUtils.isNotBlank(name)) {
+            projectTag.setName(name);
         }
-        if(status != null){
-            dbProjectTag.setStatus(status);
+        if (status != null) {
+            projectTag.setStatus(status);
         }
-        dbProjectTag.setStatus(projectTag.getStatus());
-        projectTagRepository.save(dbProjectTag);
+        projectTag.setStatus(params.getStatus());
+        projectTagRepository.save(projectTag);
 
         return jsonResult;
     }
@@ -82,9 +79,10 @@ public class TagController extends BaseController {
     public JsonResult info(Long id) {
         JsonResult jsonResult = new JsonResult();
         CheckHelper.checkNotNull(id, Project.CHECK_ID_IS_NOT_NULL);
-        ProjectTag dbProjectTag = projectTagRepository.findOne(id);
-        CheckHelper.remindIsNotExist(dbProjectTag, ProjectTag.REMIND_RECORD_IS_NOT_EXIST);
-        jsonResult.data = dbProjectTag;
+        Optional<ProjectTag> optionalProjectTag = projectTagRepository.findById(id);
+        optionalProjectTag.orElseThrow(() -> new RemindException(ProjectTag.CLASS_NAME + ProjectTag.REMIND_RECORD_IS_NOT_EXIST));
+        ProjectTag projectTag = optionalProjectTag.get();
+        jsonResult.data = projectTag;
         return jsonResult;
     }
 

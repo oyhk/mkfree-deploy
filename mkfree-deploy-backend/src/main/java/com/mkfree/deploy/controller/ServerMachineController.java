@@ -14,8 +14,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
@@ -26,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by oyhk on 2017/2/4.
@@ -46,7 +45,9 @@ public class ServerMachineController extends BaseController {
     public JsonResult info(Long id) {
         CheckHelper.checkNotNull(id, ServerMachine.CHECK_ID_IS_NOT_NULL);
         JsonResult jsonResult = new JsonResult();
-        ServerMachine serverMachine = serverMachineRepository.findOne(id);
+        Optional<ServerMachine> optionalServerMachine = serverMachineRepository.findById(id);
+        optionalServerMachine.orElseThrow(() -> new RemindException(ServerMachine.CLASS_NAME + ServerMachine.REMIND_RECORD_IS_NOT_EXIST));
+        ServerMachine serverMachine = optionalServerMachine.get();
         if (StringUtils.isNotBlank(serverMachine.getPassword())) {
             serverMachine.setPassword(DESUtils.decryption(serverMachine.getPassword()));
         }
@@ -125,8 +126,9 @@ public class ServerMachineController extends BaseController {
 
         CheckHelper.checkNotNull(id, ServerMachine.CHECK_ID_IS_NOT_NULL);
 
-        ServerMachine serverMachine = serverMachineRepository.findOne(id);
-        CheckHelper.remindIsNotExist(serverMachine, ServerMachine.REMIND_RECORD_IS_NOT_EXIST);
+        Optional<ServerMachine> optionalServerMachine = serverMachineRepository.findById(id);
+        optionalServerMachine.orElseThrow(() -> new RemindException(ServerMachine.CLASS_NAME + ServerMachine.REMIND_RECORD_IS_NOT_EXIST));
+        ServerMachine serverMachine = optionalServerMachine.get();
 
         if (StringUtils.isNotBlank(envName)) {
             ProjectEnv projectEnv = envRepository.findByName(envName);
@@ -166,7 +168,7 @@ public class ServerMachineController extends BaseController {
                 jsonResult.errorParam("id不能为空");
                 return;
             }
-            serverMachineRepository.delete(dto.getId());
+            serverMachineRepository.deleteById(dto.getId());
         };
         return doing.go(request, log);
     }

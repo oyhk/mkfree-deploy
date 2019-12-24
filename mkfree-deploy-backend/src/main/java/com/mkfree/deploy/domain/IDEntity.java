@@ -28,7 +28,7 @@ public class IDEntity {
     @UpdateTimestamp
     protected Date updatedAt;
 
-    public static final String CHECK_ID_IS_NOT_NULL = "id is not null";
+    public static final String CHECK_ID_IS_NOT_NULL = "id is not can null";
     public static final String CHECK_FIELD_IS_NOT_NULL = "%s is not null";
     public static final String CHECK_BODY_IS_NOT_NULL = "body is not null";
     public static final String REMIND_RECORD_IS_NOT_EXIST = "record is not exist";

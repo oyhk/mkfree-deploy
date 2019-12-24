@@ -1,8 +1,5 @@
 package com.mkfree.deploy.common;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
 import java.io.IOException;
@@ -10,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 /**
  * Created by oyhk on 2018/1/25.
@@ -35,7 +33,7 @@ public class DESUtils {
             Cipher cipher = Cipher.getInstance("des");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, random);
             byte[] cipherData = cipher.doFinal(plainText.getBytes());
-            return new BASE64Encoder().encode(cipherData);
+            return Base64.getEncoder().encodeToString(cipherData);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -55,7 +53,7 @@ public class DESUtils {
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("des");
             SecretKey secretKey = keyFactory.generateSecret(keySpec);
             Cipher cipher = Cipher.getInstance("des");
-            byte[] base64Decoder = new BASE64Decoder().decodeBuffer(cipherText);
+            byte[] base64Decoder = Base64.getDecoder().decode(cipherText);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, random);
             byte[] plainData = cipher.doFinal(base64Decoder);
             return new String(plainData);

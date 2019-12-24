@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -96,8 +97,9 @@ public class UserPermissionController extends BaseController {
         CheckHelper.checkNotNull(userId, "userId is not null");
 
 
-        Project project = projectRepository.findOne(projectId);
-
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        optionalProject.orElseThrow(() -> new RemindException(Project.CLASS_NAME + Project.REMIND_RECORD_IS_NOT_EXIST));
+        Project project = optionalProject.get();
         UserProjectPermission userProjectPermission = userProjectPermissionRepository.findByProjectIdAndUserId(projectId, userId);
         if (userProjectPermission == null) {
             userProjectPermission = new UserProjectPermission();

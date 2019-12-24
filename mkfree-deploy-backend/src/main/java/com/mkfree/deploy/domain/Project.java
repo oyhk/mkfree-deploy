@@ -15,6 +15,8 @@ import java.util.Date;
 @Entity
 public class Project extends IDEntity {
 
+    public static final String CLASS_NAME = "Project ";
+
     //项目名称
     @Column(columnDefinition = "varchar (50) comment '项目名称'", unique = true)
     private String name;

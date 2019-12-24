@@ -1,10 +1,7 @@
 package com.mkfree.deploy.controller;
 
 import com.mkfree.deploy.Routes;
-import com.mkfree.deploy.common.BaseController;
-import com.mkfree.deploy.common.CheckHelper;
-import com.mkfree.deploy.common.JsonResult;
-import com.mkfree.deploy.common.PageResult;
+import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.ProjectEnv;
 import com.mkfree.deploy.domain.ProjectEnvConfig;
 import com.mkfree.deploy.domain.User;
@@ -18,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by oyhk on 2017/12/14.
@@ -51,11 +49,13 @@ public class EnvController extends BaseController {
         JsonResult jsonResult = new JsonResult();
         CheckHelper.checkNotNull(id, User.CHECK_ID_IS_NOT_NULL);
 
-        ProjectEnv projectEnv = envRepository.findOne(id);
-        CheckHelper.remindIsNotExist(projectEnv, User.REMIND_RECORD_IS_NOT_EXIST);
+        Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(id);
 
+        optionalProjectEnv.orElseThrow(() -> {
+            throw new RemindException(ProjectEnv.REMIND_RECORD_IS_NOT_EXIST);
+        });
 
-        jsonResult.data = projectEnv;
+        jsonResult.data = optionalProjectEnv.get();
 
         return jsonResult;
     }
@@ -75,46 +75,49 @@ public class EnvController extends BaseController {
     }
 
     @PutMapping(value = Routes.ENV_UPDATE)
-    public JsonResult update(@RequestBody ProjectEnv projectEnv) {
+    public JsonResult update(@RequestBody ProjectEnv params) {
         JsonResult jsonResult = new JsonResult();
 
-        Long id = projectEnv.getId();
-        String name = projectEnv.getName();
-        Integer sort = projectEnv.getSort();
+        Long id = params.getId();
+        String name = params.getName();
+        Integer sort = params.getSort();
         CheckHelper.checkNotNull(id, ProjectEnv.CHECK_ID_IS_NOT_NULL);
 
-        ProjectEnv dbProjectEnv = envRepository.findOne(id);
-        CheckHelper.remindIsNotExist(dbProjectEnv, ProjectEnv.REMIND_RECORD_IS_NOT_EXIST);
+        Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(id);
+        optionalProjectEnv.orElseThrow(() -> new RemindException(ProjectEnv.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
+        ProjectEnv projectEnv = optionalProjectEnv.get();
+
         if (StringUtils.isNotBlank(name)) {
-            dbProjectEnv.setName(name);
+            projectEnv.setName(name);
         }
         if (sort != null) {
-            dbProjectEnv.setSort(sort);
+            projectEnv.setSort(sort);
         }
 
 
-        dbProjectEnv = envRepository.save(projectEnv);
+        projectEnv = envRepository.save(params);
         // 同步更新
         List<ProjectEnvConfig> projectEnvConfigList = projectEnvConfigRepository.findByEnvId(id);
-        ProjectEnv finalDbProjectEnv = dbProjectEnv;
+        ProjectEnv finalDbProjectEnv = projectEnv;
         projectEnvConfigList.forEach(projectEnvConfig -> {
             projectEnvConfig.setEnvName(finalDbProjectEnv.getName());
             projectEnvConfig.setEnvSort(finalDbProjectEnv.getSort());
         });
-        jsonResult.data = dbProjectEnv;
+        jsonResult.data = projectEnv;
         return jsonResult;
     }
 
     @DeleteMapping(value = Routes.ENV_DELETE)
-    public JsonResult delete(@RequestBody ProjectEnv projectEnv) {
+    public JsonResult delete(@RequestBody ProjectEnv params) {
         JsonResult jsonResult = new JsonResult();
 
-        Long id = projectEnv.getId();
+        Long id = params.getId();
         CheckHelper.checkNotNull(id, ProjectEnv.CHECK_ID_IS_NOT_NULL);
+        Optional<ProjectEnv> optionalProjectEnv = envRepository.findById(id);
+        optionalProjectEnv.orElseThrow(() -> new RemindException(ProjectEnv.CLASS_NAME + ProjectEnv.REMIND_RECORD_IS_NOT_EXIST));
+        ProjectEnv projectEnv = optionalProjectEnv.get();
+        envRepository.delete(projectEnv);
 
-        ProjectEnv dbProjectEnv = envRepository.findOne(id);
-        CheckHelper.remindIsNotExist(dbProjectEnv, ProjectEnv.REMIND_RECORD_IS_NOT_EXIST);
-        envRepository.delete(dbProjectEnv);
         return jsonResult;
     }
 }

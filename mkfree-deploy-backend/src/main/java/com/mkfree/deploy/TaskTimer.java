@@ -35,6 +35,6 @@ public class TaskTimer {
                 project.setBuildStatus(BuildStatus.IDLE);
             }
         });
-        projectEnvIpRepository.save(projectList);
+        projectEnvIpRepository.saveAll(projectList);
     }
 }

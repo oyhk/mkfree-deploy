@@ -28,7 +28,7 @@ public class BaseController {
         if (size == null || size < 0) {
             size = 10;
         }
-        return new PageRequest(page, size, Sort.Direction.DESC, "id");
+        return PageRequest.of(page, size, Sort.Direction.DESC, "id");
     }
 
     /**
@@ -48,7 +48,8 @@ public class BaseController {
         if (size == null || size < 0) {
             size = 10;
         }
-        return new PageRequest(page, size, direction, fieldName);
+
+        return PageRequest.of(page, size, direction, fieldName);
     }
 
     protected PageRequest getJpaPageRequest() {
@@ -76,7 +77,7 @@ public class BaseController {
         if (offset > 0) {
             page = offset / pageSize;
         }
-        return new PageRequest(page, pageSize);
+        return PageRequest.of(page, pageSize);
 
     }
 
