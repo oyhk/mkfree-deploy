@@ -19,7 +19,7 @@ public interface ProjectBuildLogRepository extends JpaRepository<ProjectBuildLog
      * @param projectId 项目id
      * @return
      */
-    List<ProjectBuildLog> findTop10ByProjectIdOrderByCreatedAtDesc(Long projectId);
+    List<ProjectBuildLog> findTop10ByProjectIdOrderBySeqNoDesc(Long projectId);
 
     /**
      * 查找项目最新的部署信息

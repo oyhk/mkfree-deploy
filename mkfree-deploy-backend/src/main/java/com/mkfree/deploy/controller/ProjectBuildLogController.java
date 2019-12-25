@@ -4,8 +4,6 @@ import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.BaseController;
 import com.mkfree.deploy.common.CheckHelper;
 import com.mkfree.deploy.common.JsonResult;
-import com.mkfree.deploy.common.RestDoing;
-import com.mkfree.deploy.domain.Project;
 import com.mkfree.deploy.domain.ProjectBuildLog;
 import com.mkfree.deploy.repository.ProjectBuildLogRepository;
 import org.slf4j.Logger;
@@ -40,7 +38,7 @@ public class ProjectBuildLogController extends BaseController {
     public JsonResult list(Long projectId, HttpServletRequest request) {
         JsonResult jsonResult = new JsonResult();
         CheckHelper.checkNotNull(projectId, "projectId is not null");
-        List<ProjectBuildLog> projectBuildLogList = projectBuildLogRepository.findTop10ByProjectIdOrderByCreatedAtDesc(projectId);
+        List<ProjectBuildLog> projectBuildLogList = projectBuildLogRepository.findTop10ByProjectIdOrderBySeqNoDesc(projectId);
 
         jsonResult.data = projectBuildLogList.stream().map(projectBuildLog -> {
             projectBuildLog.setDescription(null);
