@@ -262,6 +262,7 @@ public class ProjectController extends BaseController {
                 projectEnvConfigDto.setSyncServerMachineId(projectEnvConfig.getSyncServerMachineId());
                 projectEnvConfigDto.setSyncServerMachineIp(projectEnvConfig.getSyncServerMachineIp());
                 projectEnvConfigDto.setSyncServerMachineName(projectEnvConfig.getSyncServerMachineName());
+                projectEnvConfigDto.setEurekaEnable(projectEnvConfig.getEurekaEnable());
 
                 List<ProjectEnvIp> envProjectEnvIpList = projectEnvIpMap.get(projectEnvConfig.getProjectId() + "_" + projectEnvConfig.getEnvId());
                 if (envProjectEnvIpList != null) {

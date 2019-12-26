@@ -13,7 +13,9 @@
 <div id="root"></div>
 
 <script src="/index.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
 <script type="text/javascript">
+    new VConsole();
     if (location.pathname !== '/deploy/install') {
         fetch(API_HOST + '/api/installed').then(response => response.json())
             .then(result => {

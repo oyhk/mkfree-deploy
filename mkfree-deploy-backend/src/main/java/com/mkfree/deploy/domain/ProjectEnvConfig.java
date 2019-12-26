@@ -32,10 +32,13 @@ public class ProjectEnvConfig extends IDEntity {
     private String syncEnvName;
     @Column(columnDefinition = "bigint comment '同步服务器id'")
     private Long syncServerMachineId;
-
     private String syncServerMachineIp;
     @Column(columnDefinition = "varchar(100) comment '同步服务器名称'")
     private String syncServerMachineName;
+    @Column(columnDefinition = "varchar(255) comment 'eurekaUrl'")
+    private String eurekaUrl;
+    @Column(columnDefinition = "bit default 0 comment '是否启用Eureka，默认 false'")
+    private Boolean eurekaEnable = false;
 
     public String getSyncEnvName() {
         return syncEnvName;
@@ -132,5 +135,21 @@ public class ProjectEnvConfig extends IDEntity {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getEurekaUrl() {
+        return eurekaUrl;
+    }
+
+    public void setEurekaUrl(String eurekaUrl) {
+        this.eurekaUrl = eurekaUrl;
+    }
+
+    public Boolean getEurekaEnable() {
+        return eurekaEnable;
+    }
+
+    public void setEurekaEnable(Boolean eurekaEnable) {
+        this.eurekaEnable = eurekaEnable;
     }
 }

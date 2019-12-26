@@ -2,6 +2,7 @@
 import * as projectService from '../services/ProjectService';
 import * as serverMachineService from '../services/ServerMachineService';
 import * as tagService from '../services/TagService';
+import * as eurekaService from '../services/EurekaService';
 import {addKey, urlPathParams, uuid} from '../utils/Utils';
 import {route} from '../Constant';
 import {message, Button} from 'antd';
@@ -21,6 +22,11 @@ export default {
 
         serverMachineList: [], // 服务器列表
         tagList: [], // 标签列表
+
+        eureka: {
+            modalVisible: false,
+            application: {},
+        }
     },
 
     subscriptions: {
@@ -69,7 +75,7 @@ export default {
         },
         *page({payload}, {call, put}) {
             let result = yield call(projectService.page, payload);
-
+            console.log(result);
             if (!result) {
                 result = {};
                 result.list = [];
@@ -348,6 +354,36 @@ export default {
 
                 }
             });
+        },
+        // eureka项目功能
+        *eurekaModalVisible({payload}, {call, put, select}) {
+            if (payload.eurekaAppName) {
+                const result = yield call(eurekaService.app, payload, {});
+                addKey(result.application.instance);
+                yield put({
+                    type: 'save',
+                    payload: {
+                        eureka: {
+                            modalVisible: payload.visible,
+                            application: result.application
+                        }
+                    }
+                });
+            } else {
+                yield put({
+                    type: 'save',
+                    payload: {
+                        eureka: {
+                            modalVisible: payload.visible,
+                            application: {}
+                        }
+                    }
+                });
+            }
+        },
+        *eurekaAppStatus({payload}, {call, put, select}){
+            yield call(eurekaService.appStatus, payload, {});
+            message.warn('操作成功，Eureka状态更新稍微延迟，请注意！！！');
         }
     },
 

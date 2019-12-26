@@ -1,14 +1,16 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Link, browserHistory} from 'dva/router';
-import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tag, Affix, Tooltip} from 'antd';
+import {Button, Table, Row, Col, Menu, Dropdown, Icon, Popconfirm, Badge, Tabs, Tag, Affix, Tooltip, Modal} from 'antd';
 import {route} from '../Constant';
 import styles from './ProjectRoute.less';
+
+const TabPane = Tabs.TabPane;
 
 const {CheckableTag} = Tag;
 
 
-function ProjectRoute({dispatch, location, pageResult, tagList}) {
+function ProjectRoute({dispatch, location, pageResult, tagList, eureka}) {
 
 
     return (
@@ -56,7 +58,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                     <Col style={{width: '8.7%'}}><h4>发布时间</h4></Col>
                     <Col style={{width: '17.2%'}}><h4>服务器运行版本</h4></Col>
                     <Col style={{width: '16.9%'}}><h4>发布版本</h4></Col>
-                    <Col style={{width: '17%'}}><h4>操作</h4></Col>
+                    <Col style={{width: '18%'}}><h4>操作</h4></Col>
                 </Row>
             </Affix>
 
@@ -83,7 +85,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
 
                                                  }}>
                                                 <Col style={{width: '12.5%'}}>{projectEnvConfig.envName}</Col>
-                                                <Col style={{width: '87.5%'}}>
+                                                <Col style={{width: '82.5%'}}>
                                                     {
                                                         projectEnvConfig.projectEnvIpList && projectEnvConfig.projectEnvIpList.map((projectEnvIp, projectEnvIpIndex) => {
                                                             return <Row type="flex" align="middle"
@@ -101,7 +103,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                         width: '30%',
                                                                         wordWrap: 'break-word'
                                                                     }}>{projectEnvIp.publishVersion}</Col>
-                                                                <Col style={{width: '28.5%'}}>
+                                                                <Col style={{width: '23.5%'}}>
                                                                     {
                                                                         projectEnvIp.serverIp ?
                                                                             projectEnvIp.publish ?
@@ -176,7 +178,7 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                                                                                 serverMachineIp: projectEnvIp.serverIp,
                                                                                                             }
                                                                                                         });
-                                                                                                    }}>从服务器同步</Button>
+                                                                                                    }}>从服务器同步{projectEnvConfig.eurekaEnable}</Button>
                                                                                         </Tooltip>
                                                                                     }
                                                                                 </div>
@@ -187,17 +189,31 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                                         })
                                                     }
                                                 </Col>
+                                                <Col style={{width: '5%'}}>
+                                                    {
+                                                        projectEnvConfig.eurekaEnable ?
+                                                            <Link onClick={() => {
+                                                                dispatch({
+                                                                    type: 'projectModel/eurekaModalVisible',
+                                                                    payload: {
+                                                                        visible: true,
+                                                                        eurekaAppName: project.name
+                                                                    }
+                                                                });
+                                                            }}>Eureka</Link> : ''
+                                                    }
+                                                </Col>
                                             </Row>
                                         );
                                     })
                                 }
                             </Col>
-                            <Col style={{width: '17%', textAlign: 'center'}}>
-                                <Link to={route.projectBuildLogPath(project.id)}
-                                      target="_blank">查看日志</Link> &nbsp;&nbsp;
-                                <Link to={route.projectEditPath(project.id)}>编辑</Link> &nbsp;&nbsp;
+                            <Col style={{width: '18%', textAlign: 'center'}}>
+                                <p><Link to={route.projectBuildLogPath(project.id)}
+                                         target="_blank">查看日志</Link></p>
+                                <p><Link to={route.projectEditPath(project.id)}>编辑</Link></p>
 
-                                <Link onClick={() => {
+                                <p><Link onClick={() => {
                                     dispatch({
                                         type: 'projectModel/branchRefresh',
                                         payload: {
@@ -205,8 +221,8 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                             query: location.query
                                         }
                                     });
-                                }}>刷新分支</Link> &nbsp;&nbsp;
-                                <Popconfirm title="确定删除此项目吗？" onConfirm={() => {
+                                }}>刷新分支</Link></p>
+                                <p><Popconfirm title="确定删除此项目吗？" onConfirm={() => {
                                     dispatch({
                                         type: 'projectModel/deleted',
                                         payload: {
@@ -216,8 +232,8 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                     });
                                 }} okText="Yes" cancelText="No">
                                     <Link>删除</Link>
-                                </Popconfirm> &nbsp;&nbsp;
-                                <Popconfirm title="确定初始化此项目吗？" onConfirm={() => {
+                                </Popconfirm></p>
+                                <p><Popconfirm title="确定初始化此项目吗？" onConfirm={() => {
                                     dispatch({
                                         type: 'projectModel/initGit',
                                         payload: {
@@ -227,20 +243,84 @@ function ProjectRoute({dispatch, location, pageResult, tagList}) {
                                 }} okText="Yes" cancelText="No">
                                     <Link>初始化</Link>
                                 </Popconfirm>
+                                </p>
                             </Col>
                         </Row>);
                 })
             }
 
+            <Modal
+                title={eureka.application.name}
+                visible={eureka.modalVisible}
+                footer={null}
+                width={'80%'}
+                onCancel={() => {
+                    dispatch({
+                        type: 'projectModel/eurekaModalVisible',
+                        payload: {
+                            visible: false
+                        }
+                    });
+                }}
+            >
+                <Table
+                    pagination={false}
+                    columns={[{
+                        title: 'ip地址',
+                        dataIndex: 'hostName',
+                        key: 'hostName',
+                    }, {
+                        title: '项目名称',
+                        dataIndex: 'instanceId',
+                        key: 'instanceId',
+                    }, {
+                        title: 'Eureka状态',
+                        dataIndex: 'status',
+                        key: 'status',
+                    }, {
+                        title: 'Action',
+                        key: 'action',
+                        render: (text, record) => (
+                            <p>
+                                {
+                                    record.status === 'OUT_OF_SERVICE' ?
+                                        <Button type="primary" onClick={() => {
+                                            dispatch({
+                                                type: 'projectModel/eurekaAppStatus',
+                                                payload: {
+                                                    value: 'UP',
+                                                    instanceId: record.instanceId,
+                                                    app: record.app
+                                                }
+                                            });
+                                        }}>上线</Button> :
+                                        <Button type="danger" onClick={() => {
+                                            dispatch({
+                                                type: 'projectModel/eurekaAppStatus',
+                                                payload: {
+                                                    value: 'OUT_OF_SERVICE',
+                                                    instanceId: record.instanceId,
+                                                    app: record.app
+                                                }
+                                            });
+                                        }}>下线</Button>
+                                }
+
+                            </p>
+                        ),
+                    }]}
+                    dataSource={eureka.application.instance}/>
+            </Modal>
         </div>
-    );
+    )
+        ;
 }
 
 ProjectRoute.propTypes = {};
 
 function mapStateToProps(state) {
-    const {pageResult, tagList} = state.projectModel;
-    return {pageResult, tagList};
+    const {pageResult, tagList, eureka} = state.projectModel;
+    return {pageResult, tagList, eureka};
 }
 
 export default connect(mapStateToProps)(ProjectRoute);

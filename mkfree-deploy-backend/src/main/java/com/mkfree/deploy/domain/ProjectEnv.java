@@ -21,6 +21,7 @@ public class ProjectEnv extends IDEntity {
     @Column(columnDefinition = "bit comment '是否启用'")
     private Boolean enable;
 
+
     public Boolean getEnable() {
         return enable;
     }
@@ -52,6 +53,4 @@ public class ProjectEnv extends IDEntity {
     public void setName(String name) {
         this.name = name;
     }
-
-
 }

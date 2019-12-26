@@ -109,4 +109,3 @@ export const api = {
     serverMachineSave: `${api_prefix}/server_machine/save`,
     serverMachineUpdate: {url: `${api_prefix}/server_machine/update`, method: apiMethod.PUT},
 };
-
