@@ -38,30 +38,33 @@ public class UserInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        if(!request.getMethod().equals(RequestMethod.OPTIONS.toString())){
-            UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
-            if (userDto != null) {
-                return true;
-            }
-            String userToken = request.getHeader(User.LOGIN_ACCESS_TOKEN);
-            if (StringUtils.isBlank(userToken)) {
-                response.addHeader("Access-Control-Allow-Origin","*");
-                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD104[0],JsonResult.CD104[1])));
-                response.getWriter().close();
-                return false;
-            }
 
-            User user = userRepository.findByAccessToken(userToken);
-            if (user == null) {
-                response.addHeader("Access-Control-Allow-Origin","*");
-                response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD105[0],JsonResult.CD105[1])));
-                response.getWriter().close();
-                return false;
-            }
-
-            List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
-            UserHelper.SINGLEONE.setSession(request, user, new ArrayList<>());
+        if (request.getMethod().equals(RequestMethod.OPTIONS.toString())) {
+            return super.preHandle(request, response, handler);
         }
+
+        UserDto userDto = (UserDto) request.getSession().getAttribute(User.LOGIN_USER);
+        if (userDto != null) {
+            return true;
+        }
+        String userToken = request.getHeader(User.LOGIN_ACCESS_TOKEN);
+        if (StringUtils.isBlank(userToken)) {
+            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD104[0], JsonResult.CD104[1])));
+            response.getWriter().close();
+            return false;
+        }
+
+        User user = userRepository.findByAccessToken(userToken);
+        if (user == null) {
+            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.getWriter().print(objectMapper.writeValueAsString(new JsonResult<>(JsonResult.CD105[0], JsonResult.CD105[1])));
+            response.getWriter().close();
+            return false;
+        }
+
+        List<UserProjectPermission> userProjectPermissionList = userProjectPermissionRepository.findByProjectId(user.getId());
+        UserHelper.SINGLEONE.setSession(request, user, new ArrayList<>());
 
         return super.preHandle(request, response, handler);
     }

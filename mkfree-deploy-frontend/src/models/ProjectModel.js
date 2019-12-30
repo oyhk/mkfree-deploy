@@ -75,7 +75,6 @@ export default {
         },
         *page({payload}, {call, put}) {
             let result = yield call(projectService.page, payload);
-            console.log(result);
             if (!result) {
                 result = {};
                 result.list = [];
