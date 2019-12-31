@@ -30,7 +30,7 @@ export default {
     },
     effects: {
 
-        *info({payload}, {call, put, select}){
+        *info({payload}, {call, put, select}) {
             const user = yield call(userSerivce.info, payload);
             yield put({
                 type: 'save',
@@ -55,6 +55,8 @@ export default {
             if (result.code === '1') {
                 cookie.save(user.accessToken, data.accessToken, {path: '/', maxAge: 30 * 24 * 60 * 60});
                 cookie.save(user.username, data.username, {path: '/', maxAge: 30 * 24 * 60 * 60});
+                cookie.save('eurekaUser', data.eurekaUser, {path: '/', maxAge: 30 * 24 * 60 * 60});
+                cookie.save('eurekaPassword', data.eurekaPassword, {path: '/', maxAge: 30 * 24 * 60 * 60});
                 browserHistory.push({pathname: route.project.url, query: {pageNo: 0, pageSize: 100}});
             }
         }

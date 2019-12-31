@@ -27,8 +27,9 @@ export async function appStatus(payload, remind) {
  */
 function request(url, options = {}) {
     options.headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${cookie.load('eurekaPassword')}`,
     };
 
     return fetch(url, options)

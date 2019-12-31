@@ -34,7 +34,7 @@ public interface RestDoing<T> extends BaseDoing<T> {
     }
 
     default JsonResult<T> invoke(Object inputData, Object visitor, HttpServletRequest request, ObjectMapper objectMapper, Logger log) {
-        Long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         log.info("current run method {} -------------------------------------------------------------------", Thread.currentThread().getStackTrace()[3].getMethodName());
         JsonResult<T> jr = new JsonResult();
         try {

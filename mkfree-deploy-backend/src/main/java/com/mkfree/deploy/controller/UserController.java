@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mkfree.deploy.Routes;
 import com.mkfree.deploy.common.*;
 import com.mkfree.deploy.domain.Project;
+import com.mkfree.deploy.domain.SystemConfig;
 import com.mkfree.deploy.domain.UserProjectPermission;
 import com.mkfree.deploy.dto.UserDto;
 import com.mkfree.deploy.dto.UserProjectPermissionDto;
 import com.mkfree.deploy.repository.ProjectRepository;
+import com.mkfree.deploy.repository.SystemConfigRepository;
 import com.mkfree.deploy.repository.UserProjectPermissionRepository;
 import com.mkfree.deploy.repository.UserRepository;
 import com.mkfree.deploy.domain.User;
@@ -42,6 +44,8 @@ public class UserController extends BaseController {
     private ObjectMapper objectMapper;
     @Autowired
     private UserProjectPermissionRepository userProjectPermissionRepository;
+    @Autowired
+    private SystemConfigRepository systemConfigRepository;
 
     @RequestMapping(value = Routes.USER_LOGIN, method = RequestMethod.POST)
     public JsonResult login(@RequestBody User dto, HttpServletRequest request) {
@@ -72,6 +76,10 @@ public class UserController extends BaseController {
             Map<String, Object> result = new HashMap<>();
             result.put("username", user.getUsername());
             result.put("accessToken", user.getAccessToken());
+
+            SystemConfig eureka = systemConfigRepository.findByKey("eureka");
+            result.put("eurekaUser", eureka.getKey());
+            result.put("eurekaPassword", Base64.getEncoder().encodeToString((eureka.getKey() + ":" + eureka.getValue()).getBytes()));
             jsonResult.data = result;
         };
         return doing.go(request, log);
