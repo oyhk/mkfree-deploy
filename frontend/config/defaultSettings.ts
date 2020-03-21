@@ -55,7 +55,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: 'Mkfree',
+  title: 'Ant Design Pro',
   pwa: false,
   iconfontUrl: '',
 } as DefaultSettings;

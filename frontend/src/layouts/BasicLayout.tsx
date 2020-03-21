@@ -9,9 +9,8 @@ import ProLayout, {
   Settings,
   DefaultFooter,
 } from '@ant-design/pro-layout';
-import { formatMessage } from 'umi-plugin-react/locale';
+import { formatMessage,Link } from 'umi';
 import React, { useEffect } from 'react';
-import { Link } from 'umi';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { GithubOutlined } from '@ant-design/icons';
@@ -20,7 +19,7 @@ import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState } from '@/models/connect';
 import { isAntDesignPro, getAuthorityFromRouter } from '@/utils/utils';
-import logo from '../assets/favicon.png';
+import logo from '../assets/logo.svg';
 
 const noMatch = (
   <Result
@@ -61,26 +60,14 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
 
 const defaultFooterDom = (
   <DefaultFooter
-    copyright="2019 蚂蚁金服体验技术部出品"
+    copyright="2017-2020 Mkfree Deploy"
     links={[
       {
-        key: 'Ant Design Pro',
-        title: 'Ant Design Pro',
-        href: 'https://pro.ant.design',
+        key: 'Mkfree Deploy Gitee',
+        title: 'Mkfree Deploy Gitee',
+        href: 'https://gitee.com/381895649/mkfree-deploy',
         blankTarget: true,
-      },
-      {
-        key: 'github',
-        title: <GithubOutlined />,
-        href: 'https://github.com/ant-design/ant-design-pro',
-        blankTarget: true,
-      },
-      {
-        key: 'Ant Design',
-        title: 'Ant Design',
-        href: 'https://ant.design',
-        blankTarget: true,
-      },
+      }
     ]}
   />
 );
