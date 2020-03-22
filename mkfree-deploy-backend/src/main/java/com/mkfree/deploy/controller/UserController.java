@@ -49,40 +49,41 @@ public class UserController extends BaseController {
 
     @RequestMapping(value = Routes.USER_LOGIN, method = RequestMethod.POST)
     public JsonResult login(@RequestBody User dto, HttpServletRequest request) {
-        RestDoing doing = jsonResult -> {
-            if (StringUtils.isBlank(dto.getUsername())) {
-                jsonResult.custom(JsonResult.CD106[0], JsonResult.CD106[1], log);
-                return;
-            }
-            if (StringUtils.isBlank(dto.getPassword())) {
-                jsonResult.custom(JsonResult.CD107[0], JsonResult.CD107[1], log);
-                return;
-            }
-            User user = userRepository.findByUsername(dto.getUsername());
-            if (user == null) {
-                jsonResult.custom(JsonResult.CD101[0], JsonResult.CD101[1], log);
-                return;
-            }
+        JsonResult jsonResult = new JsonResult();
+        if (StringUtils.isBlank(dto.getUsername())) {
+            jsonResult.custom(JsonResult.CD106[0], JsonResult.CD106[1], log);
+            return jsonResult;
+        }
+        if (StringUtils.isBlank(dto.getPassword())) {
+            jsonResult.custom(JsonResult.CD107[0], JsonResult.CD107[1], log);
+            return jsonResult;
+        }
+        User user = userRepository.findByUsername(dto.getUsername());
+        if (user == null) {
+            jsonResult.custom(JsonResult.CD101[0], JsonResult.CD101[1], log);
+            return jsonResult;
+        }
 
-            String MD5Password = UserHelper.SINGLEONE.getMd5Password(user.getPasswordSalt(), dto.getPassword());
-            if (!user.getPassword().equals(MD5Password)) {
-                jsonResult.custom(JsonResult.CD103[0], JsonResult.CD103[1], log);
-                return;
-            }
+        String MD5Password = UserHelper.SINGLEONE.getMd5Password(user.getPasswordSalt(), dto.getPassword());
+        if (!user.getPassword().equals(MD5Password)) {
+            jsonResult.custom(JsonResult.CD103[0], JsonResult.CD103[1], log);
+            return jsonResult;
+        }
 
-            user.setAccessToken(UserHelper.SINGLEONE.getAccessToken(user.getId(), user.getUsername()));
-            userRepository.save(user);
+        user.setAccessToken(UserHelper.SINGLEONE.getAccessToken(user.getId(), user.getUsername()));
+        userRepository.save(user);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("username", user.getUsername());
-            result.put("accessToken", user.getAccessToken());
+        Map<String, Object> result = new HashMap<>();
+        result.put("username", user.getUsername());
+        result.put("accessToken", user.getAccessToken());
 
-            SystemConfig eureka = systemConfigRepository.findByKey("eureka");
+        SystemConfig eureka = systemConfigRepository.findByKey("eureka");
+        if (eureka != null) {
             result.put("eurekaUser", eureka.getKey());
             result.put("eurekaPassword", Base64.getEncoder().encodeToString((eureka.getKey() + ":" + eureka.getValue()).getBytes()));
-            jsonResult.data = result;
-        };
-        return doing.go(request, log);
+        }
+        jsonResult.data = result;
+        return jsonResult;
     }
 
     @RequestMapping(value = Routes.USER_LOGIN_USER_TOKEN, method = RequestMethod.POST)

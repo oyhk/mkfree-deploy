@@ -48,9 +48,9 @@ public class InstallController extends BaseController {
         }
 
         SystemConfig domainSystemConfig = systemConfigRepository.findByKey(SystemConfig.KeyDomain);
-
-        result.put("domain", domainSystemConfig.getValue());
-
+        if(domainSystemConfig != null) {
+            result.put("domain", domainSystemConfig.getValue());
+        }
         jsonResult.data = result;
         return jsonResult;
     }

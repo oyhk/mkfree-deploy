@@ -1,4 +1,4 @@
-import { IConfig, defineConfig, utils } from 'umi';
+import { IConfig, utils } from 'umi';
 import defaultSettings from './defaultSettings'; // https://umijs.org/config/
 const { winPath } = utils;
 import proxy from './proxy';
@@ -17,12 +17,11 @@ export default {
   },
   locale: {
     default: 'zh-CN',
-    baseNavigator: true,
+    baseNavigator: false,
   },
   dynamicImport: {
     loading: '@/components/PageLoading/index',
   },
-  pwa: false,
   cssLoader: {
     // 这里的 modules 可以接受 getLocalIdent
     modules: {
@@ -81,18 +80,19 @@ export default {
           routes: [
             {
               path: '/',
-              redirect: '/welcome',
+              redirect: '/deploy',
             },
             {
-              path: '/welcome',
-              name: 'welcome',
+              path: '/deploy',
+              name: '欢迎',
               icon: 'smile',
               component: './Welcome',
-            }, {
-              path: '/welcome1',
-              name: '欢迎1',
+            },
+            {
+              path: '/project',
+              name: '项目管理',
               icon: 'smile',
-              component: './Welcome1',
+              component: './project',
             },
             {
               path: '/admin',
@@ -109,12 +109,6 @@ export default {
                   authority: ['admin'],
                 },
               ],
-            },
-            {
-              name: 'list.table-list',
-              icon: 'table',
-              path: '/list',
-              component: './ListTableList',
             },
             {
               component: './404',

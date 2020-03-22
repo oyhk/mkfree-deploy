@@ -16,8 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Configuration
-@EnableWebMvc
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig extends WebMvcConfigurationSupport {
 
     @Autowired
     private UserInterceptor userInterceptor;
@@ -61,7 +60,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 .allowedOrigins("*")
                 .allowedMethods("*")
                 .allowedHeaders("*")
-                .allowCredentials(false)
+                .allowCredentials(true)
                 .maxAge(3600);
     }
 

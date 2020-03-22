@@ -14,3 +14,4 @@ testshell
 jobs
 mydb.db
 build
+yarn.lock

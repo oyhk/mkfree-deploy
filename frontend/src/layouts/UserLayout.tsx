@@ -1,6 +1,6 @@
 import { DefaultFooter, MenuDataItem, getMenuData, getPageTitle } from '@ant-design/pro-layout';
 import { Helmet } from 'react-helmet';
-import { Link,formatMessage } from 'umi';
+import { Link } from 'umi';
 import React from 'react';
 import { connect } from 'dva';
 import SelectLang from '@/components/SelectLang';
@@ -30,12 +30,11 @@ const UserLayout: React.FC<UserLayoutProps> = props => {
   const { breadcrumb } = getMenuData(routes);
   const title = getPageTitle({
     pathname: location.pathname,
-    formatMessage,
     breadcrumb,
     ...props,
   });
   return (
-    <>
+    <div>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={title} />
@@ -65,11 +64,11 @@ const UserLayout: React.FC<UserLayoutProps> = props => {
               title: 'Mkfree Deploy Gitee',
               href: 'https://gitee.com/381895649/mkfree-deploy',
               blankTarget: true,
-            }
+            },
           ]}
         />
       </div>
-    </>
+    </div>
   );
 };
 

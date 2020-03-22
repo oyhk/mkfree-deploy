@@ -9,7 +9,7 @@ import ProLayout, {
   Settings,
   DefaultFooter,
 } from '@ant-design/pro-layout';
-import { formatMessage,Link } from 'umi';
+import { formatMessage, Link } from 'umi';
 import React, { useEffect } from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
@@ -19,7 +19,7 @@ import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState } from '@/models/connect';
 import { isAntDesignPro, getAuthorityFromRouter } from '@/utils/utils';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo.png';
 
 const noMatch = (
   <Result
@@ -67,7 +67,7 @@ const defaultFooterDom = (
         title: 'Mkfree Deploy Gitee',
         href: 'https://gitee.com/381895649/mkfree-deploy',
         blankTarget: true,
-      }
+      },
     ]}
   />
 );
@@ -137,7 +137,6 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   return (
     <ProLayout
       logo={logo}
-      formatMessage={formatMessage}
       menuHeaderRender={(logoDom, titleDom) => (
         <Link to="/">
           {logoDom}
