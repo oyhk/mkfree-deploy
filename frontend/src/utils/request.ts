@@ -2,8 +2,9 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import { extend } from 'umi-request';
+import { extend, RequestOptionsInit } from 'umi-request';
 import { notification } from 'antd';
+import { ApiResult } from '@/services/ApiResult';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -27,10 +28,9 @@ const codeMessage = {
  * 异常处理程序
  */
 const errorHandler = (error: { response: Response }): Response => {
-
   const { response } = error;
-
   if (response && response.status) {
+    // @ts-ignore
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
 
@@ -52,7 +52,54 @@ const errorHandler = (error: { response: Response }): Response => {
  */
 const request = extend({
   errorHandler, // 默认错误处理
-  credentials: 'include', // 默认请求是否带上cookie
+  // credentials: 'include', // 默认请求是否带上cookie
 });
+
+export const get = (url: string) => {
+  return request.get(`http://localhost:5000${url}`).then((apiResult: ApiResult<any>) => {
+    if (apiResult.code === 1) {
+      return apiResult.result;
+    }
+    if (apiResult.code) {
+      notification.error({
+        message: `请求错误 ${apiResult.code}: ${url}`,
+        description: apiResult.desc,
+      });
+    }
+    return undefined;
+  });
+};
+
+export const post = (url: string, dto: any) => {
+  const requestOptionsInit = { data: dto } as RequestOptionsInit;
+  return request.post(`http://localhost:5000${url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => {
+    if (apiResult.code === 1) {
+      return apiResult.result;
+    }
+    if (apiResult.code) {
+      notification.error({
+        message: `请求错误 ${apiResult.code}: ${url}`,
+        description: apiResult.desc,
+      });
+    }
+    return undefined;
+  });
+};
+
+export const put = (url: string, dto: any) => {
+  const requestOptionsInit = { data: dto } as RequestOptionsInit;
+  return request.put(`http://localhost:5000${url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => {
+    if (apiResult.code === 1) {
+      return apiResult.result;
+    }
+    if (apiResult.code) {
+      notification.error({
+        message: `请求错误 ${apiResult.code}: ${url}`,
+        description: apiResult.desc,
+      });
+    }
+    return undefined;
+  });
+};
 
 export default request;

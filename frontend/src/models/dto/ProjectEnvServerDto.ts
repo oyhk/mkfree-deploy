@@ -1,4 +1,4 @@
-import { BaseDto } from '@/models/global';
+import { BaseDto } from '@/models/dto/BaseDto';
 
 /**
  * 项目环境服务器
@@ -17,3 +17,4 @@ export interface ProjectEnvServerDto extends BaseDto {
   isSelectServerIp?: boolean;
   serverName?: string;
 }
+

@@ -1,4 +1,4 @@
-import { BaseDto } from '@/models/global';
+import { BaseDto } from '@/models/dto/BaseDto';
 import { ProjectBuildStepDto } from '@/models/dto/ProjectBuildStepDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 
