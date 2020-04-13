@@ -10,20 +10,6 @@ const BasicLayout: React.FC = props => {
       fixedHeader={true}
       fixSiderbar={true}
       menu={{ locale: false }}
-      menuData={[
-        {
-          icon: <SmileOutlined/>,
-          name: '欢迎',
-          key: 'welcome',
-          path: '/',
-        },
-        {
-          icon: <TableOutlined/>,
-          name: '项目管理',
-          key: 'projectManager',
-          path: '/project',
-        },
-      ]}
       breadcrumbRender={(routers = []) => {
         return (
           [
