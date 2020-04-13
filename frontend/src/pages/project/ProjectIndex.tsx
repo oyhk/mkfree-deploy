@@ -6,12 +6,10 @@ import {
 } from '@ant-design/icons';
 import { connect, Link } from 'umi';
 import styles from '@/pages/project/project-index.less';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { ProjectModelState } from '@/models/ProjectModel';
+import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { uuid } from '@/utils/utils';
 import { ProjectDto } from '@/models/dto/ProjectDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
-import { ConnectProps } from '@@/plugin-dva/connect';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 
 
@@ -39,6 +37,9 @@ const columns: ProColumns<ProjectDto>[] = [
 ];
 
 const expandedRowRender = (projectDto: ProjectDto) => {
+  if (!projectDto)
+    return <PageLoading/>;
+
   const subColumns = [
     { title: '环境', dataIndex: 'envName', key: 'envName' },
     {
@@ -103,11 +104,14 @@ const expandedRowRender = (projectDto: ProjectDto) => {
 
 };
 
+
 const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
   if (!project?.page.data)
-    return <div>ing...</div>;
+    return <PageLoading/>;
+
   return (
-    <PageHeaderWrapper>
+    <PageHeaderWrapper
+    >
       <ProTable<ProjectDto> rowKey='id'
                             columns={columns}
                             dataSource={project?.page?.data}

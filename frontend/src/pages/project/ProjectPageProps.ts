@@ -1,4 +1,4 @@
-import { ConnectProps, ProjectModelState } from '@@/plugin-dva/connect';
+import { ConnectProps, ProjectModelState } from 'umi';
 
 /**
  * 页面属性

@@ -1,13 +1,7 @@
 import React from 'react';
-import { StarOutlined, StarFilled, StarTwoTone } from '@ant-design/icons';
+import { SmileOutlined, TableOutlined } from '@ant-design/icons';
 import ProLayout, { MenuDataItem } from '@ant-design/pro-layout';
 import { Link } from 'umi';
-
-const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
-  menuList.map(item => {
-    const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
-    return localItem as MenuDataItem;
-  });
 
 const BasicLayout: React.FC = props => {
   return (
@@ -15,24 +9,50 @@ const BasicLayout: React.FC = props => {
       title='Mkfree Deploy'
       fixedHeader={true}
       fixSiderbar={true}
-      menuDataRender={() => [
+      menu={{ locale: false }}
+      menuData={[
         {
-          icon: <StarOutlined/>,
+          icon: <SmileOutlined/>,
           name: '欢迎',
           key: 'welcome',
           path: '/',
         },
         {
-          icon: <StarOutlined/>,
+          icon: <TableOutlined/>,
           name: '项目管理',
-          key: 'projectParent',
-          children:[{
-            name: '列表',
-            key: 'project',
-            path:'/project'
-          }]
+          key: 'projectManager',
+          path: '/project',
         },
       ]}
+      breadcrumbRender={(routers = []) => {
+        return (
+          [
+            {
+              path: '/',
+              breadcrumbName: '首页',
+            },
+            ...routers,
+          ]
+        );
+      }}
+      menuDataRender={(menuData) => {
+        return (
+          [
+            {
+              icon: <SmileOutlined/>,
+              name: '欢迎',
+              key: 'welcome',
+              path: '/',
+            },
+            {
+              icon: <TableOutlined/>,
+              name: '项目管理',
+              key: 'projectManager',
+              path: '/project',
+            },
+          ]
+        );
+      }}
       menuItemRender={(menuItemProps, defaultDom) => {
         if (menuItemProps.isUrl || menuItemProps.children || !menuItemProps.path) {
           return defaultDom;
@@ -41,7 +61,6 @@ const BasicLayout: React.FC = props => {
       }}
       menuRender={(_, dom) => dom}
     >
-
       {props.children}
     </ProLayout>
   );

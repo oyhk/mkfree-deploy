@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 
-const Index: React.FC = () => {
+const Welcome: React.FC = () => {
   return (
     <PageHeaderWrapper>
       Hello World!
@@ -9,4 +9,4 @@ const Index: React.FC = () => {
 
   );
 };
-export default Index;
+export default Welcome;

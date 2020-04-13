@@ -14,6 +14,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { uuid } from '@/utils/utils';
 import { ServerDto } from '@/models/dto/ServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
+import { PageLoading } from '@ant-design/pro-layout';
 
 const { Option } = Select;
 
@@ -23,7 +24,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
   const [form] = Form.useForm();
   const projectState = project?.project;
   if(!projectState){
-    return <div>123</div>;
+    return <PageLoading/>;
   }
   if (!dispatch) {
     return <div/>;
