@@ -10,9 +10,10 @@ export async function info(projectDto: ProjectDto) {
   return get(`${routes.apiRoutes.projectInfo}?id=${projectDto.id}`);
 }
 
-export async function save(projectDto: ProjectDto) {
+export async function save(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return post(`${routes.apiRoutes.projectSave}`, projectDto);
 }
-export async function update(projectDto: ProjectDto) {
-  return put(`${routes.apiRoutes.projectUpdate}`, projectDto);
+
+export async function update(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return put(`${routes.apiRoutes.projectUpdate}`, projectDto, successCallback, failCallback);
 }

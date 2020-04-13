@@ -1,5 +1,5 @@
 import React from 'react';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
+import ProTable, { ProColumns } from '@ant-design/pro-table/lib/Table';
 import { Table, Button } from 'antd';
 import {
   SmileTwoTone,
@@ -7,11 +7,12 @@ import {
 import { connect, Link } from 'umi';
 import styles from '@/pages/project/project-index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import {  ProjectModelState } from '@/models/ProjectModel';
-import { ConnectProps, Dispatch } from '@@/plugin-dva/connect';
+import { ProjectModelState } from '@/models/ProjectModel';
 import { uuid } from '@/utils/utils';
 import { ProjectDto } from '@/models/dto/ProjectDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
+import { ConnectProps } from '@@/plugin-dva/connect';
+import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 
 
 const columns: ProColumns<ProjectDto>[] = [
@@ -19,7 +20,7 @@ const columns: ProColumns<ProjectDto>[] = [
     title: '项目名称',
     dataIndex: 'name',
     key: 'name',
-    render: (_, row) => (
+    render: (_, row: ProjectDto) => (
       <Link to={`/project/edit/${row.id}`}>{row.name}</Link>
     ),
   },
@@ -38,7 +39,6 @@ const columns: ProColumns<ProjectDto>[] = [
 ];
 
 const expandedRowRender = (projectDto: ProjectDto) => {
-
   const subColumns = [
     { title: '环境', dataIndex: 'envName', key: 'envName' },
     {
@@ -85,8 +85,7 @@ const expandedRowRender = (projectDto: ProjectDto) => {
 
   const subDataSource: any[] = [];
 
-
-  projectDto?.projectEnvList?.forEach(({ envId, envName, projectEnvServerList }) => {
+  projectDto.projectEnvList?.forEach(({ envId, envName, projectEnvServerList }) => {
     subDataSource.push({
       key: uuid(),
       envId,
@@ -98,20 +97,15 @@ const expandedRowRender = (projectDto: ProjectDto) => {
     });
   });
 
-  return <Table columns={subColumns} dataSource={subDataSource} pagination={false}/>;
+  return (
+    <Table columns={subColumns} dataSource={subDataSource} pagination={false}/>
+  );
+
 };
 
-/**
- * 页面属性
- */
-export interface ProjectPageProps {
-  project?: ProjectModelState;
-  dispatch?: Dispatch;
-}
-
 const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
-  if (!dispatch)
-    return <div/>;
+  if (!project?.page.data)
+    return <div>ing...</div>;
   return (
     <PageHeaderWrapper>
       <ProTable<ProjectDto> rowKey='id'
@@ -122,7 +116,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                               expandedRowRender, expandIcon: () => {
                                 return <div className="icons-list">
                                   <SmileTwoTone className={styles.projectState}/>
-                                  {/*<FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/>*/}
+                                  {/* <FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/> */}
                                 </div>;
                               }, defaultExpandAllRows: true,
                             }}
@@ -133,5 +127,5 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
 };
 
 export default connect(
-  ({ project, dispatch }: ProjectPageProps) => ({ project }),
+  ({ project }: ProjectPageProps) => ({ project }),
 )(ProjectPage);

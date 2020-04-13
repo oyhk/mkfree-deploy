@@ -10,6 +10,8 @@ import { ProjectDto } from '@/models/dto/ProjectDto';
 import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ServerDto } from '@/models/dto/ServerDto';
+import { notification } from 'antd';
+import { history } from 'umi';
 
 
 /**
@@ -48,7 +50,7 @@ const ProjectModel: ProjectModelType = {
   namespace: 'project',
   state: {
     logModalVisible: false,
-    page: <PageResult<ProjectDto>>{},
+    page: {} as PageResult<ProjectDto>,
   },
 
   effects: {
@@ -65,7 +67,13 @@ const ProjectModel: ProjectModelType = {
       yield call(projectService.save, payload);
     },
     * update({ payload }, { call, put }) {
-      yield call(projectService.update, payload);
+      yield call(projectService.update, payload, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '修改成功',
+        });
+        history.replace(routes.pageRoutes.projectIndex);
+      });
     },
     * edit({ payload }, { call, put }) {
       const project = yield call(projectService.info, { id: payload.id });

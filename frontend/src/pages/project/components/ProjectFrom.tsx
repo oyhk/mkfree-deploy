@@ -11,13 +11,13 @@ import {
   Checkbox,
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { ProjectEditPageProps } from '@/pages/project/ProjectEdit';
 import { uuid } from '@/utils/utils';
 import { ServerDto } from '@/models/dto/ServerDto';
+import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 
 const { Option } = Select;
 
-const ProjectForm: React.FC<ProjectEditPageProps> = ({ project, dispatch }) => {
+const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
 
 
   const [form] = Form.useForm();
@@ -25,8 +25,6 @@ const ProjectForm: React.FC<ProjectEditPageProps> = ({ project, dispatch }) => {
   if(!projectState){
     return <div>123</div>;
   }
-  console.log('projectState', projectState);
-
   if (!dispatch) {
     return <div/>;
   }
@@ -231,7 +229,7 @@ const ProjectForm: React.FC<ProjectEditPageProps> = ({ project, dispatch }) => {
                     fieldKey={[projectEnvListField.fieldKey, 'publishBranch']}
                   >
                     <Select>
-                      <Option value="jack">master</Option>
+                      <Option value="master">master</Option>
                     </Select>
                   </Form.Item>
                   <Form.List
