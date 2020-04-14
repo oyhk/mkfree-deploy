@@ -107,7 +107,7 @@ const expandedRowRender = (projectDto: ProjectDto) => {
 
 
 const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
-  if (!project?.page.data)
+  if (!project?.page?.data)
     return <PageLoading/>;
 
   return (

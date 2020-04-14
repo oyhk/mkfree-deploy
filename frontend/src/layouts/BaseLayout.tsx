@@ -1,7 +1,8 @@
 import React from 'react';
 import { SmileOutlined, TableOutlined } from '@ant-design/icons';
-import ProLayout, { MenuDataItem } from '@ant-design/pro-layout';
+import ProLayout, { MenuDataItem, DefaultFooter } from '@ant-design/pro-layout';
 import { Link } from 'umi';
+
 
 const BasicLayout: React.FC = props => {
   return (
@@ -46,6 +47,18 @@ const BasicLayout: React.FC = props => {
         return <Link to={menuItemProps.path}>{defaultDom}</Link>;
       }}
       menuRender={(_, dom) => dom}
+
+      footerRender={() =>  <DefaultFooter
+        copyright="MKfree Deploy 2016-2020"
+        links={[
+          {
+            key: 'Mkfree Deploy',
+            title: 'Mkfree Deploy',
+            href: 'https://gitee.com/381895649/mkfree-deploy',
+            blankTarget: true,
+          }
+        ]}
+      />}
     >
       {props.children}
     </ProLayout>
