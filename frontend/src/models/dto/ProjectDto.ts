@@ -6,15 +6,15 @@ import { ProjectDeployFileDto } from '@/models/dto/ProjectDeployFileDto';
  * 项目
  */
 export interface ProjectDto extends BaseDto {
-  name: string;
-  branchList: string;
-  buildLogSeqNo: number;
-  projectTagId: number;
-  projectTagName: string;
-  gitUrl: string;
-  remotePath: string;
-  moduleName: string;
+  name?: string;
+  branchList?: string;
+  buildLogSeqNo?: number;
+  projectTagId?: number;
+  projectTagName?: string;
+  gitUrl?: string;
+  remotePath?: string;
+  moduleName?: string;
 
-  projectDeployFileList: ProjectDeployFileDto[];
-  projectEnvList: ProjectEnvDto[];
+  projectDeployFileList?: ProjectDeployFileDto[];
+  projectEnvList?: ProjectEnvDto[];
 }

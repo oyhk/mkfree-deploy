@@ -17,7 +17,7 @@ export class ProjectEnv extends BaseEntity {
   projectId: number;
   @Column({ nullable: true })
   projectName: string;
-  @Column({ nullable: true, default: false })
+  @Column({ nullable: true })
   publishBranch: string;
   @Column({ nullable: true, default: false, comment: '是否可选分支发布，默认否' })
   isSelectBranch: boolean;

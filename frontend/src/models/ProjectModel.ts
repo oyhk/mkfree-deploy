@@ -37,6 +37,7 @@ interface ProjectModelType {
     edit: Effect;
     editProjectEnvDel: Effect;
     saved: Effect;
+    create: Effect;
     update: Effect;
   };
   reducers: {
@@ -63,19 +64,45 @@ const ProjectModel: ProjectModelType = {
         },
       });
     },
-    * saved({ payload }, { call, put }) {
-      yield call(projectService.save, payload);
+    * create({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          project: null,
+        },
+      });
+
+      const project = { projectEnvList: [] } as ProjectDto;
+      const envList = yield call(envService.list, {});
+      const serverList = yield call(serverService.list, {});
+      yield put({
+        type: 'save',
+        payload: {
+          project,
+          envList,
+          serverList,
+        },
+      });
     },
-    * update({ payload }, { call, put }) {
-      yield call(projectService.update, payload, () => {
+    * saved({ payload }, { call, put }) {
+      yield call(projectService.save, payload, () => {
         notification.success({
           message: `项目：${payload.name}`,
-          description: '修改成功',
+          description: '添加成功',
         });
         history.replace(routes.pageRoutes.projectIndex);
       });
     },
+
     * edit({ payload }, { call, put }) {
+
+      yield put({
+        type: 'save',
+        payload: {
+          project: null,
+        },
+      });
+
       const project = yield call(projectService.info, { id: payload.id });
       const envList = yield call(envService.list, {});
       const serverList = yield call(serverService.list, {});
@@ -101,6 +128,7 @@ const ProjectModel: ProjectModelType = {
         }
       });
 
+
       yield put({
         type: 'save',
         payload: {
@@ -121,8 +149,17 @@ const ProjectModel: ProjectModelType = {
         },
       });
     },
-
+    * update({ payload }, { call, put }) {
+      yield call(projectService.update, payload, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '修改成功',
+        });
+        history.replace(routes.pageRoutes.projectIndex);
+      });
+    },
   },
+
   reducers: {
     save(state, action) {
       return {
@@ -144,6 +181,12 @@ const ProjectModel: ProjectModelType = {
           });
           return;
         }
+
+        if (pathname === routes.pageRoutes.projectCreate) {
+          dispatch({ type: 'create' });
+          return;
+        }
+
         const editMatch: any = pathToRegexp(routes.pageRoutes.projectEdit).exec(pathname);
         if (!editMatch) {
           return;

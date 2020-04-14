@@ -11,7 +11,7 @@ const ProjectEditPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
   }
 
   return <PageHeaderWrapper title={`项目名称：${project?.project?.name}`}>
-    <ProjectForm project={project} dispatch={dispatch}/>
+    <ProjectForm project={project} dispatch={dispatch} isCreate={false}/>
   </PageHeaderWrapper>;
 };
 

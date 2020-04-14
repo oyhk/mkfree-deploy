@@ -11,7 +11,7 @@ export async function info(projectDto: ProjectDto) {
 }
 
 export async function save(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post(`${routes.apiRoutes.projectSave}`, projectDto);
+  return post(`${routes.apiRoutes.projectSave}`, projectDto, successCallback, failCallback);
 }
 
 export async function update(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {

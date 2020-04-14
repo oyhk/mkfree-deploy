@@ -18,12 +18,12 @@ import { PageLoading } from '@ant-design/pro-layout';
 
 const { Option } = Select;
 
-const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
+const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }) => {
 
 
   const [form] = Form.useForm();
   const projectState = project?.project;
-  if(!projectState){
+  if (!projectState) {
     return <PageLoading/>;
   }
   if (!dispatch) {
@@ -37,14 +37,17 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
       layout="horizontal"
       initialValues={projectState}
       onFinish={(projectDto) => {
-        console.log('project submit ',projectDto);
-        if(projectDto.id){
+        if (projectDto.id && !isCreate) {
           dispatch({
             type: 'project/update',
             payload: projectDto,
           });
+        }else{
+          dispatch({
+            type: 'project/saved',
+            payload: projectDto,
+          });
         }
-
 
 
       }}
@@ -142,12 +145,12 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
       {/* ----------------------------------------------------------------环境配置------------------------------------------------------------------------ */}
       <Form.List name='projectEnvList'>
         {(fields, { add, remove }) => {
-          // ant design Form.List 里暂无提供 record 字段，这里暂时扩展支持
-          projectState?.projectEnvList.forEach((projectEnvDto, projectEnvDtoIndex) => {
+          projectState.projectEnvList?.forEach((projectEnvDto, projectEnvDtoIndex) => {
             if (fields[projectEnvDtoIndex]) {
               fields[projectEnvDtoIndex].record = projectEnvDto;
             }
           });
+          // ant design Form.List 里暂无提供 record 字段，这里暂时扩展支持
           // 已经选中的环境Id列表
           const selectedEnvIdList = fields.map((projectEnvListField) => projectEnvListField?.record?.envId);
           return (
@@ -241,7 +244,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                       // ant design Form.List 里暂无提供 record 字段，这里暂时扩展支持
                       // eslint-disable-next-line no-unused-expressions
                       fields?.forEach((projectEnvServerField, projectEnvServerListIndex) => {
-                        projectEnvServerField.record = projectEnvListField?.record.projectEnvServerList[projectEnvServerListIndex];
+                        projectEnvServerField.record = projectEnvListField?.record?.projectEnvServerList[projectEnvServerListIndex];
                       });
                       return (
                         <div>
@@ -465,13 +468,12 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
         }}
       </Form.List>
       {/* ----------------------------------------------------------------环境配置------------------------------------------------------------------------ */}
-      <Form.Item label=' ' colon={false}>
+      <Form.Item label=' ' colon={false} style={{marginTop:'10vh'}}>
         <Button type="primary" htmlType="submit" block>
           提交
         </Button>
       </Form.Item>
     </Form>
-  )
-    ;
+  );
 };
 export default ProjectForm;

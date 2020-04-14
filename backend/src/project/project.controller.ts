@@ -306,7 +306,9 @@ export class ProjectController {
       projectBuildStep.type = 0;
       return projectBuildStep;
     });
-    await entityManager.save(ProjectBuildStep, beforeProjectBuildStep);
+    if (beforeProjectBuildStep) {
+      await entityManager.save(ProjectBuildStep, beforeProjectBuildStep);
+    }
     // 插入构建后命令
     const afterProjectBuildStep = projectEnvDto?.projectBuildAfterList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
@@ -314,7 +316,8 @@ export class ProjectController {
       projectBuildStep.type = 1;
       return projectBuildStep;
     });
-    await entityManager.save(ProjectBuildStep, afterProjectBuildStep);
+    if (afterProjectBuildStep)
+      await entityManager.save(ProjectBuildStep, afterProjectBuildStep);
     // 插入同步命令
     const syncProjectBuildStep = projectEnvDto?.projectSyncAfterList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
@@ -322,7 +325,8 @@ export class ProjectController {
       projectBuildStep.type = 2;
       return projectBuildStep;
     });
-    await entityManager.save(ProjectBuildStep, syncProjectBuildStep);
+    if (syncProjectBuildStep)
+      await entityManager.save(ProjectBuildStep, syncProjectBuildStep);
     // 插入部署服务器
     const newProjectEnvServer = [];
     for (const projectEnvServerDto of projectEnvDto?.projectEnvServerList?.filter(projectEnvServerDto => projectEnvServerDto.isSelectServerIp)) {
@@ -337,7 +341,8 @@ export class ProjectController {
 
       newProjectEnvServer.push(projectEnvServer);
     }
-    await entityManager.save(ProjectEnvServer, newProjectEnvServer);
+    if (newProjectEnvServer.length > 0)
+      await entityManager.save(ProjectEnvServer, newProjectEnvServer);
     // 插入项目环境
     await entityManager.save(ProjectEnv, projectEnvDto);
   }

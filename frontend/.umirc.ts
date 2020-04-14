@@ -5,7 +5,7 @@ import routes from './src/routes';
 
 const config: IConfig = {
   // @ts-ignore
-  title:'MKfree Deploy',
+  title: 'MKfree Deploy',
   // @ts-ignore
   antd: {
     dark: false, // 开启暗色主题
@@ -34,9 +34,14 @@ const config: IConfig = {
           component: '@/pages/project/ProjectIndex',
         },
         {
-          title:'项目编辑',
+          title: '项目编辑',
           path: routes.pageRoutes.projectEdit,
           component: '@/pages/project/ProjectEdit',
+        },
+        {
+          title: '项目创建',
+          path: routes.pageRoutes.projectCreate,
+          component: '@/pages/project/ProjectCreate',
         },
       ],
     },

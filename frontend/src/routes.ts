@@ -3,6 +3,7 @@ export default {
   pageRoutes: {
     projectIndex: '/project',
     projectEdit: '/project/edit/:id',
+    projectCreate: '/project/create',
   },
   // api
   apiRoutes: {

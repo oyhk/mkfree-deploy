@@ -5,4 +5,6 @@ import { ConnectProps, ProjectModelState } from 'umi';
  */
 export interface ProjectPageProps extends ConnectProps {
   project?: ProjectModelState;
+
+  isCreate?: boolean;
 }

@@ -11,6 +11,7 @@ import { uuid } from '@/utils/utils';
 import { ProjectDto } from '@/models/dto/ProjectDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
+import routes from '@/routes';
 
 
 const columns: ProColumns<ProjectDto>[] = [
@@ -124,7 +125,11 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 </div>;
                               }, defaultExpandAllRows: true,
                             }}
-                            pagination={false}/>
+                            pagination={false}
+                            toolBarRender={() => [
+                              <Link to={routes.pageRoutes.projectCreate}>添加</Link>,
+                            ]}
+      />
 
     </PageHeaderWrapper>
   );

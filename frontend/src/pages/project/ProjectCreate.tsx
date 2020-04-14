@@ -5,8 +5,8 @@ import ProjectForm from '@/pages/project/components/ProjectFrom';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 
 const ProjectEditPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
-  return <PageHeaderWrapper title={`项目名称：${project?.project?.name}`}>
-    <ProjectForm project={project} dispatch={dispatch}/>
+  return <PageHeaderWrapper title='项目创建'>
+    <ProjectForm project={project} dispatch={dispatch} isCreate={true}/>
   </PageHeaderWrapper>;
 };
 
