@@ -185,7 +185,7 @@ export class ProjectController {
         }
         projectEnvDto.projectId = project.id;
         projectEnvDto.projectName = project.name;
-        await ProjectController.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
+        await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
       }
     }
     return res.json(ar);
@@ -229,7 +229,7 @@ export class ProjectController {
     if (dto.projectEnvList) {
       // 第一种情况：当参数中没有任何的环境列表，那么删除所有环境以及子关联表的数据
       if (dto.projectEnvList.length === 0) {
-        await ProjectController.deleteProjectEnvChildrenRelationDataByProjectId(entityManager, project.id);
+        await this.deleteProjectEnvChildrenRelationDataByProjectId(entityManager, project.id);
       } else {
         // 分组
         const projectEnvDtoGroupByEnvId = lodash.groupBy(dto.projectEnvList, projectEnvDto => projectEnvDto.envId);
@@ -241,11 +241,11 @@ export class ProjectController {
           if (projectEnvDtoIdList.indexOf(dbProjectEnv.envId) !== -1) {
             const projectEnvDto = projectEnvDtoGroupByEnvId[dbProjectEnv.envId][0];
             // 1. 删除所有子关联表数据
-            await ProjectController.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
+            await this.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
             // 2. 插入所有子关联表数据
             projectEnvDto.projectId = project.id;
             projectEnvDto.projectName = project.name;
-            await ProjectController.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
+            await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
             // 3. 更新项目环境
             await entityManager.update(ProjectEnv, dbProjectEnv.id,
               {
@@ -256,7 +256,7 @@ export class ProjectController {
           }
           // 第三种情况：否则做删除，删除时处理所有关联表
           else {
-            await ProjectController.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
+            await this.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
           }
         }
 
@@ -266,7 +266,7 @@ export class ProjectController {
         for (const projectEnvDto of newProjectEnvDtoList) {
           projectEnvDto.projectId = project.id;
           projectEnvDto.projectName = project.name;
-          await ProjectController.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
+          await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
         }
       }
     }
@@ -280,7 +280,7 @@ export class ProjectController {
    * @param projectId
    * @param envId
    */
-  private static async deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager: EntityManager, projectId: number, envId?: number) {
+  private async deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager: EntityManager, projectId: number, envId?: number) {
     // 删除部署服务器
     await entityManager.delete(ProjectEnvServer, { projectId, envId });
     // 删除构建命令、构建后命令、同步后命令
@@ -290,7 +290,7 @@ export class ProjectController {
 
   }
 
-  private static async deleteProjectEnvChildrenRelationDataByProjectId(entityManager: EntityManager, projectId: number) {
+  private async deleteProjectEnvChildrenRelationDataByProjectId(entityManager: EntityManager, projectId: number) {
     // 删除部署服务器
     await entityManager.delete(ProjectEnvServer, { projectId });
     // 删除构建命令、构建后命令、同步后命令
@@ -305,7 +305,7 @@ export class ProjectController {
    * @param projectId
    * @param projectEnvDto
    */
-  private static async insertProjectEnvChildrenRelationData(entityManager: EntityManager, projectEnvDto: ProjectEnvDto) {
+  private async insertProjectEnvChildrenRelationData(entityManager: EntityManager, projectEnvDto: ProjectEnvDto) {
     // 插入构建命令
     const beforeProjectBuildStep = projectEnvDto?.projectBuildBeforeList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
