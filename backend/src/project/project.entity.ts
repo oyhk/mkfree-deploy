@@ -20,4 +20,17 @@ export class Project extends BaseEntity {
   systemPath: string;
   @Column({ nullable: true, comment: '远程服务器项目路劲' })
   remotePath: string;
+  @Column({ default: 1, comment: '项目状态' })
+  state: number;
+  @Column({ default: 0, comment: '初始化日志序号' })
+  initLogSeq: number;
 }
+
+/**
+ * 项目状态
+ */
+export const ProjectState = {
+  new: 1, // 新建
+  success: 2, // 初始化成功
+  fail: 3, // 初始化失败
+};

@@ -8,7 +8,7 @@ const config: IConfig = {
   title: 'MKfree Deploy',
   // @ts-ignore
   antd: {
-    dark: true, // 开启暗色主题
+    dark: false, // 开启暗色主题
   },
   dva: {
     immer: true,

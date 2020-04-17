@@ -14,6 +14,7 @@ export interface ProjectDto extends BaseDto {
   gitUrl?: string;
   remotePath?: string;
   moduleName?: string;
+  state:number;
 
   projectDeployFileList?: ProjectDeployFileDto[];
   projectEnvList?: ProjectEnvDto[];

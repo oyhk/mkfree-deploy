@@ -8,9 +8,25 @@ import { ProjectEnvServer } from '../project-env-server/project-env-server.entit
 import { Server } from '../server/server.entity';
 import { ProjectBuildStep } from '../project-build-step/project-build-step.entity';
 import { Env } from '../env/env.entity';
+import { SystemConfig } from '../system-config/system-config.entity';
+import { ProjectLog } from '../project-log/project-log.entity';
+import { ProjectLogText } from '../project-log/project-log-text.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Project,ProjectDeployFile,ProjectEnv,ProjectEnvServer,Server,ProjectBuildStep,Env])],
+  imports: [TypeOrmModule.forFeature(
+    [
+      Project,
+      ProjectDeployFile,
+      ProjectEnv,
+      ProjectEnvServer,
+      Server,
+      ProjectBuildStep,
+      Env,
+      SystemConfig,
+      ProjectLog,
+      ProjectLogText,
+    ],
+  )],
   controllers: [ProjectController],
 })
 export class ProjectModule {

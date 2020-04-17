@@ -39,6 +39,8 @@ interface ProjectModelType {
     saved: Effect;
     create: Effect;
     update: Effect;
+    build: Effect;
+    init: Effect;
   };
   reducers: {
     save: Reducer<ProjectDto>;
@@ -149,6 +151,7 @@ const ProjectModel: ProjectModelType = {
         },
       });
     },
+
     * update({ payload }, { call, put }) {
       yield call(projectService.update, payload, () => {
         notification.success({
@@ -158,6 +161,36 @@ const ProjectModel: ProjectModelType = {
         history.replace(routes.pageRoutes.projectIndex);
       });
     },
+    /**
+     * 项目构建
+     * @param payload
+     * @param call
+     * @param put
+     */
+
+    * build({ payload }, { call, put }) {
+      yield call(projectService.build, payload, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '构建操作成功，请稍后...',
+        });
+      });
+    },
+    /**
+     * 项目初始化
+     * @param payload
+     * @param call
+     * @param put
+     */
+    * init({ payload }, { call, put }) {
+      console.log('init');
+      yield call(projectService.init, payload, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '初始化操作成功，请稍后...',
+        });
+      });
+    }
   },
 
   reducers: {

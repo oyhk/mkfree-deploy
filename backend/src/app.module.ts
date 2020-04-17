@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { ProjectController } from './project/project.controller';
 import { ProjectModule } from './project/project.module';
 import { ServerModule } from './server/server.module';
 import { EnvModule } from './env/env.module';
@@ -10,6 +9,9 @@ import { ProjectEnvModule } from './project-env/project-env.module';
 import { ProjectEnvServerModule } from './project-env-server/project-env-server.module';
 import { ProjectDeployFileModule } from './project-deploy-file/project-deploy-file.module';
 import { ProjectBuildStepModule } from './project-build-step/project-build-step.module';
+import { SystemConfigModule } from './system-config/system-config.module';
+import { ProjectLogModule } from './project-log/project-log.module';
+import { ProjectLogTextModule } from './project-log/project-log-text.module';
 
 
 @Module({
@@ -26,9 +28,12 @@ import { ProjectBuildStepModule } from './project-build-step/project-build-step.
     ServerModule,
     EnvModule,
     ProjectEnvModule,
+    ProjectLogModule,
+    ProjectLogTextModule,
     ProjectEnvServerModule,
     ProjectDeployFileModule,
     ProjectBuildStepModule,
+    SystemConfigModule,
   ],
   controllers: [AppController],
 })

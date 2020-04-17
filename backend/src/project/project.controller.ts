@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Put, Query, Res } from '@nestjs/common';
 import { ProjectDto } from './project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Transaction, TransactionManager, TransactionRepository } from 'typeorm';
-import { Project } from './project.entity';
+import { Project, ProjectState } from './project.entity';
 import { Page } from '../common/page';
 import { ApiHttpCode, ApiResult } from '../common/api-result';
 import { Response } from 'express';
@@ -16,32 +16,36 @@ import { throws } from 'assert';
 import { ProjectEnvDto } from '../project-env/project-env.dto';
 import * as lodash from 'lodash';
 import { ProjectEnvServerDto } from '../project-env-server/project-env-server.dto';
+import { spawn } from 'child_process';
+import * as fs from 'fs';
+import { SystemConfig, SystemConfigKeys } from '../system-config/system-config.entity';
+import { ProjectLog, ProjectLogType } from '../project-log/project-log.entity';
+import { ProjectLogText } from '../project-log/project-log-text.entity';
 
 @Controller()
 export class ProjectController {
 
   constructor(
     @InjectRepository(Project)
-    @TransactionRepository(Project)
     private projectRepository: Repository<Project>,
     @InjectRepository(ProjectDeployFile)
-    @TransactionRepository(ProjectDeployFile)
     private projectDeployFileRepository: Repository<ProjectDeployFile>,
     @InjectRepository(ProjectEnv)
-    @TransactionRepository(ProjectEnv)
     private projectEnvRepository: Repository<ProjectEnv>,
     @InjectRepository(ProjectEnvServer)
-    @TransactionRepository(ProjectEnvServer)
     private projectEnvServerRepository: Repository<ProjectEnvServer>,
     @InjectRepository(Server)
-    @TransactionRepository(Server)
     private serverRepository: Repository<Server>,
-    @TransactionRepository(ProjectBuildStep)
     @InjectRepository(ProjectBuildStep)
     private projectBuildStepRepository: Repository<ProjectBuildStep>,
-    @TransactionRepository(Env)
     @InjectRepository(Env)
     private envRepository: Repository<Env>,
+    @InjectRepository(SystemConfig)
+    private systemConfigRepository: Repository<SystemConfig>,
+    @InjectRepository(ProjectLog)
+    private projectLogRepository: Repository<ProjectLog>,
+    @InjectRepository(ProjectLogText)
+    private projectLogTextRepository: Repository<ProjectLogText>,
   ) {
   }
 
@@ -179,7 +183,9 @@ export class ProjectController {
           ar.desc = ApiHttpCode['3'].desc + `id : ${projectEnvDto.envId} 环境不存在，请检查`;
           throws(() => ar.desc, ar.desc);
         }
-        await ProjectController.insertProjectEnvChildrenRelationData(entityManager, project.id, projectEnvDto);
+        projectEnvDto.projectId = project.id;
+        projectEnvDto.projectName = project.name;
+        await ProjectController.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
       }
     }
     return res.json(ar);
@@ -237,7 +243,9 @@ export class ProjectController {
             // 1. 删除所有子关联表数据
             await ProjectController.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
             // 2. 插入所有子关联表数据
-            await ProjectController.insertProjectEnvChildrenRelationData(entityManager, project.id, projectEnvDto);
+            projectEnvDto.projectId = project.id;
+            projectEnvDto.projectName = project.name;
+            await ProjectController.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
             // 3. 更新项目环境
             await entityManager.update(ProjectEnv, dbProjectEnv.id,
               {
@@ -256,11 +264,11 @@ export class ProjectController {
         const dbProjectEnvIdList = projectEnvList.map((projectEnv) => projectEnv.envId);
         const newProjectEnvDtoList = dto.projectEnvList.filter(projectEnvDto => dbProjectEnvIdList.indexOf(projectEnvDto.envId) === -1);
         for (const projectEnvDto of newProjectEnvDtoList) {
-          await ProjectController.insertProjectEnvChildrenRelationData(entityManager, project.id, projectEnvDto);
+          projectEnvDto.projectId = project.id;
+          projectEnvDto.projectName = project.name;
+          await ProjectController.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
         }
       }
-
-
     }
 
     res.json(ar);
@@ -297,8 +305,7 @@ export class ProjectController {
    * @param projectId
    * @param projectEnvDto
    */
-  private static async insertProjectEnvChildrenRelationData(entityManager: EntityManager, projectId: number, projectEnvDto: ProjectEnvDto) {
-    projectEnvDto.projectId = projectId;
+  private static async insertProjectEnvChildrenRelationData(entityManager: EntityManager, projectEnvDto: ProjectEnvDto) {
     // 插入构建命令
     const beforeProjectBuildStep = projectEnvDto?.projectBuildBeforeList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
@@ -333,6 +340,7 @@ export class ProjectController {
       const projectEnvServer = new ProjectEnvServer();
       projectEnvServer.envId = projectEnvDto.envId;
       projectEnvServer.projectId = projectEnvDto.projectId;
+      projectEnvServer.projectName = projectEnvDto.projectName;
       const server = await entityManager.findOne(Server, { ip: projectEnvServerDto.serverIp });
       projectEnvServer.serverId = server.id;
       projectEnvServer.serverIp = server.ip;
@@ -346,4 +354,80 @@ export class ProjectController {
     // 插入项目环境
     await entityManager.save(ProjectEnv, projectEnvDto);
   }
+
+  /**
+   * 项目初始化，从Git仓库中 clone到本地
+   * @param dto
+   * @param res
+   */
+  @Post('/api/projects/init')
+  async init(@Body() dto: ProjectDto, @Res() res: Response) {
+    const ar = new ApiResult();
+    const project = await this.projectRepository.findOne(dto.id);
+    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
+    const jobPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.jobPath });
+
+    const projectInitLogSeq = project.initLogSeq + 1;
+    const projectLog = await this.projectLogRepository.save({
+      projectId: project.id,
+      projectInitLogSeq: projectInitLogSeq,
+      type: ProjectLogType.init,
+    });
+
+    let logStr = '';
+    await this.saveProjectLogText(projectLog.id, `Init project(${project.name}) start`);
+
+    const jobPath = installPathSystemConfig.value + jobPathSystemConfig.value;
+    // 1. 创建jobPath目录
+    fs.mkdirSync(jobPath, { recursive: true });
+    await this.saveProjectLogText(projectLog.id, `mkdir -p ${jobPath}`);
+
+    const projectPath = `${jobPath}/${project.name}`;
+    // 2. 删除项目目录
+    fs.rmdirSync(projectPath, { recursive: true });
+    await this.saveProjectLogText(projectLog.id, `rm -rf ${projectPath}`);
+
+    // 3. git clone project
+    await this.saveProjectLogText(projectLog.id, `cd ${jobPath}`);
+    await this.saveProjectLogText(projectLog.id, `git clone ${project.gitUrl} ${project.name}`);
+
+    const gitClone = spawn('git', ['clone', project.gitUrl, project.name], { cwd: jobPath });
+    gitClone.stderr.on('data', async (data) => {
+      const index = data.toString().indexOf('\n');
+      if (index != -1) {
+        logStr += data.toString().substring(0, index);
+        await this.saveProjectLogText(projectLog.id, logStr);
+        logStr = data.toString().substring(index);
+      } else {
+        logStr += data.toString();
+      }
+    });
+    gitClone.stderr.on('end', async () => {
+      await this.saveProjectLogText(projectLog.id, `Init project(${project.name}) end, success!!!`);
+      await this.projectRepository.update({ id: project.id }, {
+        state: ProjectState.success,
+        initLogSeq: projectInitLogSeq,
+      });
+    });
+    return res.json(ar);
+  }
+
+  /**
+   * 项目构建
+   * @param dto
+   * @param res
+   * @param entityManager
+   */
+  @Post('/api/projects/build')
+  @Transaction()
+  async build(@Body() dto: ProjectDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+    const ar = new ApiResult();
+    return res.json(ar);
+  }
+
+  private async saveProjectLogText(projectLogId: number, projectLogText: string) {
+    console.log(projectLogText);
+    await this.projectLogTextRepository.save({ projectLogId: projectLogId, text: projectLogText } as ProjectLogText);
+  }
+
 }

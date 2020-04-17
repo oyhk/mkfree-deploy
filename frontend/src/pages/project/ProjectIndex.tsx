@@ -4,7 +4,7 @@ import { Table, Button } from 'antd';
 import {
   SmileTwoTone,
 } from '@ant-design/icons';
-import { connect, Link } from 'umi';
+import { connect, Link, Dispatch } from 'umi';
 import styles from '@/pages/project/project-index.less';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { uuid } from '@/utils/utils';
@@ -14,30 +14,7 @@ import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
 
 
-const columns: ProColumns<ProjectDto>[] = [
-  {
-    title: '项目名称',
-    dataIndex: 'name',
-    key: 'name',
-    render: (_, row: ProjectDto) => (
-      <Link to={`/project/edit/${row.id}`}>{row.name}</Link>
-    ),
-  },
-  {
-    title: '操作',
-    dataIndex: 'action',
-    key: 'action',
-    align: 'right',
-    render: () => (
-      <div className={styles.projectRowAction}>
-        <Button type='primary' size='small' onClick={() => {
-        }}>查看日志</Button>&nbsp;&nbsp;
-      </div>
-    ),
-  },
-];
-
-const expandedRowRender = (projectDto: ProjectDto) => {
+const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
   if (!projectDto)
     return <PageLoading/>;
 
@@ -71,15 +48,26 @@ const expandedRowRender = (projectDto: ProjectDto) => {
       dataIndex: 'operation',
       key: 'operation',
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
-        <div>{projectEnvServerList ? projectEnvServerList.map((pes) => (
-          <div className={styles.ipRow} key={`${pes.projectId}_${pes.id}_${pes.envId}_${pes.publishVersion}`}>
-            {
-              pes.isPublish ? <Button type='primary' size='small'>发布</Button> :
-                <Button danger size='small'>从服务器同步</Button>
-            }
-            <br/>
-          </div>
-        )) : ''}</div>
+        <div>
+          {
+            projectEnvServerList ? projectEnvServerList.map((pes) => (
+              <div className={styles.ipRow} key={uuid()}>
+                {
+                  pes.isPublish ? <Button type='primary' size='small' onClick={() => {
+                    dispatch({
+                      type: 'project/build',
+                      payload: {
+                        id: pes.projectId,
+                        name: pes.projectName,
+                      },
+                    });
+                  }}>发布</Button> : <Button danger size='small'>从服务器同步</Button>
+                }
+                <br/>
+              </div>
+            )) : <div/>
+          }
+        </div>
       ),
     },
   ];
@@ -107,6 +95,9 @@ const expandedRowRender = (projectDto: ProjectDto) => {
 
 
 const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
+  if (!dispatch)
+    return <div/>;
+
   if (!project?.page?.data)
     return <PageLoading/>;
 
@@ -114,17 +105,53 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
     <PageHeaderWrapper
     >
       <ProTable<ProjectDto> rowKey='id'
-                            columns={columns}
+                            columns={[
+                              {
+                                title: '项目名称',
+                                dataIndex: 'name',
+                                key: 'name',
+                                render: (_, row: ProjectDto) =>
+                                  <Link to={routes.pageRoutes.projectEditParams(row.id)}>{row.name}</Link>
+                                ,
+                              },
+                              {
+                                title: '操作',
+                                dataIndex: 'action',
+                                key: 'action',
+                                align: 'right',
+                                render: (_, row: ProjectDto) =>
+                                  <div className={styles.projectRowAction}>
+                                    <Button type='primary' size='small' onClick={() => {
+                                    }}>查看日志</Button>&nbsp;&nbsp;
+                                    <Button type='primary' size='small' onClick={() => {
+                                      dispatch({
+                                        type: 'project/init',
+                                        payload: {
+                                          id: row.id,
+                                          name: row.name,
+                                        },
+                                      });
+                                    }}>{row.state === 2 ? '重新初始化' : '初始化项目'}</Button>&nbsp;&nbsp;
+                                  </div>
+                                ,
+                              },
+                            ]}
                             dataSource={project?.page?.data}
                             search={false}
-                            expandable={{
-                              expandedRowRender, expandIcon: () => {
-                                return <div className="icons-list">
-                                  <SmileTwoTone className={styles.projectState}/>
-                                  {/* <FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/> */}
-                                </div>;
-                              }, defaultExpandAllRows: true,
-                            }}
+                            expandable={
+                              {
+                                expandedRowRender: (record) => {
+                                  return expandedRowRender(record, dispatch);
+                                },
+                                expandIcon: () => {
+                                  return <div className="icons-list">
+                                    <SmileTwoTone className={styles.projectState}/>
+                                    {/* <FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/> */}
+                                  </div>;
+                                },
+                                defaultExpandAllRows: true,
+                              }
+                            }
                             pagination={false}
                             toolBarRender={() => [
                               <Link to={routes.pageRoutes.projectCreate}>添加</Link>,

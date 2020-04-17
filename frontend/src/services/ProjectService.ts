@@ -17,3 +17,10 @@ export async function save(projectDto: ProjectDto, successCallback?: Function, f
 export async function update(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return put(`${routes.apiRoutes.projectUpdate}`, projectDto, successCallback, failCallback);
 }
+
+export async function build(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post(`${routes.apiRoutes.projectBuild}`, projectDto, successCallback, failCallback);
+}
+export async function init(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post(`${routes.apiRoutes.projectInit}`, projectDto, successCallback, failCallback);
+}
