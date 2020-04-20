@@ -10,9 +10,7 @@ import { ProjectCommandStep } from '../project-build-step/project-command-step.e
 import { Env } from '../env/env.entity';
 import { SystemConfig } from '../system-config/system-config.entity';
 import { ProjectLog } from '../project-log/project-log.entity';
-import { ProjectLogText } from '../project-log/project-log-text.entity';
 import { ProjectEnvLog } from '../project-env-log/project-env-log.entity';
-import { ProjectEnvLogText } from '../project-env-log/project-env-log-text.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
@@ -27,8 +25,6 @@ import { ProjectEnvLogText } from '../project-env-log/project-env-log-text.entit
       SystemConfig,
       ProjectLog,
       ProjectEnvLog,
-      ProjectLogText,
-      ProjectEnvLogText,
     ],
   )],
   controllers: [ProjectController],

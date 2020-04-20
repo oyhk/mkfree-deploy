@@ -20,8 +20,6 @@ import { exec, spawn } from 'child_process';
 import * as fs from 'fs';
 import { SystemConfig, SystemConfigKeys, SystemConfigValues } from '../system-config/system-config.entity';
 import { ProjectLog, ProjectLogType } from '../project-log/project-log.entity';
-import { ProjectLogText } from '../project-log/project-log-text.entity';
-import { ProjectEnvLogText } from '../project-env-log/project-env-log-text.entity';
 import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env-log.entity';
 import * as path from 'path';
 
@@ -47,12 +45,8 @@ export class ProjectController {
     private systemConfigRepository: Repository<SystemConfig>,
     @InjectRepository(ProjectLog)
     private projectLogRepository: Repository<ProjectLog>,
-    @InjectRepository(ProjectLogText)
-    private projectLogTextRepository: Repository<ProjectLogText>,
     @InjectRepository(ProjectEnvLog)
     private projectEnvLogRepository: Repository<ProjectEnvLog>,
-    @InjectRepository(ProjectEnvLogText)
-    private projectEnvLogTextRepository: Repository<ProjectEnvLogText>,
   ) {
   }
 
@@ -371,13 +365,21 @@ export class ProjectController {
   async init(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
     try {
-
-
       const project = await this.projectRepository.findOne(dto.id);
       const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
-      const projectInitLogSeq = project.initLogSeq + 1;
-      const projectLog = await this.projectLogRepository.save({
+      let projectInitLogSeq = project.initLogSeq + 1;
+
+      // 有可能点击构建太快的原因，导致LogSeq冲突，这里优化
+      const projectLogList = await this.projectLogRepository.find({
+        projectId: project.id,
+        type: ProjectLogType.init,
+        projectInitLogSeq: projectInitLogSeq,
+      });
+      if (projectLogList.length>0) {
+        projectInitLogSeq = projectInitLogSeq + 1;
+      }
+      await this.projectLogRepository.save({
         projectId: project.id,
         projectInitLogSeq: projectInitLogSeq,
         type: ProjectLogType.init,
@@ -431,7 +433,6 @@ export class ProjectController {
         echo "End of git init project:${project.name}.";
       `;
 
-
       const logPath = `${installPathSystemConfig.value}/logs`;
       fs.mkdirSync(logPath, { recursive: true });
       const logFile = path.join(logPath, `${ProjectLogFileType.init(projectInitLogSeq)}`);
@@ -461,7 +462,6 @@ export class ProjectController {
     } catch (e) {
       console.log(e);
     }
-
     return res.json(ar);
   }
 
@@ -505,52 +505,37 @@ export class ProjectController {
       type: ProjectCommandStepType.buildAfter,
     });
 
-    // const writeStream = fs.createWriteStream(`${installPathSystemConfig.value}${SystemConfigValues.logPath}/#${projectEnvBuildSeq}.log`);
+    const writeStream = fs.createWriteStream(`${installPathSystemConfig.value}${SystemConfigValues.logPath}/#${projectEnvBuildSeq}.log`);
     // 组装构建shell
     // 1. 构建开始
     // 2. cd 项目路径
     // 3. 切换到构建分支、还原代码（git）
     // 4. 执行构建命令
     // 5. 不同环境构建成功
-    // let shell = `
-    //   echo "Start of build project(${project.name}).";
-    //   echo "cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}";
-    //   cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name};
-    // `;
-    // for (const projectBuildStep of buildProjectCommandStepList) {
-    //   shell += `echo "${projectBuildStep.step}";`;
-    //   shell += `${projectBuildStep.step};`;
-    // }
+    let shell = `
+      echo "Start of build project(${project.name}).";
+      echo "cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}";
+      cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name};
+      
+      End of build project(${project.name}) .
+    `;
+    for (const projectBuildStep of buildProjectCommandStepList) {
+      shell += `echo "${projectBuildStep.step}";`;
+      shell += `${projectBuildStep.step};`;
+    }
 
 
-    // const child = exec(shell);
-    // child.stdout.on('data', async (data) => {
-    //   await ProjectController.saveProjectEnvLogText(projectEnvLog.id, data, this.projectEnvLogTextRepository);
-    //   await writeStream.write(data);
-    // });
-    // child.stdout.on('end', async () => {
-    //   setTimeout(async () => {
-    //     await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
-    //     await ProjectController.saveProjectEnvLogText(projectEnvLog.id, `\nEnd of build project(${project.name}) .`, this.projectEnvLogTextRepository);
-    //     writeStream.write(`End of build project(${project.name}) .`);
-    //   }, 2000);
-    // });
+    const child = exec(shell);
+    child.stdout.on('data', async (data) => {
+      await writeStream.write(data);
+    });
+    child.stdout.on('end', async () => {
+      setTimeout(async () => {
+        await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+        writeStream.write(`End of build project(${project.name}) .`);
+      }, 2000);
+    });
     return res.json(ar);
   }
 
-  private static async saveProjectLogText(projectLogId: number, text: string, projectLogTextRepository) {
-    if (!text && text.length > 0) {
-      console.log(text);
-      await projectLogTextRepository.save({ projectLogId: projectLogId, text: text } as ProjectLogText);
-    }
-  }
-
-
-  private static async saveProjectEnvLogText(projectEnvLogId: number, text: string, projectEnvLogTextRepository) {
-    console.log(text);
-    // await projectEnvLogTextRepository.save({
-    //   projectEnvLogId: projectEnvLogId,
-    //   text: text,
-    // } as ProjectEnvLogText);
-  }
 }

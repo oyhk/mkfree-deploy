@@ -11,8 +11,7 @@ import { ProjectDeployFileModule } from './project-deploy-file/project-deploy-fi
 import { ProjectCommandStepModule } from './project-build-step/project-command-step.module';
 import { SystemConfigModule } from './system-config/system-config.module';
 import { ProjectLogModule } from './project-log/project-log.module';
-import { ProjectLogTextModule } from './project-log/project-log-text.module';
-import { LogModule } from './log-websocket/log.module';
+import { LogWebsocketModule } from './log-websocket/log-websocket.module';
 
 
 @Module({
@@ -30,12 +29,11 @@ import { LogModule } from './log-websocket/log.module';
     EnvModule,
     ProjectEnvModule,
     ProjectLogModule,
-    ProjectLogTextModule,
     ProjectEnvServerModule,
     ProjectDeployFileModule,
     ProjectCommandStepModule,
     SystemConfigModule,
-    LogModule
+    LogWebsocketModule
   ],
   controllers: [AppController],
 })
