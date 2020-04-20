@@ -433,9 +433,9 @@ export class ProjectController {
         echo "End of git init project:${project.name}.";
       `;
 
-      const logPath = `${installPathSystemConfig.value}/logs`;
-      fs.mkdirSync(logPath, { recursive: true });
-      const writeStream = fs.createWriteStream(`${logPath}/${project.name}/${ProjectLogFileType.init(projectInitLogSeq)}`);
+      const projectLogPath = `${installPathSystemConfig.value}/logs/${project.name}`;
+      fs.mkdirSync(projectLogPath, { recursive: true });
+      const writeStream = fs.createWriteStream(`${projectLogPath}/${ProjectLogFileType.init(projectInitLogSeq)}`);
       const child = exec(shell);
       child.stderr.on('data', (data) => {
         console.log('stderr', data);
@@ -519,17 +519,17 @@ export class ProjectController {
       projectId: project.id,
       type: ProjectCommandStepType.buildAfter,
     });
-    const logPath = `${installPathSystemConfig.value}/logs`;
-    const projectGitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/${SystemConfigValues.git}/${env.code}`;
+    const logPath = `${installPathSystemConfig.value}/logs/${project.name}`;
+    const projectGitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.git}/${env.code}`;
 
-    const writeStream = fs.createWriteStream(`${logPath}/${project.name}/${ProjectLogFileType.build(projectEnvBuildSeq)}`);
+    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(projectEnvBuildSeq)}`);
 
     let shell = `
-      echo "Start of build project(${project.name}).";
+      echo "Start of build project: ${project.name} .";
       # 1. cd 到项目中对应环境的git路径
       echo "cd ${projectGitPath}";
       cd ${projectGitPath};
-      # 2. 防止代码这里有人修改先执行 git checkout .
+      # 2. 防止代码这里有人修改，先执行 git checkout .
       echo "git checkout .";
       git checkout .
       # 3. git pull 
@@ -541,7 +541,7 @@ export class ProjectController {
       shell += `echo "${projectBuildStep.step}";`;
       shell += `${projectBuildStep.step};`;
     }
-    shell += `End of build project(${project.name}) .`;
+    shell += `echo "End of build project: ${project.name} .";`;
 
 
     const child = exec(shell);
@@ -552,6 +552,9 @@ export class ProjectController {
       await writeStream.write(data);
     });
     child.stdout.on('end', async () => {
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+    });
+    child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
     });
     return res.json(ar);
