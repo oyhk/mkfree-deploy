@@ -9,6 +9,8 @@ import * as crypto from 'crypto';
 @Entity()
 export class Env extends BaseEntity {
 
+  static entityName = 'Env';
+
   @Column({ comment: '环境编码' })
   code: string;
   @Column({ nullable: true, default: true, comment: '环境编码，默认启用' })

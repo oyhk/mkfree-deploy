@@ -1,4 +1,4 @@
-import { Entity, Column} from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 
 /**
@@ -6,6 +6,8 @@ import { BaseEntity } from '../common/base.entity';
  */
 @Entity()
 export class ProjectEnvServer extends BaseEntity {
+  static entityName = 'ProjectEnvServer';
+
   @Column({ nullable: true })
   envId: number;
   @Column({ nullable: true })

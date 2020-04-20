@@ -23,7 +23,10 @@ export class ProjectDto extends Project {
    * 项目环境id
    */
   projectEnvId: number;
-
+  /**
+   * 项目环境服务器id
+   */
+  projectEnvServerId: number;
 
 
 }

@@ -4,11 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
 import { Project, ProjectLogFileType, ProjectState } from './project.entity';
 import { Page } from '../common/page';
-import { ApiHttpCode, ApiResult } from '../common/api-result';
+import { ApiResultCode, ApiResult } from '../common/api-result';
 import { Response } from 'express';
 import { ProjectDeployFile } from '../project-deploy-file/project-deploy-file.entity';
-import { ProjectEnv } from '../project-env/project-env.entity';
-import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { Server } from '../server/server.entity';
 import { ProjectCommandStep, ProjectCommandStepType } from '../project-build-step/project-command-step.entity';
 import { Env } from '../env/env.entity';
@@ -22,6 +20,8 @@ import { SystemConfig, SystemConfigKeys, SystemConfigValues } from '../system-co
 import { ProjectLog, ProjectLogType } from '../project-log/project-log.entity';
 import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env-log.entity';
 import * as path from 'path';
+import { ProjectEnv } from '../project-env/project-env.entity';
+import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 
 @Controller()
 export class ProjectController {
@@ -180,8 +180,8 @@ export class ProjectController {
       for (const projectEnvDto of dto.projectEnvList) {
         const env = await this.envRepository.findOne({ id: projectEnvDto.envId });
         if (!env) {
-          ar.code = ApiHttpCode['3'].code;
-          ar.desc = ApiHttpCode['3'].desc + `id : ${projectEnvDto.envId} 环境不存在，请检查`;
+          ar.code = ApiResultCode['3'].code;
+          ar.desc = ApiResultCode['3'].desc + `id : ${projectEnvDto.envId} 环境不存在，请检查`;
           throws(() => ar.desc, ar.desc);
         }
         projectEnvDto.projectId = project.id;
@@ -199,8 +199,8 @@ export class ProjectController {
 
     const ar = new ApiResult();
     if (!dto.id) {
-      ar.code = ApiHttpCode['2'].code;
-      ar.desc = ApiHttpCode['2'].desc + 'project id can be not null';
+      ar.code = ApiResultCode['2'].code;
+      ar.desc = ApiResultCode['2'].desc + 'project id can be not null';
       return res.json(ar);
     }
 
@@ -376,7 +376,7 @@ export class ProjectController {
         type: ProjectLogType.init,
         projectInitLogSeq: projectInitLogSeq,
       });
-      if (projectLogList.length>0) {
+      if (projectLogList.length > 0) {
         projectInitLogSeq = projectInitLogSeq + 1;
       }
       await this.projectLogRepository.save({
@@ -435,8 +435,7 @@ export class ProjectController {
 
       const logPath = `${installPathSystemConfig.value}/logs`;
       fs.mkdirSync(logPath, { recursive: true });
-      const logFile = path.join(logPath, `${ProjectLogFileType.init(projectInitLogSeq)}`);
-      const writeStream = fs.createWriteStream(logFile);
+      const writeStream = fs.createWriteStream(`${logPath}/${project.name}/${ProjectLogFileType.init(projectInitLogSeq)}`);
       const child = exec(shell);
       child.stderr.on('data', (data) => {
         console.log('stderr', data);
@@ -473,19 +472,35 @@ export class ProjectController {
   @Post('/api/projects/build')
   async build(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
-    const project = await this.projectRepository.findOne(dto.id);
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
+    const projectEnvServer = await this.projectEnvServerRepository.findOne(dto.projectEnvServerId);
+    if (!projectEnvServer) {
+      ar.remindRecordNotExist(ProjectEnvServer.entityName, dto.projectEnvServerId);
+      return res.json(ar);
+    }
+
+    const project = await this.projectRepository.findOne(projectEnvServer.projectId);
+    if (!project) {
+      ar.remindRecordNotExist(Project.entityName, projectEnvServer.projectId);
+      return res.json(ar);
+    }
 
     const projectEnv = await this.projectEnvRepository.findOne(dto.projectEnvId);
     if (!projectEnv) {
-      ar.code = ApiHttpCode['1001'].code;
-      ar.desc = ApiHttpCode['1001'].desc;
+      ar.remindRecordNotExist(ProjectEnv.entityName, dto.projectEnvId);
       return res.json(ar);
     }
+
+    const env = await this.envRepository.findOne(projectEnv.envId);
+    if (!env) {
+      ar.remindRecordNotExist(Env.entityName, projectEnv.envId);
+      return res.json(ar);
+    }
+
     const projectEnvBuildSeq = projectEnv.buildSeq + 1;
 
-    const projectEnvLog = await this.projectEnvLogRepository.save({
+    await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.build,
       projectId: project.id,
       projectEnvId: projectEnv.id,
@@ -504,36 +519,40 @@ export class ProjectController {
       projectId: project.id,
       type: ProjectCommandStepType.buildAfter,
     });
+    const logPath = `${installPathSystemConfig.value}/logs`;
+    const projectGitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/${SystemConfigValues.git}/${env.code}`;
 
-    const writeStream = fs.createWriteStream(`${installPathSystemConfig.value}${SystemConfigValues.logPath}/#${projectEnvBuildSeq}.log`);
-    // 组装构建shell
-    // 1. 构建开始
-    // 2. cd 项目路径
-    // 3. 切换到构建分支、还原代码（git）
-    // 4. 执行构建命令
-    // 5. 不同环境构建成功
+    const writeStream = fs.createWriteStream(`${logPath}/${project.name}/${ProjectLogFileType.build(projectEnvBuildSeq)}`);
+
     let shell = `
       echo "Start of build project(${project.name}).";
-      echo "cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}";
-      cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name};
-      
-      End of build project(${project.name}) .
+      # 1. cd 到项目中对应环境的git路径
+      echo "cd ${projectGitPath}";
+      cd ${projectGitPath};
+      # 2. 防止代码这里有人修改先执行 git checkout .
+      echo "git checkout .";
+      git checkout .
+      # 3. git pull 
+      # 4. git checkout 分支名称
+      # 5. git pull 分支名称
+      # 6. 执行构建命令
     `;
     for (const projectBuildStep of buildProjectCommandStepList) {
       shell += `echo "${projectBuildStep.step}";`;
       shell += `${projectBuildStep.step};`;
     }
+    shell += `End of build project(${project.name}) .`;
 
 
     const child = exec(shell);
     child.stdout.on('data', async (data) => {
       await writeStream.write(data);
     });
+    child.stderr.on('data', async (data) => {
+      await writeStream.write(data);
+    });
     child.stdout.on('end', async () => {
-      setTimeout(async () => {
-        await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
-        writeStream.write(`End of build project(${project.name}) .`);
-      }, 2000);
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
     });
     return res.json(ar);
   }

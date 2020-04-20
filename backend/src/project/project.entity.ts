@@ -1,8 +1,11 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
+import { ApiResultCode } from '../common/api-result';
 
 @Entity()
 export class Project extends BaseEntity {
+
+  static entityName = 'Project';
 
   @Column({ unique: true, comment: '项目名称' })
   name: string;

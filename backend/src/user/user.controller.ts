@@ -16,7 +16,7 @@ import { Page } from '../common/page';
 import { UserDto } from './user.dto';
 import { v4 as UUID } from 'uuid';
 import { Response } from 'express';
-import { ApiHttpCode, ApiResult } from '../common/api-result';
+import { ApiResultCode, ApiResult } from '../common/api-result';
 
 @Controller()
 export class UserController {
@@ -87,15 +87,15 @@ export class UserController {
     const r = new ApiResult();
     let user: User = await this.userRepository.findOne({ username: dto.username });
     if (!user) {
-      r.code = ApiHttpCode['101'].code;
-      r.desc = ApiHttpCode['101'].desc;
+      r.code = ApiResultCode['101'].code;
+      r.desc = ApiResultCode['101'].desc;
       return res.json(r);
     }
 
     const md5Password = User.getMd5Password(user.passwordSalt, dto.password);
     if (user.password !== md5Password) {
-      r.code = ApiHttpCode['102'].code;
-      r.desc = ApiHttpCode['102'].desc;
+      r.code = ApiResultCode['102'].code;
+      r.desc = ApiResultCode['102'].desc;
       return res.json(r);
     }
 

@@ -59,12 +59,13 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
                       payload: {
                         id: pes.projectId,
                         name: pes.projectName,
+                        projectEnvServerId: pes.id,
                       },
                     });
                   }}>发布</Button> : <Button danger size='small'>从服务器同步</Button>
                 }
                 &nbsp;&nbsp;<Button type='primary' size='small' onClick={() => {
-                }}>查看日志</Button>
+              }}>查看日志</Button>
                 <br/>
               </div>
             )) : <div/>
