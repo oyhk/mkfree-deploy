@@ -6,11 +6,13 @@ import { ProjectDeployFile } from '../project-deploy-file/project-deploy-file.en
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { Server } from '../server/server.entity';
-import { ProjectBuildStep } from '../project-build-step/project-build-step.entity';
+import { ProjectCommandStep } from '../project-build-step/project-command-step.entity';
 import { Env } from '../env/env.entity';
 import { SystemConfig } from '../system-config/system-config.entity';
 import { ProjectLog } from '../project-log/project-log.entity';
 import { ProjectLogText } from '../project-log/project-log-text.entity';
+import { ProjectEnvLog } from '../project-env-log/project-env-log.entity';
+import { ProjectEnvLogText } from '../project-env-log/project-env-log-text.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
@@ -20,11 +22,13 @@ import { ProjectLogText } from '../project-log/project-log-text.entity';
       ProjectEnv,
       ProjectEnvServer,
       Server,
-      ProjectBuildStep,
+      ProjectCommandStep,
       Env,
       SystemConfig,
       ProjectLog,
+      ProjectEnvLog,
       ProjectLogText,
+      ProjectEnvLogText,
     ],
   )],
   controllers: [ProjectController],

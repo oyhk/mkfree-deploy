@@ -2,7 +2,7 @@ import { ProjectDeployFile } from '../project-deploy-file/project-deploy-file.en
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { Project } from './project.entity';
 import { ProjectEnvDto } from '../project-env/project-env.dto';
-import { ProjectBuildStep } from '../project-build-step/project-build-step.entity';
+import { ProjectCommandStep } from '../project-build-step/project-command-step.entity';
 
 
 /**
@@ -11,10 +11,19 @@ import { ProjectBuildStep } from '../project-build-step/project-build-step.entit
 export class ProjectDto extends Project {
 
   /**
-   * 项目部署文件
+   * 项目部署文件列表
    */
-  projectDeployFileList: ProjectDeployFile[];
-  projectEnvList: ProjectEnvDto[];
+  projectDeployFileList?: ProjectDeployFile[];
+  /**
+   * 部署环境列表
+   */
+  projectEnvList?: ProjectEnvDto[];
+
+  /**
+   * 项目环境id
+   */
+  projectEnvId: number;
+
 
 
 }

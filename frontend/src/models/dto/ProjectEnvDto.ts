@@ -20,7 +20,7 @@ export interface ProjectEnvDto extends BaseDto {
   syncServerName?: string;
 
   projectEnvServerList?: ProjectEnvServerDto[];
-  projectBuildBeforeList?: ProjectBuildStepDto[];
-  projectBuildAfterList?: ProjectBuildStepDto[];
-  projectSyncAfterList?: ProjectBuildStepDto[];
+  projectCommandStepBuildList?: ProjectBuildStepDto[];
+  projectCommandStepBuildAfterList?: ProjectBuildStepDto[];
+  projectCommandStepSyncAfterList?: ProjectBuildStepDto[];
 }

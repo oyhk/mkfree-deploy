@@ -307,8 +307,8 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   </Form.Item>
                   {/* 构建命令 */}
                   <Form.List
-                    name={[projectEnvListField.name, 'projectBuildBeforeList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectBuildBeforeList']}
+                    name={[projectEnvListField.name, 'projectCommandStepBuildList']}
+                    fieldKey={[projectEnvListField.fieldKey, 'projectCommandStepBuildList']}
                   >
                     {(fields, { add, remove }) => {
                       return (
@@ -359,8 +359,8 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   </Form.List>
                   {/* 构建后命令 */}
                   <Form.List
-                    name={[projectEnvListField.name, 'projectBuildAfterList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectBuildAfterList']}
+                    name={[projectEnvListField.name, 'projectCommandStepBuildAfterList']}
+                    fieldKey={[projectEnvListField.fieldKey, 'projectCommandStepBuildAfterList']}
                   >
                     {(fields, { add, remove }) => {
                       return (
@@ -411,8 +411,8 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   </Form.List>
                   {/* 同步后命令 */}
                   <Form.List
-                    name={[projectEnvListField.name, 'projectSyncAfterList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectSyncAfterList']}
+                    name={[projectEnvListField.name, 'projectCommandStepSyncAfterList']}
+                    fieldKey={[projectEnvListField.fieldKey, 'projectCommandStepSyncAfterList']}
                   >
                     {(fields, { add, remove }) => {
                       return (

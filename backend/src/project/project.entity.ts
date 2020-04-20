@@ -34,3 +34,11 @@ export const ProjectState = {
   success: 2, // 初始化成功
   fail: 3, // 初始化失败
 };
+
+/**
+ * 项目日志类型
+ */
+export const ProjectLogFileType = {
+  init: (seq) => `init-${seq}.log`,
+  build: (seq) => `build-${seq}.log`,
+};

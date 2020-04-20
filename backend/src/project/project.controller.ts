@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, Put, Query, Res } from '@nestjs/common';
 import { ProjectDto } from './project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository, Transaction, TransactionManager, TransactionRepository } from 'typeorm';
-import { Project, ProjectState } from './project.entity';
+import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
+import { Project, ProjectLogFileType, ProjectState } from './project.entity';
 import { Page } from '../common/page';
 import { ApiHttpCode, ApiResult } from '../common/api-result';
 import { Response } from 'express';
@@ -10,17 +10,20 @@ import { ProjectDeployFile } from '../project-deploy-file/project-deploy-file.en
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { Server } from '../server/server.entity';
-import { ProjectBuildStep } from '../project-build-step/project-build-step.entity';
+import { ProjectCommandStep, ProjectCommandStepType } from '../project-build-step/project-command-step.entity';
 import { Env } from '../env/env.entity';
 import { throws } from 'assert';
 import { ProjectEnvDto } from '../project-env/project-env.dto';
 import * as lodash from 'lodash';
 import { ProjectEnvServerDto } from '../project-env-server/project-env-server.dto';
-import { spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 import * as fs from 'fs';
-import { SystemConfig, SystemConfigKeys } from '../system-config/system-config.entity';
+import { SystemConfig, SystemConfigKeys, SystemConfigValues } from '../system-config/system-config.entity';
 import { ProjectLog, ProjectLogType } from '../project-log/project-log.entity';
 import { ProjectLogText } from '../project-log/project-log-text.entity';
+import { ProjectEnvLogText } from '../project-env-log/project-env-log-text.entity';
+import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env-log.entity';
+import * as path from 'path';
 
 @Controller()
 export class ProjectController {
@@ -36,8 +39,8 @@ export class ProjectController {
     private projectEnvServerRepository: Repository<ProjectEnvServer>,
     @InjectRepository(Server)
     private serverRepository: Repository<Server>,
-    @InjectRepository(ProjectBuildStep)
-    private projectBuildStepRepository: Repository<ProjectBuildStep>,
+    @InjectRepository(ProjectCommandStep)
+    private projectCommandStepRepository: Repository<ProjectCommandStep>,
     @InjectRepository(Env)
     private envRepository: Repository<Env>,
     @InjectRepository(SystemConfig)
@@ -46,6 +49,10 @@ export class ProjectController {
     private projectLogRepository: Repository<ProjectLog>,
     @InjectRepository(ProjectLogText)
     private projectLogTextRepository: Repository<ProjectLogText>,
+    @InjectRepository(ProjectEnvLog)
+    private projectEnvLogRepository: Repository<ProjectEnvLog>,
+    @InjectRepository(ProjectEnvLogText)
+    private projectEnvLogTextRepository: Repository<ProjectEnvLogText>,
   ) {
   }
 
@@ -120,22 +127,22 @@ export class ProjectController {
       });
 
       // 项目构建命令
-      projectEnvDto.projectBuildBeforeList = await this.projectBuildStepRepository.find({
+      projectEnvDto.projectCommandStepBuildList = await this.projectCommandStepRepository.find({
         projectId: project.id,
         envId: projectEnv.envId,
-        type: 0,
+        type: ProjectCommandStepType.build,
       });
       // 项目构建后命令
-      projectEnvDto.projectBuildAfterList = await this.projectBuildStepRepository.find({
+      projectEnvDto.projectCommandStepBuildAfterList = await this.projectCommandStepRepository.find({
         projectId: project.id,
         envId: projectEnv.envId,
-        type: 1,
+        type: ProjectCommandStepType.buildAfter,
       });
       // 项目同步后命令
-      projectEnvDto.projectSyncAfterList = await this.projectBuildStepRepository.find({
+      projectEnvDto.projectCommandStepSyncAfterList = await this.projectCommandStepRepository.find({
         projectId: project.id,
         envId: projectEnv.envId,
-        type: 2,
+        type: ProjectCommandStepType.sync,
       });
       projectEnvDtoList.push(projectEnvDto);
     }
@@ -229,7 +236,7 @@ export class ProjectController {
     if (dto.projectEnvList) {
       // 第一种情况：当参数中没有任何的环境列表，那么删除所有环境以及子关联表的数据
       if (dto.projectEnvList.length === 0) {
-        await this.deleteProjectEnvChildrenRelationDataByProjectId(entityManager, project.id);
+        await ProjectController.deleteProjectEnvChildrenRelationDataByProjectId(entityManager, project.id);
       } else {
         // 分组
         const projectEnvDtoGroupByEnvId = lodash.groupBy(dto.projectEnvList, projectEnvDto => projectEnvDto.envId);
@@ -241,7 +248,7 @@ export class ProjectController {
           if (projectEnvDtoIdList.indexOf(dbProjectEnv.envId) !== -1) {
             const projectEnvDto = projectEnvDtoGroupByEnvId[dbProjectEnv.envId][0];
             // 1. 删除所有子关联表数据
-            await this.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
+            await ProjectController.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
             // 2. 插入所有子关联表数据
             projectEnvDto.projectId = project.id;
             projectEnvDto.projectName = project.name;
@@ -256,7 +263,7 @@ export class ProjectController {
           }
           // 第三种情况：否则做删除，删除时处理所有关联表
           else {
-            await this.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
+            await ProjectController.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
           }
         }
 
@@ -280,21 +287,21 @@ export class ProjectController {
    * @param projectId
    * @param envId
    */
-  private async deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager: EntityManager, projectId: number, envId?: number) {
+  private static async deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager: EntityManager, projectId: number, envId?: number) {
     // 删除部署服务器
     await entityManager.delete(ProjectEnvServer, { projectId, envId });
     // 删除构建命令、构建后命令、同步后命令
-    await entityManager.delete(ProjectBuildStep, { projectId, envId });
+    await entityManager.delete(ProjectCommandStep, { projectId, envId });
     // 删除项目环境
     await entityManager.delete(ProjectEnv, { projectId, envId });
 
   }
 
-  private async deleteProjectEnvChildrenRelationDataByProjectId(entityManager: EntityManager, projectId: number) {
+  private static async deleteProjectEnvChildrenRelationDataByProjectId(entityManager: EntityManager, projectId: number) {
     // 删除部署服务器
     await entityManager.delete(ProjectEnvServer, { projectId });
     // 删除构建命令、构建后命令、同步后命令
-    await entityManager.delete(ProjectBuildStep, { projectId });
+    await entityManager.delete(ProjectCommandStep, { projectId });
     // 删除项目环境
     await entityManager.delete(ProjectEnv, { projectId });
   }
@@ -307,33 +314,33 @@ export class ProjectController {
    */
   private async insertProjectEnvChildrenRelationData(entityManager: EntityManager, projectEnvDto: ProjectEnvDto) {
     // 插入构建命令
-    const beforeProjectBuildStep = projectEnvDto?.projectBuildBeforeList?.map(projectBuildStep => {
+    const beforeProjectBuildStep = projectEnvDto?.projectCommandStepBuildList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
       projectBuildStep.projectId = projectEnvDto.projectId;
-      projectBuildStep.type = 0;
+      projectBuildStep.type = ProjectCommandStepType.build;
       return projectBuildStep;
     });
     if (beforeProjectBuildStep) {
-      await entityManager.save(ProjectBuildStep, beforeProjectBuildStep);
+      await entityManager.save(ProjectCommandStep, beforeProjectBuildStep);
     }
     // 插入构建后命令
-    const afterProjectBuildStep = projectEnvDto?.projectBuildAfterList?.map(projectBuildStep => {
+    const afterProjectBuildStep = projectEnvDto?.projectCommandStepBuildAfterList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
       projectBuildStep.projectId = projectEnvDto.projectId;
-      projectBuildStep.type = 1;
+      projectBuildStep.type = ProjectCommandStepType.buildAfter;
       return projectBuildStep;
     });
     if (afterProjectBuildStep)
-      await entityManager.save(ProjectBuildStep, afterProjectBuildStep);
+      await entityManager.save(ProjectCommandStep, afterProjectBuildStep);
     // 插入同步命令
-    const syncProjectBuildStep = projectEnvDto?.projectSyncAfterList?.map(projectBuildStep => {
+    const syncProjectBuildStep = projectEnvDto?.projectCommandStepSyncAfterList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
       projectBuildStep.projectId = projectEnvDto.projectId;
-      projectBuildStep.type = 2;
+      projectBuildStep.type = ProjectCommandStepType.sync;
       return projectBuildStep;
     });
     if (syncProjectBuildStep)
-      await entityManager.save(ProjectBuildStep, syncProjectBuildStep);
+      await entityManager.save(ProjectCommandStep, syncProjectBuildStep);
     // 插入部署服务器
     const newProjectEnvServer = [];
     for (const projectEnvServerDto of projectEnvDto?.projectEnvServerList?.filter(projectEnvServerDto => projectEnvServerDto.isSelectServerIp)) {
@@ -363,52 +370,98 @@ export class ProjectController {
   @Post('/api/projects/init')
   async init(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
-    const project = await this.projectRepository.findOne(dto.id);
-    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
-    const jobPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.jobPath });
+    try {
 
-    const projectInitLogSeq = project.initLogSeq + 1;
-    const projectLog = await this.projectLogRepository.save({
-      projectId: project.id,
-      projectInitLogSeq: projectInitLogSeq,
-      type: ProjectLogType.init,
-    });
 
-    let logStr = '';
-    await this.saveProjectLogText(projectLog.id, `Init project(${project.name}) start`);
+      const project = await this.projectRepository.findOne(dto.id);
+      const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
-    const jobPath = installPathSystemConfig.value + jobPathSystemConfig.value;
-    // 1. 创建jobPath目录
-    fs.mkdirSync(jobPath, { recursive: true });
-    await this.saveProjectLogText(projectLog.id, `mkdir -p ${jobPath}`);
-
-    const projectPath = `${jobPath}/${project.name}`;
-    // 2. 删除项目目录
-    fs.rmdirSync(projectPath, { recursive: true });
-    await this.saveProjectLogText(projectLog.id, `rm -rf ${projectPath}`);
-
-    // 3. git clone project
-    await this.saveProjectLogText(projectLog.id, `cd ${jobPath}`);
-    await this.saveProjectLogText(projectLog.id, `git clone ${project.gitUrl} ${project.name}`);
-
-    const gitClone = spawn('git', ['clone', project.gitUrl, project.name], { cwd: jobPath });
-    gitClone.stderr.on('data', async (data) => {
-      const index = data.toString().indexOf('\n');
-      if (index != -1) {
-        logStr += data.toString().substring(0, index);
-        await this.saveProjectLogText(projectLog.id, logStr);
-        logStr = data.toString().substring(index);
-      } else {
-        logStr += data.toString();
-      }
-    });
-    gitClone.stderr.on('end', async () => {
-      await this.saveProjectLogText(projectLog.id, `Init project(${project.name}) end, success!!!`);
-      await this.projectRepository.update({ id: project.id }, {
-        state: ProjectState.success,
-        initLogSeq: projectInitLogSeq,
+      const projectInitLogSeq = project.initLogSeq + 1;
+      const projectLog = await this.projectLogRepository.save({
+        projectId: project.id,
+        projectInitLogSeq: projectInitLogSeq,
+        type: ProjectLogType.init,
       });
-    });
+
+
+      const jobPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}`;
+      const projectPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}`;
+      const buildPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.buildPath}`;
+      const gitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.git}`;
+
+      let shell = `
+        echo "Start of git init project:${project.name}.";
+        # 1. 创建job路径
+        echo "mkdir -p ${jobPath}";
+        mkdir -p ${jobPath};
+        # 2. 删除项目路径
+        echo "rm -rf ${projectPath}";
+        rm -rf ${projectPath};
+        # 3. cd jobPath
+        echo "cd ${jobPath}";
+        cd ${jobPath};
+        # 4. 创建项目路径
+        echo "mkdir -p ${projectPath}";
+        mkdir -p ${projectPath};
+        # 5. 创建项目构建路径
+        echo "mkdir -p ${buildPath}";
+        mkdir -p ${buildPath};
+        # 6. 创建项目 git clone 路径
+        echo "mkdir -p ${gitPath}";
+        mkdir -p ${gitPath};
+        # 7. cd gitPath
+        echo "cd ${gitPath}";
+        cd ${gitPath}
+        # 8. git clone 项目
+        echo "git clone ${project.gitUrl} default";
+        git clone ${project.gitUrl} default
+        # 9. 从 default 复制多个不同环境的项目
+      `;
+
+      const projectEnvList = await this.projectEnvRepository.find({ projectId: project.id });
+      for (const projectEnv of projectEnvList) {
+        const env = await this.envRepository.findOne(projectEnv.envId);
+        shell += `
+          echo "cp -r default ${env.code}";
+          cp -r default ${env.code}
+        `;
+      }
+      shell += `
+        # 10. 结束项目初始化
+        echo "End of git init project:${project.name}.";
+      `;
+
+
+      const logPath = `${installPathSystemConfig.value}/logs`;
+      fs.mkdirSync(logPath, { recursive: true });
+      const logFile = path.join(logPath, `${ProjectLogFileType.init(projectInitLogSeq)}`);
+      const writeStream = fs.createWriteStream(logFile);
+      const child = exec(shell);
+      child.stderr.on('data', (data) => {
+        console.log('stderr', data);
+        writeStream.write(data);
+      });
+      child.stdout.on('data', (data) => {
+        console.log('stdout', data);
+        writeStream.write(data);
+      });
+
+      child.stdout.on('end', () => {
+        this.projectRepository.update({ id: project.id }, {
+          state: ProjectState.success,
+          initLogSeq: projectInitLogSeq,
+        });
+      });
+      child.stderr.on('end', () => {
+        this.projectRepository.update({ id: project.id }, {
+          state: ProjectState.success,
+          initLogSeq: projectInitLogSeq,
+        });
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
     return res.json(ar);
   }
 
@@ -416,18 +469,88 @@ export class ProjectController {
    * 项目构建
    * @param dto
    * @param res
-   * @param entityManager
    */
   @Post('/api/projects/build')
-  @Transaction()
-  async build(@Body() dto: ProjectDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+  async build(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
+    const project = await this.projectRepository.findOne(dto.id);
+    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
+
+
+    const projectEnv = await this.projectEnvRepository.findOne(dto.projectEnvId);
+    if (!projectEnv) {
+      ar.code = ApiHttpCode['1001'].code;
+      ar.desc = ApiHttpCode['1001'].desc;
+      return res.json(ar);
+    }
+    const projectEnvBuildSeq = projectEnv.buildSeq + 1;
+
+    const projectEnvLog = await this.projectEnvLogRepository.save({
+      type: ProjectEnvLogType.build,
+      projectId: project.id,
+      projectEnvId: projectEnv.id,
+      projectEnvLogSeq: projectEnvBuildSeq,
+    } as ProjectEnvLog);
+
+
+    const buildProjectCommandStepList = await this.projectCommandStepRepository.find({
+      envId: projectEnv.envId,
+      projectId: project.id,
+      type: ProjectCommandStepType.build,
+    });
+
+    const buildAfterProjectCommandStepList = await this.projectCommandStepRepository.find({
+      envId: projectEnv.envId,
+      projectId: project.id,
+      type: ProjectCommandStepType.buildAfter,
+    });
+
+    // const writeStream = fs.createWriteStream(`${installPathSystemConfig.value}${SystemConfigValues.logPath}/#${projectEnvBuildSeq}.log`);
+    // 组装构建shell
+    // 1. 构建开始
+    // 2. cd 项目路径
+    // 3. 切换到构建分支、还原代码（git）
+    // 4. 执行构建命令
+    // 5. 不同环境构建成功
+    // let shell = `
+    //   echo "Start of build project(${project.name}).";
+    //   echo "cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}";
+    //   cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name};
+    // `;
+    // for (const projectBuildStep of buildProjectCommandStepList) {
+    //   shell += `echo "${projectBuildStep.step}";`;
+    //   shell += `${projectBuildStep.step};`;
+    // }
+
+
+    // const child = exec(shell);
+    // child.stdout.on('data', async (data) => {
+    //   await ProjectController.saveProjectEnvLogText(projectEnvLog.id, data, this.projectEnvLogTextRepository);
+    //   await writeStream.write(data);
+    // });
+    // child.stdout.on('end', async () => {
+    //   setTimeout(async () => {
+    //     await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+    //     await ProjectController.saveProjectEnvLogText(projectEnvLog.id, `\nEnd of build project(${project.name}) .`, this.projectEnvLogTextRepository);
+    //     writeStream.write(`End of build project(${project.name}) .`);
+    //   }, 2000);
+    // });
     return res.json(ar);
   }
 
-  private async saveProjectLogText(projectLogId: number, projectLogText: string) {
-    console.log(projectLogText);
-    await this.projectLogTextRepository.save({ projectLogId: projectLogId, text: projectLogText } as ProjectLogText);
+  private static async saveProjectLogText(projectLogId: number, text: string, projectLogTextRepository) {
+    if (!text && text.length > 0) {
+      console.log(text);
+      await projectLogTextRepository.save({ projectLogId: projectLogId, text: text } as ProjectLogText);
+    }
   }
 
+
+  private static async saveProjectEnvLogText(projectEnvLogId: number, text: string, projectEnvLogTextRepository) {
+    console.log(text);
+    // await projectEnvLogTextRepository.save({
+    //   projectEnvLogId: projectEnvLogId,
+    //   text: text,
+    // } as ProjectEnvLogText);
+  }
 }

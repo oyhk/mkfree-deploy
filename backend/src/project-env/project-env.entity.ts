@@ -32,5 +32,5 @@ export class ProjectEnv extends BaseEntity {
   @Column({ nullable: true })
   syncServerName: string;
   @Column({ nullable: true, default: 0, comment: '构建序列' })
-  buildSeqNo: number;
+  buildSeq: number;
 }

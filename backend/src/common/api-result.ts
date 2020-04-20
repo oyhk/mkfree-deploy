@@ -5,6 +5,7 @@ export const ApiHttpCode = {
   3: { code: 3, desc: '温馨提示：' },
   101: { code: 101, desc: '用户登录：用户不存在' },
   102: { code: 102, desc: '用户登录：密码错误' },
+  1001: { code: 1001, desc: '环境不存在' },
 };
 
 export class ApiResult<T> {

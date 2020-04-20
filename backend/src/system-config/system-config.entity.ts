@@ -21,7 +21,12 @@ export class SystemConfig extends BaseEntity {
 }
 
 export const SystemConfigKeys = {
-  installPath: 'install_path',
-  jobPath: 'job_path',
-  buildPath: 'build_path',
+  installPath: 'installPath',
+};
+
+export const SystemConfigValues = {
+  jobPath: '/jobs', // install_path/jobs （项目工作目录）
+  buildPath: '/builds', // installPath/jobs/projectName/builds（构建后文件目录）
+  git: '/gits', // installPath/jobs/projectName/gits（项目初始化目录）
+  logPath: '/logs', // install_path/logs（日志目录，所有日志，初始化日志、构建日志、同步日志）
 };

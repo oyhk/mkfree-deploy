@@ -1,5 +1,5 @@
 import { ProjectEnv } from './project-env.entity';
-import { ProjectBuildStep } from '../project-build-step/project-build-step.entity';
+import { ProjectCommandStep } from '../project-build-step/project-command-step.entity';
 import { ProjectEnvServerDto } from '../project-env-server/project-env-server.dto';
 
 /**
@@ -8,7 +8,7 @@ import { ProjectEnvServerDto } from '../project-env-server/project-env-server.dt
 export class ProjectEnvDto extends ProjectEnv {
 
   projectEnvServerList: ProjectEnvServerDto[];
-  projectBuildBeforeList: ProjectBuildStep[];
-  projectBuildAfterList: ProjectBuildStep[];
-  projectSyncAfterList: ProjectBuildStep[];
+  projectCommandStepBuildList: ProjectCommandStep[];
+  projectCommandStepBuildAfterList: ProjectCommandStep[];
+  projectCommandStepSyncAfterList: ProjectCommandStep[];
 }
