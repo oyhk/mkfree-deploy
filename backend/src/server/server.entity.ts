@@ -4,6 +4,8 @@ import { BaseEntity } from '../common/base.entity';
 @Entity()
 export class Server extends BaseEntity {
 
+  static entityName ='Server';
+
   @Column({ nullable: true, comment: '环境id' })
   envId: number;
   @Column({ nullable: true, comment: '环境名称' })
