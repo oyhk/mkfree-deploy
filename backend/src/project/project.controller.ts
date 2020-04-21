@@ -480,13 +480,22 @@ export class ProjectController {
       return res.json(ar);
     }
 
+    const server = await this.serverRepository.findOne({ id: projectEnvServer.serverId });
+    if (!server) {
+      ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
+      return res.json(ar);
+    }
+
     const project = await this.projectRepository.findOne(projectEnvServer.projectId);
     if (!project) {
       ar.remindRecordNotExist(Project.entityName, projectEnvServer.projectId);
       return res.json(ar);
     }
 
-    const projectEnv = await this.projectEnvRepository.findOne(dto.projectEnvId);
+    const projectEnv = await this.projectEnvRepository.findOne({
+      projectId: projectEnvServer.projectId,
+      envId: projectEnvServer.envId,
+    });
     if (!projectEnv) {
       ar.remindRecordNotExist(ProjectEnv.entityName, dto.projectEnvId);
       return res.json(ar);
@@ -519,9 +528,9 @@ export class ProjectController {
       projectId: project.id,
       type: ProjectCommandStepType.buildAfter,
     });
-    const logPath = `${installPathSystemConfig.value}/logs/${project.name}`;
+    const logPath = `${installPathSystemConfig.value}/logs/${project.name}/${env.code}`;
     const projectGitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.git}/${env.code}`;
-
+    fs.mkdirSync(logPath, { recursive: true });
     const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(projectEnvBuildSeq)}`);
 
     let shell = `
@@ -531,17 +540,48 @@ export class ProjectController {
       cd ${projectGitPath};
       # 2. 防止代码这里有人修改，先执行 git checkout .
       echo "git checkout .";
-      git checkout .
+      git checkout .;
       # 3. git pull 
+      echo "git pull";
+      git pull;
       # 4. git checkout 分支名称
+      echo "git checkout release/3.3.0";
+      git checkout release/3.3.0;
       # 5. git pull 分支名称
+      echo "git pull origin release/3.3.0";
+      git pull origin release/3.3.0;
       # 6. 执行构建命令
     `;
     for (const projectBuildStep of buildProjectCommandStepList) {
       shell += `echo "${projectBuildStep.step}";`;
       shell += `${projectBuildStep.step};`;
     }
-    shell += `echo "End of build project: ${project.name} .";`;
+    shell += `
+      # 7. scp 文件到指定服务器
+    `;
+    const sshUsername = server.sshUsername;
+    const sshPassword = server.sshPassword;
+    const sshPort = server.sshPort;
+    const ip = server.ip;
+    const projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: project.id });
+    for (const projectDeployFile of projectDeployFileList) {
+      shell += `
+        echo "scp -P ${sshPort} -r ${projectGitPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version";
+        scp -P ${sshPort} -r ${projectGitPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version
+      `;
+    }
+
+    shell += `
+      # 8. 执行构建后命令
+    `;
+    // for (const projectBuildStep of buildAfterProjectCommandStepList) {
+    //   shell += `echo "${projectBuildStep.step}";`;
+    //   shell += `${projectBuildStep.step};`;
+    // }
+    shell += `
+      # 8. 结束项目构建
+      echo "End of build project: ${project.name} .";
+    `;
 
 
     const child = exec(shell);
