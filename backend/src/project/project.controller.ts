@@ -69,7 +69,7 @@ export class ProjectController {
           // 项目环境
           const projectEnvDtoList: ProjectEnvDto[] = [];
           const projectEnvList = await this.projectEnvRepository.find({ projectId: project.id });
-          for (const projectEnv of projectEnvList) {
+          for (const projectEnv of projectEnvList.sort((a, b) => a.envSort - b.envSort)) {
             const projectEnvDto = { ...projectEnv } as ProjectEnvDto;
             // 项目环境服务器
             projectEnvDto.projectEnvServerList = await this.projectEnvServerRepository.find({
@@ -107,7 +107,7 @@ export class ProjectController {
     // 项目环境
     const projectEnvDtoList: ProjectEnvDto[] = [];
     const projectEnvList = await this.projectEnvRepository.find({ projectId: project.id });
-    for (const projectEnv of projectEnvList) {
+    for (const projectEnv of projectEnvList.sort((a, b) => a.envSort - b.envSort)) {
       const projectEnvDto = { ...projectEnv } as ProjectEnvDto;
       projectEnvDto.projectEnvServerList = [];
       // 项目环境服务器
@@ -496,7 +496,7 @@ export class ProjectController {
     if (!publishBranch) {
       publishBranch = projectEnv.publishBranch;
     }
-    const publishBranchName = publishBranch.replace('/','_');
+    const publishBranchName = publishBranch.replace('/', '_');
 
     const env = await this.envRepository.findOne(projectEnv.envId);
     if (!env) {
@@ -627,7 +627,7 @@ export class ProjectController {
       `;
       exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
         await this.projectEnvServerRepository.update(projectEnvServer.id, {
-          publishVersion: `${publishBranch}_${stdoutData.replace('\n', '')}`,
+          publishVersion: `${publishBranchName}_${stdoutData.replace('\n', '')}`,
           publishTime: publishTime,
         });
       });
