@@ -24,7 +24,7 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       title: 'ip', dataIndex: 'ip', key: 'ip',
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
         <div>{projectEnvServerList ? projectEnvServerList.map((pes) => (
-          <span className={styles.ipRow} key={`${pes.id}_${pes.envId}_${pes.serverIp}_span`}>{pes.serverIp}<br
+          <span className={styles.ipRow} key={`${pes.id}_${pes.envId}_${pes.serverIp}_span`}>{pes.serverName}_{pes.serverIp}<br
             key={`${pes.id}_${pes.envId}_${pes.serverIp}_br`}/></span>)) : ''}</div>
       ),
     },
@@ -130,7 +130,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 dataIndex: 'name',
                                 key: 'name',
                                 render: (_, row: ProjectDto) =>
-                                  <Link to={routes.pageRoutes.projectEditParams(row.id)} style={{fontSize:'32px'}}>{row.name}</Link>
+                                  <Link to={routes.pageRoutes.projectEditParams(row.id)} style={{fontSize:'24px'}}>{row.name}</Link>
                                 ,
                               },
                               {

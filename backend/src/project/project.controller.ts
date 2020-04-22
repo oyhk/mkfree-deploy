@@ -248,7 +248,7 @@ export class ProjectController {
             // projectEnvDto.envSort =
             await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
             // 3. 更新项目环境
-            const syncServer = await entityManager.findOne(Server, dbProjectEnv.syncServerId);
+            const syncServer = await entityManager.findOne(Server, projectEnvDto.syncServerId);
             await entityManager.update(ProjectEnv, dbProjectEnv.id,
               {
                 publishBranch: projectEnvDto.publishBranch,
@@ -269,8 +269,15 @@ export class ProjectController {
         const dbProjectEnvIdList = projectEnvList.map((projectEnv) => projectEnv.envId);
         const newProjectEnvDtoList = dto.projectEnvList.filter(projectEnvDto => dbProjectEnvIdList.indexOf(projectEnvDto.envId) === -1);
         for (const projectEnvDto of newProjectEnvDtoList) {
+          const syncServer = await entityManager.findOne(Server, projectEnvDto.syncServerId);
+          const env = await entityManager.findOne(Env, projectEnvDto.envId);
           projectEnvDto.projectId = project.id;
           projectEnvDto.projectName = project.name;
+          projectEnvDto.envId = env.id;
+          projectEnvDto.envName = env.name;
+          projectEnvDto.envSort = env.sort;
+          projectEnvDto.syncServerIp = syncServer.ip;
+          projectEnvDto.syncServerName = syncServer.name;
           await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
         }
       }
@@ -300,8 +307,12 @@ export class ProjectController {
     await entityManager.delete(ProjectEnvServer, { projectId });
     // 删除构建命令、构建后命令、同步后命令
     await entityManager.delete(ProjectCommandStep, { projectId });
+    // 删除项目环境日志
+    await entityManager.delete(ProjectEnvLog, { projectId });
     // 删除项目环境
     await entityManager.delete(ProjectEnv, { projectId });
+
+
   }
 
   /**
@@ -514,6 +525,7 @@ export class ProjectController {
     await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.build,
       projectId: project.id,
+      envId: env.id,
       projectEnvId: projectEnv.id,
       projectEnvLogSeq: projectEnvBuildSeq,
     } as ProjectEnvLog);
@@ -655,6 +667,7 @@ export class ProjectController {
   async sync(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
 
+    const publishTime = new Date();
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
 
@@ -703,7 +716,15 @@ export class ProjectController {
     }
 
     const projectEnvBuildSeq = projectEnv.buildSeq + 1;
-    const projectBuildPath = `${installPathSystemConfig.value}${SystemConfigValues.buildPath}/${project.name}`;
+
+    await this.projectEnvLogRepository.save({
+      type: ProjectEnvLogType.build,
+      projectId: project.id,
+      envId: env.id,
+      projectEnvId: projectEnv.id,
+      projectEnvLogSeq: projectEnvBuildSeq,
+    } as ProjectEnvLog);
+
     // 服务器信息
     const targetServerSshUsername = targetServer.sshUsername;
     const targetServerSshPort = targetServer.sshPort;
@@ -752,6 +773,10 @@ export class ProjectController {
     });
     child.stdout.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+      await this.projectEnvServerRepository.update(targetProjectEnvServer.id, {
+        publishVersion: syncProjectEnvServer.publishVersion,
+        publishTime: publishTime,
+      });
     });
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
