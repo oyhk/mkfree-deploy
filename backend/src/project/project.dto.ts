@@ -27,6 +27,10 @@ export class ProjectDto extends Project {
    * 项目环境服务器id
    */
   projectEnvServerId: number;
+  /**
+   * 项目环境服务器发布分支名称
+   */
+  projectEnvServerPublishBranch:string;
 
 
 }

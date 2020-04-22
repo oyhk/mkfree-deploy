@@ -19,7 +19,6 @@ import * as fs from 'fs';
 import { SystemConfig, SystemConfigKeys, SystemConfigValues } from '../system-config/system-config.entity';
 import { ProjectLog, ProjectLogType } from '../project-log/project-log.entity';
 import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env-log.entity';
-import * as path from 'path';
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 
@@ -388,8 +387,6 @@ export class ProjectController {
 
       const jobPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}`;
       const projectPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}`;
-      const buildPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.buildPath}`;
-      const gitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.git}`;
 
       let shell = `
         echo "Start of git init project:${project.name}.";
@@ -405,15 +402,9 @@ export class ProjectController {
         # 4. 创建项目路径
         echo "mkdir -p ${projectPath}";
         mkdir -p ${projectPath};
-        # 5. 创建项目构建路径
-        echo "mkdir -p ${buildPath}";
-        mkdir -p ${buildPath};
-        # 6. 创建项目 git clone 路径
-        echo "mkdir -p ${gitPath}";
-        mkdir -p ${gitPath};
-        # 7. cd gitPath
-        echo "cd ${gitPath}";
-        cd ${gitPath}
+        # 7. cd projectPath
+        echo "cd ${projectPath}";
+        cd ${projectPath}
         # 8. git clone 项目
         echo "git clone ${project.gitUrl} default";
         git clone ${project.gitUrl} default
@@ -432,7 +423,6 @@ export class ProjectController {
         # 10. 结束项目初始化
         echo "End of git init project:${project.name}.";
       `;
-
       const projectLogPath = `${installPathSystemConfig.value}/logs/${project.name}`;
       fs.mkdirSync(projectLogPath, { recursive: true });
       const writeStream = fs.createWriteStream(`${projectLogPath}/${ProjectLogFileType.init(projectInitLogSeq)}`);
@@ -472,6 +462,9 @@ export class ProjectController {
   @Post('/api/projects/build')
   async build(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
+    const publishTime = new Date();
+    let publishBranch = dto.projectEnvServerPublishBranch;
+
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
     const projectEnvServer = await this.projectEnvServerRepository.findOne(dto.projectEnvServerId);
@@ -500,6 +493,10 @@ export class ProjectController {
       ar.remindRecordNotExist(ProjectEnv.entityName, dto.projectEnvId);
       return res.json(ar);
     }
+    if (!publishBranch) {
+      publishBranch = projectEnv.publishBranch;
+    }
+    const publishBranchName = publishBranch.replace('/','_');
 
     const env = await this.envRepository.findOne(projectEnv.envId);
     if (!env) {
@@ -528,71 +525,113 @@ export class ProjectController {
       projectId: project.id,
       type: ProjectCommandStepType.buildAfter,
     });
-    const logPath = `${installPathSystemConfig.value}/logs/${project.name}/${env.code}`;
-    const projectGitPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}${SystemConfigValues.git}/${env.code}`;
+    const logPath = `${installPathSystemConfig.value}/logs/${project.name}`;
+    const projectEnvPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/${env.code}`;
     fs.mkdirSync(logPath, { recursive: true });
-    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(projectEnvBuildSeq)}`);
-
-    let shell = `
-      echo "Start of build project: ${project.name} .";
-      # 1. cd 到项目中对应环境的git路径
-      echo "cd ${projectGitPath}";
-      cd ${projectGitPath};
-      # 2. 防止代码这里有人修改，先执行 git checkout .
-      echo "git checkout .";
-      git checkout .;
-      # 3. git pull 
-      echo "git pull";
-      git pull;
-      # 4. git checkout 分支名称
-      echo "git checkout release/3.3.0";
-      git checkout release/3.3.0;
-      # 5. git pull 分支名称
-      echo "git pull origin release/3.3.0";
-      git pull origin release/3.3.0;
-      # 6. 执行构建命令
-    `;
-    for (const projectBuildStep of buildProjectCommandStepList) {
-      shell += `echo "${projectBuildStep.step}";`;
-      shell += `${projectBuildStep.step};`;
-    }
-    shell += `
-      # 7. scp 文件到指定服务器
-    `;
+    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(env.code, projectEnvBuildSeq)}`);
+    // 服务器信息
     const sshUsername = server.sshUsername;
-    const sshPassword = server.sshPassword;
     const sshPort = server.sshPort;
     const ip = server.ip;
-    const projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: project.id });
-    for (const projectDeployFile of projectDeployFileList) {
+
+    let shell = `
+      echo "Start of build project: ${project.name} ."
+      
+      # 1. cd 到项目中对应环境的git路径
+      echo "cd ${projectEnvPath}"
+      cd ${projectEnvPath};
+      
+      # 2. 防止代码这里有人修改，先执行 git checkout .
+      echo "git checkout ."
+      git checkout .
+      
+      # 3. git pull 
+      echo "git pull"
+      git pull
+      
+      # 4. git checkout 分支名称
+      echo "git checkout ${publishBranch}"
+      git checkout ${publishBranch}
+      
+      # 5. git pull 分支名称
+      echo "git pull origin ${publishBranch}"
+      git pull origin ${publishBranch}
+      
+      # 6. 获取git当前最新版本的版本号
+      gitVersion="$(git log -n 1)"
+      gitVersion=\$\{gitVersion:7:40\}
+      echo "git current version: $gitVersion"
+      echo "current version name: ${publishBranchName}_$gitVersion"
+      
+      # 7. 执行构建命令
+    `;
+    for (const projectBuildStep of buildProjectCommandStepList) {
       shell += `
-        echo "scp -P ${sshPort} -r ${projectGitPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version";
-        scp -P ${sshPort} -r ${projectGitPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version
+      echo "${projectBuildStep.step}"
+      ${projectBuildStep.step}
       `;
     }
 
     shell += `
-      # 8. 执行构建后命令
+      # 8. 远程服务器: 创建标准目录结构
+      echo "ssh -p ${sshPort} ${sshUsername}@${ip} 'mkdir -p ${project.remotePath}/version/${publishBranchName}_$gitVersion'"
+      ssh -p ${sshPort} ${sshUsername}@${ip} "mkdir -p ${project.remotePath}/version/${publishBranchName}_$gitVersion"
     `;
-    // for (const projectBuildStep of buildAfterProjectCommandStepList) {
-    //   shell += `echo "${projectBuildStep.step}";`;
-    //   shell += `${projectBuildStep.step};`;
-    // }
+
     shell += `
-      # 8. 结束项目构建
-      echo "End of build project: ${project.name} .";
+      # 9. 远程服务器：上传版本文件
+    `;
+    const projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: project.id });
+    for (const projectDeployFile of projectDeployFileList) {
+      shell += `
+      echo "scp -P ${sshPort} -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version/${publishBranchName}_$gitVersion"
+      scp -P ${sshPort} -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version/${publishBranchName}_$gitVersion
+      `;
+    }
+
+    shell += `
+      # 10. 远程服务器：创建当前版本软链接
+      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchName}_$gitVersion current'"
+      ssh -p ${sshPort} ${sshUsername}@${ip} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchName}_$gitVersion current"
+      # 11 远程服务器：执行构建后命令
+    `;
+    for (const projectBuildStep of buildAfterProjectCommandStepList) {
+      shell += `
+      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '${projectBuildStep.step}'"
+      ssh -p ${sshPort} ${sshUsername}@${ip} "${projectBuildStep.step}"
+      `;
+    }
+
+    shell += `
+      # 12. 结束项目构建
+      echo "End of build project: ${project.name} ."
     `;
 
-
+    console.log('shell : ', shell);
     const child = exec(shell);
     child.stdout.on('data', async (data) => {
+      console.log(data);
       await writeStream.write(data);
     });
     child.stderr.on('data', async (data) => {
+      console.log(data);
       await writeStream.write(data);
     });
     child.stdout.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+      // 更新 projectEnvServer
+      const gitVersionShell = `
+        gitVersion="$(git log -n 1)"
+        gitVersion=\$\{gitVersion:7:40\}
+        echo $gitVersion
+      `;
+      exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
+        await this.projectEnvServerRepository.update(projectEnvServer.id, {
+          publishVersion: `${publishBranch}_${stdoutData.replace('\n', '')}`,
+          publishTime: publishTime,
+        });
+      });
+
     });
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });

@@ -54,13 +54,16 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
               <div className={styles.ipRow} key={uuid()}>
                 {
                   pes.isPublish ? <Button type='primary' size='small' onClick={() => {
+
+                    const payload = {
+                      id: pes.projectId,
+                      name: pes.projectName,
+                      projectEnvServerId: pes.id,
+                    };
+                    console.log('build payload', payload);
                     dispatch({
                       type: 'project/build',
-                      payload: {
-                        id: pes.projectId,
-                        name: pes.projectName,
-                        projectEnvServerId: pes.id,
-                      },
+                      payload,
                     });
                   }}>发布</Button> : <Button danger size='small'>从服务器同步</Button>
                 }
@@ -127,12 +130,14 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                     <Button type='primary' size='small' onClick={() => {
                                     }}>查看日志</Button>&nbsp;&nbsp;
                                     <Button type='primary' size='small' onClick={() => {
+                                      const payload = {
+                                        id: row.id,
+                                        name: row.name,
+                                      };
+                                      console.log('init payload', payload);
                                       dispatch({
                                         type: 'project/init',
-                                        payload: {
-                                          id: row.id,
-                                          name: row.name,
-                                        },
+                                        payload,
                                       });
                                     }}>{row.state === 2 ? '重新初始化' : '初始化项目'}</Button>&nbsp;&nbsp;
                                   </div>

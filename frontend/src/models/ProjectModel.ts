@@ -183,7 +183,6 @@ const ProjectModel: ProjectModelType = {
      * @param put
      */
     * init({ payload }, { call, put }) {
-      console.log('init');
       yield call(projectService.init, payload, () => {
         notification.success({
           message: `项目：${payload.name}`,

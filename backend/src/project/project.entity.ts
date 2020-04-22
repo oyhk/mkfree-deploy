@@ -43,5 +43,5 @@ export const ProjectState = {
  */
 export const ProjectLogFileType = {
   init: (seq) => `init-${seq}.log`,
-  build: (seq) => `build-${seq}.log`,
+  build: (envCode,seq) => `build-${envCode}-${seq}.log`,
 };
