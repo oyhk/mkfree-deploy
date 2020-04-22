@@ -37,6 +37,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       layout="horizontal"
       initialValues={projectState}
       onFinish={(projectDto) => {
+        console.log('project submit payload : ',projectDto);
         if (projectDto.id && !isCreate) {
           dispatch({
             type: 'project/update',
@@ -157,7 +158,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
             <div>
               <Row>
                 <Col xl={4}><h2>环境配置</h2></Col>
-                <Col xl={4} style={{ textAlign: 'right', lineHeight: '32px' }}>
+                <Col xl={4} style={{ textAlign: 'right', lineHeight: '24px' }}>
                   <h4 style={{ display: 'inline' }}>选择环境：</h4>
                 </Col>
                 <Col xl={12}>
@@ -294,13 +295,13 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
 
                   <Form.Item
                     label="选择同步服务器"
-                    name={[projectEnvListField.name, 'syncServerIp']}
-                    fieldKey={[projectEnvListField.fieldKey, 'syncServerIp']}
+                    name={[projectEnvListField.name, 'syncServerId']}
+                    fieldKey={[projectEnvListField.fieldKey, 'syncServerId']}
                   >
                     <Radio.Group buttonStyle="solid">
                       {
                         project?.serverList?.map((server) => {
-                          return <Radio.Button value={server.ip} key={uuid()}>{server.name}-{server.ip}</Radio.Button>;
+                          return <Radio.Button value={server.id} key={uuid()}>{server.name}-{server.ip}</Radio.Button>;
                         })
                       }
                     </Radio.Group>

@@ -41,6 +41,7 @@ interface ProjectModelType {
     update: Effect;
     build: Effect;
     init: Effect;
+    sync: Effect;
   };
   reducers: {
     save: Reducer<ProjectDto>;
@@ -170,6 +171,20 @@ const ProjectModel: ProjectModelType = {
 
     * build({ payload }, { call, put }) {
       yield call(projectService.build, payload, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '同步操作成功，请稍后...',
+        });
+      });
+    },
+    /**
+     * 项目构建
+     * @param payload
+     * @param call
+     * @param put
+     */
+    * sync({ payload }, { call, put }) {
+      yield call(projectService.sync, payload, () => {
         notification.success({
           message: `项目：${payload.name}`,
           description: '构建操作成功，请稍后...',

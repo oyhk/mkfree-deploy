@@ -65,7 +65,19 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
                       type: 'project/build',
                       payload,
                     });
-                  }}>发布</Button> : <Button danger size='small'>从服务器同步</Button>
+                  }}>发布</Button> : <Button danger size='small'onClick={() => {
+
+                    const payload = {
+                      id: pes.projectId,
+                      name: pes.projectName,
+                      projectEnvServerId: pes.id,
+                    };
+                    console.log('sync payload', payload);
+                    dispatch({
+                      type: 'project/sync',
+                      payload,
+                    });
+                  }}>从服务器同步</Button>
                 }
                 &nbsp;&nbsp;<Button type='primary' size='small' onClick={() => {
               }}>查看日志</Button>

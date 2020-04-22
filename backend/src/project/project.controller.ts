@@ -245,12 +245,17 @@ export class ProjectController {
             // 2. 插入所有子关联表数据
             projectEnvDto.projectId = project.id;
             projectEnvDto.projectName = project.name;
+            // projectEnvDto.envSort =
             await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
             // 3. 更新项目环境
+            const syncServer = await entityManager.findOne(Server, dbProjectEnv.syncServerId);
             await entityManager.update(ProjectEnv, dbProjectEnv.id,
               {
                 publishBranch: projectEnvDto.publishBranch,
                 isSelectBranch: projectEnvDto.isSelectBranch,
+                syncServerId: syncServer.id,
+                syncServerName: syncServer.name,
+                syncServerIp: syncServer.ip,
               },
             );
           }
@@ -496,7 +501,7 @@ export class ProjectController {
     if (!publishBranch) {
       publishBranch = projectEnv.publishBranch;
     }
-    const publishBranchName = publishBranch.replace('/', '_');
+    const publishBranchDirName = publishBranch.replace('/', '_');
 
     const env = await this.envRepository.findOne(projectEnv.envId);
     if (!env) {
@@ -537,33 +542,33 @@ export class ProjectController {
     let shell = `
       echo "Start of build project: ${project.name} ."
       
-      # 1. cd 到项目中对应环境的git路径
+      # 1. Mkfree Deploy：cd 到项目中对应环境的git路径
       echo "cd ${projectEnvPath}"
       cd ${projectEnvPath};
       
-      # 2. 防止代码这里有人修改，先执行 git checkout .
+      # 2. Mkfree Deploy：防止代码这里有人修改，先执行 git checkout .
       echo "git checkout ."
       git checkout .
       
-      # 3. git pull 
+      # 3. Mkfree Deploy：git pull 
       echo "git pull"
       git pull
       
-      # 4. git checkout 分支名称
+      # 4. Mkfree Deploy：git checkout 分支名称
       echo "git checkout ${publishBranch}"
       git checkout ${publishBranch}
       
-      # 5. git pull 分支名称
+      # 5. Mkfree Deploy：git pull 分支名称
       echo "git pull origin ${publishBranch}"
       git pull origin ${publishBranch}
       
-      # 6. 获取git当前最新版本的版本号
+      # 6. Mkfree Deploy：获取git当前最新版本的版本号
       gitVersion="$(git log -n 1)"
       gitVersion=\$\{gitVersion:7:40\}
       echo "git current version: $gitVersion"
-      echo "current version name: ${publishBranchName}_$gitVersion"
+      echo "current version name: ${publishBranchDirName}_$gitVersion"
       
-      # 7. 执行构建命令
+      # 7. Mkfree Deploy：执行构建命令
     `;
     for (const projectBuildStep of buildProjectCommandStepList) {
       shell += `
@@ -571,29 +576,31 @@ export class ProjectController {
       ${projectBuildStep.step}
       `;
     }
-
+    const projectBuildPath = `${installPathSystemConfig.value}${SystemConfigValues.buildPath}/${project.name}`;
     shell += `
-      # 8. 远程服务器: 创建标准目录结构
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} 'mkdir -p ${project.remotePath}/version/${publishBranchName}_$gitVersion'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "mkdir -p ${project.remotePath}/version/${publishBranchName}_$gitVersion"
-    `;
-
-    shell += `
-      # 9. 远程服务器：上传版本文件
+      # 8. Mkfree Deploy：需要上传文件，构建后cp到构建后目录，方便发布
+      echo "mkdir -p ${projectBuildPath}/${publishBranchDirName}_$gitVersion"
+      mkdir -p ${projectBuildPath}/${publishBranchDirName}_$gitVersion
     `;
     const projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: project.id });
     for (const projectDeployFile of projectDeployFileList) {
       shell += `
-      echo "scp -P ${sshPort} -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version/${publishBranchName}_$gitVersion"
-      scp -P ${sshPort} -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${sshUsername}@${ip}:${project.remotePath}/version/${publishBranchName}_$gitVersion
+      echo "cp -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${projectBuildPath}/${publishBranchDirName}_$gitVersion"
+      cp -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${projectBuildPath}/${publishBranchDirName}_$gitVersion
       `;
     }
 
     shell += `
-      # 10. 远程服务器：创建当前版本软链接
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchName}_$gitVersion current'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchName}_$gitVersion current"
-      # 11 远程服务器：执行构建后命令
+      # 9. 远程服务器: 创建标准目录结构
+      echo "ssh -p ${sshPort} ${sshUsername}@${ip} 'mkdir -p ${project.remotePath}/version'"
+      ssh -p ${sshPort} ${sshUsername}@${ip} "mkdir -p ${project.remotePath}/version"
+      # 10.  Mkfree Deploy：：上传版本文件
+      echo "scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version"
+      scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version
+      # 11. 远程服务器：创建当前版本软链接
+      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current'"
+      ssh -p ${sshPort} ${sshUsername}@${ip} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current"
+      # 12 远程服务器：执行构建后命令
     `;
     for (const projectBuildStep of buildAfterProjectCommandStepList) {
       shell += `
@@ -603,7 +610,7 @@ export class ProjectController {
     }
 
     shell += `
-      # 12. 结束项目构建
+      # 13. 结束项目构建
       echo "End of build project: ${project.name} ."
     `;
 
@@ -627,7 +634,7 @@ export class ProjectController {
       `;
       exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
         await this.projectEnvServerRepository.update(projectEnvServer.id, {
-          publishVersion: `${publishBranchName}_${stdoutData.replace('\n', '')}`,
+          publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}`,
           publishTime: publishTime,
         });
       });
@@ -636,6 +643,121 @@ export class ProjectController {
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
     });
+    return res.json(ar);
+  }
+
+  /**
+   * 项目构建
+   * @param dto
+   * @param res
+   */
+  @Post('/api/projects/sync')
+  async sync(@Body() dto: ProjectDto, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
+
+
+    const targetProjectEnvServer = await this.projectEnvServerRepository.findOne(dto.projectEnvServerId);
+    if (!targetProjectEnvServer) {
+      ar.remindRecordNotExist(ProjectEnvServer.entityName, dto.projectEnvServerId);
+      return res.json(ar);
+    }
+
+
+    const targetServer = await this.serverRepository.findOne({ id: targetProjectEnvServer.serverId });
+    if (!targetServer) {
+      ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
+      return res.json(ar);
+    }
+
+    const project = await this.projectRepository.findOne(targetProjectEnvServer.projectId);
+    if (!project) {
+      ar.remindRecordNotExist(Project.entityName, targetProjectEnvServer.projectId);
+      return res.json(ar);
+    }
+
+    const projectEnv = await this.projectEnvRepository.findOne({
+      projectId: targetProjectEnvServer.projectId,
+      envId: targetProjectEnvServer.envId,
+    });
+    if (!projectEnv) {
+      ar.remindRecordNotExist(ProjectEnv.entityName, dto.projectEnvId);
+      return res.json(ar);
+    }
+    const syncProjectEnvServer = await this.projectEnvServerRepository.findOne({
+      isPublish: true,
+      serverId: projectEnv.syncServerId,
+    });
+    const syncServer = await this.serverRepository.findOne({ id: syncProjectEnvServer.serverId });
+    if (!syncServer) {
+      ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
+      return res.json(ar);
+    }
+
+
+    const env = await this.envRepository.findOne(projectEnv.envId);
+    if (!env) {
+      ar.remindRecordNotExist(Env.entityName, projectEnv.envId);
+      return res.json(ar);
+    }
+
+    const projectEnvBuildSeq = projectEnv.buildSeq + 1;
+    const projectBuildPath = `${installPathSystemConfig.value}${SystemConfigValues.buildPath}/${project.name}`;
+    // 服务器信息
+    const targetServerSshUsername = targetServer.sshUsername;
+    const targetServerSshPort = targetServer.sshPort;
+    const targetServerIp = targetServer.ip;
+    let shell = `
+          # 1. 同步项目开始
+          echo "Start of sync project: ${project.name} ."
+          # 2. 指定服务器: 创建标准目录结构
+          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} 'mkdir -p ${project.remotePath}/version'"
+          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "mkdir -p ${project.remotePath}/version"
+          # 3.  远程同步服务器：：同步版本文件到指定服务器
+          echo "ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} 'scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version'"
+          ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} "scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version"
+          # 4. 远程服务器：创建当前版本软链接
+          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current'"
+          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current"
+          # 5. 远程服务器：执行同步后命令
+        `;
+    const syncProjectCommandStepList = await this.projectCommandStepRepository.find({
+      envId: projectEnv.envId,
+      projectId: project.id,
+      type: ProjectCommandStepType.sync,
+    });
+    for (const projectBuildStep of syncProjectCommandStepList) {
+      shell += `
+      echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '${projectBuildStep.step}'"
+      ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "${projectBuildStep.step}"
+      `;
+    }
+    shell += `
+      # 6. 结束项目构建
+      echo "End of sync project: ${project.name} ."
+    `;
+
+    const logPath = `${installPathSystemConfig.value}${SystemConfigValues.logPath}/${project.name}`;
+    fs.mkdirSync(logPath, { recursive: true });
+    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(env.code, projectEnvBuildSeq)}`);
+    const child = exec(shell);
+    child.stdout.on('data', async (data) => {
+      console.log(data);
+      await writeStream.write(data);
+    });
+    child.stderr.on('data', async (data) => {
+      console.log(data);
+      await writeStream.write(data);
+    });
+    child.stdout.on('end', async () => {
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+    });
+    child.stderr.on('end', async () => {
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+    });
+
+
     return res.json(ar);
   }
 

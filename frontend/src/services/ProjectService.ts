@@ -21,6 +21,9 @@ export async function update(projectDto: ProjectDto, successCallback?: Function,
 export async function build(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return post(`${routes.apiRoutes.projectBuild}`, projectDto, successCallback, failCallback);
 }
+export async function sync(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post(`${routes.apiRoutes.projectSync}`, projectDto, successCallback, failCallback);
+}
 export async function init(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return post(`${routes.apiRoutes.projectInit}`, projectDto, successCallback, failCallback);
 }

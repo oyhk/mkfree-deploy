@@ -23,10 +23,6 @@ export class ProjectEnv extends BaseEntity {
   @Column({ nullable: true, default: false, comment: '是否可选分支发布，默认否' })
   isSelectBranch: boolean;
   @Column({ nullable: true })
-  syncEnvId: number;
-  @Column({ nullable: true })
-  syncEnvName: string;
-  @Column({ nullable: true })
   syncServerId: number;
   @Column({ nullable: true })
   syncServerIp: string;

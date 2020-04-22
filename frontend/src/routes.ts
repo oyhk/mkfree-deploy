@@ -13,6 +13,7 @@ export default {
     projectSave: '/api/projects/save',
     projectUpdate: '/api/projects/update',
     projectBuild: '/api/projects/build',
+    projectSync: '/api/projects/sync',
     projectInit: '/api/projects/init',
     envList: '/api/envs/list',
     serverList: '/api/servers/list',
