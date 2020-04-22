@@ -81,7 +81,8 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
 
   const subDataSource: any[] = [];
 
-  projectDto.projectEnvList?.forEach(({ envId, envName, projectEnvServerList }) => {
+  // eslint-disable-next-line no-unused-expressions
+  projectDto?.projectEnvList?.forEach(({ envId, envName, projectEnvServerList }) => {
     subDataSource.push({
       key: uuid(),
       envId,
@@ -117,7 +118,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 dataIndex: 'name',
                                 key: 'name',
                                 render: (_, row: ProjectDto) =>
-                                  <Link to={routes.pageRoutes.projectEditParams(row.id)}>{row.name}</Link>
+                                  <Link to={routes.pageRoutes.projectEditParams(row.id)} style={{fontSize:'32px'}}>{row.name}</Link>
                                 ,
                               },
                               {
@@ -151,12 +152,12 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 expandedRowRender: (record) => {
                                   return expandedRowRender(record, dispatch);
                                 },
-                                expandIcon: () => {
+                                /*expandIcon: () => {
                                   return <div className="icons-list">
                                     <SmileTwoTone className={styles.projectState}/>
-                                    {/* <FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/> */}
+                                    {/!* <FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/> *!/}
                                   </div>;
-                                },
+                                },*/
                                 defaultExpandAllRows: true,
                               }
                             }
