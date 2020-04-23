@@ -107,7 +107,7 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
   });
 
   return (
-    <Table columns={subColumns} dataSource={subDataSource} pagination={false}/>
+    <Table columns={subColumns} dataSource={subDataSource} pagination={false} footer={()=><div/>}/>
   );
 
 };
@@ -163,7 +163,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                         type: 'project/init',
                                         payload,
                                       });
-                                    }}>{row.state === 2 ? '重新初始化' : '初始化项目'}</Button>&nbsp;&nbsp;
+                                    }}>{row.state === 2 ? '重新初始化项目' : '初始化项目'}</Button>&nbsp;&nbsp;
                                   </div>
                                 ,
                               },

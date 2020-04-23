@@ -823,15 +823,6 @@ export class ProjectController {
       return res.json(ar);
     }
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
-
-    /*    const shell = `
-          echo "cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default"
-          cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default
-          echo "git pull"
-          git pull
-          echo "git branch -a"
-          git branch -a
-        `;*/
     const shell = `
       cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default
       git pull
