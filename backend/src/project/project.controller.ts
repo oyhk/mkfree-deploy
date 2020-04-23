@@ -240,12 +240,28 @@ export class ProjectController {
           // 第二种情况：参数中在数据库中存在的环境，即做更新操作
           if (projectEnvDtoIdList.indexOf(dbProjectEnv.envId) !== -1) {
             const projectEnvDto = projectEnvDtoGroupByEnvId[dbProjectEnv.envId][0];
-            // 1. 删除所有子关联表数据
-            await ProjectController.deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager, project.id, dbProjectEnv.envId);
-            // 2. 插入所有子关联表数据
             projectEnvDto.projectId = project.id;
             projectEnvDto.projectName = project.name;
-            // projectEnvDto.envSort =
+
+            // 1. 删除所有子关联表数据
+            // 删除环境服务器，过滤不需要删除的环境服务器
+            const notDeleteProjectEnvServerIdList = projectEnvDto.projectEnvServerList.filter(projectEnvServer => projectEnvServer.isSelectServerIp && projectEnvServer.id).map(projectEnvServer => projectEnvServer.id);
+            await entityManager.connection.createQueryBuilder().delete().from(ProjectEnvServer)
+              .where(
+                'id not in (:...projectEnvServerIdList) and projectId = :projectId and envId = :envId',
+                {
+                  projectEnvServerIdList: notDeleteProjectEnvServerIdList,
+                  projectId: project.id,
+                  envId: dbProjectEnv.envId,
+                },
+              )
+              .execute();
+            // 删除构建命令、构建后命令、同步后命令
+            await entityManager.delete(ProjectCommandStep, { projectId: project.id, envId: dbProjectEnv.envId });
+            // 删除项目环境
+            await entityManager.delete(ProjectEnv, { projectId: project.id, envId: dbProjectEnv.envId });
+
+            // 2. 插入所有子关联表数据
             await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
             // 3. 更新项目环境
             const syncServer = await entityManager.findOne(Server, projectEnvDto.syncServerId);
@@ -293,7 +309,7 @@ export class ProjectController {
    * @param envId
    */
   private static async deleteProjectEnvChildrenRelationDataByProjectIdAndEnvId(entityManager: EntityManager, projectId: number, envId?: number) {
-    // 删除部署服务器
+    // 删除环境服务器
     await entityManager.delete(ProjectEnvServer, { projectId, envId });
     // 删除构建命令、构建后命令、同步后命令
     await entityManager.delete(ProjectCommandStep, { projectId, envId });
@@ -350,23 +366,26 @@ export class ProjectController {
     });
     if (syncProjectBuildStep)
       await entityManager.save(ProjectCommandStep, syncProjectBuildStep);
-    // 插入部署服务器
-    const newProjectEnvServer = [];
+    // 插入环境服务器
     for (const projectEnvServerDto of projectEnvDto?.projectEnvServerList?.filter(projectEnvServerDto => projectEnvServerDto.isSelectServerIp)) {
-      const projectEnvServer = new ProjectEnvServer();
-      projectEnvServer.envId = projectEnvDto.envId;
-      projectEnvServer.projectId = projectEnvDto.projectId;
-      projectEnvServer.projectName = projectEnvDto.projectName;
-      const server = await entityManager.findOne(Server, { ip: projectEnvServerDto.serverIp });
-      projectEnvServer.serverId = server.id;
-      projectEnvServer.serverIp = server.ip;
-      projectEnvServer.serverName = server.name;
-      projectEnvServer.isPublish = projectEnvServerDto.isPublish;
-
-      newProjectEnvServer.push(projectEnvServer);
+      console.log(projectEnvServerDto.id);
+      // 当环境服务器存在服务器做更新，否则新建
+      if (projectEnvServerDto.id) {
+        await entityManager.update(ProjectEnvServer, projectEnvServerDto.id, { isPublish: projectEnvServerDto.isPublish });
+      } else {
+        const projectEnvServer = new ProjectEnvServer();
+        projectEnvServer.envId = projectEnvDto.envId;
+        projectEnvServer.envName = projectEnvDto.envName;
+        projectEnvServer.projectId = projectEnvDto.projectId;
+        projectEnvServer.projectName = projectEnvDto.projectName;
+        const server = await entityManager.findOne(Server, { ip: projectEnvServerDto.serverIp });
+        projectEnvServer.serverId = server.id;
+        projectEnvServer.serverIp = server.ip;
+        projectEnvServer.serverName = server.name;
+        projectEnvServer.isPublish = projectEnvServerDto.isPublish;
+        await entityManager.save(ProjectEnvServer, projectEnvServer);
+      }
     }
-    if (newProjectEnvServer.length > 0)
-      await entityManager.save(ProjectEnvServer, newProjectEnvServer);
     // 插入项目环境
     await entityManager.save(ProjectEnv, projectEnvDto);
   }
