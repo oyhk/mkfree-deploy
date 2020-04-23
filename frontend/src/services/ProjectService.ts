@@ -27,3 +27,7 @@ export async function sync(projectDto: ProjectDto, successCallback?: Function, f
 export async function init(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return post(`${routes.apiRoutes.projectInit}`, projectDto, successCallback, failCallback);
 }
+
+export async function refreshBranch(projectDto: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post(`${routes.apiRoutes.projectRefreshBranch}`, projectDto, successCallback, failCallback);
+}

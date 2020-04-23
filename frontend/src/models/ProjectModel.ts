@@ -42,6 +42,7 @@ interface ProjectModelType {
     build: Effect;
     init: Effect;
     sync: Effect;
+    refreshBranch: Effect;
   };
   reducers: {
     save: Reducer<ProjectDto>;
@@ -178,7 +179,7 @@ const ProjectModel: ProjectModelType = {
       });
     },
     /**
-     * 项目构建
+     * 项目同步
      * @param payload
      * @param call
      * @param put
@@ -188,6 +189,14 @@ const ProjectModel: ProjectModelType = {
         notification.success({
           message: `项目：${payload.name}`,
           description: '构建操作成功，请稍后...',
+        });
+      });
+    },
+    * refreshBranch({ payload }, { call, put }) {
+      yield call(projectService.refreshBranch, payload, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '刷新分支操作成功，请稍后...',
         });
       });
     },

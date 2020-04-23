@@ -130,7 +130,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 dataIndex: 'name',
                                 key: 'name',
                                 render: (_, row: ProjectDto) =>
-                                  <Link to={routes.pageRoutes.projectEditParams(row.id)} style={{fontSize:'24px'}}>{row.name}</Link>
+                                  <Link to={routes.pageRoutes.projectEditParams(row.id)} style={{fontSize:'22px'}}>{row.name}</Link>
                                 ,
                               },
                               {
@@ -142,6 +142,17 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                   <div className={styles.projectRowAction}>
                                     <Button type='primary' size='small' onClick={() => {
                                     }}>查看日志</Button>&nbsp;&nbsp;
+                                    <Button type='primary' size='small' onClick={() => {
+                                      const payload = {
+                                        id: row.id,
+                                        name: row.name,
+                                      };
+                                      console.log('refresh branch payload', payload);
+                                      dispatch({
+                                        type: 'project/refreshBranch',
+                                        payload,
+                                      });
+                                    }}>刷新git分支</Button>&nbsp;&nbsp;
                                     <Button type='primary' size='small' onClick={() => {
                                       const payload = {
                                         id: row.id,

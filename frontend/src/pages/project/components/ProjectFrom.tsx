@@ -29,6 +29,12 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
   if (!dispatch) {
     return <div/>;
   }
+  let branchList: string[] = [];
+  if (projectState.branchList) {
+    branchList = JSON.parse(projectState.branchList);
+  }
+
+
   return (
     <Form
       form={form}
@@ -37,13 +43,13 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       layout="horizontal"
       initialValues={projectState}
       onFinish={(projectDto) => {
-        console.log('project submit payload : ',projectDto);
+        console.log('project submit payload : ', projectDto);
         if (projectDto.id && !isCreate) {
           dispatch({
             type: 'project/update',
             payload: projectDto,
           });
-        }else{
+        } else {
           dispatch({
             type: 'project/saved',
             payload: projectDto,
@@ -234,7 +240,10 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     fieldKey={[projectEnvListField.fieldKey, 'publishBranch']}
                   >
                     <Select>
-                      <Option value="master">master</Option>
+                      {
+                        branchList.length === 0 ? <Option value="master">master</Option> :
+                          branchList?.map(branch => <Option value={branch} key={uuid()}>{branch}</Option>)
+                      }
                     </Select>
                   </Form.Item>
                   <Form.List
@@ -469,7 +478,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
         }}
       </Form.List>
       {/* ----------------------------------------------------------------环境配置------------------------------------------------------------------------ */}
-      <Form.Item label=' ' colon={false} style={{marginTop:'10vh'}}>
+      <Form.Item label=' ' colon={false} style={{ marginTop: '10vh' }}>
         <Button type="primary" htmlType="submit" block>
           提交
         </Button>

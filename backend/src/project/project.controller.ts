@@ -805,4 +805,53 @@ export class ProjectController {
     return res.json(ar);
   }
 
+  /**
+   * 项目刷新分支
+   * @param dto
+   * @param res
+   */
+  @Post('/api/projects/refreshBranch')
+  async refreshBranch(@Body() dto: ProjectDto, @Res() res: Response) {
+    const ar = new ApiResult();
+    const project = await this.projectRepository.findOne(dto.id);
+    if (!project) {
+      ar.remindRecordNotExist(Project.entityName, dto.id);
+      return res.json(ar);
+    }
+    if (project.state != 2) {
+      ar.remind(ApiResultCode['1001']);
+      return res.json(ar);
+    }
+    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
+
+    /*    const shell = `
+          echo "cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default"
+          cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default
+          echo "git pull"
+          git pull
+          echo "git branch -a"
+          git branch -a
+        `;*/
+    const shell = `
+      cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default
+      git pull
+      git branch -a
+    `;
+
+    exec(shell, {}, async (exception, stdout, stderr) => {
+      // console.log('stdout',stdout);
+      let branchList = stdout.split('\n');
+      branchList = branchList.filter(branch => {
+        return branch.indexOf('Already up to date.') === -1
+          && branch.indexOf('remotes/origin') !== -1
+          && branch.indexOf('remotes/origin/HEAD') === -1;
+      }).map(branch => branch.trim()).map(branch => branch.replace('remotes/origin/', '')).reverse();
+      console.log('branchList', branchList);
+
+      await this.projectRepository.update(project.id, { branchList: JSON.stringify(branchList) });
+    });
+
+
+    return res.json(ar);
+  }
 }

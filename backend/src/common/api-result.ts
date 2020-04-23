@@ -1,3 +1,10 @@
+import { type } from 'os';
+
+interface HttpCode {
+  code: number;
+  desc: string;
+}
+
 export const ApiResultCode = {
   0: { code: 0, desc: '失败' },
   1: { code: 1, desc: '成功' },
@@ -6,7 +13,7 @@ export const ApiResultCode = {
   101: { code: 101, desc: '用户登录：用户不存在' },
   102: { code: 102, desc: '用户登录：密码错误' },
 
-
+  1001: { code: 1001, desc: '请先初始化项目' },
 };
 
 export class ApiResult<T> {
@@ -29,9 +36,9 @@ export class ApiResult<T> {
     this.result = data;
   }
 
-  remind(operation) {
-    this.code = operation[0];
-    this.desc = operation[1];
+  remind(operation: HttpCode) {
+    this.code = operation.code;
+    this.desc = operation.desc;
   }
 
   remindRecordNotExist(entityName: string, entityId: number) {
