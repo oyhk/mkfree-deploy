@@ -595,7 +595,7 @@ export class ProjectController {
       
       # 6. Mkfree Deploy：获取git当前最新版本的版本号
       gitVersion="$(git log -n 1)"
-      gitVersion=\$\{gitVersion:7:40\}
+      gitVersion=\$\{gitVersion:27:20\}
       echo "git current version: $gitVersion"
       echo "current version name: ${publishBranchDirName}_$gitVersion"
       
@@ -660,7 +660,7 @@ export class ProjectController {
       // 更新 projectEnvServer
       const gitVersionShell = `
         gitVersion="$(git log -n 1)"
-        gitVersion=\$\{gitVersion:7:40\}
+        gitVersion=\$\{gitVersion:27:20\}
         echo $gitVersion
       `;
       exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
