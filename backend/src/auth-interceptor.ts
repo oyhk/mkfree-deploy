@@ -5,14 +5,10 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { JwtService } from '@nestjs/jwt';
 import { ApiResult, ApiResultCode } from './common/api-result';
 import { UserDto } from './user/user.dto';
-import { UserAuth, UserAuthOperation } from './user/user-auth';
+import { UserAuth } from './user/user-auth';
 
 export class AuthInterceptor implements NestInterceptor {
-
-
-  constructor(private readonly jwtService: JwtService) {
-
-  }
+  constructor(private readonly jwtService: JwtService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const ar = new ApiResult();

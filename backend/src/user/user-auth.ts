@@ -20,6 +20,5 @@ export class UserAuth {
  * 用户认证操作
  */
 export const UserAuthOperation = {
-  expirationTime: 7 * 24 * 60 * 60, // 默认7天
   expiresIn: '7d', // 默认7天
 };
