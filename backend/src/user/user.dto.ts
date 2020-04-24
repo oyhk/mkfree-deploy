@@ -1,4 +1,5 @@
 import { User } from './user.entity';
+import { Column } from 'typeorm';
 
 /**
  * 用户dto
@@ -6,5 +7,8 @@ import { User } from './user.entity';
 export class UserDto extends User {
 
   idList: number[];
+
+  accessToken: string;
+
 
 }

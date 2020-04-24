@@ -1,13 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { RemindInterceptor } from './RemindInterceptor';
-import { LogLevel } from '@nestjs/common/services/logger.service';
+import { AuthInterceptor } from './auth-interceptor';
+import { JwtService } from '@nestjs/jwt';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: ['debug', 'log', 'error', 'warn', 'verbose'],
   });
-  // app.useGlobalInterceptors(new RemindInterceptor());
+  // 用户登录认证、权限检查
+  const jwtService = app.get<JwtService>(JwtService);
+  app.useGlobalInterceptors(new AuthInterceptor(jwtService));
   app.enableCors({
     origin: '*',
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],

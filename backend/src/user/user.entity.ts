@@ -1,26 +1,20 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 import { Exclude, Expose } from 'class-transformer';
-import * as crypto from "crypto";
+import * as crypto from 'crypto';
 
 
 @Entity()
 export class User extends BaseEntity {
 
-  @Column({unique:true})
+  @Column({ unique: true })
   username: string;
   @Column()
-  @Exclude()
   password: string;
   @Column()
-  @Exclude()
   passwordSalt: string;
   @Column()
   roleType: number;
-  @Column({nullable:true})
-  @Exclude()
-  accessToken: string;
-
 
   /**
    * 加密顺序 md5(passwordSalt + password)
@@ -32,6 +26,8 @@ export class User extends BaseEntity {
   }
 }
 
-interface UserRoleType {
-  [roleType: number]: string;
-}
+export const UserRoleType = {
+  superAdmin: 0,
+  admin: 1,
+  common: 2,
+};

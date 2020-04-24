@@ -2,7 +2,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
-  Get,
+  Get, Inject,
   Post,
   Put,
   Query,
@@ -17,6 +17,9 @@ import { UserDto } from './user.dto';
 import { v4 as UUID } from 'uuid';
 import { Response } from 'express';
 import { ApiResultCode, ApiResult } from '../common/api-result';
+import { JwtService } from '@nestjs/jwt';
+import { AuthInterceptor } from '../auth-interceptor';
+import { UserAuth, UserAuthOperation } from './user-auth';
 
 @Controller()
 export class UserController {
@@ -24,6 +27,7 @@ export class UserController {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {
   }
 
@@ -57,13 +61,10 @@ export class UserController {
     user.roleType = dto.roleType;
     user.passwordSalt = UUID();
     user.password = User.getMd5Password(user.passwordSalt, dto.password);
-    user = await this.userRepository.save(user).then(value => {
-      value.password = undefined;
-      value.passwordSalt = undefined;
-      value.accessToken = undefined;
-      return value;
-    });
-    r.result = user;
+    user = await this.userRepository.save(user);
+    r.result = {
+      username: user.username,
+    };
     return res.json(r);
   }
 
@@ -84,28 +85,44 @@ export class UserController {
 
   @Post('/api/users/login')
   async login(@Body() dto: UserDto, @Res() res: Response) {
-    const r = new ApiResult();
-    let user: User = await this.userRepository.findOne({ username: dto.username });
+    const ar = new ApiResult();
+    const user: User = await this.userRepository.findOne({ username: dto.username });
     if (!user) {
-      r.code = ApiResultCode['101'].code;
-      r.desc = ApiResultCode['101'].desc;
-      return res.json(r);
+      ar.remind(ApiResultCode['101']);
+      return res.json(ar);
     }
 
     const md5Password = User.getMd5Password(user.passwordSalt, dto.password);
     if (user.password !== md5Password) {
-      r.code = ApiResultCode['102'].code;
-      r.desc = ApiResultCode['102'].desc;
-      return res.json(r);
+      ar.remind(ApiResultCode['102']);
+      return res.json(ar);
     }
+    const accessToken = this.jwtService.sign({
+      username: user.username,
+      roleType: user.roleType,
+      permissionList: [],
+    } as UserAuth, { expiresIn: UserAuthOperation.expiresIn });
+    ar.result = {
+      accessToken: accessToken,
+    };
+    return res.json(ar);
+  }
 
-    user.accessToken = UUID();
-    user = await this.userRepository.save(user);
+  @Post('/api/users/loginByAccessToken')
+  async loginByAccessToken(@Body() dto: UserDto, @Res() res: Response) {
 
-    const data = new UserDto();
-    data.accessToken = user.accessToken;
-    r.result = data;
-    return res.json(r);
+    const ar = new ApiResult();
+    let user = this.jwtService.decode(dto.accessToken, { json: true });
+    if (!user) {
+      ar.remind(ApiResultCode['103']);
+      return res.json(ar);
+    }
+    user = user as UserDto;
+    if (user.exp - user.iat >= 30) {
+      ar.remind(ApiResultCode['104']);
+      return res.json(ar);
+    }
+    return res.json(ar);
   }
 
 }

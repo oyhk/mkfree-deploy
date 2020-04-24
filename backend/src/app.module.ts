@@ -12,6 +12,9 @@ import { ProjectCommandStepModule } from './project-build-step/project-command-s
 import { SystemConfigModule } from './system-config/system-config.module';
 import { ProjectLogModule } from './project-log/project-log.module';
 import { LogWebsocketModule } from './log-websocket/log-websocket.module';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuthInterceptor } from './auth-interceptor';
 
 
 @Module({
@@ -33,7 +36,14 @@ import { LogWebsocketModule } from './log-websocket/log-websocket.module';
     ProjectDeployFileModule,
     ProjectCommandStepModule,
     SystemConfigModule,
-    LogWebsocketModule
+    LogWebsocketModule,
+  ],
+  providers: [
+/*    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuthInterceptor,
+      inject:[JwtService]
+    },*/
   ],
   controllers: [AppController],
 })
