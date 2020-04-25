@@ -1,10 +1,13 @@
 export default {
   // 页面路由
   pageRoutes: {
+    root: '/',
     projectIndex: '/project',
     projectEdit: '/project/edit/:id',
     projectEditParams: (id: any) => `/project/edit/${id}`,
     projectCreate: '/project/create',
+    userSignIn: '/user/sign-in',
+
   },
   // api
   apiRoutes: {
@@ -18,6 +21,7 @@ export default {
     projectRefreshBranch: '/api/projects/refreshBranch',
     envList: '/api/envs/list',
     serverList: '/api/servers/list',
+    userLogin: '/api/users/login',
   },
 };
 

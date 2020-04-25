@@ -2,6 +2,7 @@ import React from 'react';
 import { SmileOutlined, TableOutlined } from '@ant-design/icons';
 import ProLayout, { MenuDataItem, DefaultFooter } from '@ant-design/pro-layout';
 import { Link } from 'umi';
+import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
 
 
 const BasicLayout: React.FC = props => {
@@ -48,7 +49,12 @@ const BasicLayout: React.FC = props => {
       }}
       menuRender={(_, dom) => dom}
 
-      footerRender={() =>  <DefaultFooter
+      rightContentRender={(props: HeaderViewProps) => {
+        console.log(props);
+        return <div>123123</div>;
+      }}
+
+      footerRender={() => <DefaultFooter
         copyright="MKfree Deploy 2016-2020"
         links={[
           {
@@ -56,7 +62,7 @@ const BasicLayout: React.FC = props => {
             title: 'Mkfree Deploy',
             href: 'https://gitee.com/381895649/mkfree-deploy',
             blankTarget: true,
-          }
+          },
         ]}
       />}
     >

@@ -5,8 +5,8 @@ export const ApiResultCode = {
   3: { code: 3, desc: '温馨提示：' },
   101: { code: 101, desc: '用户：用户不存在' },
   102: { code: 102, desc: '用户：密码错误' },
-  103: { code: 103, desc: '用户：accessToken 无效' },
-  104: { code: 104, desc: '用户：accessToken 已过期' },
+  103: { code: 103, desc: '用户：accessToken 无效，请重新登录' },
+  104: { code: 104, desc: '用户：accessToken 已过期，请重新登录' },
 
   1001: { code: 1001, desc: '项目：请先初始化项目' },
 };

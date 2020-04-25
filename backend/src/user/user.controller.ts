@@ -86,7 +86,7 @@ export class UserController {
   @Post('/api/users/login')
   async login(@Body() dto: UserDto, @Res() res: Response) {
     const ar = new ApiResult();
-    const user: User = await this.userRepository.findOne({ username: dto.username });
+    const user = await this.userRepository.findOne({ username: dto.username });
     if (!user) {
       ar.remind(ApiResultCode['101']);
       return res.json(ar);
@@ -105,23 +105,6 @@ export class UserController {
     ar.result = {
       accessToken: accessToken,
     };
-    return res.json(ar);
-  }
-
-  @Post('/api/users/loginByAccessToken')
-  async loginByAccessToken(@Body() dto: UserDto, @Res() res: Response) {
-
-    const ar = new ApiResult();
-    let user = this.jwtService.decode(dto.accessToken, { json: true });
-    if (!user) {
-      ar.remind(ApiResultCode['103']);
-      return res.json(ar);
-    }
-    user = user as UserDto;
-    if (user.exp - user.iat >= 30) {
-      ar.remind(ApiResultCode['104']);
-      return res.json(ar);
-    }
     return res.json(ar);
   }
 

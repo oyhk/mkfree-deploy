@@ -21,30 +21,45 @@ const config: IConfig = {
   routes: [
     {
       path: '/',
-      component: '@/layouts/BaseLayout',
+      component: '@/layouts/BlankLayout',
       routes: [
+
+        {
+          path: routes.pageRoutes.userSignIn,
+          title: '用户登录',
+          component: '@/pages/user/UserSignIn',
+        },
         {
           path: '/',
           title: '欢迎',
-          component: '@/pages/Welcome',
-        },
-        {
-          title: '项目管理',
-          path: routes.pageRoutes.projectIndex,
-          component: '@/pages/project/ProjectIndex',
-        },
-        {
-          title: '项目编辑',
-          path: routes.pageRoutes.projectEdit,
-          component: '@/pages/project/ProjectEdit',
-        },
-        {
-          title: '项目创建',
-          path: routes.pageRoutes.projectCreate,
-          component: '@/pages/project/ProjectCreate',
+          component: '@/layouts/BaseLayout',
+          routes: [
+            {
+              path: '/',
+              title: '欢迎',
+              component: '@/pages/Welcome',
+            },
+            {
+              title: '项目管理',
+              path: routes.pageRoutes.projectIndex,
+              component: '@/pages/project/ProjectIndex',
+            },
+            {
+              title: '项目编辑',
+              path: routes.pageRoutes.projectEdit,
+              component: '@/pages/project/ProjectEdit',
+            },
+            {
+              title: '项目创建',
+              path: routes.pageRoutes.projectCreate,
+              component: '@/pages/project/ProjectCreate',
+            },
+          ],
         },
       ],
     },
+
+
   ],
 };
 

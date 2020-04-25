@@ -5,7 +5,8 @@
 import { extend, RequestOptionsInit } from 'umi-request';
 import { notification } from 'antd';
 import { ApiResult } from '@/services/ApiResult';
-import { ProjectDto } from '@/models/dto/ProjectDto';
+import { history } from 'umi';
+import routes from '@/routes';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -53,42 +54,58 @@ const errorHandler = (error: { response: Response }): Response => {
  */
 const request = extend({
   errorHandler, // 默认错误处理
+  headers: { 'access_token': localStorage.getItem('access_token') },
+
   // credentials: 'include', // 默认请求是否带上cookie
 });
 
-const requestThen = (url: string, apiResult: ApiResult<any>, successCallback?: Function, failCallback?: Function) => {
+const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
+  console.log('ro.isAll', ro.isAll);
   if (apiResult.code === 1) {
-    if (successCallback) {
-      successCallback();
+    if (ro.successCallback) {
+      ro.successCallback();
     }
-    return apiResult.result;
+    if (ro.isAll)
+      return apiResult;
+    else
+      return apiResult.result;
   }
   if (apiResult.code) {
-
-    if (failCallback) {
-      failCallback();
+    if (ro.failCallback) {
+      ro.failCallback();
     }
-
     notification.error({
-      message: `请求错误 ${apiResult.code}: ${url}`,
+      message: `请求错误 ${apiResult.code}: ${ro.url}`,
       description: apiResult.desc,
     });
+
+    if (apiResult.code === 103 || apiResult.code === 104) {
+      history.replace(routes.pageRoutes.userSignIn);
+    }
   }
   return undefined;
 };
 
-export const get = (url: string, successCallback?: Function, failCallback?: Function) => {
-  return request.get(`http://localhost:5000${url}`).then((apiResult: ApiResult<any>) => requestThen(url, apiResult, successCallback, failCallback));
+export interface RequestOptions {
+  url: string;
+  dto?: any;
+  isAll?: boolean;// 是否返回api整个对象，默认false
+  successCallback?: Function;
+  failCallback?: Function;
+}
+
+export const get = (requestOptions: RequestOptions) => {
+  return request.get(`http://localhost:5000${requestOptions.url}`).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
 };
 
-export const post = (url: string, dto: any, successCallback?: Function, failCallback?: Function) => {
-  const requestOptionsInit = { data: dto } as RequestOptionsInit;
-  return request.post(`http://localhost:5000${url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(url, apiResult, successCallback, failCallback));
+export const post = (requestOptions: RequestOptions) => {
+  const requestOptionsInit = { data: requestOptions.dto } as RequestOptionsInit;
+  return request.post(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
 };
 
-export const put = (url: string, dto: any, successCallback?: Function, failCallback?: Function) => {
-  const requestOptionsInit = { data: dto } as RequestOptionsInit;
-  return request.put(`http://localhost:5000${url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(url, apiResult, successCallback, failCallback));
+export const put = (requestOptions: RequestOptions) => {
+  const requestOptionsInit = { data: requestOptions.dto } as RequestOptionsInit;
+  return request.put(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
 };
 
 
