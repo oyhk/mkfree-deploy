@@ -54,13 +54,10 @@ const errorHandler = (error: { response: Response }): Response => {
  */
 const request = extend({
   errorHandler, // 默认错误处理
-  headers: { 'access_token': localStorage.getItem('access_token') },
-
   // credentials: 'include', // 默认请求是否带上cookie
 });
 
 const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
-  console.log('ro.isAll', ro.isAll);
   if (apiResult.code === 1) {
     if (ro.successCallback) {
       ro.successCallback();
@@ -69,8 +66,7 @@ const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
       return apiResult;
     else
       return apiResult.result;
-  }
-  if (apiResult.code) {
+  } else if (apiResult.code) {
     if (ro.failCallback) {
       ro.failCallback();
     }
@@ -78,10 +74,10 @@ const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
       message: `请求错误 ${apiResult.code}: ${ro.url}`,
       description: apiResult.desc,
     });
-
     if (apiResult.code === 103 || apiResult.code === 104) {
-      history.replace(routes.pageRoutes.userSignIn);
+      history.replace(routes.pageRoutes.userLogin);
     }
+    return apiResult;
   }
   return undefined;
 };
@@ -95,16 +91,27 @@ export interface RequestOptions {
 }
 
 export const get = (requestOptions: RequestOptions) => {
-  return request.get(`http://localhost:5000${requestOptions.url}`).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
+  const requestOptionsInit = {
+    data: requestOptions.dto,
+    headers: { 'access_token': localStorage.getItem('access_token') },
+  } as RequestOptionsInit;
+  return request.get(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
 };
 
 export const post = (requestOptions: RequestOptions) => {
-  const requestOptionsInit = { data: requestOptions.dto } as RequestOptionsInit;
+  const requestOptionsInit = {
+    data: requestOptions.dto,
+    headers: { 'access_token': localStorage.getItem('access_token') },
+  } as RequestOptionsInit;
+
   return request.post(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
 };
 
 export const put = (requestOptions: RequestOptions) => {
-  const requestOptionsInit = { data: requestOptions.dto } as RequestOptionsInit;
+  const requestOptionsInit = {
+    data: requestOptions.dto,
+    headers: { 'access_token': localStorage.getItem('access_token') },
+  } as RequestOptionsInit;
   return request.put(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
 };
 

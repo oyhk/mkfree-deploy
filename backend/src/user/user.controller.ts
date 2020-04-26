@@ -108,4 +108,10 @@ export class UserController {
     return res.json(ar);
   }
 
+  @Post('/api/users/logout')
+  async logout(@Body() dto: UserDto, @Res() res: Response) {
+    const ar = new ApiResult();
+    return ar;
+  }
+
 }

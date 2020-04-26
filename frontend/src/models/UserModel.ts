@@ -1,12 +1,14 @@
 import { Effect, Reducer, Subscription } from '@@/plugin-dva/connect';
 import * as userService from '@/services/UserService';
-import { history } from 'umi';
+import { history, useSelector } from 'umi';
 import routes from '@/routes';
+import { ModelType } from '@/models/ModelType';
 
 /**
- * 项目ModelState
+ * 用户ModelState
  */
 export interface UserModelState {
+  loading: boolean;
 }
 
 
@@ -14,25 +16,46 @@ interface UserModelType {
   namespace: string;
   state: UserModelState;
   effects: {
-    login: Effect
+    login: Effect,
+    logout: Effect,
   };
   reducers: {
-    save: Reducer;
+    save: Reducer<UserModelState>;
   };
   subscriptions: { setup: Subscription };
 }
 
 const UserModel: UserModelType = {
   namespace: 'user',
-  state: {},
+  state: {
+    loading: false,
+  },
   effects: {
     * login({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          loading: true,
+        },
+      });
       const apiResult = yield call(userService.login, { dto: payload, isAll: true });
-      console.log(apiResult);
       if (apiResult.code === 1) {
         localStorage.setItem('access_token', apiResult.result.accessToken);
         history.push(routes.pageRoutes.projectIndex);
+      } else {
+
+        yield put({
+          type: 'save',
+          payload: {
+            loading: false,
+          },
+        });
       }
+    },
+    * logout({ payload }, { call, put }) {
+      localStorage.removeItem('access_token');
+      history.replace(routes.pageRoutes.userLogin);
+
     },
   },
   reducers: {
@@ -46,7 +69,16 @@ const UserModel: UserModelType = {
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
-
+        // 列表页订阅
+        if (pathname === routes.pageRoutes.userLogin) {
+          dispatch({
+            type: 'save',
+            payload: {
+              loading: false,
+            },
+          });
+          return;
+        }
       });
     },
   },

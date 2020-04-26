@@ -1,11 +1,16 @@
 import React from 'react';
-import { SmileOutlined, TableOutlined } from '@ant-design/icons';
-import ProLayout, { MenuDataItem, DefaultFooter } from '@ant-design/pro-layout';
-import { Link } from 'umi';
+import { SmileOutlined, TableOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
+import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
+import { Link, connect } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
+import { Dropdown, Menu, Button } from 'antd';
+import { ConnectProps } from '@@/plugin-dva/connect';
 
 
-const BasicLayout: React.FC = props => {
+const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
+  if (!dispatch) {
+    return <PageLoading/>;
+  }
   return (
     <ProLayout
       title='Mkfree Deploy'
@@ -50,8 +55,24 @@ const BasicLayout: React.FC = props => {
       menuRender={(_, dom) => dom}
 
       rightContentRender={(props: HeaderViewProps) => {
-        console.log(props);
-        return <div>123123</div>;
+        return <div style={{ paddingRight: '20px' }}>
+          <Dropdown overlay={
+            <Menu
+              onClick={() => {
+                dispatch({
+                  type:'user/logout'
+                });
+              }}
+            >
+              <Menu.Item key="1">
+                退出
+              </Menu.Item>
+            </Menu>
+          }
+          >
+            <Button>oyhk <UserOutlined/></Button>
+          </Dropdown>
+        </div>;
       }}
 
       footerRender={() => <DefaultFooter
@@ -66,9 +87,10 @@ const BasicLayout: React.FC = props => {
         ]}
       />}
     >
-      {props.children}
+      {children}
     </ProLayout>
   );
 };
 
-export default BasicLayout;
+export default connect(({}: ConnectProps) => ({}),
+)(BasicLayout);

@@ -1,7 +1,5 @@
-import { ConnectProps, ProjectModelState } from 'umi';
+import { ConnectProps, UserModelState } from '@@/plugin-dva/connect';
 
-/**
- * 页面属性
- */
 export interface UserPageProps extends ConnectProps {
+  user: UserModelState;
 }

@@ -6,7 +6,8 @@ export default {
     projectEdit: '/project/edit/:id',
     projectEditParams: (id: any) => `/project/edit/${id}`,
     projectCreate: '/project/create',
-    userSignIn: '/user/sign-in',
+    userLogin: '/user/login'
+
 
   },
   // api

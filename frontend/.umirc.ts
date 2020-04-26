@@ -25,9 +25,9 @@ const config: IConfig = {
       routes: [
 
         {
-          path: routes.pageRoutes.userSignIn,
+          path: routes.pageRoutes.userLogin,
           title: '用户登录',
-          component: '@/pages/user/UserSignIn',
+          component: '@/pages/user/UserLogin',
         },
         {
           path: '/',

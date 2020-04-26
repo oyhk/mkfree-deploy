@@ -1,18 +1,16 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
-import styles from '@/pages/user/UserSignIn.less';
+import styles from '@/pages/user/UserLogin.less';
 import logo from '@/assets/logo.svg';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { DefaultFooter, PageLoading } from '@ant-design/pro-layout';
-import { connect, Link, Dispatch } from 'umi';
+import { connect } from 'umi';
 import { UserPageProps } from '@/pages/user/UserPageProps';
 
-const UserSignIn: React.FC<UserPageProps> = ({ dispatch }) => {
-
+const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
   if (!dispatch) {
     return <PageLoading/>;
   }
-
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -30,7 +28,7 @@ const UserSignIn: React.FC<UserPageProps> = ({ dispatch }) => {
             className="login-form"
             initialValues={{ remember: true }}
             onFinish={(values) => {
-              console.log('UserSignIn payload ', values);
+              console.log('UserLogin payload ', values);
               const payload = values;
               dispatch({
                 type: 'user/login',
@@ -57,7 +55,7 @@ const UserSignIn: React.FC<UserPageProps> = ({ dispatch }) => {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" size='large' htmlType="submit" block>
+              <Button loading={user.loading} type="primary" size='large' htmlType="submit" block>
                 登 录
               </Button>
             </Form.Item>
@@ -79,5 +77,4 @@ const UserSignIn: React.FC<UserPageProps> = ({ dispatch }) => {
 
   );
 };
-export default connect(({}: UserPageProps) => ({}),
-)(UserSignIn);
+export default connect(({ user }: UserPageProps) => ({ user }))(UserLogin);
