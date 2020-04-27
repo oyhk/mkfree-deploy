@@ -31,7 +31,6 @@ export class AuthInterceptor implements NestInterceptor {
       return of(ar);
     }
     const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
-    console.log('userAuth', userAuth);
     if (userAuth === null) {
       ar.remind(ApiResultCode['103']);
       return of(ar);

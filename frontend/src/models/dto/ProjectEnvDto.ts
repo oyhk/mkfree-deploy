@@ -1,6 +1,7 @@
 import { BaseDto } from '@/models/dto/BaseDto';
 import { ProjectBuildStepDto } from '@/models/dto/ProjectBuildStepDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
+import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
 
 /**
  * 项目环境
@@ -23,4 +24,7 @@ export interface ProjectEnvDto extends BaseDto {
   projectCommandStepBuildList?: ProjectBuildStepDto[];
   projectCommandStepBuildAfterList?: ProjectBuildStepDto[];
   projectCommandStepSyncAfterList?: ProjectBuildStepDto[];
+
+  // 项目环境日志
+  projectEnvLogList?: ProjectEnvLogDto[];
 }

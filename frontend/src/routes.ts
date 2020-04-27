@@ -22,6 +22,9 @@ export default {
     projectRefreshBranch: '/api/projects/refreshBranch',
     envList: '/api/envs/list',
     serverList: '/api/servers/list',
+    projectEnvList: '/api/projectEnvs/list',
+    projectEnvLogList: '/api/projectEnvLogs/list',
+    projectEnvLogInfo: '/api/projectEnvLogs/info',
     userLogin: '/api/users/login',
   },
 };

@@ -2,6 +2,8 @@ import { Effect, Reducer, Subscription } from '@@/plugin-dva/connect';
 import * as projectService from '@/services/ProjectService';
 import * as envService from '@/services/EnvService';
 import * as serverService from '@/services/ServerService';
+import * as projectEnvService from '@/services/ProjectEnvService';
+import * as projectEnvLogService from '@/services/ProjectEnvLogService';
 import { PageResult } from '@/services/PageResult';
 import pathToRegexp from 'path-to-regexp';
 import routes from '@/routes';
@@ -12,20 +14,34 @@ import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ServerDto } from '@/models/dto/ServerDto';
 import { notification } from 'antd';
 import { history } from 'umi';
+import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
+import { Simulate } from 'react-dom/test-utils';
 
+/**
+ * 项目日志弹框
+ */
+export interface ProjectLogModel {
+  visible: boolean,
+  projectEnvList: ProjectEnvDto[],
+  // 项目环境日志内容
+  projectEnvLog: ProjectEnvLogDto,
+  projectName: string,
+}
 
 /**
  * 项目ModelState
  */
 export interface ProjectModelState {
-  loading?: boolean;
-  logModalVisible: boolean;
-  page: PageResult<ProjectDto>;
+
+  logModal?: ProjectLogModel;
+
+  page?: PageResult<ProjectDto>;
 
   project?: ProjectDto;
 
   envList?: EnvDto[];
   serverList?: ServerDto[];
+
 }
 
 
@@ -43,6 +59,9 @@ interface ProjectModelType {
     init: Effect;
     sync: Effect;
     refreshBranch: Effect;
+    logModalVisibleChange: Effect;
+    logModalProjectEnvLogText: Effect;
+
   };
   reducers: {
     save: Reducer<ProjectDto>;
@@ -213,7 +232,54 @@ const ProjectModel: ProjectModelType = {
           description: '初始化操作成功，请稍后...',
         });
       });
-    }
+    },
+    /**
+     * 项目环境服务器日志
+     * @param payload
+     * @param call
+     * @param put
+     */
+    * logModalVisibleChange({ payload }, { call, put }) {
+
+      const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, { dto: { projectId: payload.projectId } });
+      for (const projectEnv of projectEnvList) {
+        projectEnv.projectEnvLogList = yield call(projectEnvLogService.list, {
+          dto: {
+            projectId: projectEnv.projectId,
+            envId: projectEnv.envId,
+          },
+        });
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          logModal: {
+            visible: payload.logModalVisible,
+            projectEnvList: projectEnvList,
+            projectName: payload.projectName,
+          } as ProjectLogModel,
+          logModalProjectName: payload.projectName,
+        },
+      });
+    },
+    /**
+     * 项目环境日志
+     * @param payload
+     * @param call
+     * @param put
+     */
+    * logModalProjectEnvLogText({ payload }, { call, put, select }) {
+      const projectEnvLog = yield call(projectEnvLogService.info, { dto: payload });
+      console.log('projectEnvLog',projectEnvLog);
+      const logModal = yield select((state: any) => state.project?.logModal);
+      logModal.projectEnvLog = projectEnvLog;
+      yield put({
+        type: 'save',
+        payload: {
+          logModal,
+        },
+      });
+    },
   },
 
   reducers: {
@@ -227,6 +293,8 @@ const ProjectModel: ProjectModelType = {
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
+
+
         // 列表页订阅
         if (pathname === routes.pageRoutes.projectIndex) {
           dispatch({
@@ -256,6 +324,8 @@ const ProjectModel: ProjectModelType = {
             },
           });
         }
+
+
       });
     },
   },

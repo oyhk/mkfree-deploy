@@ -541,8 +541,8 @@ export class ProjectController {
 
     const projectEnvBuildSeq = projectEnv.buildSeq + 1;
 
-    await this.projectEnvLogRepository.save({
-      type: ProjectEnvLogType.build,
+    const projectEnvLog = await this.projectEnvLogRepository.save({
+      type: ProjectEnvLogType.build.code,
       projectId: project.id,
       envId: env.id,
       projectEnvId: projectEnv.id,
@@ -669,16 +669,17 @@ export class ProjectController {
           publishTime: publishTime,
         });
       });
-
+      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
     });
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
     });
     return res.json(ar);
   }
 
   /**
-   * 项目构建
+   * 项目同步
    * @param dto
    * @param res
    */
@@ -736,8 +737,8 @@ export class ProjectController {
 
     const projectEnvBuildSeq = projectEnv.buildSeq + 1;
 
-    await this.projectEnvLogRepository.save({
-      type: ProjectEnvLogType.build,
+    const projectEnvLog = await this.projectEnvLogRepository.save({
+      type: ProjectEnvLogType.sync.code,
       projectId: project.id,
       envId: env.id,
       projectEnvId: projectEnv.id,
@@ -796,9 +797,16 @@ export class ProjectController {
         publishVersion: syncProjectEnvServer.publishVersion,
         publishTime: publishTime,
       });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
     });
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+      await this.projectEnvServerRepository.update(targetProjectEnvServer.id, {
+        publishVersion: syncProjectEnvServer.publishVersion,
+        publishTime: publishTime,
+      });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
+
     });
 
 

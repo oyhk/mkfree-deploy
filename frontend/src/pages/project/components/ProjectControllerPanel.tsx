@@ -1,32 +1,70 @@
 import React, { ReactChildren } from 'react';
-import { Layout, Menu, Modal, Row } from 'antd';
-import { useIntl } from 'umi';
+import { Layout, Menu, Modal, Row, Col, Space, Button } from 'antd';
 import {
   ArrowLeftOutlined,
   EditOutlined,
   BranchesOutlined,
   FolderOpenOutlined,
   InfoCircleOutlined,
+  MailOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { ProjectModelState } from '@/models/ProjectModel';
 import { Dispatch } from '@@/plugin-dva/connect';
+import SubMenu from 'antd/es/menu/SubMenu';
+import { AppstoreOutlined, LoadingOutlined, SettingOutlined } from '@ant-design/icons/lib';
+import { PageLoading } from '@ant-design/pro-layout';
+import { uuid } from '@/utils/utils';
 
 const { Sider, Content } = Layout;
-
 
 export interface ProjectModalProps {
   projectState?: ProjectModelState;
   dispatch?: Dispatch;
-  children:ReactChildren;
+  children?: ReactChildren;
 }
 
-const ProjectInfoControllerPanel: React.FC<ProjectModalProps> = ({ projectState, dispatch }) => {
+
+const ProjectLogControllerPanel: React.FC<ProjectModalProps> = ({ projectState, dispatch }) => {
+  if (!projectState || !dispatch) {
+    return <PageLoading/>;
+  }
+
+  const projectEnvListMenu = projectState.logModal?.projectEnvList?.map((projectEnv, projectEnvIndex) => {
+    return <SubMenu key={projectEnvIndex} title={<span><span>{projectEnv.envName}</span></span>}>
+      {projectEnv.projectEnvLogList?.map((projectEnvLog, projectEnvLogIndex) => {
+        return <Menu.Item
+          key={`${projectEnv.projectId}_${projectEnv.envId}_${projectEnvLog.projectEnvLogSeq}`}>
+          {projectEnvLog.isFinish ? '' : <LoadingOutlined/>} #{projectEnvLog.projectEnvLogSeq}
+        </Menu.Item>;
+      })}
+    </SubMenu>;
+  });
   return (
     <Modal
-      title={useIntl().formatMessage({ id: 'project.logModal.title' })}
-      style={{ top: '1vh', maxHeight: '99vh', overflow: 'scroll' }}
-      width='98%'
-      visible={projectState?.logModalVisible}
+      title={
+        <Row>
+          <Col sm={4}>项目：{projectState?.logModal?.projectName}</Col>
+          <Col sm={20} style={{ fontSize: '14px', textAlign: 'right', paddingRight: '30px' }}>
+            <Space size='large'>
+              <div><span style={{ fontSize: '12px', color: 'rgba(0,0,0,.65)' }}>日志类型：</span><span style={{
+                fontSize: '12px',
+                color: 'rgba(0,0,0,.65)',
+              }}>{projectState?.logModal?.projectEnvLog?.typeDesc}</span></div>
+              <div><span style={{ fontSize: '12px', color: 'rgba(0,0,0,.65)' }}>时间：</span><span style={{
+                fontSize: '12px',
+                color: 'rgba(0,0,0,.65)',
+              }}>{projectState?.logModal?.projectEnvLog?.createdAt}</span></div>
+{/*              <div>
+                <Button loading type='primary' icon={<ReloadOutlined />}>刷新</Button>
+              </div>*/}
+            </Space>
+          </Col>
+        </Row>
+      }
+      style={{ top: '5vh', maxHeight: '90vh', overflow: 'scroll' }}
+      width='80%'
+      visible={projectState?.logModal?.visible}
       onCancel={() => {
         if (dispatch) {
           dispatch({
@@ -43,52 +81,45 @@ const ProjectInfoControllerPanel: React.FC<ProjectModalProps> = ({ projectState,
         <Sider theme='light' width='20%'
                style={{
                  overflow: 'auto',
-                 height: '89vh',
+                 height: '75vh',
                }}
         >
-          <Row
-            style={{ height: '30vh' }}
+          <Menu
+            defaultOpenKeys={['']}
+            mode="inline"
+            theme='light'
+            onClick={({ item, key, keyPath, domEvent }) => {
+              const tempKey = key.split('_');
+              const projectId = tempKey[0];
+              const envId = tempKey[1];
+              const projectEnvLogSeq = tempKey[2];
+
+              dispatch({
+                type: 'project/logModalProjectEnvLogText',
+                payload: {
+                  projectId,
+                  envId,
+                  projectEnvLogSeq,
+                },
+              });
+
+            }}
           >
-            <Menu theme="light" mode="inline" defaultSelectedKeys={['2']}>
-              <Menu.Item key="1">
-                <ArrowLeftOutlined/>
-                <span className="nav-text">返回面板</span>
-              </Menu.Item>
-              <Menu.Item key="2">
-                <InfoCircleOutlined/>
-                <span className="nav-text">信息</span>
-              </Menu.Item>
-              <Menu.Item key="3">
-                <EditOutlined/>
-                <span className="nav-text">编辑</span>
-              </Menu.Item>
-              <Menu.Item key="4">
-                <BranchesOutlined/>
-                <span className="nav-text">分支</span>
-              </Menu.Item>
-              <Menu.Item key="5">
-                <FolderOpenOutlined/>
-                <span className="nav-text">工作空间</span>
-              </Menu.Item>
-            </Menu>
-          </Row>
-          <Row
-            style={{ height: '59vh', background: '#235234' }}
-          >
-            sdfsdfsdfsfsf
-          </Row>
+            {projectEnvListMenu}
+          </Menu>
         </Sider>
         <Content
           style={{
             overflow: 'auto',
-            height: '89vh',
+            height: '75vh',
           }}
         >
-          {}
+          <div style={{ wordWrap: 'break-word', padding: '10px' }}
+               dangerouslySetInnerHTML={{ __html: projectState?.logModal?.projectEnvLog?.text }}/>
         </Content>
       </Layout>
     </Modal>
   );
 };
 
-export default ProjectInfoControllerPanel;
+export default ProjectLogControllerPanel;

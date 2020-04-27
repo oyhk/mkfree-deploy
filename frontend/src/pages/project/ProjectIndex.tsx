@@ -12,6 +12,7 @@ import { ProjectDto } from '@/models/dto/ProjectDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
+import ProjectLogControllerPanel from '@/pages/project/components/ProjectControllerPanel';
 
 
 const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
@@ -24,7 +25,8 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       title: 'ip', dataIndex: 'ip', key: 'ip',
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
         <div>{projectEnvServerList ? projectEnvServerList.map((pes) => (
-          <span className={styles.ipRow} key={`${pes.id}_${pes.envId}_${pes.serverIp}_span`}>{pes.serverName}_{pes.serverIp}<br
+          <span className={styles.ipRow}
+                key={`${pes.id}_${pes.envId}_${pes.serverIp}_span`}>{pes.serverName}_{pes.serverIp}<br
             key={`${pes.id}_${pes.envId}_${pes.serverIp}_br`}/></span>)) : ''}</div>
       ),
     },
@@ -65,7 +67,7 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
                       type: 'project/build',
                       payload,
                     });
-                  }}>发布</Button> : <Button danger size='small'onClick={() => {
+                  }}>发布</Button> : <Button danger size='small' onClick={() => {
 
                     const payload = {
                       id: pes.projectId,
@@ -79,8 +81,18 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
                     });
                   }}>从服务器同步</Button>
                 }
-                &nbsp;&nbsp;<Button type='primary' size='small' onClick={() => {
-              }}>查看日志</Button>
+                &nbsp;&nbsp;
+                <Button type='primary' size='small'
+                        onClick={() => {
+                          dispatch({
+                            type: 'project/logModalVisibleChange',
+                            payload: {
+                              logModalVisible: true,
+                              projectId: pes.projectId,
+                              projectName:pes.projectName,
+                            },
+                          });
+                        }}>查看日志</Button>
                 <br/>
               </div>
             )) : <div/>
@@ -107,7 +119,7 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
   });
 
   return (
-    <Table columns={subColumns} dataSource={subDataSource} pagination={false} footer={()=><div/>}/>
+    <Table columns={subColumns} dataSource={subDataSource} pagination={false} footer={() => <div/>}/>
   );
 
 };
@@ -130,7 +142,8 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 dataIndex: 'name',
                                 key: 'name',
                                 render: (_, row: ProjectDto) =>
-                                  <Link to={routes.pageRoutes.projectEditParams(row.id)} style={{fontSize:'22px'}}>{row.name}</Link>
+                                  <Link to={routes.pageRoutes.projectEditParams(row.id)}
+                                        style={{ fontSize: '22px' }}>{row.name}</Link>
                                 ,
                               },
                               {
@@ -175,12 +188,6 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 expandedRowRender: (record) => {
                                   return expandedRowRender(record, dispatch);
                                 },
-                                /*expandIcon: () => {
-                                  return <div className="icons-list">
-                                    <SmileTwoTone className={styles.projectState}/>
-                                    {/!* <FrownTwoTone twoToneColor="#eyarn b2f96" className={styles.projectState}/> *!/}
-                                  </div>;
-                                },*/
                                 defaultExpandAllRows: true,
                               }
                             }
@@ -189,7 +196,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                               <Link to={routes.pageRoutes.projectCreate}>添加</Link>,
                             ]}
       />
-
+      <ProjectLogControllerPanel projectState={project} dispatch={dispatch}/>
     </PageHeaderWrapper>
   );
 };

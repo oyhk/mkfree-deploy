@@ -14,9 +14,21 @@ export class ProjectEnvLog extends BaseEntity {
   projectEnvId: number;
   @Column({ nullable: true, comment: '项目环境日志序号' })
   projectEnvLogSeq: number;
+  @Column({ default: 0, nullable: true, comment: '日志是否输出完成，默认：否' })
+  isFinish: boolean;
 }
 
 export const ProjectEnvLogType = {
-  build: 1,// 项目构建
-  sync: 2,// 项目同步
+  build: { code: 1, desc: '构建' },// 项目构建
+  sync: { code: 2, desc: '同步' },// 项目同步
+
+  getDesc: (code) => {
+    let desc = '';
+    if (code === 1) {
+      desc = ProjectEnvLogType.build.desc;
+    } else if (code === 2) {
+      desc = ProjectEnvLogType.sync.desc;
+    }
+    return desc;
+  },
 };

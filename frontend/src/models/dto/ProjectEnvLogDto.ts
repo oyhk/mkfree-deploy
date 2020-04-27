@@ -1,0 +1,27 @@
+import { BaseDto } from '@/models/dto/BaseDto';
+import { ProjectBuildStepDto } from '@/models/dto/ProjectBuildStepDto';
+import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
+
+/**
+ * 项目环境日志
+ */
+export interface ProjectEnvLogDto extends BaseDto {
+  // 日志类型，1.项目构建 2.项目同步
+  type: number;
+  // 日志类型描述
+  typeDesc:string;
+  // 项目id
+  projectId: number;
+  // 环境id
+  envId: number;
+  // 项目环境id
+  projectEnvId: number;
+  // 项目环境日志序号
+  projectEnvLogSeq: number;
+  // 日志内容
+  text: string;
+  // 日志时间
+  createdAt:string;
+  // 日志是否输出完成，默认：否'
+  isFinish:boolean;
+}
