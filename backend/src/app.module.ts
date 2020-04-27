@@ -13,6 +13,8 @@ import { SystemConfigModule } from './system-config/system-config.module';
 import { ProjectLogModule } from './project-log/project-log.module';
 import { LogWebsocketModule } from './log-websocket/log-websocket.module';
 import { ProjectEnvLogModule } from './project-env-log/project-env-log.module';
+import { ProjectPluginModule } from './project-plugin/project-plugin.module';
+import { PluginModule } from './plugin/plugin.module';
 
 
 @Module({
@@ -25,7 +27,9 @@ import { ProjectEnvLogModule } from './project-env-log/project-env-log.module';
       autoLoadEntities: true,
     }),
     UserModule,
+    PluginModule,
     ProjectModule,
+    ProjectPluginModule,
     ServerModule,
     EnvModule,
     ProjectEnvModule,

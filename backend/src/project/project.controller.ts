@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
 import { Project, ProjectLogFileType, ProjectState } from './project.entity';
 import { Page } from '../common/page';
-import { ApiResultCode, ApiResult } from '../common/api-result';
+import { ApiResult, ApiResultCode } from '../common/api-result';
 import { Response } from 'express';
 import { ProjectDeployFile } from '../project-deploy-file/project-deploy-file.entity';
 import { Server } from '../server/server.entity';
@@ -14,24 +14,33 @@ import { throws } from 'assert';
 import { ProjectEnvDto } from '../project-env/project-env.dto';
 import * as lodash from 'lodash';
 import { ProjectEnvServerDto } from '../project-env-server/project-env-server.dto';
-import { exec, spawn } from 'child_process';
+import { exec } from 'child_process';
 import * as fs from 'fs';
 import { SystemConfig, SystemConfigKeys, SystemConfigValues } from '../system-config/system-config.entity';
 import { ProjectLog, ProjectLogType } from '../project-log/project-log.entity';
 import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env-log.entity';
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
+import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
+import { Plugin, PluginType } from '../plugin/plugin.entity';
+import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entity';
 
 @Controller()
 export class ProjectController {
 
   constructor(
+    @InjectRepository(Plugin)
+    private pluginRepository: Repository<Plugin>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
+    @InjectRepository(ProjectPlugin)
+    private projectPluginRepository: Repository<ProjectPlugin>,
     @InjectRepository(ProjectDeployFile)
     private projectDeployFileRepository: Repository<ProjectDeployFile>,
     @InjectRepository(ProjectEnv)
     private projectEnvRepository: Repository<ProjectEnv>,
+    @InjectRepository(ProjectEnvPlugin)
+    private projectEnvPluginRepository: Repository<ProjectEnvPlugin>,
     @InjectRepository(ProjectEnvServer)
     private projectEnvServerRepository: Repository<ProjectEnvServer>,
     @InjectRepository(Server)
@@ -101,6 +110,24 @@ export class ProjectController {
     // 项目转换为DTO
     const projectDto = { ...project } as ProjectDto;
 
+    // 项目插件
+    const pluginList = await this.pluginRepository.find({ type: PluginType.project });
+    const projectPluginList: ProjectPlugin[] = [];
+    for (const plugin of pluginList) {
+      let projectPlugin = await this.projectPluginRepository.findOne({
+        pluginId: plugin.id,
+        projectId: project.id,
+      });
+      if (!projectPlugin) {
+        projectPlugin = new ProjectPlugin();
+        projectPlugin.pluginName = plugin.name;
+        projectPlugin.projectId = project.id;
+        projectPlugin.pluginName = plugin.name;
+      }
+      projectPluginList.push(projectPlugin);
+    }
+    projectDto.projectPluginList = projectPluginList;
+
     // 项目部署文件
     projectDto.projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: dto.id });
 
@@ -137,6 +164,16 @@ export class ProjectController {
         envId: projectEnv.envId,
         type: ProjectCommandStepType.sync,
       });
+
+      // 项目环境插件
+      const projectEnvPluginNameList = projectPluginList.filter(projectPlugin => projectPlugin.pluginIsEnable).map(projectPlugin => projectPlugin.pluginName);
+      projectEnvDto.projectEnvPluginList = await this.projectEnvPluginRepository.createQueryBuilder('pep')
+        .where('pep.projectId = :projectId and pep.envId = :envId and pep.pluginName in (:...pluginNameList)', {
+          projectId: project.id,
+          envId: projectEnv.envId,
+          pluginNameList: projectEnvPluginNameList,
+        }).getMany();
+
       projectEnvDtoList.push(projectEnvDto);
     }
     projectDto.projectEnvList = projectEnvDtoList;
@@ -260,6 +297,8 @@ export class ProjectController {
             await entityManager.delete(ProjectCommandStep, { projectId: project.id, envId: dbProjectEnv.envId });
             // 删除项目环境
             await entityManager.delete(ProjectEnv, { projectId: project.id, envId: dbProjectEnv.envId });
+            // 删除项目环境插件
+            await entityManager.delete(ProjectEnvPlugin, { projectId: project.id, envId: dbProjectEnv.envId });
 
             // 2. 插入所有子关联表数据
             await this.insertProjectEnvChildrenRelationData(entityManager, projectEnvDto);
@@ -315,6 +354,8 @@ export class ProjectController {
     await entityManager.delete(ProjectCommandStep, { projectId, envId });
     // 删除项目环境
     await entityManager.delete(ProjectEnv, { projectId, envId });
+    // 删除项目环境插件
+    await entityManager.delete(ProjectEnvPlugin, { projectId, envId });
 
   }
 
@@ -328,7 +369,6 @@ export class ProjectController {
     // 删除项目环境
     await entityManager.delete(ProjectEnv, { projectId });
 
-
   }
 
   /**
@@ -339,33 +379,33 @@ export class ProjectController {
    */
   private async insertProjectEnvChildrenRelationData(entityManager: EntityManager, projectEnvDto: ProjectEnvDto) {
     // 插入构建命令
-    const beforeProjectBuildStep = projectEnvDto?.projectCommandStepBuildList?.map(projectBuildStep => {
+    const beforeProjectBuildStepList = projectEnvDto?.projectCommandStepBuildList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
       projectBuildStep.projectId = projectEnvDto.projectId;
       projectBuildStep.type = ProjectCommandStepType.build;
       return projectBuildStep;
     });
-    if (beforeProjectBuildStep) {
-      await entityManager.save(ProjectCommandStep, beforeProjectBuildStep);
+    if (beforeProjectBuildStepList) {
+      await entityManager.save(ProjectCommandStep, beforeProjectBuildStepList);
     }
     // 插入构建后命令
-    const afterProjectBuildStep = projectEnvDto?.projectCommandStepBuildAfterList?.map(projectBuildStep => {
+    const afterProjectBuildStepList = projectEnvDto?.projectCommandStepBuildAfterList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
       projectBuildStep.projectId = projectEnvDto.projectId;
       projectBuildStep.type = ProjectCommandStepType.buildAfter;
       return projectBuildStep;
     });
-    if (afterProjectBuildStep)
-      await entityManager.save(ProjectCommandStep, afterProjectBuildStep);
+    if (afterProjectBuildStepList)
+      await entityManager.save(ProjectCommandStep, afterProjectBuildStepList);
     // 插入同步命令
-    const syncProjectBuildStep = projectEnvDto?.projectCommandStepSyncAfterList?.map(projectBuildStep => {
+    const syncProjectBuildStepList = projectEnvDto?.projectCommandStepSyncAfterList?.map(projectBuildStep => {
       projectBuildStep.envId = projectEnvDto.envId;
       projectBuildStep.projectId = projectEnvDto.projectId;
       projectBuildStep.type = ProjectCommandStepType.sync;
       return projectBuildStep;
     });
-    if (syncProjectBuildStep)
-      await entityManager.save(ProjectCommandStep, syncProjectBuildStep);
+    if (syncProjectBuildStepList)
+      await entityManager.save(ProjectCommandStep, syncProjectBuildStepList);
     // 插入环境服务器
     for (const projectEnvServerDto of projectEnvDto?.projectEnvServerList?.filter(projectEnvServerDto => projectEnvServerDto.isSelectServerIp)) {
       console.log(projectEnvServerDto.id);
@@ -385,6 +425,10 @@ export class ProjectController {
         projectEnvServer.isPublish = projectEnvServerDto.isPublish;
         await entityManager.save(ProjectEnvServer, projectEnvServer);
       }
+    }
+    // 插入环境插件
+    if (projectEnvDto?.projectEnvPluginList) {
+      await entityManager.save(ProjectEnvPlugin, projectEnvDto?.projectEnvPluginList);
     }
     // 插入项目环境
     await entityManager.save(ProjectEnv, projectEnvDto);

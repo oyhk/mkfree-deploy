@@ -28,6 +28,7 @@ export interface ProjectLogModel {
   projectName: string,
 }
 
+
 /**
  * 项目ModelState
  */
@@ -41,6 +42,9 @@ export interface ProjectModelState {
 
   envList?: EnvDto[];
   serverList?: ServerDto[];
+
+  // projectForm 里面功能
+  projectFormEurekaEnable?: boolean;
 
 }
 
@@ -61,6 +65,7 @@ interface ProjectModelType {
     refreshBranch: Effect;
     logModalVisibleChange: Effect;
     logModalProjectEnvLogText: Effect;
+    projectFormPluginEnableChange: Effect;
 
   };
   reducers: {
@@ -73,7 +78,6 @@ interface ProjectModelType {
 const ProjectModel: ProjectModelType = {
   namespace: 'project',
   state: {
-    logModalVisible: false,
     page: {} as PageResult<ProjectDto>,
   },
 
@@ -95,7 +99,7 @@ const ProjectModel: ProjectModelType = {
         },
       });
 
-      const project = { projectEnvList: [] } as ProjectDto;
+      const project = { projectEnvList: [] } as unknown as ProjectDto;
       const envList = yield call(envService.list, {});
       const serverList = yield call(serverService.list, {});
       yield put({
@@ -141,6 +145,7 @@ const ProjectModel: ProjectModelType = {
           });
           const projectEnvServerIpList = projectEnv?.projectEnvServerList.map((projectEnvServer) => projectEnvServer.serverIp);
           serverList.filter((server: ServerDto) => projectEnvServerIpList.indexOf(server.ip) === -1).forEach((server: ServerDto) => {
+            // eslint-disable-next-line no-unused-expressions
             projectEnv?.projectEnvServerList?.push({
               envId: server.envId,
               envName: server.envName,
@@ -241,26 +246,37 @@ const ProjectModel: ProjectModelType = {
      */
     * logModalVisibleChange({ payload }, { call, put }) {
 
-      const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, { dto: { projectId: payload.projectId } });
-      for (const projectEnv of projectEnvList) {
-        projectEnv.projectEnvLogList = yield call(projectEnvLogService.list, {
-          dto: {
-            projectId: projectEnv.projectId,
-            envId: projectEnv.envId,
+      if (payload.logModalVisible) {
+        const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, { dto: { projectId: payload.projectId } });
+        for (const projectEnv of projectEnvList) {
+          projectEnv.projectEnvLogList = yield call(projectEnvLogService.list, {
+            dto: {
+              projectId: projectEnv.projectId,
+              envId: projectEnv.envId,
+            },
+          });
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            logModal: {
+              visible: payload.logModalVisible,
+              projectEnvList: projectEnvList,
+              projectName: payload.projectName,
+            } as ProjectLogModel,
+            logModalProjectName: payload.projectName,
+          },
+        });
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            logModal: {
+              visible: payload.logModalVisible,
+            } as ProjectLogModel,
           },
         });
       }
-      yield put({
-        type: 'save',
-        payload: {
-          logModal: {
-            visible: payload.logModalVisible,
-            projectEnvList: projectEnvList,
-            projectName: payload.projectName,
-          } as ProjectLogModel,
-          logModalProjectName: payload.projectName,
-        },
-      });
     },
     /**
      * 项目环境日志
@@ -270,7 +286,7 @@ const ProjectModel: ProjectModelType = {
      */
     * logModalProjectEnvLogText({ payload }, { call, put, select }) {
       const projectEnvLog = yield call(projectEnvLogService.info, { dto: payload });
-      console.log('projectEnvLog',projectEnvLog);
+      console.log('projectEnvLog', projectEnvLog);
       const logModal = yield select((state: any) => state.project?.logModal);
       logModal.projectEnvLog = projectEnvLog;
       yield put({
@@ -279,6 +295,16 @@ const ProjectModel: ProjectModelType = {
           logModal,
         },
       });
+    },
+    * projectFormPluginEnableChange({ payload }, { call, put, select }) {
+      if (payload.projectPlugin.code === 'Eureka') {
+        // yield put({
+        //   type: 'save',
+        //   payload: {
+        //     projectFormEurekaEnable:payload.isEnable
+        //   },
+        // });
+      }
     },
   },
 

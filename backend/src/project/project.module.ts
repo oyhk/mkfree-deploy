@@ -11,13 +11,19 @@ import { Env } from '../env/env.entity';
 import { SystemConfig } from '../system-config/system-config.entity';
 import { ProjectLog } from '../project-log/project-log.entity';
 import { ProjectEnvLog } from '../project-env-log/project-env-log.entity';
+import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
+import { Plugin } from '../plugin/plugin.entity';
+import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
     [
       Project,
+      Plugin,
+      ProjectPlugin,
       ProjectDeployFile,
       ProjectEnv,
+      ProjectEnvPlugin,
       ProjectEnvServer,
       Server,
       ProjectCommandStep,

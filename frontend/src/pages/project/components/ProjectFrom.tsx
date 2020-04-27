@@ -23,6 +23,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
 
   const [form] = Form.useForm();
   const projectState = project?.project;
+  console.log('project info', projectState);
   if (!projectState) {
     return <PageLoading/>;
   }
@@ -78,6 +79,37 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
         </Form.Item>
       </div>
       <div>
+        <h2>应用插件</h2>
+        <Form.List name="projectPluginList">
+          {(projectPluginListFields) => {
+            // 目前antd 不支持record字段，扩展一个record
+            projectPluginListFields.forEach((projectPluginField, projectPluginIndex) => {
+              projectPluginField.record = projectState.projectPluginList[projectPluginIndex];
+            });
+            return (
+              <div>
+                {projectPluginListFields.map((projectPluginField, index) => (
+                  <div key={`${projectPluginField.name}_${projectPluginField.key}`}>
+                    <Form.Item
+                      label={projectPluginField.record.pluginName}
+                      name={[projectPluginField.name, 'pluginIsEnable']}
+                      valuePropName='checked'
+                    >
+                      <Switch checkedChildren="关闭" unCheckedChildren="启用" onClick={(value) => {
+                        dispatch({
+                          type: 'project/projectFormPluginEnableChange',
+                          payload: {},
+                        });
+                      }}/>
+                    </Form.Item>
+                  </div>
+                ))}
+              </div>
+            );
+          }}
+        </Form.List>
+      </div>
+      <div>
         <h2>部署文件</h2>
         <Form.List name="projectDeployFileList">
           {(fields, { add, remove }) => {
@@ -108,7 +140,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     <Form.Item
                       label="本地服务器文件路径"
                       name={[field.name, 'localFilePath']}
-                      fieldKey={[field.fieldKey, 'localFilePath']}
                     >
                       <Input placeholder="路径为相对路径"/>
                     </Form.Item>
@@ -117,7 +148,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     <Form.Item
                       label='远程服务器文件路径'
                       name={[field.name, 'remoteFilePath']}
-                      fieldKey={[field.fieldKey, 'remoteFilePath']}
                     >
                       <Input placeholder="路径为相对路径"/>
                     </Form.Item>
@@ -471,6 +501,80 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                         </div>);
                     }}
                   </Form.List>
+                  <div>
+                    <Row style={{ marginBottom: '24px' }}>
+                      <Col xl={4} style={{ textAlign: 'right' }}>
+                        <h4>插件应用：</h4>
+                      </Col>
+                    </Row>
+                    <Form.List
+                      name={[projectEnvListField.name, 'projectEnvPluginList']}
+                      fieldKey={[projectEnvListField.fieldKey, 'projectEnvPluginList']}
+                    >
+                      {(projectEnvPluginListFields) => {
+                        return (
+                          <div>
+                            {projectEnvPluginListFields.map(projectEnvPluginListField => {
+                              return (
+                                <div key={uuid()}>
+                                  <Row style={{ marginBottom: '24px' }}>
+                                    <Col xl={4} style={{ textAlign: 'right' }}>
+                                      <h4>Eureka：</h4>
+                                    </Col>
+                                  </Row>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'projectId']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'projectId']}
+                                    noStyle>
+                                    <Input type='hidden'/>
+                                  </Form.Item>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'envId']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'envId']}
+                                    noStyle>
+                                    <Input type='hidden'/>
+                                  </Form.Item>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'pluginName']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'pluginName']}
+                                    noStyle>
+                                    <Input type='hidden'/>
+                                  </Form.Item>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'eurekaUrl']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaUrl']}
+                                    label='请求地址'>
+                                    <Input placeholder='Eureka URL'/>
+                                  </Form.Item>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'eurekaAuthType']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaAuthType']}
+                                    label='认证方式'>
+                                    <Radio.Group>
+                                      <Radio value="none">无</Radio>
+                                      <Radio value="Basic">Basic</Radio>
+                                    </Radio.Group>
+                                  </Form.Item>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'eurekaUsername']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaUsername']}
+                                    label='用户名'>
+                                    <Input placeholder='Eureka Username'/>
+                                  </Form.Item>
+                                  <Form.Item
+                                    name={[projectEnvPluginListField.name, 'eurekaPassword']}
+                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaPassword']}
+                                    label='密码'>
+                                    <Input placeholder='Eureka Password'/>
+                                  </Form.Item>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      }}
+                    </Form.List>
+                  </div>
                 </div>
               ))}
             </div>

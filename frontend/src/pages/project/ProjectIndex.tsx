@@ -22,6 +22,12 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
   const subColumns = [
     { title: '环境', dataIndex: 'envName', key: 'envName' },
     {
+      title: '插件', dataIndex: 'projectPlugin', key: 'projectPlugin',
+      render:()=>{
+        return <div>Eureka</div>
+      }
+    },
+    {
       title: 'ip', dataIndex: 'ip', key: 'ip',
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
         <div>{projectEnvServerList ? projectEnvServerList.map((pes) => (

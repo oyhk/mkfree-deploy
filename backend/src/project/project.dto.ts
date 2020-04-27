@@ -3,6 +3,7 @@ import { ProjectEnv } from '../project-env/project-env.entity';
 import { Project } from './project.entity';
 import { ProjectEnvDto } from '../project-env/project-env.dto';
 import { ProjectCommandStep } from '../project-build-step/project-command-step.entity';
+import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
 
 
 /**
@@ -30,7 +31,11 @@ export class ProjectDto extends Project {
   /**
    * 项目环境服务器发布分支名称
    */
-  projectEnvServerPublishBranch:string;
+  projectEnvServerPublishBranch: string;
 
 
+  /**
+   * 项目插件
+   */
+  projectPluginList: ProjectPlugin[];
 }
