@@ -113,10 +113,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
         <h2>部署文件</h2>
         <Form.List name="projectDeployFileList">
           {(fields, { add, remove }) => {
-            /**
-             * `fields` internal fill with `name`, `key`, `fieldKey` props.
-             * You can extends this into sub field to support multiple dynamic fields.
-             */
             return (
               <div>
                 {fields.map((field, index) => (
@@ -154,7 +150,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     <Form.Item
                       label='状态'
                       name={[field.name, 'isEnable']}
-                      fieldKey={[field.fieldKey, 'isEnable']}
                       valuePropName='checked'
                     >
                       <Switch checkedChildren="启用" unCheckedChildren="关闭"/>
@@ -214,7 +209,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                                   serverName: server.name,
                                 };
                               });
-                              projectState?.projectEnvList.push({
+                              projectState?.projectEnvList?.push({
                                 envId: envId as number,
                                 envName: option.children,
                                 projectEnvServerList,
@@ -260,14 +255,12 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   </Row>
                   <Form.Item noStyle
                              name={[projectEnvListField.name, 'envId']}
-                             fieldKey={[projectEnvListField.fieldKey, 'envId']}
                   >
                     <Input type='hidden'/>
                   </Form.Item>
                   <Form.Item
                     label="发布分支"
                     name={[projectEnvListField.name, 'publishBranch']}
-                    fieldKey={[projectEnvListField.fieldKey, 'publishBranch']}
                   >
                     <Select>
                       {
@@ -278,7 +271,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   </Form.Item>
                   <Form.List
                     name={[projectEnvListField.name, 'projectEnvServerList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectEnvServerList']}>
+                  >
                     {(fields) => {
 
                       // ant design Form.List 里暂无提供 record 字段，这里暂时扩展支持
@@ -300,7 +293,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                               <Col xl={8}>
                                 <Form.Item
                                   name={[projectEnvServiceField.name, 'isSelectServerIp']}
-                                  fieldKey={[projectEnvServiceField.fieldKey, 'isSelectServerIp']}
                                   valuePropName='checked'
                                 >
                                   <Checkbox>{projectEnvServiceField?.record?.serverName}-{projectEnvServiceField?.record?.serverIp}</Checkbox>
@@ -313,7 +305,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                               <Col xl={2}>
                                 <Form.Item
                                   name={[projectEnvServiceField.name, 'isPublish']}
-                                  fieldKey={[projectEnvServiceField.fieldKey, 'isPublish']}
                                   valuePropName='checked'>
                                   <Switch checkedChildren="启用" unCheckedChildren="关闭"/>
                                 </Form.Item>
@@ -328,14 +319,13 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     label="可选分支发布"
                     valuePropName='checked'
                     name={[projectEnvListField.name, 'isSelectBranch']}
-                    fieldKey={[projectEnvListField.fieldKey, 'isSelectBranch']}>
+                  >
                     <Switch checkedChildren="启用" unCheckedChildren="关闭"/>
                   </Form.Item>
 
                   <Form.Item
                     label="选择同步服务器"
                     name={[projectEnvListField.name, 'syncServerId']}
-                    fieldKey={[projectEnvListField.fieldKey, 'syncServerId']}
                   >
                     <Radio.Group buttonStyle="solid">
                       {
@@ -348,7 +338,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   {/* 构建命令 */}
                   <Form.List
                     name={[projectEnvListField.name, 'projectCommandStepBuildList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectCommandStepBuildList']}
                   >
                     {(fields, { add, remove }) => {
                       return (
@@ -367,7 +356,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                               <Col xl={14}>
                                 <Form.Item
                                   name={[projectBuildBeforeListField.name, 'step']}
-                                  fieldKey={[projectBuildBeforeListField.fieldKey, 'step']}
                                 >
                                   <Input.TextArea placeholder={`构建命令 shell 脚本 ${projectBuildBeforeListIndex + 1}`}/>
                                 </Form.Item>
@@ -400,7 +388,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   {/* 构建后命令 */}
                   <Form.List
                     name={[projectEnvListField.name, 'projectCommandStepBuildAfterList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectCommandStepBuildAfterList']}
                   >
                     {(fields, { add, remove }) => {
                       return (
@@ -419,7 +406,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                               <Col xl={14}>
                                 <Form.Item
                                   name={[projectBuildAfterListField.name, 'step']}
-                                  fieldKey={[projectBuildAfterListField.fieldKey, 'step']}
                                 >
                                   <Input.TextArea placeholder={`构建后命令 shell 脚本 ${projectBuildAfterListIndex + 1}`}/>
                                 </Form.Item>
@@ -452,7 +438,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   {/* 同步后命令 */}
                   <Form.List
                     name={[projectEnvListField.name, 'projectCommandStepSyncAfterList']}
-                    fieldKey={[projectEnvListField.fieldKey, 'projectCommandStepSyncAfterList']}
                   >
                     {(fields, { add, remove }) => {
                       return (
@@ -471,7 +456,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                               <Col xl={14}>
                                 <Form.Item
                                   name={[projectSyncAfterListField.name, 'step']}
-                                  fieldKey={[projectSyncAfterListField.fieldKey, 'step']}
                                 >
                                   <Input.TextArea placeholder={`同步后命令 shell 脚本 ${projectSyncAfterListIndex + 1}`}/>
                                 </Form.Item>
@@ -509,7 +493,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     </Row>
                     <Form.List
                       name={[projectEnvListField.name, 'projectEnvPluginList']}
-                      fieldKey={[projectEnvListField.fieldKey, 'projectEnvPluginList']}
                     >
                       {(projectEnvPluginListFields) => {
                         return (
@@ -524,31 +507,26 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                                   </Row>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'projectId']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'projectId']}
                                     noStyle>
                                     <Input type='hidden'/>
                                   </Form.Item>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'envId']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'envId']}
                                     noStyle>
                                     <Input type='hidden'/>
                                   </Form.Item>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'pluginName']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'pluginName']}
                                     noStyle>
                                     <Input type='hidden'/>
                                   </Form.Item>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'eurekaUrl']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaUrl']}
                                     label='请求地址'>
                                     <Input placeholder='Eureka URL'/>
                                   </Form.Item>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'eurekaAuthType']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaAuthType']}
                                     label='认证方式'>
                                     <Radio.Group>
                                       <Radio value="none">无</Radio>
@@ -557,13 +535,11 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                                   </Form.Item>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'eurekaUsername']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaUsername']}
                                     label='用户名'>
                                     <Input placeholder='Eureka Username'/>
                                   </Form.Item>
                                   <Form.Item
                                     name={[projectEnvPluginListField.name, 'eurekaPassword']}
-                                    fieldKey={[projectEnvPluginListField.fieldKey, 'eurekaPassword']}
                                     label='密码'>
                                     <Input placeholder='Eureka Password'/>
                                   </Form.Item>
