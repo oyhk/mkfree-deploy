@@ -29,7 +29,6 @@ const ProjectLogControllerPanel: React.FC<ProjectModalProps> = ({ projectState, 
   if (!projectState || !dispatch) {
     return <PageLoading/>;
   }
-
   const projectEnvListMenu = projectState.logModal?.projectEnvList?.map((projectEnv, projectEnvIndex) => {
     return <SubMenu key={projectEnvIndex} title={<span><span>{projectEnv.envName}</span></span>}>
       {projectEnv.projectEnvLogList?.map((projectEnvLog, projectEnvLogIndex) => {
@@ -55,7 +54,7 @@ const ProjectLogControllerPanel: React.FC<ProjectModalProps> = ({ projectState, 
                 fontSize: '12px',
                 color: 'rgba(0,0,0,.65)',
               }}>{projectState?.logModal?.projectEnvLog?.createdAt}</span></div>
-{/*              <div>
+              {/*              <div>
                 <Button loading type='primary' icon={<ReloadOutlined />}>刷新</Button>
               </div>*/}
             </Space>
@@ -114,8 +113,16 @@ const ProjectLogControllerPanel: React.FC<ProjectModalProps> = ({ projectState, 
             height: '75vh',
           }}
         >
-          <div style={{ wordWrap: 'break-word', padding: '10px' }}
+          <div style={{ wordWrap: 'break-word', padding: '20px 20px 10px 20px' }}
                dangerouslySetInnerHTML={{ __html: projectState?.logModal?.projectEnvLog?.text }}/>
+          {
+            projectState?.logModal?.projectEnvLog?.isFinish === false
+              ? <div style={{ padding: '0px 20px 10px 20px' }}>
+                <LoadingOutlined style={{ fontSize: '20px' }}/>
+              </div>
+              : ''
+
+          }
         </Content>
       </Layout>
     </Modal>

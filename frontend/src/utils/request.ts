@@ -83,7 +83,7 @@ const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
 };
 
 export interface RequestOptions {
-  url: string;
+  url?: string;
   dto?: any;
   isAll?: boolean;// 是否返回api整个对象，默认false
   successCallback?: Function;

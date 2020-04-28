@@ -159,8 +159,8 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                                 align: 'right',
                                 render: (_, row: ProjectDto) =>
                                   <div className={styles.projectRowAction}>
-                                    <Button type='primary' size='small' onClick={() => {
-                                    }}>查看日志</Button>&nbsp;&nbsp;
+                                    {/* <Button type='primary' size='small' onClick={() => {
+                                    }}>查看日志</Button>&nbsp;&nbsp; */}
                                     <Button type='primary' size='small' onClick={() => {
                                       const payload = {
                                         id: row.id,

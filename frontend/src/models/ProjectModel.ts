@@ -13,9 +13,8 @@ import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ServerDto } from '@/models/dto/ServerDto';
 import { notification } from 'antd';
-import { history } from 'umi';
+import { history, useModel } from 'umi';
 import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
-import { Simulate } from 'react-dom/test-utils';
 
 /**
  * 项目日志弹框
@@ -285,15 +284,46 @@ const ProjectModel: ProjectModelType = {
      */
     * logModalProjectEnvLogText({ payload }, { call, put, select }) {
       const projectEnvLog = yield call(projectEnvLogService.info, { dto: payload });
-      console.log('projectEnvLog', projectEnvLog);
-      const logModal = yield select((state: any) => state.project?.logModal);
-      logModal.projectEnvLog = projectEnvLog;
-      yield put({
-        type: 'save',
-        payload: {
-          logModal,
-        },
-      });
+      if (projectEnvLog.isFinish) {
+        const logModal = yield select((state: any) => state.project?.logModal);
+        logModal.projectEnvLog = projectEnvLog;
+        yield put({
+          type: 'save',
+          payload: {
+            logModal,
+          },
+        });
+      } else {
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        while (true) {
+          // 正在构建日志
+          const projectEnvLog = yield call(projectEnvLogService.info, { dto: payload });
+          const logModal = yield select((state: any) => state.project?.logModal);
+          logModal.projectEnvLog = projectEnvLog;
+
+          // 刷新左侧菜单栏
+          const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, { dto: { projectId: payload.projectId } });
+          for (const projectEnv of projectEnvList) {
+            projectEnv.projectEnvLogList = yield call(projectEnvLogService.list, {
+              dto: {
+                projectId: projectEnv.projectId,
+                envId: projectEnv.envId,
+              },
+            });
+          }
+          logModal.projectEnvList = projectEnvList;
+          yield put({
+            type: 'save',
+            payload: {
+              logModal,
+            },
+          });
+          yield delay(500);
+          if (projectEnvLog.isFinish) {
+            break;
+          }
+        }
+      }
     },
     * deleted({ payload }, { call, put, select }) {
       yield call(projectService.deleted, { dto: payload }, () => {
