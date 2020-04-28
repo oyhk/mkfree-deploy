@@ -59,14 +59,13 @@ interface ProjectModelType {
     saved: Effect;
     create: Effect;
     update: Effect;
+    deleted: Effect;
     build: Effect;
     init: Effect;
     sync: Effect;
     refreshBranch: Effect;
     logModalVisibleChange: Effect;
     logModalProjectEnvLogText: Effect;
-    projectFormPluginEnableChange: Effect;
-
   };
   reducers: {
     save: Reducer<ProjectDto>;
@@ -296,15 +295,14 @@ const ProjectModel: ProjectModelType = {
         },
       });
     },
-    * projectFormPluginEnableChange({ payload }, { call, put, select }) {
-      if (payload.projectPlugin.pluginName === 'Eureka') {
-        yield put({
-          type: 'save',
-          payload: {
-            projectFormEurekaEnable:payload.isEnable
-          },
+    * deleted({ payload }, { call, put, select }) {
+      yield call(projectService.deleted, { dto: payload }, () => {
+        notification.success({
+          message: `项目：${payload.name}`,
+          description: '删除成功',
         });
-      }
+        history.replace(routes.pageRoutes.projectIndex);
+      });
     },
   },
 

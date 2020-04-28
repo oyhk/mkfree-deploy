@@ -209,7 +209,7 @@ export class ProjectController {
       projectPlugin.pluginIsEnable = true;
       projectPlugin.projectId = project.id;
       projectPlugin.pluginName = plugin.name;
-      await entityManager.save(ProjectPlugin,projectPlugin);
+      await entityManager.save(ProjectPlugin, projectPlugin);
     }
 
     // 项目部署文件
@@ -452,6 +452,43 @@ export class ProjectController {
     await entityManager.save(ProjectEnv, projectEnvDto);
   }
 
+  @Post('/api/projects/deleted')
+  @Transaction()
+  async deleted(@Body() dto: ProjectDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+    const ar = new ApiResult();
+
+    const project = await entityManager.findOne(Project, dto.id);
+    // 项目环境插件
+    await entityManager.delete(ProjectEnvPlugin, { projectId: dto.id });
+    // 项目环境服务器
+    await entityManager.delete(ProjectEnvServer, { projectId: dto.id });
+    // 项目环境日志
+    await entityManager.delete(ProjectEnvLog, { projectId: dto.id });
+    // 项目环境
+    await entityManager.delete(ProjectEnv, { projectId: dto.id });
+    // 项目部署文件
+    await entityManager.delete(ProjectDeployFile, { projectId: dto.id });
+    // 项目命令步骤
+    await entityManager.delete(ProjectCommandStep, { projectId: dto.id });
+    // 项目日志
+    await entityManager.delete(ProjectLog, { projectId: dto.id });
+    // 项目插件
+    await entityManager.delete(ProjectPlugin, { projectId: dto.id });
+    // 项目
+    await entityManager.delete(Project, { id: dto.id });
+
+    // 删除磁盘项目相关文件
+    const installPath = await entityManager.findOne(SystemConfig, SystemConfigKeys.installPath);
+    exec(`
+    rm -rf ${installPath}${SystemConfigValues.jobPath}/${project.name}
+    rm -rf ${installPath}${SystemConfigValues.logPath}/${project.name}
+    rm -rf ${installPath}${SystemConfigValues.buildPath}/${project.name}
+    `, {}, () => {
+      console.log(`删除项目: ${project.name} 完成。`);
+    });
+    return res.json(ar);
+  }
+
   /**
    * 项目初始化，从Git仓库中 clone到本地
    * @param dto
@@ -593,7 +630,7 @@ export class ProjectController {
     if (!publishBranch) {
       publishBranch = projectEnv.publishBranch;
     }
-    const publishBranchDirName = publishBranch.replace('/', '_');
+    const publishBranchDirName = publishBranch?.replace('/', '_');
 
     const env = await this.envRepository.findOne(projectEnv.envId);
     if (!env) {

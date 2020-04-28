@@ -17,6 +17,9 @@ export async function save(dto: ProjectDto, successCallback?: Function, failCall
 export async function update(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return put({ url: `${routes.apiRoutes.projectUpdate}`, dto, successCallback, failCallback });
 }
+export async function deleted(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectDeleted}`, dto, successCallback, failCallback });
+}
 
 export async function build(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
   return post({ url: `${routes.apiRoutes.projectBuild}`, dto, successCallback, failCallback });

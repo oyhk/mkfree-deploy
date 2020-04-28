@@ -578,6 +578,25 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
           提交
         </Button>
       </Form.Item>
+
+      {
+        projectState?.id ?
+          <Form.Item label=' ' colon={false} style={{ marginTop: '20vh' }}>
+            <Button type="danger" block onClick={() => {
+              dispatch({
+                type: 'project/deleted',
+                payload: {
+                  id: projectState?.id,
+                  name: projectState?.name,
+                },
+              });
+            }}>
+              删除项目（谨慎操作）
+            </Button>
+          </Form.Item>
+          :
+          ''
+      }
     </Form>
   );
 };

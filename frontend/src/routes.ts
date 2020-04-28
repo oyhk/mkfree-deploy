@@ -16,6 +16,7 @@ export default {
     projectInfo: '/api/projects/info',
     projectSave: '/api/projects/save',
     projectUpdate: '/api/projects/update',
+    projectDeleted: '/api/projects/deleted',
     projectBuild: '/api/projects/build',
     projectSync: '/api/projects/sync',
     projectInit: '/api/projects/init',
