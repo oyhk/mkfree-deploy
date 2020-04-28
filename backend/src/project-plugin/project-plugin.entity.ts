@@ -12,8 +12,6 @@ export class ProjectPlugin extends BaseEntity {
 
   @Column({ comment: '项目id' })
   projectId: number;
-  @Column({ comment: '插件id' })
-  pluginId: number;
   @Column({ nullable: true, comment: '插件名称，唯一标识' })
   pluginName: string;
   @Column({ nullable: true, default: 0, comment: '是否开启,默认否' })

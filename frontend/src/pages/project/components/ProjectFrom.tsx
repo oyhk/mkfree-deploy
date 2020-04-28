@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable-next-line jsx-a11y/heading-has-content */
 import React from 'react';
 import {
   Button,
@@ -15,6 +17,7 @@ import { uuid } from '@/utils/utils';
 import { ServerDto } from '@/models/dto/ServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import { PageLoading } from '@ant-design/pro-layout';
+import { ProjectEnvPlugin } from '@/models/dto/ProjectEnvPluginDto';
 
 const { Option } = Select;
 
@@ -78,7 +81,8 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
           <Input/>
         </Form.Item>
       </div>
-      <div>
+      {/*暂时不使用*/}
+      {/*      <div>
         <h2>应用插件</h2>
         <Form.List name="projectPluginList">
           {(projectPluginListFields) => {
@@ -98,7 +102,9 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                       <Switch checkedChildren="关闭" unCheckedChildren="启用" onClick={(value) => {
                         dispatch({
                           type: 'project/projectFormPluginEnableChange',
-                          payload: {},
+                          payload: {
+                            projectPlugin: projectPluginField.record,
+                          },
                         });
                       }}/>
                     </Form.Item>
@@ -108,7 +114,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
             );
           }}
         </Form.List>
-      </div>
+      </div> */}
       <div>
         <h2>部署文件</h2>
         <Form.List name="projectDeployFileList">
@@ -177,7 +183,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       {/* ----------------------------------------------------------------环境配置------------------------------------------------------------------------ */}
       <Form.List name='projectEnvList'>
         {(fields, { add, remove }) => {
-          projectState.projectEnvList?.forEach((projectEnvDto, projectEnvDtoIndex) => {
+          projectState?.projectEnvList?.forEach((projectEnvDto, projectEnvDtoIndex) => {
             if (fields[projectEnvDtoIndex]) {
               fields[projectEnvDtoIndex].record = projectEnvDto;
             }
@@ -195,7 +201,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                 <Col xl={12}>
                   <Form.Item noStyle>
                     <Select mode="multiple"
-                            value={projectState?.projectEnvList?.map((env) => env.envId)}
+                            value={projectState?.projectEnvList?.map((env) => env.envId) as number[]}
                             style={{ minWidth: '100%' }}
                             onSelect={(envId, option) => {
                               // 这里一定要注意，一定要执行add()方法，不然会多一个Form.List的item
@@ -213,6 +219,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                                 envId: envId as number,
                                 envName: option.children,
                                 projectEnvServerList,
+                                projectEnvPluginList: [{ pluginName: 'Eureka' }] as ProjectEnvPlugin[],
                               });
 
                               // 使用setFieldsValue 替换整个字段初始化内容
@@ -223,7 +230,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     >
 
                       {project?.envList?.map((env, envIndex) => {
-                        return <Option value={env.id}
+                        return <Option value={env.id as number}
                                        disabled={selectedEnvIdList?.indexOf(env.id as number) !== -1}
                                        key={`env_${envIndex}`}>{env.name}</Option>;
                       })}
@@ -231,7 +238,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   </Form.Item>
                 </Col>
               </Row>
-              {fields.map((projectEnvListField) => (
+              {fields.map((projectEnvListField, projectEnvListIndex) => (
                 <div key={uuid()}>
                   <Row style={{ marginBottom: '24px' }}>
                     <Col xl={4} style={{ textAlign: 'center' }}>
@@ -491,18 +498,21 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                         <h4>插件应用：</h4>
                       </Col>
                     </Row>
-                    <Form.List
-                      name={[projectEnvListField.name, 'projectEnvPluginList']}
-                    >
+                    <Form.List name={[projectEnvListField.name, 'projectEnvPluginList']}>
                       {(projectEnvPluginListFields) => {
+                        projectEnvPluginListFields.forEach((projectEnvPluginListField, projectEnvPluginIndex) => {
+                          projectEnvPluginListField.record = projectState?.projectEnvList[projectEnvListIndex]?.projectEnvPluginList[projectEnvPluginIndex];
+                        });
+
                         return (
                           <div>
                             {projectEnvPluginListFields.map(projectEnvPluginListField => {
+
                               return (
                                 <div key={uuid()}>
                                   <Row style={{ marginBottom: '24px' }}>
                                     <Col xl={4} style={{ textAlign: 'right' }}>
-                                      <h4>Eureka：</h4>
+                                      <h4>{projectEnvPluginListField.record.pluginName}：</h4>
                                     </Col>
                                   </Row>
                                   <Form.Item
@@ -520,29 +530,34 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                                     noStyle>
                                     <Input type='hidden'/>
                                   </Form.Item>
-                                  <Form.Item
-                                    name={[projectEnvPluginListField.name, 'eurekaUrl']}
-                                    label='请求地址'>
-                                    <Input placeholder='Eureka URL'/>
-                                  </Form.Item>
-                                  <Form.Item
-                                    name={[projectEnvPluginListField.name, 'eurekaAuthType']}
-                                    label='认证方式'>
-                                    <Radio.Group>
-                                      <Radio value="none">无</Radio>
-                                      <Radio value="Basic">Basic</Radio>
-                                    </Radio.Group>
-                                  </Form.Item>
-                                  <Form.Item
-                                    name={[projectEnvPluginListField.name, 'eurekaUsername']}
-                                    label='用户名'>
-                                    <Input placeholder='Eureka Username'/>
-                                  </Form.Item>
-                                  <Form.Item
-                                    name={[projectEnvPluginListField.name, 'eurekaPassword']}
-                                    label='密码'>
-                                    <Input placeholder='Eureka Password'/>
-                                  </Form.Item>
+                                  {
+                                    projectEnvPluginListField?.record?.pluginName === 'Eureka' ?
+                                      <div>
+                                        <Form.Item
+                                          name={[projectEnvPluginListField.name, 'eurekaUrl']}
+                                          label='请求地址'>
+                                          <Input placeholder='Eureka URL'/>
+                                        </Form.Item>
+                                        < Form.Item
+                                          name={[projectEnvPluginListField.name, 'eurekaAuthType']}
+                                          label='认证方式'>
+                                          <Radio.Group>
+                                            <Radio value='none'>无</Radio>
+                                            <Radio value='Basic'>Basic</Radio>
+                                          </Radio.Group>
+                                        </Form.Item>
+                                        <Form.Item
+                                          name={[projectEnvPluginListField.name, 'eurekaUsername']}
+                                          label='用户名'>
+                                          <Input placeholder='Eureka Username'/>
+                                        </Form.Item>
+                                        <Form.Item
+                                          name={[projectEnvPluginListField.name, 'eurekaPassword']}
+                                          label='密码'>
+                                          <Input placeholder='Eureka Password'/>
+                                        </Form.Item>
+                                      </div> : ''
+                                  }
                                 </div>
                               );
                             })}

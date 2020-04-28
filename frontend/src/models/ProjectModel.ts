@@ -297,13 +297,13 @@ const ProjectModel: ProjectModelType = {
       });
     },
     * projectFormPluginEnableChange({ payload }, { call, put, select }) {
-      if (payload.projectPlugin.code === 'Eureka') {
-        // yield put({
-        //   type: 'save',
-        //   payload: {
-        //     projectFormEurekaEnable:payload.isEnable
-        //   },
-        // });
+      if (payload.projectPlugin.pluginName === 'Eureka') {
+        yield put({
+          type: 'save',
+          payload: {
+            projectFormEurekaEnable:payload.isEnable
+          },
+        });
       }
     },
   },

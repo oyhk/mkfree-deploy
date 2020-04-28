@@ -22,7 +22,7 @@ import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
-import { Plugin, PluginType } from '../plugin/plugin.entity';
+import { Plugin, PluginList, PluginType } from '../plugin/plugin.entity';
 import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entity';
 
 @Controller()
@@ -114,10 +114,7 @@ export class ProjectController {
     const pluginList = await this.pluginRepository.find({ type: PluginType.project });
     const projectPluginList: ProjectPlugin[] = [];
     for (const plugin of pluginList) {
-      let projectPlugin = await this.projectPluginRepository.findOne({
-        pluginId: plugin.id,
-        projectId: project.id,
-      });
+      let projectPlugin = await this.projectPluginRepository.findOne({ projectId: project.id });
       if (!projectPlugin) {
         projectPlugin = new ProjectPlugin();
         projectPlugin.pluginName = plugin.name;
@@ -166,13 +163,22 @@ export class ProjectController {
       });
 
       // 项目环境插件
-      const projectEnvPluginNameList = projectPluginList.filter(projectPlugin => projectPlugin.pluginIsEnable).map(projectPlugin => projectPlugin.pluginName);
-      projectEnvDto.projectEnvPluginList = await this.projectEnvPluginRepository.createQueryBuilder('pep')
-        .where('pep.projectId = :projectId and pep.envId = :envId and pep.pluginName in (:...pluginNameList)', {
+      const projectEnvPluginList = [];
+      for (const projectPlugin of projectPluginList.filter(projectPlugin => projectPlugin.pluginIsEnable)) {
+        let projectEnvPlugin = await this.projectEnvPluginRepository.findOne({
           projectId: project.id,
           envId: projectEnv.envId,
-          pluginNameList: projectEnvPluginNameList,
-        }).getMany();
+          pluginName: projectPlugin.pluginName,
+        });
+        if (!projectEnvPlugin) {
+          projectEnvPlugin = new ProjectEnvPlugin();
+          projectEnvPlugin.projectId = project.id;
+          projectEnvPlugin.envId = projectEnv.envId;
+          projectEnvPlugin.pluginName = projectPlugin.pluginName;
+        }
+        projectEnvPluginList.push(projectEnvPlugin);
+      }
+      projectEnvDto.projectEnvPluginList = projectEnvPluginList;
 
       projectEnvDtoList.push(projectEnvDto);
     }
@@ -187,8 +193,6 @@ export class ProjectController {
   @Transaction()
   async save(@Body() dto: ProjectDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
 
-    console.log(dto);
-
     const ar = new ApiResult();
     let project = new Project();
     project.name = dto.name;
@@ -196,10 +200,20 @@ export class ProjectController {
     project.remotePath = dto.remotePath;
     project.moduleName = dto.moduleName;
 
+    // 项目
     project = await entityManager.save(Project, project);
 
+    // 项目插件，目前默认开启
+    for (const plugin of PluginList) {
+      const projectPlugin = new ProjectPlugin();
+      projectPlugin.pluginIsEnable = true;
+      projectPlugin.projectId = project.id;
+      projectPlugin.pluginName = plugin.name;
+      await entityManager.save(ProjectPlugin,projectPlugin);
+    }
+
+    // 项目部署文件
     if (dto.projectDeployFileList) {
-      // DeployFileList
       for (const projectDeployFileDto of dto.projectDeployFileList) {
         const projectDeployFile = new ProjectDeployFile();
         projectDeployFile.projectId = project.id;
@@ -211,8 +225,8 @@ export class ProjectController {
       }
     }
 
+    // 项目环境
     if (dto.projectEnvList) {
-
       for (const projectEnvDto of dto.projectEnvList) {
         const env = await this.envRepository.findOne({ id: projectEnvDto.envId });
         if (!env) {
@@ -428,7 +442,11 @@ export class ProjectController {
     }
     // 插入环境插件
     if (projectEnvDto?.projectEnvPluginList) {
-      await entityManager.save(ProjectEnvPlugin, projectEnvDto?.projectEnvPluginList);
+      for (const projectEnvPlugin of projectEnvDto?.projectEnvPluginList) {
+        projectEnvPlugin.projectId = projectEnvDto.projectId;
+        projectEnvPlugin.envId = projectEnvDto.envId;
+        await entityManager.save(ProjectEnvPlugin, projectEnvPlugin);
+      }
     }
     // 插入项目环境
     await entityManager.save(ProjectEnv, projectEnvDto);

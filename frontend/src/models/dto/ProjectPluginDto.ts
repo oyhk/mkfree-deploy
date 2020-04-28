@@ -5,10 +5,8 @@ export interface ProjectPluginDto extends BaseDto {
   projectId: number;
   // 插件id
   pluginId: number;
-  // 插件名称
+  // 插件名称，唯一标识
   pluginName: string;
   // 是否开启,默认否
   pluginIsEnable: boolean;
-  // 插件Code，唯一标识
-  pluginCode: string;
 }

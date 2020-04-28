@@ -20,10 +20,14 @@ export class Plugin extends BaseEntity {
 export const PluginType = {
   project: 1, // 项目插件
 };
-/**
- * 插件 code 种类
- */
-export const PluginName = {
-  Eureka: 'Eureka',
-  Nacos: 'Nacos',
-};
+
+export const PluginList = [
+  {
+    name: 'Eureka',
+    type: PluginType.project,
+  },
+  /*{
+    name: 'Nacos',
+    type: PluginType.project,
+  },*/
+];
