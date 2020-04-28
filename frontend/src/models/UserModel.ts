@@ -41,6 +41,7 @@ const UserModel: UserModelType = {
       const apiResult = yield call(userService.login, { dto: payload, isAll: true });
       if (apiResult.code === 1) {
         localStorage.setItem('access_token', apiResult.result.accessToken);
+        localStorage.setItem('username', apiResult.result.username);
         history.push(routes.pageRoutes.projectIndex);
       } else {
 
@@ -55,7 +56,6 @@ const UserModel: UserModelType = {
     * logout({ payload }, { call, put }) {
       localStorage.removeItem('access_token');
       history.replace(routes.pageRoutes.userLogin);
-
     },
   },
   reducers: {

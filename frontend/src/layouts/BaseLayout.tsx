@@ -70,7 +70,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
             </Menu>
           }
           >
-            <Button>oyhk <UserOutlined/></Button>
+            <Button>{localStorage.getItem('username')} <UserOutlined/></Button>
           </Dropdown>
         </div>;
       }}

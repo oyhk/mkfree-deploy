@@ -103,6 +103,7 @@ export class UserController {
       permissionList: [],
     } as UserAuth, { expiresIn: UserAuthOperation.expiresIn });
     ar.result = {
+      username: user.username,
       accessToken: accessToken,
     };
     return res.json(ar);

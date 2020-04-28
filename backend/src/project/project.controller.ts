@@ -629,6 +629,11 @@ export class ProjectController {
       ar.remindRecordNotExist(Project.entityName, projectEnvServer.projectId);
       return res.json(ar);
     }
+    if (project.state !== 2) {
+      ar.remind(ApiResultCode['1001']);
+      return res.json(ar);
+    }
+
 
     const projectEnv = await this.projectEnvRepository.findOne({
       projectId: projectEnvServer.projectId,
@@ -800,14 +805,12 @@ export class ProjectController {
     const publishTime = new Date();
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
-
     const targetProjectEnvServer = await this.projectEnvServerRepository.findOne(dto.projectEnvServerId);
     if (!targetProjectEnvServer) {
       ar.remindRecordNotExist(ProjectEnvServer.entityName, dto.projectEnvServerId);
       return res.json(ar);
     }
-
-
+    
     const targetServer = await this.serverRepository.findOne({ id: targetProjectEnvServer.serverId });
     if (!targetServer) {
       ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
@@ -819,7 +822,10 @@ export class ProjectController {
       ar.remindRecordNotExist(Project.entityName, targetProjectEnvServer.projectId);
       return res.json(ar);
     }
-
+    if (project.state !== 2) {
+      ar.remind(ApiResultCode['1001']);
+      return res.json(ar);
+    }
     const projectEnv = await this.projectEnvRepository.findOne({
       projectId: targetProjectEnvServer.projectId,
       envId: targetProjectEnvServer.envId,
