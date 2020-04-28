@@ -195,7 +195,7 @@ export class ProjectController {
 
     const ar = new ApiResult();
     let project = new Project();
-    project.name = dto.name;
+    project.name = dto.name.trim();
     project.gitUrl = dto.gitUrl;
     project.remotePath = dto.remotePath;
     project.moduleName = dto.moduleName;
@@ -458,32 +458,43 @@ export class ProjectController {
     const ar = new ApiResult();
 
     const project = await entityManager.findOne(Project, dto.id);
+    console.log('project', project);
+    if (!project) {
+      ar.remindRecordNotExist(Project.entityName, dto.id);
+      return res.json(ar);
+    }
+    const projectId = project.id;
     // 项目环境插件
-    await entityManager.delete(ProjectEnvPlugin, { projectId: dto.id });
+    await entityManager.delete(ProjectEnvPlugin, { projectId });
     // 项目环境服务器
-    await entityManager.delete(ProjectEnvServer, { projectId: dto.id });
+    await entityManager.delete(ProjectEnvServer, { projectId });
     // 项目环境日志
-    await entityManager.delete(ProjectEnvLog, { projectId: dto.id });
+    await entityManager.delete(ProjectEnvLog, { projectId });
     // 项目环境
-    await entityManager.delete(ProjectEnv, { projectId: dto.id });
+    await entityManager.delete(ProjectEnv, { projectId });
     // 项目部署文件
-    await entityManager.delete(ProjectDeployFile, { projectId: dto.id });
+    await entityManager.delete(ProjectDeployFile, { projectId });
     // 项目命令步骤
-    await entityManager.delete(ProjectCommandStep, { projectId: dto.id });
+    await entityManager.delete(ProjectCommandStep, { projectId });
     // 项目日志
-    await entityManager.delete(ProjectLog, { projectId: dto.id });
+    await entityManager.delete(ProjectLog, { projectId });
     // 项目插件
-    await entityManager.delete(ProjectPlugin, { projectId: dto.id });
+    await entityManager.delete(ProjectPlugin, { projectId });
     // 项目
-    await entityManager.delete(Project, { id: dto.id });
+    await entityManager.delete(Project, { id: projectId });
 
     // 删除磁盘项目相关文件
-    const installPath = await entityManager.findOne(SystemConfig, SystemConfigKeys.installPath);
+    const installPathSystemConfig = await entityManager.findOne(SystemConfig, { key: SystemConfigKeys.installPath });
     exec(`
-    rm -rf ${installPath}${SystemConfigValues.jobPath}/${project.name}
-    rm -rf ${installPath}${SystemConfigValues.logPath}/${project.name}
-    rm -rf ${installPath}${SystemConfigValues.buildPath}/${project.name}
-    `, {}, () => {
+    echo "rm -rf ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}"
+    rm -rf ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}
+    echo "rm -rf ${installPathSystemConfig.value}${SystemConfigValues.logPath}/${project.name}"
+    rm -rf ${installPathSystemConfig.value}${SystemConfigValues.logPath}/${project.name}
+    echo "rm -rf ${installPathSystemConfig.value}${SystemConfigValues.buildPath}/${project.name}"
+    rm -rf ${installPathSystemConfig.value}${SystemConfigValues.buildPath}/${project.name}
+    `, {}, (error, stdOut, stdError) => {
+      console.log(stdOut);
+      console.log(stdError);
       console.log(`删除项目: ${project.name} 完成。`);
     });
     return res.json(ar);
