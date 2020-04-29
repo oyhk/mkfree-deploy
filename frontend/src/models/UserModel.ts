@@ -38,7 +38,7 @@ const UserModel: UserModelType = {
           loading: true,
         },
       });
-      const apiResult = yield call(userService.login, { dto: payload, isAll: true });
+      const apiResult = yield call(userService.login, { payload: payload, isAll: true });
       if (apiResult.code === 1) {
         localStorage.setItem('access_token', apiResult.result.accessToken);
         localStorage.setItem('username', apiResult.result.username);

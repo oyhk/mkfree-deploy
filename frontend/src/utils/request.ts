@@ -84,35 +84,35 @@ const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
 
 export interface RequestOptions {
   url?: string;
-  dto?: any;
+  payload?: any;
   isAll?: boolean;// 是否返回api整个对象，默认false
   successCallback?: Function;
   failCallback?: Function;
 }
 
-export const get = (requestOptions: RequestOptions) => {
-  const requestOptionsInit = {
-    data: requestOptions.dto,
+export const get = (options: RequestOptions) => {
+  const optionsInit = {
+    data: options.payload,
     headers: { 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
-  return request.get(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
+  return request.get(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
-export const post = (requestOptions: RequestOptions) => {
-  const requestOptionsInit = {
-    data: requestOptions.dto,
+export const post = (options: RequestOptions) => {
+  const optionsInit = {
+    data: options.payload,
     headers: { 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
 
-  return request.post(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
+  return request.post(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
-export const put = (requestOptions: RequestOptions) => {
-  const requestOptionsInit = {
-    data: requestOptions.dto,
+export const put = (options: RequestOptions) => {
+  const optionsInit = {
+    data: options.payload,
     headers: { 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
-  return request.put(`http://localhost:5000${requestOptions.url}`, requestOptionsInit).then((apiResult: ApiResult<any>) => requestThen(requestOptions, apiResult));
+  return request.put(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 

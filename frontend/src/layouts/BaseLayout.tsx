@@ -40,8 +40,14 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
             {
               icon: <TableOutlined/>,
               name: '项目管理',
-              key: 'projectManager',
+              key: 'project',
               path: '/project',
+            },
+            {
+              name: '项目环境日志',
+              key: 'projectEnvLog',
+              path: '/project/:projectId/env/:envId/log',
+              hideInMenu:true
             },
           ]
         );
@@ -75,7 +81,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
         </div>;
       }}
 
-      footerRender={() => <DefaultFooter
+/*      footerRender={() => <DefaultFooter
         copyright="MKfree Deploy 2016-2020"
         links={[
           {
@@ -85,7 +91,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
             blankTarget: true,
           },
         ]}
-      />}
+      />}*/
     >
       {children}
     </ProLayout>

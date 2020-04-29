@@ -13,6 +13,7 @@ import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
 import ProjectLogControllerPanel from '@/pages/project/components/ProjectControllerPanel';
+import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
 
 
 const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
@@ -21,12 +22,6 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
 
   const subColumns = [
     { title: '环境', dataIndex: 'envName', key: 'envName' },
-    {
-      title: '插件', dataIndex: 'projectPlugin', key: 'projectPlugin',
-      render:()=>{
-        return <div>Eureka</div>
-      }
-    },
     {
       title: 'ip', dataIndex: 'ip', key: 'ip',
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
@@ -52,9 +47,9 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       ),
     },
     {
-      title: '操作',
-      dataIndex: 'operation',
-      key: 'operation',
+      title: 'DevOps',
+      dataIndex: 'DevOps',
+      key: 'DevOps',
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
         <div>
           {
@@ -87,24 +82,21 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
                     });
                   }}>从服务器同步</Button>
                 }
-                &nbsp;&nbsp;
-                <Button type='primary' size='small'
-                        onClick={() => {
-                          dispatch({
-                            type: 'project/logModalVisibleChange',
-                            payload: {
-                              logModalVisible: true,
-                              projectId: pes.projectId,
-                              projectName:pes.projectName,
-                            },
-                          });
-                        }}>查看日志</Button>
-                <br/>
               </div>
             )) : <div/>
           }
         </div>
       ),
+    },
+    {
+      title: '操作',
+      dataIndex: 'operations',
+      key: 'operations',
+      render: (projectEnvDto: ProjectEnvDto) => {
+        return <div>
+          <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId,projectEnvDto.envId)}`} target='_blank'>查看日志</Link>
+        </div>;
+      },
     },
   ];
 
@@ -112,15 +104,16 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
   const subDataSource: any[] = [];
 
   // eslint-disable-next-line no-unused-expressions
-  projectDto?.projectEnvList?.forEach(({ envId, envName, projectEnvServerList }) => {
+  projectDto?.projectEnvList?.forEach(projectEnvDto => {
     subDataSource.push({
       key: uuid(),
-      envId,
-      envName,
-      ip: projectEnvServerList,
-      publishTime: projectEnvServerList,
-      publishVersion: projectEnvServerList,
-      operation: projectEnvServerList,
+      envId: projectEnvDto.envId,
+      envName: projectEnvDto.envName,
+      ip: projectEnvDto.projectEnvServerList,
+      publishTime: projectEnvDto.projectEnvServerList,
+      publishVersion: projectEnvDto.projectEnvServerList,
+      DevOps: projectEnvDto.projectEnvServerList,
+      operations: projectEnvDto,
     });
   });
 

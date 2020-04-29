@@ -12,6 +12,8 @@ export interface ProjectEnvLogDto extends BaseDto {
   typeDesc:string;
   // 项目id
   projectId: number;
+  // 项目名称
+  projectName: string;
   // 环境id
   envId: number;
   // 项目环境id

@@ -1,12 +1,12 @@
 import { get, RequestOptions } from '@/utils/request';
 import routes from '@/routes';
 
-export async function list(requestOptions: RequestOptions) {
-  requestOptions.url = `${routes.apiRoutes.projectEnvLogList}?projectId=${requestOptions.dto.projectId}&envId=${requestOptions.dto.envId}`;
-  return get(requestOptions);
+export async function list(options: RequestOptions) {
+  options.url = `${routes.apiRoutes.projectEnvLogList}?projectId=${options.payload.projectId}&envId=${options.payload.envId}`;
+  return get(options);
 }
 
-export async function info(requestOptions: RequestOptions) {
-  requestOptions.url = `${routes.apiRoutes.projectEnvLogInfo}?projectId=${requestOptions.dto.projectId}&envId=${requestOptions.dto.envId}&projectEnvLogSeq=${requestOptions.dto.projectEnvLogSeq}`;
-  return get(requestOptions);
+export async function info(options: RequestOptions) {
+  options.url = `${routes.apiRoutes.projectEnvLogInfo}?projectId=${options.payload.projectId}&envId=${options.payload.envId}&projectEnvLogSeq=${options.payload.projectEnvLogSeq}`;
+  return get(options);
 }

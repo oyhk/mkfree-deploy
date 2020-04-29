@@ -2,37 +2,37 @@ import { get, post, put } from '@/utils/request';
 import routes from '@/routes';
 import { ProjectDto } from '@/models/dto/ProjectDto';
 
-export async function page(dto: ProjectDto) {
-  return get({ url: `${routes.apiRoutes.projectPage}?pageNo=${dto.pageNo}&pageSize=10000` });
+export async function page(payload: ProjectDto) {
+  return get({ url: `${routes.apiRoutes.projectPage}?pageNo=${payload.pageNo}&pageSize=10000` });
 }
 
-export async function info(dto: ProjectDto) {
-  return get({ url: `${routes.apiRoutes.projectInfo}?id=${dto.id}` });
+export async function info(payload: ProjectDto) {
+  return get({ url: `${routes.apiRoutes.projectInfo}?id=${payload.id}` });
 }
 
-export async function save(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post({ url: `${routes.apiRoutes.projectSave}`, dto, successCallback, failCallback });
+export async function save(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectSave}`, payload: payload, successCallback, failCallback });
 }
 
-export async function update(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return put({ url: `${routes.apiRoutes.projectUpdate}`, dto, successCallback, failCallback });
+export async function update(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return put({ url: `${routes.apiRoutes.projectUpdate}`, payload: payload, successCallback, failCallback });
 }
-export async function deleted(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post({ url: `${routes.apiRoutes.projectDeleted}`, dto, successCallback, failCallback });
-}
-
-export async function build(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post({ url: `${routes.apiRoutes.projectBuild}`, dto, successCallback, failCallback });
+export async function deleted(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectDeleted}`, payload: payload, successCallback, failCallback });
 }
 
-export async function sync(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post({ url: `${routes.apiRoutes.projectSync}`, dto, successCallback, failCallback });
+export async function build(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectBuild}`, payload: payload, successCallback, failCallback });
 }
 
-export async function init(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post({ url: `${routes.apiRoutes.projectInit}`, dto, successCallback, failCallback });
+export async function sync(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectSync}`, payload: payload, successCallback, failCallback });
 }
 
-export async function refreshBranch(dto: ProjectDto, successCallback?: Function, failCallback?: Function) {
-  return post({ url: `${routes.apiRoutes.projectRefreshBranch}`, dto, successCallback, failCallback });
+export async function init(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectInit}`, payload: payload, successCallback, failCallback });
+}
+
+export async function refreshBranch(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {
+  return post({ url: `${routes.apiRoutes.projectRefreshBranch}`, payload: payload, successCallback, failCallback });
 }

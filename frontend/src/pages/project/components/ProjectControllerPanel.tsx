@@ -9,7 +9,7 @@ import {
   MailOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
-import { ProjectModelState } from '@/models/ProjectModel';
+import { ProjectModelState } from '@/pages/project/models/ProjectModel';
 import { Dispatch } from '@@/plugin-dva/connect';
 import SubMenu from 'antd/es/menu/SubMenu';
 import { AppstoreOutlined, LoadingOutlined, SettingOutlined } from '@ant-design/icons/lib';

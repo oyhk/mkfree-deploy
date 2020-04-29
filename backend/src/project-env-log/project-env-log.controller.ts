@@ -42,37 +42,45 @@ export class ProjectEnvLogController {
       .where('p.projectId = :projectId and p.envId = :envId', {
         projectId: dto.projectId,
         envId: dto.envId,
-      }).addOrderBy('createdAt', 'DESC').limit(5).getMany();
+      }).addOrderBy('createdAt', 'DESC').limit(30).getMany();
     return res.json(ar);
   }
 
   @Get('/api/projectEnvLogs/info')
   async info(@Query() dto: ProjectEnvLog, @Res() res: Response) {
     const ar = new ApiResult();
-    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
     const projectEnvLog = await this.projectEnvLogRepository.findOne({
       projectId: dto.projectId,
       envId: dto.envId,
       projectEnvLogSeq: dto.projectEnvLogSeq,
 
     });
-    const projectEnvLogDto = projectEnvLog as ProjectEnvLogDto;
-    projectEnvLogDto.typeDesc = ProjectEnvLogType.getDesc(projectEnvLog.type);
+    if (!projectEnvLog) {
+      ar.remindRecordNotExist(ProjectEnvLog.entityName, dto.projectEnvLogSeq);
+      return res.json(ar);
+    }
+    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
     const env = await this.envRepository.findOne(projectEnvLog.envId);
     const project = await this.projectRepository.findOne(projectEnvLog.projectId);
+    const projectEnvLogDto = projectEnvLog as ProjectEnvLogDto;
+    projectEnvLogDto.typeDesc = ProjectEnvLogType.getDesc(projectEnvLog.type);
     projectEnvLogDto.text = fs.readFileSync(`${installPathSystemConfig.value}${SystemConfigValues.logPath}/${project.name}/${ProjectLogFileType.build(env.code, projectEnvLog.projectEnvLogSeq)}`,
       {
         encoding: 'utf8',
         flag: 'r',
       })
       .replace(/(Operation timed out)/g, '<span style="color: #ffffff;background-color: #FF0000;padding: 3px">Operation timed out</span>')
+      .replace(/(No such file or directory)/g, '<span style="color: #ffffff;background-color: #FF0000;padding: 3px">No such file or directory</span>')
+      .replace(/(Failed)/g, '<span style="color: #ffffff;background-color: #FF0000;padding: 3px">Failed</span>')
+      .replace(/(ERROR)/g, '<span style="color: #ffffff;background-color: #FF0000;padding: 3px">ERROR</span>')
       .replace(/(warning)/g, '<span style="color: #ffffff;background-color: #faad14;padding: 3px">warning</span>')
+      .replace(/(WARNING)/g, '<span style="color: #ffffff;background-color: #faad14;padding: 3px">WARNING</span>')
       .replace(/(cannot)/g, '<span style="color: #ffffff;background-color: #faad14;padding: 3px">cannot</span>')
-      .replace(/(No such file or directory)/g, '<span style="color: #ffffff;background-color: #faad14;padding: 3px">No such file or directory</span>')
+
       .replace(/(?:\r\n|\r|\n)/g, '<br/>');
+
     ar.result = projectEnvLogDto;
     return res.json(ar);
   }
-
 
 }

@@ -23,7 +23,6 @@ const config: IConfig = {
       path: '/',
       component: '@/layouts/BlankLayout',
       routes: [
-
         {
           path: routes.pageRoutes.userLogin,
           title: '用户登录',
@@ -31,29 +30,44 @@ const config: IConfig = {
         },
         {
           path: '/',
-          title: '欢迎',
           component: '@/layouts/BaseLayout',
           routes: [
+            // 欢迎模块
             {
               path: '/',
               title: '欢迎',
               component: '@/pages/Welcome',
             },
+            // 项目模块
             {
-              title: '项目管理',
               path: routes.pageRoutes.projectIndex,
-              component: '@/pages/project/ProjectIndex',
+              title: '项目模块',
+              routes: [
+                {
+                  title: '项目管理',
+                  path: routes.pageRoutes.projectIndex,
+                  component: '@/pages/project/ProjectIndex',
+                },
+                {
+                  title: '项目编辑',
+                  path: routes.pageRoutes.projectEdit,
+                  component: '@/pages/project/ProjectEdit',
+                },
+                {
+                  title: '项目创建',
+                  path: routes.pageRoutes.projectCreate,
+                  component: '@/pages/project/ProjectCreate',
+                },
+
+                // 项目环境日志模块
+                {
+                  path: routes.pageRoutes.projectEnvLogInfo,
+                  title: '项目环境日志',
+                  component: '@/pages/project/ProjectEnvLogIndex',
+                },
+              ],
             },
-            {
-              title: '项目编辑',
-              path: routes.pageRoutes.projectEdit,
-              component: '@/pages/project/ProjectEdit',
-            },
-            {
-              title: '项目创建',
-              path: routes.pageRoutes.projectCreate,
-              component: '@/pages/project/ProjectCreate',
-            },
+
           ],
         },
       ],

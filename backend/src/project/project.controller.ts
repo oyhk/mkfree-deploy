@@ -659,6 +659,7 @@ export class ProjectController {
     const projectEnvLog = await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.build.code,
       projectId: project.id,
+      projectName:project.name,
       envId: env.id,
       projectEnvId: projectEnv.id,
       projectEnvLogSeq: projectEnvBuildSeq,
@@ -856,6 +857,7 @@ export class ProjectController {
     const projectEnvLog = await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.sync.code,
       projectId: project.id,
+      projectName: project.name,
       envId: env.id,
       projectEnvId: projectEnv.id,
       projectEnvLogSeq: projectEnvBuildSeq,

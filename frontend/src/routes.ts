@@ -6,7 +6,15 @@ export default {
     projectEdit: '/project/edit/:id',
     projectEditParams: (id: any) => `/project/edit/${id}`,
     projectCreate: '/project/create',
-    userLogin: '/user/login'
+    projectEnvLogIndex: '/project/:projectId/env/:envId/log',
+    projectEnvLogInfo: '/project/:projectId/env/:envId/log/:seq',
+    projectEnvLogInfoParams: (projectId: any, envId: any, seq?: any) => {
+      if (seq)
+        return `/project/${projectId}/env/${envId}/log/${seq}`;
+      else
+        return `/project/${projectId}/env/${envId}/log`;
+    },
+    userLogin: '/user/login',
 
 
   },
