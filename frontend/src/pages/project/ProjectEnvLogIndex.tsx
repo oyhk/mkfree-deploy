@@ -1,12 +1,22 @@
 import React from 'react';
 import { Col, Layout, Menu, Row, Select } from 'antd';
-import { connect, Link, useRouteMatch, useParams } from 'umi';
+import { connect, Link, history, useParams } from 'umi';
 import { MailOutlined, LoadingOutlined, FileOutlined } from '@ant-design/icons';
 import routes from '@/routes';
-import { ProjectEnvLogPageProps } from '@/pages/project/ProjectEnvLogInfo';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
+import { ProjectEnvLogModelState } from '@/pages/project/models/ProjectEnvLogModel';
 
 const { Sider, Content, Header } = Layout;
+
+export interface ProjectEnvLogPageProps {
+  projectEnvLog: ProjectEnvLogModelState;
+}
+
+interface ProjectEnvLogPageUrlParams {
+  projectId: string;
+  envId: string;
+  seq: string;
+}
 
 const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
   const state = props.projectEnvLog;
@@ -38,21 +48,33 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
 
         >
           <Row justify={'center'} style={{ padding: '30px' }}>
-            <Select defaultValue="1">
-              <Select.Option value="4">DEV环境</Select.Option>
-              <Select.Option value="1">UAT环境</Select.Option>
+            <Select defaultValue={(useParams() as ProjectEnvLogPageUrlParams).envId} style={{ width: '120px' }}
+                    onChange={(value, option) => {
+                      // @ts-ignore
+                      const projectEnvLogPageUrlParams = option?.prop as ProjectEnvLogPageUrlParams;
+                      history.replace(routes.pageRoutes.projectEnvLogInfoParams(projectEnvLogPageUrlParams.projectId, projectEnvLogPageUrlParams.envId));
+                    }}
+            >
+              {
+                state?.projectEnvList?.map(projectEnv => <Select.Option key={projectEnv.id}
+                                                                        prop={{
+                                                                          projectId: projectEnv.projectId,
+                                                                          envId: projectEnv.envId,
+                                                                        }}
+                                                                        value={`${projectEnv?.envId}`}>{projectEnv.envName}</Select.Option>)
+              }
             </Select>
           </Row>
           <Menu
             defaultOpenKeys={['building', 'history']}
-            defaultSelectedKeys={[(useParams() as { seq: string }).seq]}
+            defaultSelectedKeys={[(useParams() as ProjectEnvLogPageUrlParams).seq]}
             mode="inline"
             theme='light'
           >
             <Menu.SubMenu
               key="building"
               title={
-                props.projectEnvLog?.buildingLogList?.length ?
+                props.projectEnvLog?.buildingLogList ?
                   <div><LoadingOutlined/>正在构建（{props.projectEnvLog?.buildingLogList?.length} 个）</div> :
                   <div>正在构建（无）</div>
               }
@@ -68,7 +90,7 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
           </Menu>
         </Sider>
         {
-          state.info ?
+          state?.info ?
             <Content>
               <Header>
                 <Row>
@@ -77,7 +99,7 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
               </Header>
               <Content>
                 <div style={{ wordWrap: 'break-word', padding: '20px 20px 10px 20px' }}
-                     dangerouslySetInnerHTML={{ __html: state?.info?.text as string }}/>
+                     dangerouslySetInnerHTML={{ __html: state?.info?.text?.toString() }}/>
                 {
                   !state?.info?.isFinish
                     ? <div style={{ padding: '0px 20px 10px 20px' }}>
@@ -87,7 +109,7 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
                 }
               </Content>
             </Content>
-            :
+            : (!state?.info && !state.historyLogList) ? <div style={{width:'100%',textAlign:'center'}}>无构建日志</div> :
             <PageLoading/>
         }
       </Layout>

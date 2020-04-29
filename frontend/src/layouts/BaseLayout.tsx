@@ -5,6 +5,7 @@ import { Link, connect } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
 import { Dropdown, Menu, Button } from 'antd';
 import { ConnectProps } from '@@/plugin-dva/connect';
+import routes from '@/routes';
 
 
 const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
@@ -41,12 +42,12 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
               icon: <TableOutlined/>,
               name: '项目管理',
               key: 'project',
-              path: '/project',
+              path: routes.pageRoutes.projectIndex,
             },
             {
               name: '项目环境日志',
               key: 'projectEnvLog',
-              path: '/project/:projectId/env/:envId/log',
+              path: routes.pageRoutes.projectEnvLogIndex,
               hideInMenu:true
             },
           ]
@@ -81,7 +82,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
         </div>;
       }}
 
-/*      footerRender={() => <DefaultFooter
+      footerRender={() => <DefaultFooter
         copyright="MKfree Deploy 2016-2020"
         links={[
           {
@@ -91,7 +92,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
             blankTarget: true,
           },
         ]}
-      />}*/
+      />}
     >
       {children}
     </ProLayout>

@@ -2,8 +2,6 @@ import { Effect, Reducer, Subscription } from '@@/plugin-dva/connect';
 import * as projectService from '@/services/ProjectService';
 import * as envService from '@/services/EnvService';
 import * as serverService from '@/services/ServerService';
-import * as projectEnvService from '@/services/ProjectEnvService';
-import * as projectEnvLogService from '@/services/ProjectEnvLogService';
 import { PageResult } from '@/services/PageResult';
 import pathToRegexp from 'path-to-regexp';
 import routes from '@/routes';
@@ -13,28 +11,12 @@ import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ServerDto } from '@/models/dto/ServerDto';
 import { notification } from 'antd';
-import { history, useModel } from 'umi';
-import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
-import dynamic from 'dva/dynamic';
-
-/**
- * 项目日志弹框
- */
-export interface ProjectLogModel {
-  visible: boolean,
-  projectEnvList: ProjectEnvDto[],
-  // 项目环境日志内容
-  projectEnvLog: ProjectEnvLogDto,
-  projectName: string,
-}
-
+import { history } from 'umi';
 
 /**
  * 项目ModelState
  */
 export interface ProjectModelState {
-
-  logModal?: ProjectLogModel;
 
   page?: PageResult<ProjectDto>;
 
@@ -42,7 +24,6 @@ export interface ProjectModelState {
 
   envList?: EnvDto[];
   serverList?: ServerDto[];
-
   // projectForm 里面功能
   projectFormEurekaEnable?: boolean;
 
@@ -64,8 +45,6 @@ interface ProjectModelType {
     init: Effect;
     sync: Effect;
     refreshBranch: Effect;
-    logModalVisibleChange: Effect;
-    logModalProjectEnvLogText: Effect;
   };
   reducers: {
     save: Reducer<ProjectModelState>;
@@ -168,7 +147,6 @@ const ProjectModel: ProjectModelType = {
     * editProjectEnvDel({ payload }, { call, put, select }) {
       const projectDto = yield select((state: { project: { project: ProjectDto; }; }) => state.project?.project);
       projectDto.projectEnvList = projectDto.projectEnvList.filter((projectEnvDto: ProjectEnvDto) => projectEnvDto.envId !== payload.envId);
-
       yield put({
         type: 'save',
         payload: {
@@ -237,95 +215,8 @@ const ProjectModel: ProjectModelType = {
         });
       });
     },
-    /**
-     * 项目环境服务器日志
-     * @param payload
-     * @param call
-     * @param put
-     */
-    * logModalVisibleChange({ payload }, { call, put }) {
 
-      if (payload.logModalVisible) {
-        const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, { payload: { projectId: payload.projectId } });
-        for (const projectEnv of projectEnvList) {
-          projectEnv.projectEnvLogList = yield call(projectEnvLogService.list, {
-            payload: {
-              projectId: projectEnv.projectId,
-              envId: projectEnv.envId,
-            },
-          });
-        }
-        yield put({
-          type: 'save',
-          payload: {
-            logModal: {
-              visible: payload.logModalVisible,
-              projectEnvList: projectEnvList,
-              projectName: payload.projectName,
-            } as ProjectLogModel,
-            logModalProjectName: payload.projectName,
-          },
-        });
-      } else {
-        yield put({
-          type: 'save',
-          payload: {
-            logModal: {
-              visible: payload.logModalVisible,
-            } as ProjectLogModel,
-          },
-        });
-      }
-    },
-    /**
-     * 项目环境日志
-     * @param payload
-     * @param call
-     * @param put
-     */
-    * logModalProjectEnvLogText({ payload }, { call, put, select }) {
-      const projectEnvLog = yield call(projectEnvLogService.info, { payload: payload });
-      if (projectEnvLog.isFinish) {
-        const logModal = yield select((state: any) => state.project?.logModal);
-        logModal.projectEnvLog = projectEnvLog;
-        yield put({
-          type: 'save',
-          payload: {
-            logModal,
-          },
-        });
-      } else {
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        while (true) {
-          // 正在构建日志
-          const projectEnvLog = yield call(projectEnvLogService.info, { payload: payload });
-          const logModal = yield select((state: any) => state.project?.logModal);
-          logModal.projectEnvLog = projectEnvLog;
 
-          // 刷新左侧菜单栏
-          const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, { payload: { projectId: payload.projectId } });
-          for (const projectEnv of projectEnvList) {
-            projectEnv.projectEnvLogList = yield call(projectEnvLogService.list, {
-              payload: {
-                projectId: projectEnv.projectId,
-                envId: projectEnv.envId,
-              },
-            });
-          }
-          logModal.projectEnvList = projectEnvList;
-          yield put({
-            type: 'save',
-            payload: {
-              logModal,
-            },
-          });
-          yield delay(500);
-          if (projectEnvLog.isFinish) {
-            break;
-          }
-        }
-      }
-    },
     * deleted({ payload }, { call, put, select }) {
       yield call(projectService.deleted, { payload: payload }, () => {
         notification.success({
@@ -360,11 +251,13 @@ const ProjectModel: ProjectModelType = {
           });
           return;
         }
+
         // 创建项目
         if (pathname === routes.pageRoutes.projectCreate) {
           dispatch({ type: 'create' });
           return;
         }
+
         // 编辑项目
         const editMatch: any = pathToRegexp(routes.pageRoutes.projectEdit).exec(pathname);
         if (!editMatch) {

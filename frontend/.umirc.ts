@@ -61,10 +61,15 @@ const config: IConfig = {
 
                 // 项目环境日志模块
                 {
-                  path: routes.pageRoutes.projectEnvLogInfo,
+                  path: routes.pageRoutes.projectEnvLogIndex,
                   title: '项目环境日志',
                   component: '@/pages/project/ProjectEnvLogIndex',
                 },
+                {
+                  path: routes.pageRoutes.projectEnvLogInfo,
+                  title: '项目环境日志',
+                  component: '@/pages/project/ProjectEnvLogIndex',
+                }
               ],
             },
 

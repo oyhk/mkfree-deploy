@@ -4,17 +4,23 @@ import routes from '@/routes';
 import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
 import { history } from 'umi';
 import * as projectEnvLogService from '@/services/ProjectEnvLogService';
+import * as projectEnvService from '@/services/ProjectEnvService';
 import * as lodash from 'lodash';
+import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
 
 
 /**
  * 项目ModelState
  */
 export interface ProjectEnvLogModelState {
+  // 日志信息
   info?: ProjectEnvLogDto;
-  currentMenu?: number;
+  // 左侧菜单正在构建日志列表
   buildingLogList?: ProjectEnvLogDto[];
+  // 左侧菜单历史构建日志列表
   historyLogList?: ProjectEnvLogDto[];
+  // 左侧菜单环境下拉框
+  projectEnvList?: ProjectEnvDto[];
 }
 
 
@@ -31,6 +37,34 @@ interface ProjectModelType {
   subscriptions: { setup: Subscription };
 }
 
+
+const ProjectModelHelp = {
+  leftMenu: function* (payload: any, call: any, put: any) {
+
+    const projectEnvList: ProjectEnvDto[] = yield call(projectEnvService.list, {
+      payload: {
+        projectId: payload.projectId,
+        envId: payload.envId,
+      },
+    });
+
+    const projectEnvLogList: ProjectEnvLogDto[] = yield call(projectEnvLogService.list, {
+      payload: {
+        projectId: payload.projectId,
+        envId: payload.envId,
+      },
+    });
+    const projectEnvLogListGroupByIsFinish = lodash.groupBy(projectEnvLogList, projectEnvLog => projectEnvLog.isFinish);
+    yield put({
+      type: 'save',
+      payload: {
+        buildingLogList: projectEnvLogListGroupByIsFinish['false'],
+        historyLogList: projectEnvLogListGroupByIsFinish['true'],
+        projectEnvList,
+      },
+    });
+  },
+};
 
 const ProjectModel: ProjectModelType = {
   namespace: 'projectEnvLog',
@@ -51,23 +85,8 @@ const ProjectModel: ProjectModelType = {
           info: undefined,
         },
       });
-
-
-      // 环境日志，菜单数据
-      const projectEnvLogList: ProjectEnvLogDto[] = yield call(projectEnvLogService.list, {
-        payload: {
-          projectId: payload.projectId,
-          envId: payload.envId,
-        },
-      });
-      const projectEnvLogListGroupByIsFinish = lodash.groupBy(projectEnvLogList, projectEnvLog => projectEnvLog.isFinish);
-      yield put({
-        type: 'save',
-        payload: {
-          buildingLogList: projectEnvLogListGroupByIsFinish['false'],
-          historyLogList: projectEnvLogListGroupByIsFinish['true'],
-        },
-      });
+      // 刷新左侧菜单栏，环境日志，菜单数据
+      yield ProjectModelHelp.leftMenu(payload, call, put);
       // 环境日志详情
       const projectEnvLog = yield call(projectEnvLogService.info, { payload: payload });
       if (projectEnvLog.isFinish) {
@@ -77,38 +96,26 @@ const ProjectModel: ProjectModelType = {
             info: projectEnvLog,
           },
         });
-      } else {
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        while (true) {
-          // 正在构建日志
-          const projectEnvLog = yield call(projectEnvLogService.info, { payload: payload });
-          yield put({
-            type: 'save',
-            payload: {
-              info: projectEnvLog,
-            },
-          });
-          // 刷新左侧菜单栏
-          // 环境日志，菜单数据
-          const projectEnvLogList: ProjectEnvLogDto[] = yield call(projectEnvLogService.list, {
-            payload: {
-              projectId: payload.projectId,
-              envId: payload.envId,
-            },
-          });
-          const projectEnvLogListGroupByIsFinish = lodash.groupBy(projectEnvLogList, projectEnvLog => projectEnvLog.isFinish);
-          yield put({
-            type: 'save',
-            payload: {
-              buildingLogList: projectEnvLogListGroupByIsFinish['false'],
-              historyLogList: projectEnvLogListGroupByIsFinish['true'],
-            },
-          });
+        return;
+      }
 
-          yield delay(500);
-          if (projectEnvLog.isFinish) {
-            break;
-          }
+      // 正在构建的日志
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+      while (true) {
+        // 正在构建日志
+        const projectEnvLog = yield call(projectEnvLogService.info, { payload: payload });
+        yield put({
+          type: 'save',
+          payload: {
+            info: projectEnvLog,
+          },
+        });
+        // 刷新左侧菜单栏，环境日志，菜单数据
+        yield ProjectModelHelp.leftMenu(payload, call, put);
+
+        yield delay(500);
+        if (projectEnvLog.isFinish) {
+          break;
         }
       }
     },
@@ -120,6 +127,12 @@ const ProjectModel: ProjectModelType = {
      * @param select
      */
     * index({ payload }, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          info: undefined,
+        },
+      });
       const projectEnvLogList: ProjectEnvLogDto[] = yield call(projectEnvLogService.list, {
         payload: {
           projectId: payload.projectId,
@@ -145,8 +158,10 @@ const ProjectModel: ProjectModelType = {
           type: 'save',
           payload: { currentMenu: historyLog[0].projectEnvLogSeq },
         });
+        return;
       }
-
+      // 左侧菜单
+      yield ProjectModelHelp.leftMenu(payload,call,put);
     },
   },
 
@@ -161,7 +176,6 @@ const ProjectModel: ProjectModelType = {
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
-
         // 环境日志首页
         const indexMatch: any = pathToRegexp(routes.pageRoutes.projectEnvLogIndex).exec(pathname);
         if (indexMatch) {
@@ -197,7 +211,6 @@ const ProjectModel: ProjectModelType = {
       });
     },
   },
-
 
 };
 

@@ -12,7 +12,6 @@ import { ProjectDto } from '@/models/dto/ProjectDto';
 import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
-import ProjectLogControllerPanel from '@/pages/project/components/ProjectControllerPanel';
 import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
 
 
@@ -94,7 +93,8 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       key: 'operations',
       render: (projectEnvDto: ProjectEnvDto) => {
         return <div>
-          <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId,projectEnvDto.envId)}`} target='_blank'>查看日志</Link>
+          <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId, projectEnvDto.envId)}`}
+                target='_blank'>查看日志</Link>
         </div>;
       },
     },
@@ -195,7 +195,6 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                               <Link to={routes.pageRoutes.projectCreate}>添加</Link>,
                             ]}
       />
-      <ProjectLogControllerPanel projectState={project} dispatch={dispatch}/>
     </PageHeaderWrapper>
   );
 };

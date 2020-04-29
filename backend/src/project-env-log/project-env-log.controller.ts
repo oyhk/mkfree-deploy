@@ -42,7 +42,7 @@ export class ProjectEnvLogController {
       .where('p.projectId = :projectId and p.envId = :envId', {
         projectId: dto.projectId,
         envId: dto.envId,
-      }).addOrderBy('createdAt', 'DESC').limit(30).getMany();
+      }).addOrderBy('createdAt', 'DESC').limit(10).getMany();
     return res.json(ar);
   }
 
