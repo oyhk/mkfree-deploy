@@ -1,4 +1,4 @@
-import { BaseDto } from '@/models/dto/BaseDto';
+import { BaseDto } from '@/services/dto/BaseDto';
 
 /**
  * 环境

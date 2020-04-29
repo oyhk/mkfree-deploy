@@ -14,10 +14,10 @@ import {
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { uuid } from '@/utils/utils';
-import { ServerDto } from '@/models/dto/ServerDto';
+import { ServerDto } from '@/services/dto/ServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import { PageLoading } from '@ant-design/pro-layout';
-import { ProjectEnvPlugin } from '@/models/dto/ProjectEnvPluginDto';
+import { ProjectEnvPlugin } from '@/services/dto/ProjectEnvPluginDto';
 
 const { Option } = Select;
 

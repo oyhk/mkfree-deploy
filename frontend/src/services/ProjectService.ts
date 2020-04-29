@@ -1,6 +1,6 @@
 import { get, post, put } from '@/utils/request';
 import routes from '@/routes';
-import { ProjectDto } from '@/models/dto/ProjectDto';
+import { ProjectDto } from '@/services/dto/ProjectDto';
 
 export async function page(payload: ProjectDto) {
   return get({ url: `${routes.apiRoutes.projectPage}?pageNo=${payload.pageNo}&pageSize=10000` });

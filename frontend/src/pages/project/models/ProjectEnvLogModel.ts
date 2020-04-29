@@ -1,12 +1,12 @@
 import { Effect, Reducer, Subscription } from '@@/plugin-dva/connect';
 import pathToRegexp from 'path-to-regexp';
 import routes from '@/routes';
-import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
+import { ProjectEnvLogDto } from '@/services/dto/ProjectEnvLogDto';
 import { history } from 'umi';
 import * as projectEnvLogService from '@/services/ProjectEnvLogService';
 import * as projectEnvService from '@/services/ProjectEnvService';
 import * as lodash from 'lodash';
-import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
+import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
 
 
 /**

@@ -1,4 +1,4 @@
-import { BaseDto } from '@/models/dto/BaseDto';
+import { BaseDto } from '@/services/dto/BaseDto';
 
 export interface ProjectPluginDto extends BaseDto {
   // 项目id

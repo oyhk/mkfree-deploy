@@ -5,11 +5,11 @@ import * as serverService from '@/services/ServerService';
 import { PageResult } from '@/services/PageResult';
 import pathToRegexp from 'path-to-regexp';
 import routes from '@/routes';
-import { EnvDto } from '@/models/dto/EnvDto';
-import { ProjectDto } from '@/models/dto/ProjectDto';
-import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
-import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
-import { ServerDto } from '@/models/dto/ServerDto';
+import { EnvDto } from '@/services/dto/EnvDto';
+import { ProjectDto } from '@/services/dto/ProjectDto';
+import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
+import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
+import { ServerDto } from '@/services/dto/ServerDto';
 import { notification } from 'antd';
 import { history } from 'umi';
 

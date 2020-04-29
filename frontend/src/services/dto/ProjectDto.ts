@@ -1,7 +1,7 @@
-import { BaseDto } from '@/models/dto/BaseDto';
-import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
-import { ProjectDeployFileDto } from '@/models/dto/ProjectDeployFileDto';
-import { ProjectPluginDto } from '@/models/dto/ProjectPluginDto';
+import { BaseDto } from '@/services/dto/BaseDto';
+import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
+import { ProjectDeployFileDto } from '@/services/dto/ProjectDeployFileDto';
+import { ProjectPluginDto } from '@/services/dto/ProjectPluginDto';
 
 /**
  * 项目

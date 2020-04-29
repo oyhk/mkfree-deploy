@@ -8,11 +8,11 @@ import { connect, Link, Dispatch } from 'umi';
 import styles from '@/pages/project/project-index.less';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { uuid } from '@/utils/utils';
-import { ProjectDto } from '@/models/dto/ProjectDto';
-import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
+import { ProjectDto } from '@/services/dto/ProjectDto';
+import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
-import { ProjectEnvDto } from '@/models/dto/ProjectEnvDto';
+import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
 
 
 const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {

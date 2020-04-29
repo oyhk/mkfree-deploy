@@ -1,8 +1,8 @@
-import { BaseDto } from '@/models/dto/BaseDto';
-import { ProjectBuildStepDto } from '@/models/dto/ProjectBuildStepDto';
-import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
-import { ProjectEnvLogDto } from '@/models/dto/ProjectEnvLogDto';
-import { ProjectEnvPlugin } from '@/models/dto/ProjectEnvPluginDto';
+import { BaseDto } from '@/services/dto/BaseDto';
+import { ProjectBuildStepDto } from '@/services/dto/ProjectBuildStepDto';
+import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
+import { ProjectEnvLogDto } from '@/services/dto/ProjectEnvLogDto';
+import { ProjectEnvPlugin } from '@/services/dto/ProjectEnvPluginDto';
 
 /**
  * 项目环境

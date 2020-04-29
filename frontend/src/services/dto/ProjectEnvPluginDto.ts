@@ -1,4 +1,4 @@
-import { BaseDto } from '@/models/dto/BaseDto';
+import { BaseDto } from '@/services/dto/BaseDto';
 
 /**
  * 项目扩展表，用于插件管理

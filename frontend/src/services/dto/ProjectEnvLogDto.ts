@@ -1,6 +1,6 @@
-import { BaseDto } from '@/models/dto/BaseDto';
-import { ProjectBuildStepDto } from '@/models/dto/ProjectBuildStepDto';
-import { ProjectEnvServerDto } from '@/models/dto/ProjectEnvServerDto';
+import { BaseDto } from '@/services/dto/BaseDto';
+import { ProjectBuildStepDto } from '@/services/dto/ProjectBuildStepDto';
+import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
 
 /**
  * 项目环境日志
