@@ -20,6 +20,14 @@ export class ProjectEnvLog extends BaseEntity {
   projectEnvLogSeq: number;
   @Column({ default: 0, nullable: true, comment: '日志是否输出完成，默认：否' })
   isFinish: boolean;
+  @Column({ nullable: true, comment: '发布版本' })
+  publishVersion: string;
+  @Column({ nullable: true, comment: '服务器 id' })
+  serverId:number;
+  @Column({ nullable: true, comment: '服务器 ip' })
+  serverIp:string;
+  @Column({ nullable: true, comment: '服务器 名称' })
+  serverName:string;
 }
 
 export const ProjectEnvLogType = {

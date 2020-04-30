@@ -94,7 +94,9 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       render: (projectEnvDto: ProjectEnvDto) => {
         return <div>
           <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId, projectEnvDto.envId)}`}
-                target='_blank'>查看日志</Link>
+                target='_blank'>查看日志</Link>&nbsp;&nbsp;
+          <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId, projectEnvDto.envId)}`}
+                target='_blank'>Eureka</Link>
         </div>;
       },
     },

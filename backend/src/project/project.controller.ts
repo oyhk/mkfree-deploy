@@ -659,10 +659,13 @@ export class ProjectController {
     const projectEnvLog = await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.build.code,
       projectId: project.id,
-      projectName:project.name,
+      projectName: project.name,
       envId: env.id,
       projectEnvId: projectEnv.id,
       projectEnvLogSeq: projectEnvBuildSeq,
+      serverId: server.id,
+      serverName: server.name,
+      serverIp: server.ip
     } as ProjectEnvLog);
 
 
@@ -784,8 +787,9 @@ export class ProjectController {
           publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}`,
           publishTime: publishTime,
         });
+        await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true,publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}` });
       });
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
+
     });
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
@@ -811,7 +815,7 @@ export class ProjectController {
       ar.remindRecordNotExist(ProjectEnvServer.entityName, dto.projectEnvServerId);
       return res.json(ar);
     }
-    
+
     const targetServer = await this.serverRepository.findOne({ id: targetProjectEnvServer.serverId });
     if (!targetServer) {
       ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);

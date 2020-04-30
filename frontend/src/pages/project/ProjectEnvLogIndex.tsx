@@ -91,10 +91,16 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
         </Sider>
         {
           state?.info ?
-            <Content>
-              <Header>
+            <Layout>
+              <Header style={{ padding: '0 20px',height:'auto' }}>
                 <Row>
-                  <Col></Col>
+                  <Col sm={12}>时间：{state.info?.createdAt}</Col>
+                  <Col sm={12}>类型：{state.info?.typeDesc}</Col>
+
+                </Row>
+                <Row>
+                  <Col sm={12}>服务器：{state.info?.serverIp}</Col>
+                  <Col sm={12}>版本：{state.info?.publishVersion}</Col>
                 </Row>
               </Header>
               <Content>
@@ -108,8 +114,9 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
                     : ''
                 }
               </Content>
-            </Content>
-            : (!state?.info && !state.historyLogList) ? <div style={{width:'100%',textAlign:'center'}}>无构建日志</div> :
+            </Layout>
+            : (!state?.info && !state.historyLogList) ?
+            <div style={{ width: '100%', textAlign: 'center' }}>无构建日志</div> :
             <PageLoading/>
         }
       </Layout>

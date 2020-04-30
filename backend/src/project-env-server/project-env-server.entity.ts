@@ -22,11 +22,11 @@ export class ProjectEnvServer extends BaseEntity {
   publishTime: Date;
   @Column({ nullable: true, comment: '发布版本' })
   publishVersion: string;
-  @Column({ nullable: true, comment: '服务器id' })
+  @Column({ nullable: true, comment: '服务器 id' })
   serverId:number;
-  @Column({ nullable: true, comment: '服务器ip' })
+  @Column({ nullable: true, comment: '服务器 ip' })
   serverIp:string;
-  @Column({ nullable: true, comment: '服务器名称' })
+  @Column({ nullable: true, comment: '服务器 名称' })
   serverName:string;
 
 }

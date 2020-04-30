@@ -1,6 +1,4 @@
 import { BaseDto } from '@/services/dto/BaseDto';
-import { ProjectBuildStepDto } from '@/services/dto/ProjectBuildStepDto';
-import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
 
 /**
  * 项目环境日志
@@ -26,4 +24,13 @@ export interface ProjectEnvLogDto extends BaseDto {
   createdAt:string;
   // 日志是否输出完成，默认：否'
   isFinish:boolean;
+
+  // 发布版本
+  publishVersion: string;
+  // 服务器 id
+  serverId:number;
+  // 服务器 ip
+  serverIp:string;
+  // 服务器 名称
+  serverName:string;
 }

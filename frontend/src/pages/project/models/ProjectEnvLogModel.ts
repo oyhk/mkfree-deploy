@@ -113,7 +113,7 @@ const ProjectModel: ProjectModelType = {
         // 刷新左侧菜单栏，环境日志，菜单数据
         yield ProjectModelHelp.leftMenu(payload, call, put);
 
-        yield delay(500);
+        yield delay(1000);
         if (projectEnvLog.isFinish) {
           break;
         }
