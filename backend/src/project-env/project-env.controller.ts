@@ -15,7 +15,7 @@ export class ProjectEnvController {
 
   constructor(
     @InjectRepository(ProjectEnv)
-    private projectEnvLogRepository: Repository<ProjectEnv>,
+    private projectEnvRepository: Repository<ProjectEnv>,
   ) {
   }
 
@@ -23,10 +23,22 @@ export class ProjectEnvController {
   @Get('/api/projectEnvs/list')
   async list(@Query() dto: ProjectEnv, @Res() res: Response) {
     const ar = new ApiResult();
-    ar.result = await this.projectEnvLogRepository.createQueryBuilder('p')
+    ar.result = await this.projectEnvRepository.createQueryBuilder('p')
       .where('p.projectId = :projectId ', {
         projectId: dto.projectId,
-      }).addOrderBy('envSort', 'ASC').limit(5).getMany();
+      }).addOrderBy('envSort', 'ASC').getMany();
+    return res.json(ar);
+  }
+
+  @Get('/api/projectEnvs/info')
+  async info(@Query() dto: ProjectEnv, @Res() res: Response) {
+    const ar = new ApiResult();
+    const projectEnv = await this.projectEnvRepository.findOne({ projectId: dto.projectId, envId: dto.envId });
+    if (!projectEnv) {
+      ar.remindRecordNotExist(ProjectEnv.entityName, { projectId: dto.projectId, envId: dto.envId });
+      return res.json(ar);
+    }
+    ar.result = projectEnv;
     return res.json(ar);
   }
 

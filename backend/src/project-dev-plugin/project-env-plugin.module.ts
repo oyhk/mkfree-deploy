@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectEnvPlugin } from './project-env-plugin.entity';
+import { ProjectEnvPluginController } from './project-env-plugin.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
@@ -8,7 +9,7 @@ import { ProjectEnvPlugin } from './project-env-plugin.entity';
       ProjectEnvPlugin,
     ],
   )],
-  controllers: [],
+  controllers: [ProjectEnvPluginController],
 })
 export class ProjectEnvPluginModule {
 

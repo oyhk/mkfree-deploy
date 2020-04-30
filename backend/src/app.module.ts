@@ -15,6 +15,7 @@ import { LogWebsocketModule } from './log-websocket/log-websocket.module';
 import { ProjectEnvLogModule } from './project-env-log/project-env-log.module';
 import { ProjectPluginModule } from './project-plugin/project-plugin.module';
 import { PluginModule } from './plugin/plugin.module';
+import { ProjectEnvPluginModule } from './project-dev-plugin/project-env-plugin.module';
 
 
 @Module({
@@ -33,6 +34,7 @@ import { PluginModule } from './plugin/plugin.module';
     ServerModule,
     EnvModule,
     ProjectEnvModule,
+    ProjectEnvPluginModule,
     ProjectEnvLogModule,
     ProjectLogModule,
     ProjectEnvServerModule,

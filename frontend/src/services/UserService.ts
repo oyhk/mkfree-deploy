@@ -1,4 +1,4 @@
-import request, { post, RequestOptions } from '@/utils/request';
+import MKRequest, { post, RequestOptions } from '@/utils/MKRequest';
 import routes from '@/routes';
 
 export async function login(requestOptions: RequestOptions) {

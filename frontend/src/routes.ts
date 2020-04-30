@@ -32,6 +32,8 @@ export default {
     envList: '/api/envs/list',
     serverList: '/api/servers/list',
     projectEnvList: '/api/projectEnvs/list',
+    projectEnvInfo: '/api/projectEnvs/info',
+    projectEnvPluginInfo: '/api/projectEnvPlugins/info',
     projectEnvLogList: '/api/projectEnvLogs/list',
     projectEnvLogInfo: '/api/projectEnvLogs/info',
     userLogin: '/api/users/login',

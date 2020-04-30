@@ -37,9 +37,9 @@ export class ApiResult<T> {
   }
 
 
-  remindRecordNotExist(entityName: string, entityId: number) {
+  remindRecordNotExist(entityName: string,params) {
     this.code = ApiResultCode['3'].code;
-    this.desc = `${ApiResultCode['3'].desc}${entityName} id:${entityId}，记录不存在。`;
+    this.desc = `${ApiResultCode['3'].desc}${entityName} params: ${params}，记录不存在。`;
   }
 
 }

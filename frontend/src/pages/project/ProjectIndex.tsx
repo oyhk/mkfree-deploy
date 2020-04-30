@@ -4,7 +4,7 @@ import { Table, Button } from 'antd';
 import {
   SmileTwoTone,
 } from '@ant-design/icons';
-import { connect, Link, Dispatch } from 'umi';
+import { connect, Link, Dispatch, useModel } from 'umi';
 import styles from '@/pages/project/project-index.less';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { uuid } from '@/utils/utils';
@@ -13,6 +13,8 @@ import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
 import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
+import PluginEurekaIndex from '@/pages/project/components/PluginEurekaIndex';
+import { useDispatch, useSelector } from '@@/plugin-dva/exports';
 
 
 const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
@@ -95,8 +97,20 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
         return <div>
           <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId, projectEnvDto.envId)}`}
                 target='_blank'>查看日志</Link>&nbsp;&nbsp;
-          <Link to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId, projectEnvDto.envId)}`}
-                target='_blank'>Eureka</Link>
+          <Button type='link'
+                  onClick={() => {
+                    dispatch({
+                      type: 'pluginEureka/index',
+                      payload: {
+                        visible: true,
+                        projectId: projectEnvDto.projectId,
+                        projectName: projectEnvDto.projectName,
+                        envId: projectEnvDto.envId,
+                        envName: projectEnvDto.envName,
+                      },
+                    });
+                  }}
+                  target='_blank'>Eureka</Button>
         </div>;
       },
     },
@@ -197,6 +211,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                               <Link to={routes.pageRoutes.projectCreate}>添加</Link>,
                             ]}
       />
+      <PluginEurekaIndex/>
     </PageHeaderWrapper>
   );
 };

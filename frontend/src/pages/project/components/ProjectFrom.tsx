@@ -17,7 +17,7 @@ import { uuid } from '@/utils/utils';
 import { ServerDto } from '@/services/dto/ServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import { PageLoading } from '@ant-design/pro-layout';
-import { ProjectEnvPlugin } from '@/services/dto/ProjectEnvPluginDto';
+import { ProjectEnvPluginDto } from '@/services/dto/ProjectEnvPluginDto';
 
 const { Option } = Select;
 
@@ -219,7 +219,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                                 envId: envId as number,
                                 envName: option.children,
                                 projectEnvServerList,
-                                projectEnvPluginList: [{ pluginName: 'Eureka' }] as ProjectEnvPlugin[],
+                                projectEnvPluginList: [{ pluginName: 'Eureka' }] as ProjectEnvPluginDto[],
                               });
 
                               // 使用setFieldsValue 替换整个字段初始化内容

@@ -1,5 +1,5 @@
 /**
- * request 网络请求工具
+ * MKRequest 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
 import { extend, RequestOptionsInit } from 'umi-request';
@@ -52,26 +52,26 @@ const errorHandler = (error: { response: Response }): Response => {
 /**
  * 配置request请求时的默认参数
  */
-const request = extend({
+const MKRequest = extend({
   errorHandler, // 默认错误处理
   // credentials: 'include', // 默认请求是否带上cookie
 });
 
-const requestThen = (ro: RequestOptions, apiResult: ApiResult<any>) => {
-  if (apiResult.code === 1) {
-    if (ro.successCallback) {
-      ro.successCallback();
+const requestThen = (options: RequestOptions, apiResult: ApiResult<any>) => {
+  if (apiResult?.code === 1) {
+    if (options.successCallback) {
+      options.successCallback();
     }
-    if (ro.isAll)
+    if (options.isAll)
       return apiResult;
     else
       return apiResult.result;
-  } else if (apiResult.code) {
-    if (ro.failCallback) {
-      ro.failCallback();
+  } else if (apiResult?.code) {
+    if (options.failCallback) {
+      options.failCallback();
     }
     notification.error({
-      message: `请求错误 ${apiResult.code}: ${ro.url}`,
+      message: `请求错误 ${apiResult.code}: ${options.url}`,
       description: apiResult.desc,
     });
     if (apiResult.code === 103 || apiResult.code === 104) {
@@ -88,32 +88,33 @@ export interface RequestOptions {
   isAll?: boolean;// 是否返回api整个对象，默认false
   successCallback?: Function;
   failCallback?: Function;
+  headers?: {},
 }
 
 export const get = (options: RequestOptions) => {
   const optionsInit = {
     data: options.payload,
-    headers: { 'access_token': localStorage.getItem('access_token') },
+    headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
-  return request.get(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
+  return MKRequest.get(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 export const post = (options: RequestOptions) => {
   const optionsInit = {
     data: options.payload,
-    headers: { 'access_token': localStorage.getItem('access_token') },
+    headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
 
-  return request.post(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
+  return MKRequest.post(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 export const put = (options: RequestOptions) => {
   const optionsInit = {
     data: options.payload,
-    headers: { 'access_token': localStorage.getItem('access_token') },
+    headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
-  return request.put(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
+  return MKRequest.put(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 
-export default request;
+export default MKRequest;

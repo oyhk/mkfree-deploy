@@ -2,7 +2,6 @@ import { Effect, Reducer, Subscription } from '@@/plugin-dva/connect';
 import * as userService from '@/services/UserService';
 import { history, useSelector } from 'umi';
 import routes from '@/routes';
-import { ModelType } from '@/models/ModelType';
 
 /**
  * 用户ModelState
@@ -44,7 +43,6 @@ const UserModel: UserModelType = {
         localStorage.setItem('username', apiResult.result.username);
         history.push(routes.pageRoutes.projectIndex);
       } else {
-
         yield put({
           type: 'save',
           payload: {

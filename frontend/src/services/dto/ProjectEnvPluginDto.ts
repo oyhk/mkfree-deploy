@@ -1,9 +1,9 @@
 import { BaseDto } from '@/services/dto/BaseDto';
 
 /**
- * 项目扩展表，用于插件管理
+ * 项目环境插件表，用于插件管理
  */
-export interface ProjectEnvPlugin extends BaseDto {
+export interface ProjectEnvPluginDto extends BaseDto {
 
 
   projectId: number;

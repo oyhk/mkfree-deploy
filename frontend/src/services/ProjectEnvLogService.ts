@@ -1,4 +1,4 @@
-import { get, RequestOptions } from '@/utils/request';
+import { get, RequestOptions } from '@/utils/MKRequest';
 import routes from '@/routes';
 
 export async function list(options: RequestOptions) {
