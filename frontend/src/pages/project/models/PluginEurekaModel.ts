@@ -7,6 +7,7 @@ import routes from '@/routes';
 import { ProjectEnvPluginDto } from '@/services/dto/ProjectEnvPluginDto';
 import { Base64 } from 'js-base64';
 import { PluginEurekaApplication } from '@/services/plugin/PluginEurekaDto';
+import { notification } from 'antd';
 
 
 /**
@@ -23,6 +24,9 @@ export interface PluginEurekaModelState {
     name: string
   };
   eureka?: PluginEurekaApplication;
+
+  projectEnvPlugin?: ProjectEnvPluginDto;
+
 }
 
 
@@ -32,6 +36,7 @@ interface PluginEurekaModelType {
   effects: {
     index: Effect,
     close: Effect,
+    statusChange: Effect,
   };
   reducers: {
     save: Reducer<PluginEurekaModelState>;
@@ -46,8 +51,6 @@ const PluginEurekaModel: PluginEurekaModelType = {
   },
   effects: {
     * index({ payload }, { call, put }) {
-
-      console.log('index', payload);
 
       const projectEnvPlugin: ProjectEnvPluginDto = yield call(projectEnvPluginService.info, {
         payload: {
@@ -65,8 +68,6 @@ const PluginEurekaModel: PluginEurekaModelType = {
         },
       });
       pluginEurekaApplication.application.instance = pluginEurekaApplication?.application?.instance?.sort((one, two) => (one.instanceId < two.instanceId ? -1 : 1));
-      console.log(pluginEurekaApplication);
-
       yield put({
         type: 'save',
         payload: {
@@ -80,6 +81,7 @@ const PluginEurekaModel: PluginEurekaModelType = {
             name: payload.envName,
           },
           eureka: pluginEurekaApplication,
+          projectEnvPlugin,
         },
       });
     },
@@ -90,8 +92,35 @@ const PluginEurekaModel: PluginEurekaModelType = {
           visible: false,
           project: undefined,
           env: undefined,
+          eureka: undefined,
         },
       });
+    },
+    * statusChange({ payload }, { call, put, select }) {
+
+      const projectEnvPlugin = yield select((state: any) => state.pluginEureka.projectEnvPlugin);
+      console.log('projectEnvPlugin', projectEnvPlugin);
+
+      yield call(pluginEurekaService.statusChange, {
+        url: `${projectEnvPlugin.eurekaUrl}/eureka/apps/${payload.app}/${payload.instanceId}/status?value=${payload.status}`,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${Base64.encode(projectEnvPlugin.eurekaUsername + ':' + projectEnvPlugin.eurekaPassword)}`,
+        },
+      });
+
+      notification.success({
+        message: `修改项目状态，操作成功`,
+        description: 'Eureka 项目状态稍有延迟，系统将自动刷新状态，请稍等。',
+      });
+
+      // yield put({
+      //   type: 'save',
+      //   payload: {
+      //     eureka: undefined,
+      //   },
+      // });
     },
   },
   reducers: {

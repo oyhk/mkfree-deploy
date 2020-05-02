@@ -2,7 +2,7 @@ interface PluginEurekaApplicationInstanceMetadata {
   systemVersion: string;
 }
 
-interface PluginEurekaApplicationInstance {
+export interface PluginEurekaApplicationInstance {
   actionType: string;
   app: string;
   countryId: number;
@@ -17,6 +17,7 @@ interface PluginEurekaApplicationInstance {
   metadata: PluginEurekaApplicationInstanceMetadata;
   status: string;
   'management.port': string;
+  operation: PluginEurekaApplicationInstance;
 }
 
 export interface PluginEurekaApplication {
@@ -25,3 +26,9 @@ export interface PluginEurekaApplication {
     instance: PluginEurekaApplicationInstance[]
   }
 }
+
+
+export const PluginEurekaApplicationInstanceStatus = {
+  UP: 'UP', // 项目上线
+  OUT_OF_SERVICE: 'OUT_OF_SERVICE', // 项目下线
+};

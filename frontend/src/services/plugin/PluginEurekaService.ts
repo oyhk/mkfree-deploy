@@ -8,12 +8,31 @@ export interface EurekaRequestOptions {
 }
 
 /**
- * Eureka项目列表
+ * Eureka 项目列表
  * @param options
  */
 export async function list(options: EurekaRequestOptions) {
   const optionsInit = {
     headers: options.headers,
   } as RequestOptionsInit;
-  return Request.get(options.url, optionsInit);
+  try {
+    return Request.get(options.url, optionsInit);
+  }catch (e) {
+    console.log(e);
+  }
+}
+
+/**
+ * Eureka 状态变更
+ * @param options
+ */
+export async function statusChange(options: EurekaRequestOptions) {
+  const optionsInit = {
+    headers: options.headers,
+  } as RequestOptionsInit;
+  try {
+    return Request.put(options.url, optionsInit);
+  }catch (e) {
+    console.log(e);
+  }
 }
