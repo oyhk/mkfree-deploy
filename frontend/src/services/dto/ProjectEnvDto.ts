@@ -10,10 +10,14 @@ import { ProjectEnvPluginDto } from '@/services/dto/ProjectEnvPluginDto';
 export interface ProjectEnvDto extends BaseDto {
   // 项目id
   projectId: number;
+  projectName:string;
   // 环境id
   envId: number;
+  envName: string;
   // 插件名称，唯一标识
   pluginName: string;
+
+  projectEnvServerList: ProjectEnvServerDto[];
 
   // eureka start
   // eureka 网关
