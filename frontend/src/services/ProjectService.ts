@@ -3,7 +3,7 @@ import routes from '@/routes';
 import { ProjectDto } from '@/services/dto/ProjectDto';
 
 export async function page(payload: ProjectDto) {
-  return get({ url: `${routes.apiRoutes.projectPage}?pageNo=${payload.pageNo}&pageSize=10000` });
+  return get({ url: `${routes.apiRoutes.projectPage}?pageNo=0&pageSize=10000` });
 }
 
 export async function info(payload: ProjectDto) {
