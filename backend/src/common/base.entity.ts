@@ -9,9 +9,7 @@ export class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
   @Exclude()
-  @CreateDateColumn()
   createdAt: Date;
-  @UpdateDateColumn()
   @Exclude()
   updatedAt: Date;
 
@@ -22,5 +20,26 @@ export class BaseEntity {
   @Expose()
   get createdAtText(): string {
     return moment(this.createdAt).format('YYYY-MM-DD HH:mm:ss');
+  }
+
+  static getPageNo(pageNo) {
+    if (!pageNo) {
+      pageNo = 0;
+    } else {
+      pageNo = pageNo > 0 ? pageNo - 1 : 0;
+    }
+    return pageNo;
+  }
+
+  static getOffset(pageNo, pageSize) {
+    return pageNo * pageSize;
+
+  }
+
+  static getPageSize(pageSize) {
+    if (!pageSize) {
+      pageSize = 10;
+    }
+    return pageSize;
   }
 }

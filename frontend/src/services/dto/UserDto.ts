@@ -7,4 +7,5 @@ export interface UserDto extends BaseDto {
   username: string;
   password: string;
   accessToken: string;
+  roleType: 'superAdmin' | 'admin' | 'common';
 }

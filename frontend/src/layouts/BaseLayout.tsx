@@ -40,15 +40,43 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
             },
             {
               icon: <TableOutlined/>,
-              name: '项目管理',
+              name: '项目',
               key: 'project',
               path: routes.pageRoutes.projectIndex,
+              children: [
+                {
+                  name: '项目编辑',
+                  key: 'projectEdit',
+                  path: routes.pageRoutes.projectEdit,
+                  hideInMenu: true,
+                },
+                {
+                  name: '项目创建',
+                  key: 'projectCreate',
+                  path: routes.pageRoutes.projectCreate,
+                  hideInMenu: true,
+                },
+                {
+                  name: '项目环境日志',
+                  key: 'projectEnvLog',
+                  path: routes.pageRoutes.projectEnvLogIndex,
+                  hideInMenu: true,
+                },
+              ],
             },
             {
-              name: '项目环境日志',
-              key: 'projectEnvLog',
-              path: routes.pageRoutes.projectEnvLogIndex,
-              hideInMenu:true
+              icon: <UserOutlined/>,
+              name: '用户',
+              key: 'user',
+              path: routes.pageRoutes.userIndex,
+              children: [
+                {
+                  name: '用户创建',
+                  key: 'userCreate',
+                  path: routes.pageRoutes.userCreate,
+                  hideInMenu: true,
+                },
+              ],
             },
           ]
         );
@@ -67,7 +95,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
             <Menu
               onClick={() => {
                 dispatch({
-                  type:'user/logout'
+                  type: 'user/logout',
                 });
               }}
             >

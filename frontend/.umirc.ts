@@ -41,8 +41,9 @@ const config: IConfig = {
             // 项目模块
             {
               path: routes.pageRoutes.projectIndex,
-              title: '项目模块',
+              title: '项目',
               routes: [
+                // 项目模块
                 {
                   title: '项目管理',
                   path: routes.pageRoutes.projectIndex,
@@ -58,7 +59,6 @@ const config: IConfig = {
                   path: routes.pageRoutes.projectCreate,
                   component: '@/pages/project/ProjectCreate',
                 },
-
                 // 项目环境日志模块
                 {
                   path: routes.pageRoutes.projectEnvLogIndex,
@@ -69,10 +69,25 @@ const config: IConfig = {
                   path: routes.pageRoutes.projectEnvLogInfo,
                   title: '项目环境日志',
                   component: '@/pages/project/ProjectEnvLogIndex',
-                }
+                },
               ],
             },
-
+            {
+              path: routes.pageRoutes.userIndex,
+              title: '用户',
+              routes: [
+                {
+                  path: routes.pageRoutes.userIndex,
+                  title: '用户',
+                  component: '@/pages/user/UserIndex',
+                },
+                {
+                  path: routes.pageRoutes.userCreate,
+                  title: '用户创建',
+                  component: '@/pages/user/UserCreate',
+                },
+              ],
+            },
           ],
         },
       ],

@@ -33,13 +33,12 @@ export class UserController {
 
 
   @Get('/api/users/page')
-  @UseInterceptors(ClassSerializerInterceptor)
-  async page(@Query() userDto: UserDto) {
+  async page(@Query() userDto: UserDto, @Res() res: Response) {
     const r = new ApiResult();
     const page = new Page<User>();
-    await this.userRepository.createQueryBuilder('u')
-      .skip(userDto.pageNo - 1)
-      .take(userDto.pageSize)
+    await this.userRepository.createQueryBuilder('u').select(['u.username', 'u.roleType'])
+      .skip(UserDto.getOffset(UserDto.getPageNo(userDto.pageNo), UserDto.getPageSize(userDto.pageSize)))
+      .take(UserDto.getPageSize(userDto.pageSize))
       .getManyAndCount()
       .then(value => {
         page.data = value[0];
@@ -50,13 +49,20 @@ export class UserController {
     // 分页总数，总记录数 / 页条数，当存在小数点，使用了 Math.ceil 直接网上取整数
     page.totalPage = Math.ceil(page.total / page.pageSize);
     r.result = page;
-    return r;
+    return res.json(r);
   }
 
   @Post('/api/users/save')
   async save(@Body() dto: UserDto, @Res() res: Response) {
     const r = new ApiResult();
-    let user: User = new User();
+
+    let user = await this.userRepository.findOne({ username: dto.username });
+    if (user) {
+      r.remind(ApiResultCode['105']);
+      return res.json(r);
+    }
+
+    user = new User();
     user.username = dto.username;
     user.roleType = dto.roleType;
     user.passwordSalt = UUID();

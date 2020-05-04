@@ -9,11 +9,15 @@ export default {
     projectEnvLogIndex: '/project/:projectId/env/:envId/log',
     projectEnvLogInfo: '/project/:projectId/env/:envId/log/:seq',
     projectEnvLogInfoParams: (projectId: any, envId: any, seq?: any) => {
+      let value = `/project/${projectId}/env/${envId}/log`;
       if (seq)
-        return `/project/${projectId}/env/${envId}/log/${seq}`;
-      else
-        return `/project/${projectId}/env/${envId}/log`;
+        value = `/project/${projectId}/env/${envId}/log/${seq}`;
+      return value;
     },
+    userIndex: '/user',
+    userCreate: '/user/create',
+    userEdit: '/user/edit/:id',
+    userEditParams: (id: any) => `/user/edit/${id}`,
     userLogin: '/user/login',
 
 
