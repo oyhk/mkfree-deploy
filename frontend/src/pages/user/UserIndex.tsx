@@ -13,7 +13,7 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { Link, useParams, useLocation } from 'umi';
 import routes from '@/routes';
-import { UserAddOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { UserAddOutlined, LeftOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { ApiResult } from '@/services/ApiResult';
 import { PageResult } from '@/services/PageResult';
 import { UserDto } from '@/services/dto/UserDto';
@@ -107,7 +107,7 @@ export default () => {
         rowKey="username"
         dataSource={page.data?.list}
         toolBarRender={() => [
-          <Link to={routes.pageRoutes.userCreate}><UserAddOutlined/> 添加用户</Link>,
+          <Link to={routes.pageRoutes.userCreate}><PlusOutlined/> 添加用户</Link>,
         ]}
         pagination={{
           ...page.pagination,

@@ -72,6 +72,7 @@ const config: IConfig = {
                 },
               ],
             },
+            // 用户模块
             {
               path: routes.pageRoutes.userIndex,
               title: '用户',
@@ -90,6 +91,28 @@ const config: IConfig = {
                   path: routes.pageRoutes.userEdit,
                   title: '用户编辑',
                   component: '@/pages/user/UserEdit',
+                },
+              ],
+            },
+            // 服务器模块
+            {
+              path: routes.pageRoutes.serverIndex,
+              title: '服务器',
+              routes: [
+                {
+                  path: routes.pageRoutes.serverIndex,
+                  title: '服务器',
+                  component: '@/pages/server/ServerIndex',
+                },
+                {
+                  path: routes.pageRoutes.serverCreate,
+                  title: '服务器创建',
+                  component: '@/pages/server/ServerCreate',
+                },
+                {
+                  path: routes.pageRoutes.serverEdit,
+                  title: '服务器编辑',
+                  component: '@/pages/server/ServerEdit',
                 },
               ],
             },

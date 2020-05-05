@@ -1,4 +1,10 @@
 const gateway = 'http://localhost:5000';
+export const HttpMethod = {
+  GET: 'get',
+  POST: 'post',
+  PUT: 'put',
+  DELETE: 'delete',
+};
 export default {
 
   // 页面路由
@@ -21,12 +27,16 @@ export default {
     userEdit: '/user/edit/:id',
     userEditParams: (id: any) => `/user/edit/${id}`,
     userLogin: '/user/login',
+    serverIndex: '/server',
+    serverCreate: '/server/create',
+    serverEdit: '/server/edit/:id',
+    serverEditParams: (id: any) => `/server/edit/${id}`,
 
 
   },
   // api
   apiRoutes: {
-    projectPage: gateway  + '/api/projects/page',
+    projectPage: gateway + '/api/projects/page',
     projectInfo: gateway + '/api/projects/info',
     projectSave: gateway + '/api/projects/save',
     projectUpdate: gateway + '/api/projects/update',
@@ -35,7 +45,7 @@ export default {
     projectSync: gateway + '/api/projects/sync',
     projectInit: gateway + '/api/projects/init',
     projectRefreshBranch: gateway + '/api/projects/refreshBranch',
-    envList: gateway + '/api/envs/list',
+    envList: { url: gateway + '/api/envs/list', method: HttpMethod.GET },
     serverList: gateway + '/api/servers/list',
     projectEnvList: gateway + '/api/projectEnvs/list',
     projectEnvInfo: gateway + '/api/projectEnvs/info',
@@ -48,6 +58,11 @@ export default {
     userInfo: gateway + '/api/users/info',
     userDelete: gateway + '/api/users/delete',
     userUpdate: gateway + '/api/users/update',
+    serverPage: gateway + '/api/servers/page',
+    serverUpdate: { url: gateway + '/api/servers/update', method: HttpMethod.PUT },
+    serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.POST },
+    serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.GET },
+    serverDelete: { url: gateway + '/api/servers/delete', method: HttpMethod.DELETE },
   },
 };
 

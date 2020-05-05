@@ -1,5 +1,5 @@
 import React from 'react';
-import { SmileOutlined, TableOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
+import { SmileOutlined, TableOutlined, UserOutlined, DownOutlined, CloudServerOutlined } from '@ant-design/icons';
 import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
 import { Link, connect } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
@@ -80,6 +80,21 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
                   name: '用户编辑',
                   key: 'userEdit',
                   path: routes.pageRoutes.userEdit,
+                  hideInMenu: true,
+                },
+              ],
+            },
+            // 服务器
+            {
+              icon: <CloudServerOutlined/>,
+              name: '服务器',
+              key: 'server',
+              path: routes.pageRoutes.serverIndex,
+              children: [
+                {
+                  name: '服务器创建',
+                  key: 'serverCreate',
+                  path: routes.pageRoutes.serverCreate,
                   hideInMenu: true,
                 },
               ],
