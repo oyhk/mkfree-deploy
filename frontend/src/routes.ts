@@ -58,7 +58,7 @@ export default {
     userInfo: gateway + '/api/users/info',
     userDelete: gateway + '/api/users/delete',
     userUpdate: gateway + '/api/users/update',
-    serverPage: gateway + '/api/servers/page',
+    serverPage: { url: gateway + '/api/servers/page', method: HttpMethod.GET },
     serverUpdate: { url: gateway + '/api/servers/update', method: HttpMethod.PUT },
     serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.POST },
     serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.GET },

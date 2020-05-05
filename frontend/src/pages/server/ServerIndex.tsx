@@ -15,8 +15,8 @@ export default () => {
 
   const pageResult = useRequest<ApiResult<PageResult<ServerDto>>>(({ current, pageSize }) => {
       return ({
-        url: `${routes.apiRoutes.serverPage}?pageNo=${current}&pageSize=${pageSize}`,
-        method: 'get',
+        url: `${routes.apiRoutes.serverPage.url}?pageNo=${current}&pageSize=${pageSize}`,
+        method: routes.apiRoutes.serverPage.method,
         headers: {
           access_token: localStorage.getItem('access_token'),
         },

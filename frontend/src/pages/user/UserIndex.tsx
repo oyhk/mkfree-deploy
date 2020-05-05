@@ -23,7 +23,7 @@ import { history } from '@@/core/history';
 
 export default () => {
 
-  const page = useRequest<ApiResult<PageResult<UserDto>>>(({ current, pageSize }) => {
+  const page = useRequest<ApiResult<PageResult<UserDto>>>(({ current, pageSize=20 }) => {
       return ({
         url: `${routes.apiRoutes.userPage}?pageNo=${current}&pageSize=${pageSize}`,
         method: 'get',
