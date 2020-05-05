@@ -8,9 +8,12 @@ import * as moment from 'moment';
 export class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-  @Exclude()
+  // @Exclude()
+  @CreateDateColumn()
   createdAt: Date;
-  @Exclude()
+
+  // @Exclude()
+  @UpdateDateColumn()
   updatedAt: Date;
 
   // 分页字段

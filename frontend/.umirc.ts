@@ -86,6 +86,11 @@ const config: IConfig = {
                   title: '用户创建',
                   component: '@/pages/user/UserCreate',
                 },
+                {
+                  path: routes.pageRoutes.userEdit,
+                  title: '用户编辑',
+                  component: '@/pages/user/UserEdit',
+                },
               ],
             },
           ],

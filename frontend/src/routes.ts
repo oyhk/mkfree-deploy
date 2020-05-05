@@ -1,4 +1,6 @@
+const gateway = 'http://localhost:5000';
 export default {
+
   // 页面路由
   pageRoutes: {
     root: '/',
@@ -24,23 +26,28 @@ export default {
   },
   // api
   apiRoutes: {
-    projectPage: '/api/projects/page',
-    projectInfo: '/api/projects/info',
-    projectSave: '/api/projects/save',
-    projectUpdate: '/api/projects/update',
-    projectDeleted: '/api/projects/deleted',
-    projectBuild: '/api/projects/build',
-    projectSync: '/api/projects/sync',
-    projectInit: '/api/projects/init',
-    projectRefreshBranch: '/api/projects/refreshBranch',
-    envList: '/api/envs/list',
-    serverList: '/api/servers/list',
-    projectEnvList: '/api/projectEnvs/list',
-    projectEnvInfo: '/api/projectEnvs/info',
-    projectEnvPluginInfo: '/api/projectEnvPlugins/info',
-    projectEnvLogList: '/api/projectEnvLogs/list',
-    projectEnvLogInfo: '/api/projectEnvLogs/info',
-    userLogin: '/api/users/login',
+    projectPage: gateway  + '/api/projects/page',
+    projectInfo: gateway + '/api/projects/info',
+    projectSave: gateway + '/api/projects/save',
+    projectUpdate: gateway + '/api/projects/update',
+    projectDeleted: gateway + '/api/projects/deleted',
+    projectBuild: gateway + '/api/projects/build',
+    projectSync: gateway + '/api/projects/sync',
+    projectInit: gateway + '/api/projects/init',
+    projectRefreshBranch: gateway + '/api/projects/refreshBranch',
+    envList: gateway + '/api/envs/list',
+    serverList: gateway + '/api/servers/list',
+    projectEnvList: gateway + '/api/projectEnvs/list',
+    projectEnvInfo: gateway + '/api/projectEnvs/info',
+    projectEnvPluginInfo: gateway + '/api/projectEnvPlugins/info',
+    projectEnvLogList: gateway + '/api/projectEnvLogs/list',
+    projectEnvLogInfo: gateway + '/api/projectEnvLogs/info',
+    userLogin: gateway + '/api/users/login',
+    userPage: gateway + '/api/users/page',
+    userSave: gateway + '/api/users/save',
+    userInfo: gateway + '/api/users/info',
+    userDelete: gateway + '/api/users/delete',
+    userUpdate: gateway + '/api/users/update',
   },
 };
 

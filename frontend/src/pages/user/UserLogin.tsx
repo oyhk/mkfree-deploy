@@ -77,4 +77,4 @@ const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
 
   );
 };
-export default connect(({ user }: UserPageProps) => ({ user: userIndex }))(UserLogin);
+export default connect(({ user }: UserPageProps) => ({ user }))(UserLogin);

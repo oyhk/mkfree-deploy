@@ -76,6 +76,12 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
                   path: routes.pageRoutes.userCreate,
                   hideInMenu: true,
                 },
+                {
+                  name: '用户编辑',
+                  key: 'userEdit',
+                  path: routes.pageRoutes.userEdit,
+                  hideInMenu: true,
+                },
               ],
             },
           ]

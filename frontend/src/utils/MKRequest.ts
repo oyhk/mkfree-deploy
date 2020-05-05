@@ -96,7 +96,7 @@ export const get = (options: RequestOptions) => {
     data: options.payload,
     headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
-  return MKRequest.get(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
+  return MKRequest.get(`${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 export const post = (options: RequestOptions) => {
@@ -105,7 +105,7 @@ export const post = (options: RequestOptions) => {
     headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
 
-  return MKRequest.post(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
+  return MKRequest.post(`${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 export const put = (options: RequestOptions) => {
@@ -113,7 +113,7 @@ export const put = (options: RequestOptions) => {
     data: options.payload,
     headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
   } as RequestOptionsInit;
-  return MKRequest.put(`http://localhost:5000${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
+  return MKRequest.put(`${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
 
 

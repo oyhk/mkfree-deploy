@@ -7,6 +7,8 @@ import * as crypto from 'crypto';
 @Entity()
 export class User extends BaseEntity {
 
+  static entityName = 'User';
+
   @Column({ unique: true })
   username: string;
   @Column()

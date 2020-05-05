@@ -1,7 +1,7 @@
 import {
   Body,
   ClassSerializerInterceptor,
-  Controller,
+  Controller, Delete,
   Get, Inject,
   Post,
   Put,
@@ -34,9 +34,9 @@ export class UserController {
 
   @Get('/api/users/page')
   async page(@Query() userDto: UserDto, @Res() res: Response) {
-    const r = new ApiResult();
+    const ar = new ApiResult();
     const page = new Page<User>();
-    await this.userRepository.createQueryBuilder('u').select(['u.username', 'u.roleType'])
+    await this.userRepository.createQueryBuilder('u').select(['u.id', 'u.username', 'u.roleType', 'u.createdAt'])
       .skip(UserDto.getOffset(UserDto.getPageNo(userDto.pageNo), UserDto.getPageSize(userDto.pageSize)))
       .take(UserDto.getPageSize(userDto.pageSize))
       .getManyAndCount()
@@ -48,8 +48,24 @@ export class UserController {
     page.pageSize = userDto.pageSize;
     // 分页总数，总记录数 / 页条数，当存在小数点，使用了 Math.ceil 直接网上取整数
     page.totalPage = Math.ceil(page.total / page.pageSize);
-    r.result = page;
-    return res.json(r);
+    ar.result = page;
+    return res.json(ar);
+  }
+
+  @Get('/api/users/info')
+  async info(@Query() userDto: UserDto, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    const user = await this.userRepository.findOne(userDto.id);
+    if (!user) {
+      ar.remindRecordNotExist(User.entityName, { id: userDto.id });
+      return res.json(ar);
+    }
+    user.passwordSalt = undefined;
+    user.password = undefined;
+    user.updatedAt = undefined;
+    ar.result = user;
+    return res.json(ar);
   }
 
   @Post('/api/users/save')
@@ -85,6 +101,21 @@ export class UserController {
       user.password = User.getMd5Password(user.passwordSalt, dto.password);
     }
     await this.userRepository.save(user);
+    return res.json(new ApiResult());
+  }
+
+  @Delete('/api/users/delete')
+  async delete(@Body() dto: UserDto, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    const user = await this.userRepository.findOne(dto.id);
+    if (!user) {
+      ar.remindRecordNotExist(User.entityName, { id: dto.id });
+      return res.json(ar);
+    }
+
+    await this.userRepository.delete(dto.id);
+
     return res.json(new ApiResult());
   }
 
