@@ -22,7 +22,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
         return (
           [
             {
-              path: '/',
+              path: routes.pageRoutes.root,
               breadcrumbName: '首页',
             },
             ...routers,
@@ -36,7 +36,7 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
               icon: <SmileOutlined/>,
               name: '欢迎',
               key: 'welcome',
-              path: '/',
+              path: routes.pageRoutes.root,
             },
             {
               icon: <TableOutlined/>,

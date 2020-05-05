@@ -6,6 +6,7 @@ import routes from '@/routes';
 import { ApiResult } from '@/services/ApiResult';
 import ServerForm from './ServerForm';
 import { ServerDto } from '@/services/dto/ServerDto';
+import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
 
 
 export default () => {
@@ -15,7 +16,7 @@ export default () => {
     url: `${routes.apiRoutes.serverInfo.url}?id=${params?.id}`,
     method: routes.apiRoutes.serverInfo.method,
     headers: {
-      access_token: localStorage.getItem('access_token'),
+      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
     },
   }), { manual: false });
 

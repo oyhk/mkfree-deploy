@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
-import { useFormTable, useRequest } from '@umijs/hooks';
+import React  from 'react';
+import { useRequest } from '@umijs/hooks';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import ProTable from '@ant-design/pro-table';
 import { useParams } from 'umi';
 import routes from '@/routes';
-import { UserAddOutlined } from '@ant-design/icons';
-import { UserDto } from '@/services/dto/UserDto';
-import { Button, Form, Input, notification, Select } from 'antd';
+import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
 import { ApiResult } from '@/services/ApiResult';
 import UserForm from '@/pages/user/UserForm';
 
@@ -18,7 +15,7 @@ export default () => {
     url: `${routes.apiRoutes.userInfo}?id=${params?.id}`,
     method: 'get',
     headers: {
-      access_token: localStorage.getItem('access_token'),
+      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
     },
   }), { manual: false });
 

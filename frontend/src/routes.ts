@@ -1,4 +1,5 @@
 const gateway = 'http://localhost:5000';
+const pageRoot = '/mkfree-deploy';
 export const HttpMethod = {
   GET: 'get',
   POST: 'post',
@@ -9,28 +10,28 @@ export default {
 
   // 页面路由
   pageRoutes: {
-    root: '/',
-    projectIndex: '/project',
-    projectEdit: '/project/edit/:id',
-    projectEditParams: (id: any) => `/project/edit/${id}`,
-    projectCreate: '/project/create',
-    projectEnvLogIndex: '/project/:projectId/env/:envId/log',
-    projectEnvLogInfo: '/project/:projectId/env/:envId/log/:seq',
+    root: pageRoot,
+    projectIndex: pageRoot + '/project',
+    projectEdit: pageRoot + '/project/edit/:id',
+    projectEditParams: (id: any) => pageRoot + `/project/edit/${id}`,
+    projectCreate: pageRoot + '/project/create',
+    projectEnvLogIndex: pageRoot + '/project/:projectId/env/:envId/log',
+    projectEnvLogInfo: pageRoot + '/project/:projectId/env/:envId/log/:seq',
     projectEnvLogInfoParams: (projectId: any, envId: any, seq?: any) => {
-      let value = `/project/${projectId}/env/${envId}/log`;
+      let value = pageRoot + `/project/${projectId}/env/${envId}/log`;
       if (seq)
-        value = `/project/${projectId}/env/${envId}/log/${seq}`;
+        value = pageRoot + `/project/${projectId}/env/${envId}/log/${seq}`;
       return value;
     },
-    userIndex: '/user',
-    userCreate: '/user/create',
-    userEdit: '/user/edit/:id',
-    userEditParams: (id: any) => `/user/edit/${id}`,
-    userLogin: '/user/login',
-    serverIndex: '/server',
-    serverCreate: '/server/create',
-    serverEdit: '/server/edit/:id',
-    serverEditParams: (id: any) => `/server/edit/${id}`,
+    userIndex: pageRoot + '/user',
+    userCreate: pageRoot + '/user/create',
+    userEdit: pageRoot + '/user/edit/:id',
+    userEditParams: (id: any) => pageRoot + `/user/edit/${id}`,
+    userLogin: pageRoot + '/user/login',
+    serverIndex: pageRoot + '/server',
+    serverCreate: pageRoot + '/server/create',
+    serverEdit: pageRoot + '/server/edit/:id',
+    serverEditParams: (id: any) => pageRoot+`/server/edit/${id}`,
 
 
   },

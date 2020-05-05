@@ -20,7 +20,7 @@ const config: IConfig = {
   crossorigin: true,
   routes: [
     {
-      path: '/',
+      path: routes.pageRoutes.root,
       component: '@/layouts/BlankLayout',
       routes: [
         {
@@ -29,12 +29,12 @@ const config: IConfig = {
           component: '@/pages/user/UserLogin',
         },
         {
-          path: '/',
+          path: routes.pageRoutes.root,
           component: '@/layouts/BaseLayout',
           routes: [
             // 欢迎模块
             {
-              path: '/',
+              path: routes.pageRoutes.root,
               title: '欢迎',
               component: '@/pages/Welcome',
             },

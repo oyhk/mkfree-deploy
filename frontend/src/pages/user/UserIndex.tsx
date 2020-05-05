@@ -16,7 +16,7 @@ import routes from '@/routes';
 import { UserAddOutlined, LeftOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { ApiResult } from '@/services/ApiResult';
 import { PageResult } from '@/services/PageResult';
-import { UserDto } from '@/services/dto/UserDto';
+import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
 import { Button, notification } from 'antd';
 import { history } from '@@/core/history';
 
@@ -28,7 +28,7 @@ export default () => {
         url: `${routes.apiRoutes.userPage}?pageNo=${current}&pageSize=${pageSize}`,
         method: 'get',
         headers: {
-          access_token: localStorage.getItem('access_token'),
+          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
         },
       });
     },
@@ -47,7 +47,7 @@ export default () => {
     url: routes.apiRoutes.userDelete,
     method: 'delete',
     headers: {
-      access_token: localStorage.getItem('access_token'),
+      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
     },
     data: { id, username },
   }), {

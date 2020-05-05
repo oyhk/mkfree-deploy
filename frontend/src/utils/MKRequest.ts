@@ -7,6 +7,7 @@ import { notification } from 'antd';
 import { ApiResult } from '@/services/ApiResult';
 import { history } from 'umi';
 import routes from '@/routes';
+import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -94,7 +95,7 @@ export interface RequestOptions {
 export const get = (options: RequestOptions) => {
   const optionsInit = {
     data: options.payload,
-    headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
+    headers: { ...options.headers, access_token: localStorage.getItem(ACCESS_TOKEN_KEY) },
   } as RequestOptionsInit;
   return MKRequest.get(`${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };
@@ -102,7 +103,7 @@ export const get = (options: RequestOptions) => {
 export const post = (options: RequestOptions) => {
   const optionsInit = {
     data: options.payload,
-    headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
+    headers: { ...options.headers, access_token: localStorage.getItem(ACCESS_TOKEN_KEY) },
   } as RequestOptionsInit;
 
   return MKRequest.post(`${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
@@ -111,7 +112,7 @@ export const post = (options: RequestOptions) => {
 export const put = (options: RequestOptions) => {
   const optionsInit = {
     data: options.payload,
-    headers: { ...options.headers, 'access_token': localStorage.getItem('access_token') },
+    headers: { ...options.headers, access_token: localStorage.getItem(ACCESS_TOKEN_KEY) },
   } as RequestOptionsInit;
   return MKRequest.put(`${options.url}`, optionsInit).then((apiResult: ApiResult<any>) => requestThen(options, apiResult));
 };

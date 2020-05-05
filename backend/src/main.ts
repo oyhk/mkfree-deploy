@@ -2,9 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AuthInterceptor } from './auth-interceptor';
 import { JwtService } from '@nestjs/jwt';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { doc } from 'prettier';
+import join = doc.builders.join;
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['debug', 'log', 'error', 'warn', 'verbose'],
   });
   // 用户登录认证、权限检查
@@ -19,6 +22,11 @@ async function bootstrap(): Promise<void> {
     optionsSuccessStatus: 204,
     preflightContinue: false,
   });
+
+  app.useStaticAssets('public');
+  app.setBaseViewsDir('views');
+  app.setViewEngine('hbs');
+
   await app.listen(5000);
 }
 

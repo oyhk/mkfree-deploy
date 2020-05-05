@@ -28,6 +28,7 @@
     "@nestjs/typeorm": "^7.0.0",
     "@nestjs/platform-socket.io": "^7.0.8",
     "@nestjs/websockets": "^7.0.8",
+    "hbs": "^4.1.1",
     "//": "websocket库",
     "class-transformer": "^0.2.3",
     "moment": "^2.24.0",

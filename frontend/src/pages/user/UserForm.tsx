@@ -2,7 +2,7 @@ import { Button, Form, Input, notification, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useRequest } from '@umijs/hooks';
 import { ApiResult } from '@/services/ApiResult';
-import { UserDto } from '@/services/dto/UserDto';
+import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
 import { history } from '@@/core/history';
 import routes from '@/routes';
 import { PageLoading } from '@ant-design/pro-layout';
@@ -34,7 +34,7 @@ export default (props: UserPageProps) => {
         url: url,
         method: method,
         headers: {
-          access_token: localStorage.getItem('access_token'),
+          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
         },
         data: payload,
       });
@@ -46,7 +46,7 @@ export default (props: UserPageProps) => {
           history.replace(routes.pageRoutes.userIndex);
           notification.success({
             message: `用户：${params[0]?.username}`,
-            description: '操作成功',
+            description: props.edit ? '修改操作成功':'添加成功',
           });
         } else {
           notification.error({

@@ -10,6 +10,7 @@ import { PageResult } from '@/services/PageResult';
 import { Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ServerDto } from '@/services/dto/ServerDto';
+import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
 
 export default () => {
 
@@ -18,7 +19,7 @@ export default () => {
         url: `${routes.apiRoutes.serverPage.url}?pageNo=${current}&pageSize=${pageSize}`,
         method: routes.apiRoutes.serverPage.method,
         headers: {
-          access_token: localStorage.getItem('access_token'),
+          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
         },
       });
     },
@@ -36,7 +37,7 @@ export default () => {
     url: routes.apiRoutes.serverDelete.url,
     method: routes.apiRoutes.serverDelete.method,
     headers: {
-      access_token: localStorage.getItem('access_token'),
+      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
     },
     data: { id, ip },
   }), {

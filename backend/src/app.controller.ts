@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Render } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -7,6 +7,12 @@ export class AppController {
   @Get('/')
   getHello(): string {
     return 'Mkfree Deploy Hello World!';
+  }
+
+  @Get('/mkfree-deploy***')
+  @Render('index')
+  root() {
+    return {};
   }
 
   @Post('/post')
