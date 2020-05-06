@@ -29,8 +29,6 @@ export class SystemController {
       ar.remind(ApiResultCode['11']);
       return res.json(ar);
     }
-
-
     return res.json(ar);
   }
 

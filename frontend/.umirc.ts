@@ -23,11 +23,25 @@ const config: IConfig = {
       path: routes.pageRoutes.root,
       component: '@/layouts/BlankLayout',
       routes: [
+        // 系统模块
+        {
+          path: routes.pageRoutes.installIndex,
+          title: '系统安装',
+          component: '@/layouts/BlankLayout1',
+          routes: [
+            {
+              path: routes.pageRoutes.installIndex,
+              title: '系统安装',
+              component: '@/pages/install/installIndex',
+            },
+          ],
+
+        },/*
         {
           path: routes.pageRoutes.installIndex,
           title: '系统安装',
           component: '@/pages/install/installIndex',
-        },
+        },*/
         {
           path: routes.pageRoutes.userLogin,
           title: '用户登录',

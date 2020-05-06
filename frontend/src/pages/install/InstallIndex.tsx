@@ -5,26 +5,19 @@ import logo from '@/assets/logo.svg';
 import { Footer } from '@/utils/ComponentUtils';
 import routes from '@/routes';
 import { useRequest } from '@umijs/hooks';
-import { ApiResult } from '@/services/ApiResult';
 import { history } from '@@/core/history';
-import { PageResult } from '@/services/PageResult';
-import { ServerDto } from '@/services/dto/ServerDto';
-import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
-import { Link } from 'umi';
+import * as installService from '@/services/InstallService';
+import { RequestOptions } from '@/services/InstallService';
 
 export default () => {
 
   const [step, setStep] = useState(0);
-  const installResult = useRequest(({ payload }) => ({
-    url: routes.apiRoutes.systemInstall.url,
-    method: routes.apiRoutes.systemInstall.method,
-    headers: {
-      'Content-Type': 'application/json',
-      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
-    },
+  const installResult = useRequest((payload) => ({
+    ...routes.apiRoutes.systemInstall,
     data: payload,
   }), {
     manual: true,
+    formatResult: (res => res),
     onSuccess: (data, params) => {
       console.log('onSuccess data', data);
       if (data.code === 1) {
@@ -59,7 +52,7 @@ export default () => {
             layout="horizontal"
             onFinish={(formValue) => {
               console.log('install form submit payload', formValue);
-              installResult.run({ payload: formValue });
+              installResult.run(formValue);
             }}
           >
 

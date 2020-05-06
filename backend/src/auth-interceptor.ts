@@ -21,6 +21,7 @@ export class AuthInterceptor implements NestInterceptor {
     const notAuthUrlList = [
       '/api/users/login',
       '/api/systems/install',
+      '/api/systems/installed',
     ];
     // 不需要认证url
     if (notAuthUrlList.includes(req.url)) {

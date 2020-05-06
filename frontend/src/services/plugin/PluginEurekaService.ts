@@ -15,11 +15,7 @@ export async function list(options: EurekaRequestOptions) {
   const optionsInit = {
     headers: options.headers,
   } as RequestOptionsInit;
-  try {
-    return Request.get(options.url, optionsInit);
-  }catch (e) {
-    console.log(e);
-  }
+  return Request.get(options.url, optionsInit);
 }
 
 /**
@@ -30,9 +26,5 @@ export async function statusChange(options: EurekaRequestOptions) {
   const optionsInit = {
     headers: options.headers,
   } as RequestOptionsInit;
-  try {
-    return Request.put(options.url, optionsInit);
-  }catch (e) {
-    console.log(e);
-  }
+  return Request.put(options.url, optionsInit);
 }

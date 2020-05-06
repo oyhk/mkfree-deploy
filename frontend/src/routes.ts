@@ -41,7 +41,10 @@ export default {
   // API
   apiRoutes: {
 
-    systemInstall: { url: gateway + '/api/systems/install', method: HttpMethod.POST },
+    systemInstall: {
+      url: gateway + '/api/systems/install',
+      method: HttpMethod.POST,
+    },
 
     projectPage: gateway + '/api/projects/page',
     projectInfo: gateway + '/api/projects/info',
