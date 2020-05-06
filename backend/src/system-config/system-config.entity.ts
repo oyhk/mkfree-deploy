@@ -21,11 +21,12 @@ export class SystemConfig extends BaseEntity {
 }
 
 export const SystemConfigKeys = {
-  installPath: 'installPath',
+  installPath: 'installPath', // 系统安装路径
+  installed: 'installed', // 系统是否安装，1 已安装，0/不存在 未安装
 };
 
 export const SystemConfigValues = {
   jobPath: '/jobs', // install_path/jobs （工作目录）
   logPath: '/logs', // install_path/logs（日志目录）
-  buildPath:'/builds' // install_path/builds （构建后目录）
+  buildPath: '/builds', // install_path/builds （构建后目录）
 };

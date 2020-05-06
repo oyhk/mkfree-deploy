@@ -1,3 +1,6 @@
+import { DefaultFooter } from '@ant-design/pro-layout';
+import React from 'react';
+
 /**
  * uuid 生成
  */
@@ -18,3 +21,4 @@ export const uuid = () => {
   }
   return uuidValue;
 };
+

@@ -24,6 +24,11 @@ const config: IConfig = {
       component: '@/layouts/BlankLayout',
       routes: [
         {
+          path: routes.pageRoutes.installIndex,
+          title: '系统安装',
+          component: '@/pages/install/installIndex',
+        },
+        {
           path: routes.pageRoutes.userLogin,
           title: '用户登录',
           component: '@/pages/user/UserLogin',

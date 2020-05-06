@@ -93,9 +93,13 @@ export class UserController {
   @Put('/api/users/update')
   async update(@Body() dto: UserDto, @Res() res: Response) {
     const user: User = await this.userRepository.findOne({ id: dto.id });
+    console.log(dto);
     if (dto.password) {
       user.passwordSalt = UUID();
       user.password = User.getMd5Password(user.passwordSalt, dto.password);
+    }
+    if (dto.roleType !== null) {
+      user.roleType = dto.roleType;
     }
     await this.userRepository.save(user);
     return res.json(new ApiResult());

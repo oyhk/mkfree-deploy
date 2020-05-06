@@ -160,7 +160,7 @@ export default (props: ServerPageProps) => {
 
       <Form.Item
         name="envId"
-        label="类型"
+        label="环境"
       >
         <Select>
           {envResult?.data?.result?.map((env: EnvDto) => <Select.Option value={env.id as number}>{env?.name}</Select.Option>)}

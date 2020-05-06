@@ -3,9 +3,10 @@ import { Form, Input, Button, Checkbox } from 'antd';
 import styles from '@/pages/user/UserLogin.less';
 import logo from '@/assets/logo.svg';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { DefaultFooter, PageLoading } from '@ant-design/pro-layout';
+import { PageLoading } from '@ant-design/pro-layout';
 import { connect } from 'umi';
 import { UserPageProps } from '@/pages/user/UserPageProps';
+import { Footer } from '@/utils/ComponentUtils';
 
 const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
   if (!dispatch) {
@@ -62,17 +63,7 @@ const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
           </Form>
         </div>
       </div>
-      <DefaultFooter
-        copyright="MKfree Deploy 2016-2020"
-        links={[
-          {
-            key: 'Mkfree Deploy',
-            title: 'Mkfree Deploy',
-            href: 'https://gitee.com/381895649/mkfree-deploy',
-            blankTarget: true,
-          },
-        ]}
-      />
+      {Footer}
     </div>
 
   );

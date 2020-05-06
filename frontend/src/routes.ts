@@ -11,6 +11,7 @@ export default {
   // 页面路由
   pageRoutes: {
     root: '/',
+    installIndex: pageRoot + '/install',
     projectIndex: pageRoot + '/project',
     projectEdit: pageRoot + '/project/edit/:id',
     projectEditParams: (id: any) => pageRoot + `/project/edit/${id}`,
@@ -23,11 +24,13 @@ export default {
         value = pageRoot + `/project/${projectId}/env/${envId}/log/${seq}`;
       return value;
     },
+
     userIndex: pageRoot + '/user',
     userCreate: pageRoot + '/user/create',
     userEdit: pageRoot + '/user/edit/:id',
     userEditParams: (id: any) => pageRoot + `/user/edit/${id}`,
     userLogin: pageRoot + '/user/login',
+
     serverIndex: pageRoot + '/server',
     serverCreate: pageRoot + '/server/create',
     serverEdit: pageRoot + '/server/edit/:id',
@@ -35,8 +38,11 @@ export default {
 
 
   },
-  // api
+  // API
   apiRoutes: {
+
+    systemInstall: { url: gateway + '/api/systems/install', method: HttpMethod.POST },
+
     projectPage: gateway + '/api/projects/page',
     projectInfo: gateway + '/api/projects/info',
     projectSave: gateway + '/api/projects/save',
@@ -46,19 +52,24 @@ export default {
     projectSync: gateway + '/api/projects/sync',
     projectInit: gateway + '/api/projects/init',
     projectRefreshBranch: gateway + '/api/projects/refreshBranch',
+
     envList: { url: gateway + '/api/envs/list', method: HttpMethod.GET },
+
     serverList: gateway + '/api/servers/list',
+
     projectEnvList: gateway + '/api/projectEnvs/list',
     projectEnvInfo: gateway + '/api/projectEnvs/info',
     projectEnvPluginInfo: gateway + '/api/projectEnvPlugins/info',
     projectEnvLogList: gateway + '/api/projectEnvLogs/list',
     projectEnvLogInfo: gateway + '/api/projectEnvLogs/info',
+
     userLogin: gateway + '/api/users/login',
     userPage: gateway + '/api/users/page',
     userSave: gateway + '/api/users/save',
     userInfo: gateway + '/api/users/info',
     userDelete: gateway + '/api/users/delete',
     userUpdate: gateway + '/api/users/update',
+
     serverPage: { url: gateway + '/api/servers/page', method: HttpMethod.GET },
     serverUpdate: { url: gateway + '/api/servers/update', method: HttpMethod.PUT },
     serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.POST },

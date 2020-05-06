@@ -16,6 +16,7 @@ import { ProjectEnvLogModule } from './project-env-log/project-env-log.module';
 import { ProjectPluginModule } from './project-plugin/project-plugin.module';
 import { PluginModule } from './plugin/plugin.module';
 import { ProjectEnvPluginModule } from './project-dev-plugin/project-env-plugin.module';
+import { SystemModule } from './system-config/system.module';
 
 
 @Module({
@@ -27,6 +28,7 @@ import { ProjectEnvPluginModule } from './project-dev-plugin/project-env-plugin.
       logging: true,
       autoLoadEntities: true,
     }),
+    SystemModule,
     UserModule,
     PluginModule,
     ProjectModule,
