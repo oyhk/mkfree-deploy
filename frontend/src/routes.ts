@@ -1,5 +1,5 @@
 const gateway = 'http://localhost:5000';
-const pageRoot = '/mkfree-deploy';
+const pageRoot = '';
 export const HttpMethod = {
   GET: 'get',
   POST: 'post',
@@ -10,7 +10,7 @@ export default {
 
   // 页面路由
   pageRoutes: {
-    root: pageRoot,
+    root: '/',
     projectIndex: pageRoot + '/project',
     projectEdit: pageRoot + '/project/edit/:id',
     projectEditParams: (id: any) => pageRoot + `/project/edit/${id}`,
@@ -31,7 +31,7 @@ export default {
     serverIndex: pageRoot + '/server',
     serverCreate: pageRoot + '/server/create',
     serverEdit: pageRoot + '/server/edit/:id',
-    serverEditParams: (id: any) => pageRoot+`/server/edit/${id}`,
+    serverEditParams: (id: any) => pageRoot + `/server/edit/${id}`,
 
 
   },

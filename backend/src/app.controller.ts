@@ -4,19 +4,18 @@ import { Controller, Get, Post, Render } from '@nestjs/common';
 export class AppController {
 
 
-  @Get('/')
-  getHello(): string {
-    return 'Mkfree Deploy Hello World!';
-  }
-
-  @Get('/mkfree-deploy***')
+  /**
+   * 前端渲染
+   */
+  @Get([
+    '/',
+    '/project***',
+    '/user**',
+    '/server**'
+  ])
   @Render('index')
-  root() {
+  index() {
     return {};
   }
 
-  @Post('/post')
-  postHello(): string {
-    return 'Mkfree Deploy Hello World!';
-  }
 }
