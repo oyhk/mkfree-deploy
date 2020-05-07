@@ -1,3 +1,5 @@
+import * as querystring from 'querystring';
+
 const gateway = 'http://localhost:5000';
 const pageRoot = '';
 export const HttpMethod = {
@@ -81,7 +83,6 @@ export default {
     userDelete: {
       url: gateway + '/api/users/delete',
       method: HttpMethod.delete,
-      headers: { access_token: localStorage.getItem('access_token') },
     },
     userUpdate: gateway + '/api/users/update',
 
@@ -91,7 +92,9 @@ export default {
     serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.get },
     serverDelete: { url: gateway + '/api/servers/delete', method: HttpMethod.delete },
 
-    envPage: { url: gateway + '/api/envs/page', method: HttpMethod.get },
+    envPage: (searchParams?: any) => {
+      return { url: `${gateway}/api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
+    },
     envUpdate: { url: gateway + '/api/envs/update', method: HttpMethod.put },
     envSave: { url: gateway + '/api/envs/save', method: HttpMethod.post },
     envInfo: { url: gateway + '/api/envs/info', method: HttpMethod.get },

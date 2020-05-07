@@ -14,15 +14,12 @@ import { EnvDto } from '@/services/dto/EnvDto';
 
 export default () => {
 
-  const paginatedResult = useRequest<ApiResult<PageResult<EnvDto>>>(({ current, pageSize }) => {
-      return ({
-        url: `${routes.apiRoutes.envPage.url}?pageNo=${current}&pageSize=${pageSize}`,
-        method: routes.apiRoutes.envPage.method,
-        headers: {
-          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
-        },
-      });
-    },
+  const paginatedResult = useRequest<ApiResult<PageResult<EnvDto>>>(
+    ({ current, pageSize }) => routes.apiRoutes.envPage({
+      pageNo: current,
+      pageSize,
+    })
+    ,
     {
       formatResult: (res: any) => ({
         list: res?.result?.data,
@@ -37,9 +34,6 @@ export default () => {
     return ({
       url: routes.apiRoutes.envDelete.url,
       method: routes.apiRoutes.envDelete.method,
-      headers: {
-        access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
-      },
       data: { id, name },
     });
   }, {

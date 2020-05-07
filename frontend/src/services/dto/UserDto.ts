@@ -15,3 +15,7 @@ export interface UserDto extends BaseDto {
  * 用户登录后 access_token key
  */
 export const ACCESS_TOKEN_KEY = 'access_token';
+/**
+ * 用户名 key
+ */
+export const USERNAME = 'username';

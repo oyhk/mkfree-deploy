@@ -16,9 +16,8 @@ import routes from '@/routes';
 import { UserAddOutlined, LeftOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { ApiResult } from '@/services/ApiResult';
 import { PageResult } from '@/services/PageResult';
-import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
+import { UserDto } from '@/services/dto/UserDto';
 import { Button, notification } from 'antd';
-import { history } from '@@/core/history';
 
 
 export default () => {
@@ -27,9 +26,6 @@ export default () => {
       return ({
         url: `${routes.apiRoutes.userPage}?pageNo=${current}&pageSize=${pageSize}`,
         method: 'get',
-        headers: {
-          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
-        },
       });
     },
     {

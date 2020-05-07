@@ -4,6 +4,7 @@ import Request from '@/utils/Request1';
 import routes from '@/routes';
 import { ApiResult } from '@/services/ApiResult';
 import { notification } from 'antd';
+import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
 
 export default (props: any) => {
 
@@ -21,26 +22,34 @@ export default (props: any) => {
   return (
     <UseAPIProvider value={{
       refreshOnWindowFocus: true,
-      requestMethod: (options) => Request(options.url, options).then((res) => {
-        if (res instanceof Response) {
-          return undefined;
-        }
+      requestMethod: (options = {}) => {
 
-        const apiResult = res as ApiResult<any>;
+        options.headers = {
+          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+          ...options.headers,
+        };
 
-        if (apiResult.code === 1) {
-          return apiResult;
-        }
-        if (apiResult.code === 103 || apiResult.code === 104) {
-          props.history.replace(routes.pageRoutes.userLogin);
+        return Request(options.url, options).then((res) => {
+          if (res instanceof Response) {
+            return undefined;
+          }
+
+          const apiResult = res as ApiResult<any>;
+
+          if (apiResult.code === 1) {
+            return apiResult;
+          }
+          if (apiResult.code === 103 || apiResult.code === 104) {
+            props.history.replace(routes.pageRoutes.userLogin);
+            return undefined;
+          }
+          notification.error({
+            message: `请求错误 ${apiResult.code}: ${options.url}`,
+            description: apiResult.desc,
+          });
           return undefined;
-        }
-        notification.error({
-          message: `请求错误 ${apiResult.code}: ${options.url}`,
-          description: apiResult.desc,
         });
-        return undefined;
-      })
+      },
     }}>
       {props.children}
     </UseAPIProvider>

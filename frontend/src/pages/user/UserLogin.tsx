@@ -7,6 +7,7 @@ import { Footer } from '@/utils/ComponentUtils';
 import { useFormTable, useRequest } from '@umijs/hooks';
 import routes from '@/routes';
 import { history } from '@@/core/history';
+import { ACCESS_TOKEN_KEY, UserDto, USERNAME } from '@/services/dto/UserDto';
 
 export default () => {
 
@@ -18,8 +19,8 @@ export default () => {
     manual: true,
     onSuccess: (apiResult, params) => {
       if (apiResult.result) {
-        localStorage.setItem('access_token', apiResult.result.accessToken);
-        localStorage.setItem('username', apiResult.result.username);
+        localStorage.setItem(ACCESS_TOKEN_KEY, apiResult.result.accessToken);
+        localStorage.setItem(USERNAME, apiResult.result.username);
         history.push(routes.pageRoutes.root);
       }
     },

@@ -36,9 +36,6 @@ export default (props: ServerPageProps) => {
       return ({
         url: url,
         method: method,
-        headers: {
-          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
-        },
         data: payload,
       });
     },
