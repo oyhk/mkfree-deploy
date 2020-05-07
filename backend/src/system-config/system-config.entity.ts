@@ -22,7 +22,7 @@ export class SystemConfig extends BaseEntity {
 
 export const SystemConfigKeys = {
   installPath: 'installPath', // 系统安装路径
-  installed: 'installed', // 系统是否安装，1 已安装，0/不存在 未安装
+  installed: 'installed', // 系统是否安装，SUCCESS 已安装，FAIL/不存在 未安装
 };
 
 export const SystemConfigValues = {

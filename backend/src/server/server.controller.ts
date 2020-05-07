@@ -4,7 +4,7 @@ import { Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ServerDto } from './server.dto';
-import { ApiResult } from '../common/api-result';
+import { ApiResult, ApiResultCode } from '../common/api-result';
 import { Page } from '../common/page';
 import { UserDto } from '../user/user.dto';
 import { User } from '../user/user.entity';

@@ -6,8 +6,6 @@ import { Footer } from '@/utils/ComponentUtils';
 import routes from '@/routes';
 import { useRequest } from '@umijs/hooks';
 import { history } from '@@/core/history';
-import * as installService from '@/services/InstallService';
-import { RequestOptions } from '@/services/InstallService';
 
 export default () => {
 
@@ -19,11 +17,8 @@ export default () => {
     manual: true,
     formatResult: (res => res),
     onSuccess: (data, params) => {
-      console.log('onSuccess data', data);
-      if (data.code === 1) {
-        setStep(3);
-
-      }
+      setStep(3);
+      localStorage.setItem('installed', data.result);
     },
   });
 
@@ -134,7 +129,7 @@ export default () => {
             <div
               style={{ textAlign: 'center', display: step === 3 ? 'block' : 'none' }}
             >
-              系统安装成功！ <Button type='link' onClick={() => history.replace(routes.pageRoutes.root)}>进入首页</Button>
+              系统安装成功！ <Button type='link' onClick={() => history.replace(routes.pageRoutes.userLogin)}>登录系统</Button>
             </div>
           </Form>
 

@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { UseAPIProvider } from '@umijs/use-request';
+import Request from '@/utils/Request1';
+import routes from '@/routes';
+import { ApiResult } from '@/services/ApiResult';
+import { notification } from 'antd';
 
-const BlankLayout: React.FC = props => {
+export default (props: any) => {
+
+  useEffect(() => {
+    const installed = localStorage.getItem('installed');
+    if (!installed && props?.location?.pathname !== routes.pageRoutes.installIndex) {
+      Request.get(routes.apiRoutes.systemInstalled.url).then(value => {
+        if (value.result !== 'SUCCESS') {
+          props.history.replace(routes.pageRoutes.installIndex);
+        }
+      });
+    }
+  });
+
+
   return (
-    <div>
+    <UseAPIProvider value={{
+      refreshOnWindowFocus: true,
+      requestMethod: (options) => Request(options.url, options).then((value) => {
+        const apiResult = value as ApiResult<any>;
+
+        if (apiResult.code === 1) {
+          return apiResult;
+        }
+        if (apiResult.code === 103 || apiResult.code === 104) {
+          props.history.replace(routes.pageRoutes.userLogin);
+          return null;
+        }
+        notification.error({
+          message: `请求错误 ${apiResult.code}: ${options.url}`,
+          description: apiResult.desc,
+        });
+        return null;
+      }),
+    }}>
       {props.children}
-    </div>
+    </UseAPIProvider>
   );
 };
-export default BlankLayout;

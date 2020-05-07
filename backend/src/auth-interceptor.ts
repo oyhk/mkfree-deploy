@@ -43,6 +43,7 @@ export class AuthInterceptor implements NestInterceptor {
       ar.remind(ApiResultCode['104']);
       return of(ar);
     }
+
     return next.handle();
   }
 

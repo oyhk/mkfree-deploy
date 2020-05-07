@@ -3,15 +3,29 @@ import { Form, Input, Button, Checkbox } from 'antd';
 import styles from '@/pages/user/UserLogin.less';
 import logo from '@/assets/logo.svg';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { PageLoading } from '@ant-design/pro-layout';
-import { connect } from 'umi';
-import { UserPageProps } from '@/pages/user/UserPageProps';
 import { Footer } from '@/utils/ComponentUtils';
+import { useFormTable, useRequest } from '@umijs/hooks';
+import routes from '@/routes';
+import { history } from '@@/core/history';
 
-const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
-  if (!dispatch) {
-    return <PageLoading/>;
-  }
+export default () => {
+
+  const loginUseRequest = useRequest((payload) => ({
+    ...routes.apiRoutes.userLogin,
+    isAll: true,
+    data: payload,
+  }), {
+    manual: true,
+    onSuccess: (apiResult, params) => {
+      if (apiResult.result) {
+        localStorage.setItem('access_token', apiResult.result.accessToken);
+        localStorage.setItem('username', apiResult.result.username);
+        history.push(routes.pageRoutes.root);
+      }
+    },
+  });
+
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -30,11 +44,7 @@ const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
             initialValues={{ remember: true }}
             onFinish={(values) => {
               console.log('UserLogin payload ', values);
-              const payload = values;
-              dispatch({
-                type: 'user/login',
-                payload,
-              });
+              loginUseRequest.run(values);
             }}
           >
             <Form.Item
@@ -56,7 +66,7 @@ const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
             </Form.Item>
 
             <Form.Item>
-              <Button loading={user.loading} type="primary" size='large' htmlType="submit" block>
+              <Button loading={loginUseRequest.loading} type="primary" size='large' htmlType="submit" block>
                 登 录
               </Button>
             </Form.Item>
@@ -68,4 +78,3 @@ const UserLogin: React.FC<UserPageProps> = ({ dispatch, user }) => {
 
   );
 };
-export default connect(({ user }: UserPageProps) => ({ user }))(UserLogin);

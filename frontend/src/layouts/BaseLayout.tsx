@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SmileOutlined, TableOutlined, UserOutlined, DownOutlined, CloudServerOutlined } from '@ant-design/icons';
 import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
-import { Link, connect } from 'umi';
+import { Link, connect, history } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
 import { Dropdown, Menu, Button } from 'antd';
-import { ConnectProps } from '@@/plugin-dva/connect';
 import routes from '@/routes';
 
 
-const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
-  if (!dispatch) {
-    return <PageLoading/>;
-  }
+const BaseLayout: React.FC = props => {
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      history.replace(routes.pageRoutes.userLogin);
+    }
+  });
+
   return (
     <ProLayout
       title='Mkfree Deploy'
@@ -71,6 +75,12 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
               path: routes.pageRoutes.userIndex,
               children: [
                 {
+                  name: '用户登录',
+                  key: 'userLogin',
+                  path: routes.pageRoutes.userLogin,
+                  hideInMenu: true,
+                },
+                {
                   name: '用户创建',
                   key: 'userCreate',
                   path: routes.pageRoutes.userCreate,
@@ -115,9 +125,9 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
           <Dropdown overlay={
             <Menu
               onClick={() => {
-                dispatch({
-                  type: 'user/logout',
-                });
+                localStorage.removeItem('username');
+                localStorage.removeItem('access_token');
+                history.replace(routes.pageRoutes.userLogin);
               }}
             >
               <Menu.Item key="1">
@@ -143,10 +153,8 @@ const BasicLayout: React.FC<ConnectProps> = ({ dispatch, children }) => {
         ]}
       />}
     >
-      {children}
+      {props.children}
     </ProLayout>
   );
 };
-
-export default connect(({}: ConnectProps) => ({}),
-)(BasicLayout);
+export default BaseLayout;

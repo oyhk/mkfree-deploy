@@ -25,8 +25,8 @@ export default () => {
     },
     {
       formatResult: (res: any) => ({
-        list: res.result.data,
-        total: res.result.total,
+        list: res?.result?.data,
+        total: res?.result?.total,
       }),
       manual: false,
       paginated: true,
@@ -43,18 +43,11 @@ export default () => {
   }), {
     manual: true,
     onSuccess: (data, params) => {
-      if (data.code === 1) {
-        notification.success({
-          message: `用户：${params[0]?.ip}`,
-          description: '删除成功',
-        });
-        pageResult.run({ current: 1, pageSize: 10 });
-      } else {
-        notification.error({
-          message: `请求错误 ${data.code}: ${routes.apiRoutes.serverDelete.url}`,
-          description: data.desc,
-        });
-      }
+      notification.success({
+        message: `用户：${params[0]?.ip}`,
+        description: '删除成功',
+      });
+      pageResult.run({ current: 1, pageSize: 10 });
     },
   });
 

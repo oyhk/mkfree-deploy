@@ -2,7 +2,7 @@ import React from 'react';
 import ProTable, { ProColumns } from '@ant-design/pro-table/lib/Table';
 import { Table, Button } from 'antd';
 import {
-  SmileTwoTone,
+  SmileTwoTone, PlusOutlined,
 } from '@ant-design/icons';
 import { connect, Link, Dispatch, useModel } from 'umi';
 import styles from '@/pages/project/project-index.less';
@@ -208,7 +208,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ project, dispatch }) => {
                             }
                             pagination={false}
                             toolBarRender={() => [
-                              <Link to={routes.pageRoutes.projectCreate}>添加</Link>,
+                              <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
                             ]}
       />
       <PluginEurekaIndex/>

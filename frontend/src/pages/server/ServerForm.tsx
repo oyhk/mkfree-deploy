@@ -24,10 +24,10 @@ export default (props: ServerPageProps) => {
     if (props?.info && props?.info?.id) {
       setInfo(props?.info);
       setUrl(`${routes.apiRoutes.serverUpdate.url}`);
-      setMethod(HttpMethod.PUT);
+      setMethod(HttpMethod.put);
     } else {
       setUrl(`${routes.apiRoutes.serverSave.url}`);
-      setMethod(HttpMethod.POST);
+      setMethod(HttpMethod.post);
     }
   });
 
@@ -163,7 +163,7 @@ export default (props: ServerPageProps) => {
         label="环境"
       >
         <Select>
-          {envResult?.data?.result?.map((env: EnvDto) => <Select.Option value={env.id as number}>{env?.name}</Select.Option>)}
+          {envResult?.data?.result?.map((env: EnvDto) => <Select.Option value={env.id as number} key={env.id}>{env?.name}</Select.Option>)}
         </Select>
       </Form.Item>
 

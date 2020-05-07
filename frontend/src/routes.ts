@@ -1,10 +1,10 @@
 const gateway = 'http://localhost:5000';
 const pageRoot = '';
 export const HttpMethod = {
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put',
-  DELETE: 'delete',
+  get: 'get',
+  post: 'post',
+  put: 'put',
+  delete: 'delete',
 };
 export default {
 
@@ -43,7 +43,11 @@ export default {
 
     systemInstall: {
       url: gateway + '/api/systems/install',
-      method: HttpMethod.POST,
+      method: HttpMethod.post,
+    },
+    systemInstalled: {
+      url: gateway + '/api/systems/installed',
+      method: HttpMethod.get,
     },
 
     projectPage: gateway + '/api/projects/page',
@@ -56,7 +60,7 @@ export default {
     projectInit: gateway + '/api/projects/init',
     projectRefreshBranch: gateway + '/api/projects/refreshBranch',
 
-    envList: { url: gateway + '/api/envs/list', method: HttpMethod.GET },
+    envList: { url: gateway + '/api/envs/list', method: HttpMethod.get },
 
     serverList: gateway + '/api/servers/list',
 
@@ -66,18 +70,18 @@ export default {
     projectEnvLogList: gateway + '/api/projectEnvLogs/list',
     projectEnvLogInfo: gateway + '/api/projectEnvLogs/info',
 
-    userLogin: gateway + '/api/users/login',
+    userLogin: { url: gateway + '/api/users/login', method: HttpMethod.post },
     userPage: gateway + '/api/users/page',
     userSave: gateway + '/api/users/save',
     userInfo: gateway + '/api/users/info',
-    userDelete: gateway + '/api/users/delete',
+    userDelete: {url:gateway + '/api/users/delete',method:HttpMethod.delete},
     userUpdate: gateway + '/api/users/update',
 
-    serverPage: { url: gateway + '/api/servers/page', method: HttpMethod.GET },
-    serverUpdate: { url: gateway + '/api/servers/update', method: HttpMethod.PUT },
-    serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.POST },
-    serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.GET },
-    serverDelete: { url: gateway + '/api/servers/delete', method: HttpMethod.DELETE },
+    serverPage: { url: gateway + '/api/servers/page', method: HttpMethod.get },
+    serverUpdate: { url: gateway + '/api/servers/update', method: HttpMethod.put },
+    serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.post },
+    serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.get },
+    serverDelete: { url: gateway + '/api/servers/delete', method: HttpMethod.delete },
   },
 };
 

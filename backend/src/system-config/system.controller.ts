@@ -20,21 +20,20 @@ export class SystemController {
   }
 
   @Get('/api/systems/installed')
-  @Transaction()
-  async installed(@Body() dto: InstallDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+  async installed(@Res() res: Response) {
     const ar = new ApiResult();
-    const installed = await entityManager.findOne(SystemConfig, { key: SystemConfigKeys.installed });
+    const installed = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installed });
     // 系统安装未安装
     if (!installed) {
       ar.remind(ApiResultCode['11']);
       return res.json(ar);
     }
+    ar.result = installed.value;
     return res.json(ar);
   }
 
 
   @Post('/api/systems/install')
-  @HttpCode(200)
   @Transaction()
   async install(@Body() dto: InstallDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
     const ar = new ApiResult();
@@ -78,10 +77,12 @@ export class SystemController {
       installedSystemConfig = new SystemConfig();
     }
     installedSystemConfig.key = SystemConfigKeys.installed;
-    installedSystemConfig.value = '1';
+    installedSystemConfig.value = 'SUCCESS';
     await entityManager.save(SystemConfig, installedSystemConfig);
 
 
+    // 代表安装成功
+    ar.result = installedSystemConfig.value;
     return res.json(ar);
   }
 
