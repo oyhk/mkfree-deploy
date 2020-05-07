@@ -36,6 +36,10 @@ export default {
     serverEdit: pageRoot + '/server/edit/:id',
     serverEditParams: (id: any) => pageRoot + `/server/edit/${id}`,
 
+    envIndex: pageRoot + '/env',
+    envCreate: pageRoot + '/env/create',
+    envEdit: pageRoot + '/env/edit/:id',
+    envEditParams: (id: any) => pageRoot + `/env/edit/${id}`,
 
   },
   // API
@@ -74,7 +78,11 @@ export default {
     userPage: gateway + '/api/users/page',
     userSave: gateway + '/api/users/save',
     userInfo: gateway + '/api/users/info',
-    userDelete: {url:gateway + '/api/users/delete',method:HttpMethod.delete},
+    userDelete: {
+      url: gateway + '/api/users/delete',
+      method: HttpMethod.delete,
+      headers: { access_token: localStorage.getItem('access_token') },
+    },
     userUpdate: gateway + '/api/users/update',
 
     serverPage: { url: gateway + '/api/servers/page', method: HttpMethod.get },
@@ -82,6 +90,12 @@ export default {
     serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.post },
     serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.get },
     serverDelete: { url: gateway + '/api/servers/delete', method: HttpMethod.delete },
+
+    envPage: { url: gateway + '/api/envs/page', method: HttpMethod.get },
+    envUpdate: { url: gateway + '/api/envs/update', method: HttpMethod.put },
+    envSave: { url: gateway + '/api/envs/save', method: HttpMethod.post },
+    envInfo: { url: gateway + '/api/envs/info', method: HttpMethod.get },
+    envDelete: { url: gateway + '/api/envs/delete', method: HttpMethod.delete },
   },
 };
 

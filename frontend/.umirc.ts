@@ -125,6 +125,28 @@ const config: IConfig = {
                 },
               ],
             },
+            // 环境模块
+            {
+              path: routes.pageRoutes.envIndex,
+              title: '环境',
+              routes: [
+                {
+                  path: routes.pageRoutes.envIndex,
+                  title: '环境',
+                  component: '@/pages/env/EnvIndex',
+                },
+                {
+                  path: routes.pageRoutes.envCreate,
+                  title: '环境创建',
+                  component: '@/pages/env/EnvCreate',
+                },
+                {
+                  path: routes.pageRoutes.envEdit,
+                  title: '环境编辑',
+                  component: '@/pages/env/EnvEdit',
+                },
+              ],
+            },
           ],
         },
       ],

@@ -23,7 +23,7 @@ import { history } from '@@/core/history';
 
 export default () => {
 
-  const page = useRequest<ApiResult<PageResult<UserDto>>>(({ current, pageSize=20 }) => {
+  const pageUseRequest = useRequest<ApiResult<PageResult<UserDto>>>(({ current, pageSize = 20 }) => {
       return ({
         url: `${routes.apiRoutes.userPage}?pageNo=${current}&pageSize=${pageSize}`,
         method: 'get',
@@ -42,28 +42,18 @@ export default () => {
     });
 
 
-  const delUrl = routes.apiRoutes.userDelete;
   const del = useRequest(({ id, username }) => ({
-    url: routes.apiRoutes.userDelete,
-    method: 'delete',
-    headers: {
-      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
-    },
+    ...routes.apiRoutes.userDelete,
     data: { id, username },
   }), {
     manual: true,
     onSuccess: (data, params) => {
-      if (data.code === 1) {
+      if (data) {
         notification.success({
           message: `用户：${params[0]?.username}`,
           description: '删除成功',
         });
-        page.run({ current: 1, pageSize: 10 });
-      } else {
-        notification.error({
-          message: `请求错误 ${data.code}: ${delUrl}`,
-          description: data.desc,
-        });
+        pageUseRequest.run({ current: 1, pageSize: 10 });
       }
     },
   });
@@ -102,17 +92,17 @@ export default () => {
     <PageHeaderWrapper>
       <ProTable
         search={false}
-        loading={page.loading}
+        loading={pageUseRequest.loading}
         columns={columns}
         rowKey="username"
-        dataSource={page.data?.list}
+        dataSource={pageUseRequest.data?.list}
         toolBarRender={() => [
           <Link to={routes.pageRoutes.userCreate}><PlusOutlined/> 添加用户</Link>,
         ]}
         pagination={{
-          ...page.pagination,
+          ...pageUseRequest.pagination,
           onChange: (pageNo, pageSize) => {
-            page.run({ current: pageNo, pageSize: pageSize ? pageSize : 10 });
+            pageUseRequest.run({ current: pageNo, pageSize: pageSize ? pageSize : 10 });
           },
           showSizeChanger: false,
         }}

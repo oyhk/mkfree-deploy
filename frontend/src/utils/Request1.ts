@@ -30,8 +30,6 @@ const codeMessage = {
  * 异常处理程序
  */
 const errorHandler = (error: { response: Response }): Response => {
-
-  console.log(error);
   const { response } = error;
   if (response && response.status) {
     // @ts-ignore
@@ -50,28 +48,12 @@ const errorHandler = (error: { response: Response }): Response => {
   return response;
 };
 
-
-const requestConfig: RequestConfig = {
-  requestInterceptors: [(url: string, options: RequestOptionsInit) => {
-
-    console.log(url);
-    console.log(options);
-
-    return ({ url, options });
-  }],
-  responseInterceptors: [(response: Response, options: RequestOptionsInit) => {
-    console.log(response);
-    return response;
-  }],
-};
-
 /**
  * 配置request请求时的默认参数
  */
 const Request = extend({
   errorHandler, // 默认错误处理
   // credentials: 'include', // 默认请求是否带上cookie
-  ...requestConfig,
 });
 
 export default Request;

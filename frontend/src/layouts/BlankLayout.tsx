@@ -18,26 +18,29 @@ export default (props: any) => {
     }
   });
 
-
   return (
     <UseAPIProvider value={{
       refreshOnWindowFocus: true,
-      requestMethod: (options) => Request(options.url, options).then((value) => {
-        const apiResult = value as ApiResult<any>;
+      requestMethod: (options) => Request(options.url, options).then((res) => {
+        if (res instanceof Response) {
+          return undefined;
+        }
+
+        const apiResult = res as ApiResult<any>;
 
         if (apiResult.code === 1) {
           return apiResult;
         }
         if (apiResult.code === 103 || apiResult.code === 104) {
           props.history.replace(routes.pageRoutes.userLogin);
-          return null;
+          return undefined;
         }
         notification.error({
           message: `请求错误 ${apiResult.code}: ${options.url}`,
           description: apiResult.desc,
         });
-        return null;
-      }),
+        return undefined;
+      })
     }}>
       {props.children}
     </UseAPIProvider>

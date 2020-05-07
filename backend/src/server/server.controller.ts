@@ -6,8 +6,6 @@ import { Repository } from 'typeorm';
 import { ServerDto } from './server.dto';
 import { ApiResult, ApiResultCode } from '../common/api-result';
 import { Page } from '../common/page';
-import { UserDto } from '../user/user.dto';
-import { User } from '../user/user.entity';
 import { Env } from '../env/env.entity';
 
 @Controller()
@@ -78,7 +76,7 @@ export class ServerController {
 
     const server = await this.serverRepository.findOne(dto.id);
     if (!server) {
-      ar.remindRecordNotExist(User.entityName, { id: dto.id });
+      ar.remindRecordNotExist(Server.entityName, { id: dto.id });
       return res.json(ar);
     }
     ar.result = server;

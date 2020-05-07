@@ -1,5 +1,13 @@
 import React, { useEffect } from 'react';
-import { SmileOutlined, TableOutlined, UserOutlined, DownOutlined, CloudServerOutlined } from '@ant-design/icons';
+import {
+  SmileOutlined,
+  TableOutlined,
+  UserOutlined,
+  DownOutlined,
+  CloudServerOutlined,
+  DeploymentUnitOutlined,
+  EnvironmentOutlined,
+} from '@ant-design/icons';
 import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
 import { Link, connect, history } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
@@ -43,32 +51,6 @@ const BaseLayout: React.FC = props => {
               path: routes.pageRoutes.root,
             },
             {
-              icon: <TableOutlined/>,
-              name: '项目',
-              key: 'project',
-              path: routes.pageRoutes.projectIndex,
-              children: [
-                {
-                  name: '项目编辑',
-                  key: 'projectEdit',
-                  path: routes.pageRoutes.projectEdit,
-                  hideInMenu: true,
-                },
-                {
-                  name: '项目创建',
-                  key: 'projectCreate',
-                  path: routes.pageRoutes.projectCreate,
-                  hideInMenu: true,
-                },
-                {
-                  name: '项目环境日志',
-                  key: 'projectEnvLog',
-                  path: routes.pageRoutes.projectEnvLogIndex,
-                  hideInMenu: true,
-                },
-              ],
-            },
-            {
               icon: <UserOutlined/>,
               name: '用户',
               key: 'user',
@@ -94,6 +76,22 @@ const BaseLayout: React.FC = props => {
                 },
               ],
             },
+
+            // 环境
+            {
+              icon: <EnvironmentOutlined/>,
+              name: '环境',
+              key: 'env',
+              path: routes.pageRoutes.envIndex,
+              children: [
+                {
+                  name: '环境创建',
+                  key: 'envCreate',
+                  path: routes.pageRoutes.envCreate,
+                  hideInMenu: true,
+                },
+              ],
+            },
             // 服务器
             {
               icon: <CloudServerOutlined/>,
@@ -109,39 +107,66 @@ const BaseLayout: React.FC = props => {
                 },
               ],
             },
+            // 项目
+            {
+              icon: <DeploymentUnitOutlined/>,
+              name: '项目',
+              key: 'project',
+              path: routes.pageRoutes.projectIndex,
+              children: [
+                {
+                  name: '项目编辑',
+                  key: 'projectEdit',
+                  path: routes.pageRoutes.projectEdit,
+                  hideInMenu: true,
+                },
+                {
+                  name: '项目创建',
+                  key: 'projectCreate',
+                  path: routes.pageRoutes.projectCreate,
+                  hideInMenu: true,
+                },
+                {
+                  name: '项目环境日志',
+                  key: 'projectEnvLog',
+                  path: routes.pageRoutes.projectEnvLogIndex,
+                  hideInMenu: true,
+                },
+              ],
+            },
           ]
         );
       }}
-      menuItemRender={(menuItemProps, defaultDom) => {
+        menuItemRender={(menuItemProps, defaultDom) => {
         if (menuItemProps.isUrl || menuItemProps.children || !menuItemProps.path) {
-          return defaultDom;
-        }
+        return defaultDom;
+      }
         return <Link to={menuItemProps.path}>{defaultDom}</Link>;
       }}
-      menuRender={(_, dom) => dom}
+        menuRender={(_, dom) => dom}
 
-      rightContentRender={(props: HeaderViewProps) => {
+        rightContentRender={(props: HeaderViewProps) => {
         return <div style={{ paddingRight: '20px' }}>
-          <Dropdown overlay={
-            <Menu
-              onClick={() => {
-                localStorage.removeItem('username');
-                localStorage.removeItem('access_token');
-                history.replace(routes.pageRoutes.userLogin);
-              }}
-            >
-              <Menu.Item key="1">
-                退出
-              </Menu.Item>
-            </Menu>
-          }
+        <Dropdown overlay={
+          <Menu
+            onClick={() => {
+              localStorage.removeItem('username');
+              localStorage.removeItem('access_token');
+              history.replace(routes.pageRoutes.userLogin);
+            }}
           >
-            <Button>{localStorage.getItem('username')} <UserOutlined/></Button>
-          </Dropdown>
+            <Menu.Item key="1">
+              退出
+            </Menu.Item>
+          </Menu>
+        }
+        >
+        <Button>{localStorage.getItem('username')} <UserOutlined/></Button>
+        </Dropdown>
         </div>;
       }}
 
-      footerRender={() => <DefaultFooter
+        footerRender={() => <DefaultFooter
         copyright="MKfree Deploy 2016-2020"
         links={[
           {
@@ -151,10 +176,10 @@ const BaseLayout: React.FC = props => {
             blankTarget: true,
           },
         ]}
-      />}
-    >
+        />}
+        >
       {props.children}
-    </ProLayout>
-  );
-};
-export default BaseLayout;
+        </ProLayout>
+        );
+        };
+        export default BaseLayout;

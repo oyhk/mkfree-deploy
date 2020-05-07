@@ -9,7 +9,7 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { User } from './user.entity';
+import { User, UserRoleType } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Page } from '../common/page';
@@ -114,10 +114,14 @@ export class UserController {
       ar.remindRecordNotExist(User.entityName, { id: dto.id });
       return res.json(ar);
     }
+    if(user.roleType === UserRoleType.superAdmin){
+      ar.remind(ApiResultCode['106']);
+      return res.json(ar);
+    }
 
     await this.userRepository.delete(dto.id);
 
-    return res.json(new ApiResult());
+    return res.json(ar);
   }
 
 

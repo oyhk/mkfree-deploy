@@ -1,34 +1,37 @@
-import { Button, Form, Input, notification, Select } from 'antd';
+import { Button, Form, Input, notification, Select, Switch } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useRequest } from '@umijs/hooks';
 import { ApiResult } from '@/services/ApiResult';
-import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
 import { history } from '@@/core/history';
-import routes from '@/routes';
+import routes, { HttpMethod } from '@/routes';
 import { PageLoading } from '@ant-design/pro-layout';
+import { ServerDto } from '@/services/dto/ServerDto';
+import { EnvDto } from '@/services/dto/EnvDto';
+import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
 
-interface UserPageProps {
-  user?: UserDto;
+interface EnvPageProps {
+  info?: ServerDto;
   edit?: boolean
 }
 
-export default (props: UserPageProps) => {
+export default (props: EnvPageProps) => {
 
-  const [user, setUser] = useState();
+  const [info, setInfo] = useState();
   const [url, setUrl] = useState();
   const [method, setMethod] = useState();
 
   useEffect(() => {
-    if (props?.user && props?.user?.id) {
-      setUser(props?.user);
-      setUrl(`${routes.apiRoutes.userUpdate}`);
-      setMethod('put');
+    if (props?.info && props?.info?.id) {
+      setInfo(props?.info);
+      setUrl(`${routes.apiRoutes.envUpdate.url}`);
+      setMethod(HttpMethod.put);
     } else {
-      setUrl(`${routes.apiRoutes.userSave}`);
-      setMethod('post');
+      setUrl(`${routes.apiRoutes.envSave.url}`);
+      setMethod(HttpMethod.post);
     }
   });
-  const { run, loading } = useRequest<ApiResult<UserDto>>(
+
+  const { run, loading } = useRequest(
     (payload) => {
       return ({
         url: url,
@@ -42,17 +45,30 @@ export default (props: UserPageProps) => {
     {
       manual: true,
       onSuccess: (data, params) => {
-        if (data) {
-          history.replace(routes.pageRoutes.userIndex);
+        if (data.code === 1) {
           notification.success({
-            message: `用户：${params[0]?.username}`,
+            message: `服务器：${params[0]?.name}`,
             description: props.edit ? '修改操作成功' : '添加成功',
+          });
+          history.replace(routes.pageRoutes.envIndex);
+        } else {
+          notification.error({
+            message: `请求错误 ${data.code}: ${url}`,
+            description: data.desc,
           });
         }
       },
     });
 
-  if (!user?.id && props.edit) {
+  const envResult = useRequest<ApiResult<EnvDto[]>>(() => ({
+    url: `${routes.apiRoutes.envList.url}`,
+    method: routes.apiRoutes.envList.method,
+    headers: {
+      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+    },
+  }), { manual: false });
+
+  if (!info?.id && props.edit) {
     return <PageLoading/>;
   }
 
@@ -61,13 +77,13 @@ export default (props: UserPageProps) => {
       labelCol={{ span: 4 }}
       wrapperCol={{ span: 16 }}
       layout="horizontal"
-      initialValues={user}
+      initialValues={info}
       onFinish={(formValue) => {
         console.log('form submit payload', formValue);
         run(formValue);
       }}
     >
-      {user?.id ?
+      {info?.id ?
         <Form.Item
           name="id"
           rules={[
@@ -81,44 +97,50 @@ export default (props: UserPageProps) => {
         </Form.Item> : ''
       }
       <Form.Item
-        name="username"
-        label="用户名"
+        name="code"
+        label="code"
         rules={[
           {
             required: true,
-            message: '请输入用户名!',
+            message: '请输入环境code!',
           },
         ]}
       >
-        <Input placeholder='username'/>
+        <Input placeholder='code'/>
       </Form.Item>
       <Form.Item
-        name="password"
-        label="密码"
+        name="name"
+        label="名称"
         rules={[
           {
             required: true,
-            message: '请输入密码!',
+            message: '请输入环境名称!',
           },
         ]}
       >
-        <Input.Password placeholder='password'/>
+        <Input placeholder='name'/>
       </Form.Item>
+
       <Form.Item
-        name="roleType"
-        label="类型"
+        name="sort"
+        label="排序"
         rules={[
           {
             required: true,
-            message: '请选择类型!',
+            message: '请输入排序号!',
           },
         ]}
       >
-        <Select disabled={user?.roleType === 0}>
-          <Select.Option value={0} disabled>超级管理员</Select.Option>
-          <Select.Option value={1}>管理员</Select.Option>
-          <Select.Option value={2}>普通成员</Select.Option>
-        </Select>
+        <Input placeholder='sort'/>
+      </Form.Item>
+
+      <Form.Item
+        label=' '
+        colon={false}
+        name='isEnable'
+        valuePropName='checked'
+      >
+        <Switch checkedChildren="启用" unCheckedChildren="关闭"/>
       </Form.Item>
 
 

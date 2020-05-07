@@ -11,6 +11,7 @@ export const ApiResultCode = {
   103: { code: 103, desc: '用户：accessToken 无效，请重新登录' },
   104: { code: 104, desc: '用户：accessToken 已过期，请重新登录' },
   105: { code: 105, desc: '用户：用户名已存在' },
+  106: { code: 106, desc: '用户：超级管理员不允许删除' },
 
   1001: { code: 1001, desc: '项目：请先初始化项目' },
 };
@@ -52,7 +53,7 @@ export class ApiResult<T> {
 
   remindRecordNotExist(entityName: string, params) {
     this.code = ApiResultCode['3'].code;
-    this.desc = `${ApiResultCode['3'].desc}${entityName} params: ${params}，记录不存在。`;
+    this.desc = `${ApiResultCode['3'].desc}${entityName} params: ${JSON.stringify(params)}，记录不存在。`;
   }
 
 }
