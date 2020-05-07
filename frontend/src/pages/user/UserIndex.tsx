@@ -35,6 +35,7 @@ export default () => {
       }),
       manual: false,
       paginated: true,
+      refreshOnWindowFocus: false,
     });
 
 
@@ -43,6 +44,7 @@ export default () => {
     data: { id, username },
   }), {
     manual: true,
+    refreshOnWindowFocus: false,
     onSuccess: (data, params) => {
       if (data) {
         notification.success({

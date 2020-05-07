@@ -20,6 +20,7 @@ export default () => {
       setStep(3);
       localStorage.setItem('installed', data.result);
     },
+    refreshOnWindowFocus:false
   });
 
   return (

@@ -30,6 +30,7 @@ export default () => {
       }),
       manual: false,
       paginated: true,
+      refreshOnWindowFocus:false
     });
 
 
@@ -49,6 +50,7 @@ export default () => {
       });
       pageResult.run({ current: 1, pageSize: 10 });
     },
+    refreshOnWindowFocus:false
   });
 
 
