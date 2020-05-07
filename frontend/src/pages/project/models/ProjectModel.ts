@@ -175,7 +175,7 @@ const ProjectModel: ProjectModelType = {
       yield call(projectService.build, payload, () => {
         notification.success({
           message: `项目：${payload.name}`,
-          description: '同步操作成功，请稍后...',
+          description: '构建操作成功，请稍后...',
         });
       });
     },
@@ -189,7 +189,7 @@ const ProjectModel: ProjectModelType = {
       yield call(projectService.sync, payload, () => {
         notification.success({
           message: `项目：${payload.name}`,
-          description: '构建操作成功，请稍后...',
+          description: '同步操作成功，请稍后...',
         });
       });
     },
