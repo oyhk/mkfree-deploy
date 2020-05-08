@@ -111,19 +111,10 @@ export class ProjectController {
     const projectDto = { ...project } as ProjectDto;
 
     // 项目插件
-    const pluginList = await this.pluginRepository.find({ type: PluginType.project });
-    const projectPluginList: ProjectPlugin[] = [];
-    for (const plugin of pluginList) {
-      let projectPlugin = await this.projectPluginRepository.findOne({ projectId: project.id });
-      if (!projectPlugin) {
-        projectPlugin = new ProjectPlugin();
-        projectPlugin.pluginName = plugin.name;
-        projectPlugin.projectId = project.id;
-        projectPlugin.pluginName = plugin.name;
-      }
-      projectPluginList.push(projectPlugin);
-    }
-    projectDto.projectPluginList = projectPluginList;
+    projectDto.projectPluginList = await this.projectPluginRepository.find({
+      projectId: project.id,
+      pluginIsEnable: true,
+    });
 
     // 项目部署文件
     projectDto.projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: dto.id });
@@ -164,7 +155,7 @@ export class ProjectController {
 
       // 项目环境插件
       const projectEnvPluginList = [];
-      for (const projectPlugin of projectPluginList.filter(projectPlugin => projectPlugin.pluginIsEnable)) {
+      for (const projectPlugin of projectDto.projectPluginList) {
         let projectEnvPlugin = await this.projectEnvPluginRepository.findOne({
           projectId: project.id,
           envId: projectEnv.envId,
@@ -665,7 +656,7 @@ export class ProjectController {
       projectEnvLogSeq: projectEnvBuildSeq,
       serverId: server.id,
       serverName: server.name,
-      serverIp: server.ip
+      serverIp: server.ip,
     } as ProjectEnvLog);
 
 
@@ -787,7 +778,10 @@ export class ProjectController {
           publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}`,
           publishTime: publishTime,
         });
-        await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true,publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}` });
+        await this.projectEnvLogRepository.update(projectEnvLog.id, {
+          isFinish: true,
+          publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}`,
+        });
       });
 
     });

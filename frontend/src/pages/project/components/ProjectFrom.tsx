@@ -282,7 +282,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     {(fields) => {
 
                       // ant design Form.List 里暂无提供 record 字段，这里暂时扩展支持
-                      // eslint-disable-next-line no-unused-expressions
                       fields?.forEach((projectEnvServerField, projectEnvServerListIndex) => {
                         projectEnvServerField.record = projectEnvListField?.record?.projectEnvServerList[projectEnvServerListIndex];
                       });
