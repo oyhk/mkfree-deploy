@@ -5,6 +5,7 @@ import { MailOutlined, LoadingOutlined, FileOutlined } from '@ant-design/icons';
 import routes from '@/routes';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { ProjectEnvLogModelState } from '@/pages/project/models/ProjectEnvLogModel';
+import { momentFormat } from '@/utils/utils';
 
 const { Sider, Content, Header } = Layout;
 
@@ -94,7 +95,7 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
             <Layout>
               <Header style={{ padding: '0 20px',height:'auto' }}>
                 <Row>
-                  <Col sm={12}>时间：{state.info?.createdAt}</Col>
+                  <Col sm={12}>时间：{momentFormat(state.info?.createdAt)}</Col>
                   <Col sm={12}>类型：{state.info?.typeDesc}</Col>
 
                 </Row>

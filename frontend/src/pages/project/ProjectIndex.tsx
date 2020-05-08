@@ -7,7 +7,7 @@ import {
 import { connect, Link, Dispatch, useModel } from 'umi';
 import styles from '@/pages/project/project-index.less';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
-import { uuid } from '@/utils/utils';
+import { momentFormat, uuid } from '@/utils/utils';
 import { ProjectDto } from '@/services/dto/ProjectDto';
 import { ProjectEnvServerDto } from '@/services/dto/ProjectEnvServerDto';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
@@ -37,7 +37,7 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
         <div>{projectEnvServerList ? projectEnvServerList.map((pes) => (
           <span className={styles.ipRow}
-                key={`${pes.id}_${pes.envId}_${pes.publishTime}`}>{pes.publishTime}<br/></span>)) : ''}</div>
+                key={`${pes.id}_${pes.envId}_${pes.publishTime}`}>{momentFormat(pes.publishTime)}<br/></span>)) : ''}</div>
       ),
     },
     {

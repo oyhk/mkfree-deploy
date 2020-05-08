@@ -1,5 +1,6 @@
 import { DefaultFooter } from '@ant-design/pro-layout';
 import React from 'react';
+import moment from 'moment';
 
 /**
  * uuid 生成
@@ -22,3 +23,8 @@ export const uuid = () => {
   return uuidValue;
 };
 
+/**
+ * 时间格式化
+ * @param date
+ */
+export const momentFormat = (date: Date | string) => date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '';

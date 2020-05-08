@@ -9,7 +9,7 @@ export class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
   // @Exclude()
-  @CreateDateColumn()
+  @CreateDateColumn({ })
   createdAt: Date;
 
   // @Exclude()
@@ -19,11 +19,6 @@ export class BaseEntity {
   // 分页字段
   pageNo: number;
   pageSize: number;
-
-  @Expose()
-  get createdAtText(): string {
-    return moment(this.createdAt).format('YYYY-MM-DD HH:mm:ss');
-  }
 
   static getPageNo(pageNo) {
     if (!pageNo) {

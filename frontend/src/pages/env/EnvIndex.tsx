@@ -11,6 +11,7 @@ import { Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
 import { EnvDto } from '@/services/dto/EnvDto';
+import { momentFormat } from '@/utils/utils';
 
 export default () => {
 
@@ -69,6 +70,7 @@ export default () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
+      render: (createdAt: Date) => <div>{momentFormat(createdAt)}</div>,
     },
     {
       title: '操作',

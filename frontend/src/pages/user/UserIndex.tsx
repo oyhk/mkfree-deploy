@@ -18,6 +18,7 @@ import { ApiResult } from '@/services/ApiResult';
 import { PageResult } from '@/services/PageResult';
 import { UserDto } from '@/services/dto/UserDto';
 import { Button, notification } from 'antd';
+import { momentFormat } from '@/utils/utils';
 
 
 export default () => {
@@ -69,6 +70,7 @@ export default () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
+      render: (createdAt: Date) => <div>{momentFormat(createdAt)}</div>,
     },
     {
       title: '操作',

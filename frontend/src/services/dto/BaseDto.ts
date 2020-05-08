@@ -8,4 +8,6 @@ export interface BaseDto {
   // 分页参数
   pageNo?:number;
   pageSize?:number;
+  createdAt?:Date;
+  updatedAt?:Date;
 }

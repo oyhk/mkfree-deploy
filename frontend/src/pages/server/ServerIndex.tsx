@@ -11,6 +11,8 @@ import { Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ServerDto } from '@/services/dto/ServerDto';
 import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
+import moment from 'moment';
+import { momentFormat } from '@/utils/utils';
 
 export default () => {
 
@@ -30,7 +32,7 @@ export default () => {
       }),
       manual: false,
       paginated: true,
-      refreshOnWindowFocus:false
+      refreshOnWindowFocus: false,
     });
 
 
@@ -50,7 +52,7 @@ export default () => {
       });
       pageResult.run({ current: 1, pageSize: 10 });
     },
-    refreshOnWindowFocus:false
+    refreshOnWindowFocus: false,
   });
 
 
@@ -86,6 +88,7 @@ export default () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
+      render: (createdAt: Date) => <div>{momentFormat(createdAt)}</div>,
     },
     {
       title: '操作',
