@@ -13,6 +13,7 @@ import { Link, connect, history } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
 import { Dropdown, Menu, Button } from 'antd';
 import routes from '@/routes';
+import { Footer } from '@/utils/ComponentUtils';
 
 
 const BaseLayout: React.FC = props => {
@@ -178,17 +179,7 @@ const BaseLayout: React.FC = props => {
         </div>;
       }}
 
-      footerRender={() => <DefaultFooter
-        copyright="MKfree Deploy 2016-2020"
-        links={[
-          {
-            key: 'Mkfree Deploy',
-            title: 'Mkfree Deploy',
-            href: 'https://gitee.com/381895649/mkfree-deploy',
-            blankTarget: true,
-          },
-        ]}
-      />}
+      footerRender={()=>Footer}
     >
       {props.children}
     </ProLayout>
