@@ -29,7 +29,6 @@
     "@nestjs/platform-socket.io": "^7.0.8",
     "@nestjs/websockets": "^7.0.8",
     "hbs": "^4.1.1",
-    "//": "websocket库",
     "class-transformer": "^0.2.3",
     "moment": "^2.24.0",
     "reflect-metadata": "^0.1.13",
@@ -37,9 +36,7 @@
     "rxjs": "^6.5.4",
     "sqlite3": "^4.1.1",
     "typeorm": "^0.2.24",
-    "//": "数据库操作框架",
     "lodash": "^4.17.15",
-    "//": "数组操作库"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",
