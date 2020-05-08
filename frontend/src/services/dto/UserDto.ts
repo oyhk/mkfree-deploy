@@ -11,11 +11,8 @@ export interface UserDto extends BaseDto {
   roleType: 'superAdmin' | 'admin' | 'common';
 }
 
-/**
- * 用户登录后 access_token key
- */
-export const ACCESS_TOKEN_KEY = 'access_token';
-/**
- * 用户名 key
- */
-export const USERNAME = 'username';
+
+export const USER_KEY = {
+  ACCESS_TOKEN: 'access_token', // 用户登录 access_token
+  USERNAME: 'username', // 用户登录 username
+};

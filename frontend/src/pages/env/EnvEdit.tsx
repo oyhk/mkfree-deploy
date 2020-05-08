@@ -6,7 +6,7 @@ import routes from '@/routes';
 import { ApiResult } from '@/services/ApiResult';
 import EnvForm from '@/pages/env/EnvForm';
 import { ServerDto } from '@/services/dto/ServerDto';
-import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
+import {  USER_KEY } from '@/services/dto/UserDto';
 import { EnvDto } from '@/services/dto/EnvDto';
 
 
@@ -17,7 +17,7 @@ export default () => {
     url: `${routes.apiRoutes.envInfo.url}?id=${params?.id}`,
     method: routes.apiRoutes.envInfo.method,
     headers: {
-      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+      access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
     },
   }), { manual: false });
 

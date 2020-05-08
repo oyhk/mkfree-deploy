@@ -3,7 +3,7 @@ import { useRequest } from '@umijs/hooks';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { useParams } from 'umi';
 import routes from '@/routes';
-import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
+import {  USER_KEY, UserDto } from '@/services/dto/UserDto';
 import { ApiResult } from '@/services/ApiResult';
 import UserForm from '@/pages/user/UserForm';
 
@@ -15,7 +15,7 @@ export default () => {
     url: `${routes.apiRoutes.userInfo}?id=${params?.id}`,
     method: 'get',
     headers: {
-      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+      access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
     },
   }), { manual: false });
 

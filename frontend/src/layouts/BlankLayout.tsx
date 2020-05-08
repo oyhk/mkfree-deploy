@@ -4,7 +4,7 @@ import Request from '@/utils/Request1';
 import routes from '@/routes';
 import { ApiResult } from '@/services/ApiResult';
 import { notification } from 'antd';
-import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
+import {  USER_KEY } from '@/services/dto/UserDto';
 
 export default (props: any) => {
 
@@ -26,7 +26,7 @@ export default (props: any) => {
       requestMethod: (options = {}) => {
 
         options.headers = {
-          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+          access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
           ...options.headers,
         };
 

@@ -2,7 +2,7 @@ import { Button, Form, Input, notification, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useRequest } from '@umijs/hooks';
 import { ApiResult } from '@/services/ApiResult';
-import { ACCESS_TOKEN_KEY, UserDto } from '@/services/dto/UserDto';
+import {  USER_KEY, UserDto } from '@/services/dto/UserDto';
 import { history } from '@@/core/history';
 import routes from '@/routes';
 import { PageLoading } from '@ant-design/pro-layout';
@@ -34,7 +34,7 @@ export default (props: UserPageProps) => {
         url: url,
         method: method,
         headers: {
-          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+          access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
         },
         data: payload,
       });

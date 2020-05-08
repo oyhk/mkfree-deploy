@@ -10,8 +10,7 @@ import { PageResult } from '@/services/PageResult';
 import { Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ServerDto } from '@/services/dto/ServerDto';
-import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
-import moment from 'moment';
+import {  USER_KEY } from '@/services/dto/UserDto';
 import { momentFormat } from '@/utils/utils';
 
 export default () => {
@@ -21,7 +20,7 @@ export default () => {
         url: `${routes.apiRoutes.serverPage.url}?pageNo=${current}&pageSize=${pageSize}`,
         method: routes.apiRoutes.serverPage.method,
         headers: {
-          access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+          access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
         },
       });
     },
@@ -40,7 +39,7 @@ export default () => {
     url: routes.apiRoutes.serverDelete.url,
     method: routes.apiRoutes.serverDelete.method,
     headers: {
-      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+      access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
     },
     data: { id, ip },
   }), {

@@ -7,7 +7,7 @@ import routes, { HttpMethod } from '@/routes';
 import { PageLoading } from '@ant-design/pro-layout';
 import { ServerDto } from '@/services/dto/ServerDto';
 import { EnvDto } from '@/services/dto/EnvDto';
-import { ACCESS_TOKEN_KEY } from '@/services/dto/UserDto';
+import {  USER_KEY } from '@/services/dto/UserDto';
 
 interface ServerPageProps {
   info?: ServerDto;
@@ -61,7 +61,7 @@ export default (props: ServerPageProps) => {
     url: `${routes.apiRoutes.envList.url}`,
     method: routes.apiRoutes.envList.method,
     headers: {
-      access_token: localStorage.getItem(ACCESS_TOKEN_KEY),
+      access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
     },
   }), { manual: false });
 

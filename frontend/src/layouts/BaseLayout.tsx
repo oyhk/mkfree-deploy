@@ -14,12 +14,13 @@ import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
 import { Dropdown, Menu, Button } from 'antd';
 import routes from '@/routes';
 import { Footer } from '@/utils/ComponentUtils';
+import {  USER_KEY } from '@/services/dto/UserDto';
 
 
 const BaseLayout: React.FC = props => {
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = localStorage.getItem(USER_KEY.ACCESS_TOKEN);
     if (!accessToken) {
       history.replace(routes.pageRoutes.userLogin);
     }
@@ -163,8 +164,8 @@ const BaseLayout: React.FC = props => {
           <Dropdown overlay={
             <Menu
               onClick={() => {
-                localStorage.removeItem('username');
-                localStorage.removeItem('access_token');
+                localStorage.removeItem(USER_KEY.USERNAME);
+                localStorage.removeItem(USER_KEY.ACCESS_TOKEN);
                 history.replace(routes.pageRoutes.userLogin);
               }}
             >
@@ -174,12 +175,12 @@ const BaseLayout: React.FC = props => {
             </Menu>
           }
           >
-            <Button>{localStorage.getItem('username')} <UserOutlined/></Button>
+            <Button>{localStorage.getItem(USER_KEY.USERNAME)} <UserOutlined/></Button>
           </Dropdown>
         </div>;
       }}
 
-      footerRender={()=>Footer}
+      footerRender={() => Footer}
     >
       {props.children}
     </ProLayout>
