@@ -1,6 +1,6 @@
 import * as querystring from 'querystring';
 
-const gateway = 'http://localhost:5000';
+const gateway = process.env?.SOCKET_SERVER ? process.env?.SOCKET_SERVER : 'http://localhost:5000';
 const pageRoot = '';
 export const HttpMethod = {
   get: 'get',
@@ -12,7 +12,7 @@ export default {
 
   // 页面路由
   pageRoutes: {
-    root: '/',
+    root: process.env?.SOCKET_SERVER ? process.env?.SOCKET_SERVER : '/',
     installIndex: pageRoot + '/install',
     projectIndex: pageRoot + '/project',
     projectEdit: pageRoot + '/project/edit/:id',

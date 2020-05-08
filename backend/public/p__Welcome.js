@@ -1,1 +1,1 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([[7],{RyC9:function(e,n,l){"use strict";l.r(n);var o=l("q1tI"),t=l.n(o),a=l("Hx5s"),s=()=>t.a.createElement(a["b"],null,"Hello World!");n["default"]=s}}]);
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([[7],{RyC9:function(e,n,t){"use strict";t.r(n);var l=t("q1tI"),o=t.n(l),r=t("Hx5s"),a=()=>o.a.createElement(r["b"],null,"Hello World!",o.a.createElement("br",null),JSON.stringify(Object({SOCKET_SERVER:"/",NODE_ENV:"production"})));n["default"]=a}}]);

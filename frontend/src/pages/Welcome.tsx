@@ -5,6 +5,9 @@ const Welcome: React.FC = () => {
   return (
     <PageHeaderWrapper>
       Hello World!
+      <br/>
+      {JSON.stringify(process.env)}
+
     </PageHeaderWrapper>
 
   );
