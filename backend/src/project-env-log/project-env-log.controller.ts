@@ -80,6 +80,12 @@ export class ProjectEnvLogController {
       .replace(/(?:\r\n|\r|\n)/g, '<br/>');
 
     ar.result = projectEnvLogDto;
+
+    if(projectEnvLogDto.text &&
+      projectEnvLogDto.text.includes('End of')){
+      await this.projectEnvLogRepository.update(projectEnvLogDto.id,{isFinish:true});
+    }
+
     return res.json(ar);
   }
 

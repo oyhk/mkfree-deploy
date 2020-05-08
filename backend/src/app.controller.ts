@@ -12,7 +12,8 @@ export class AppController {
     '/project***',
     '/user**',
     '/server**',
-    '/installed**'
+    '/env**',
+    '/install**',
   ])
   @Render('index')
   index() {

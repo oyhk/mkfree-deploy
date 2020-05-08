@@ -15,6 +15,7 @@ export default (props: any) => {
         if (value.result !== 'SUCCESS') {
           props.history.replace(routes.pageRoutes.installIndex);
         }
+        localStorage.setItem('installed',value.result);
       });
     }
   });

@@ -90,6 +90,12 @@ const BaseLayout: React.FC = props => {
                   path: routes.pageRoutes.envCreate,
                   hideInMenu: true,
                 },
+                {
+                  name: '环境编辑',
+                  key: 'envEdit',
+                  path: routes.pageRoutes.envEdit,
+                  hideInMenu: true,
+                },
               ],
             },
             // 服务器
@@ -103,6 +109,12 @@ const BaseLayout: React.FC = props => {
                   name: '服务器创建',
                   key: 'serverCreate',
                   path: routes.pageRoutes.serverCreate,
+                  hideInMenu: true,
+                },
+                {
+                  name: '服务器编辑',
+                  key: 'serverEdit',
+                  path: routes.pageRoutes.serverEdit,
                   hideInMenu: true,
                 },
               ],
@@ -137,36 +149,36 @@ const BaseLayout: React.FC = props => {
           ]
         );
       }}
-        menuItemRender={(menuItemProps, defaultDom) => {
+      menuItemRender={(menuItemProps, defaultDom) => {
         if (menuItemProps.isUrl || menuItemProps.children || !menuItemProps.path) {
-        return defaultDom;
-      }
+          return defaultDom;
+        }
         return <Link to={menuItemProps.path}>{defaultDom}</Link>;
       }}
-        menuRender={(_, dom) => dom}
+      menuRender={(_, dom) => dom}
 
-        rightContentRender={(props: HeaderViewProps) => {
+      rightContentRender={(props: HeaderViewProps) => {
         return <div style={{ paddingRight: '20px' }}>
-        <Dropdown overlay={
-          <Menu
-            onClick={() => {
-              localStorage.removeItem('username');
-              localStorage.removeItem('access_token');
-              history.replace(routes.pageRoutes.userLogin);
-            }}
+          <Dropdown overlay={
+            <Menu
+              onClick={() => {
+                localStorage.removeItem('username');
+                localStorage.removeItem('access_token');
+                history.replace(routes.pageRoutes.userLogin);
+              }}
+            >
+              <Menu.Item key="1">
+                退出
+              </Menu.Item>
+            </Menu>
+          }
           >
-            <Menu.Item key="1">
-              退出
-            </Menu.Item>
-          </Menu>
-        }
-        >
-        <Button>{localStorage.getItem('username')} <UserOutlined/></Button>
-        </Dropdown>
+            <Button>{localStorage.getItem('username')} <UserOutlined/></Button>
+          </Dropdown>
         </div>;
       }}
 
-        footerRender={() => <DefaultFooter
+      footerRender={() => <DefaultFooter
         copyright="MKfree Deploy 2016-2020"
         links={[
           {
@@ -176,10 +188,10 @@ const BaseLayout: React.FC = props => {
             blankTarget: true,
           },
         ]}
-        />}
-        >
+      />}
+    >
       {props.children}
-        </ProLayout>
-        );
-        };
-        export default BaseLayout;
+    </ProLayout>
+  );
+};
+export default BaseLayout;

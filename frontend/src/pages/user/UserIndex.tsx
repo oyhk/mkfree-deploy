@@ -66,6 +66,13 @@ export default () => {
     {
       title: '用户类型',
       dataIndex: 'roleType',
+      render: (roleType: number) => {
+        return <div>
+          {roleType === 0 ? '超级管理员' : ''}
+          {roleType === 1 ? '管理员' : ''}
+          {roleType === 2 ? '普通成员' : ''}
+        </div>;
+      },
     },
     {
       title: '创建时间',

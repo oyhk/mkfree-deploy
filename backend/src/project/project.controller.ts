@@ -673,6 +673,12 @@ export class ProjectController {
     });
     const logPath = `${installPathSystemConfig.value}/logs/${project.name}`;
     const projectEnvPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/${env.code}`;
+
+    const projectEnvPathExist = fs.existsSync(projectEnvPath);
+    if (!projectEnvPathExist) {
+      ar.remind(ApiResultCode['1002']);
+      return res.json(ar);
+    }
     fs.mkdirSync(logPath, { recursive: true });
     const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(env.code, projectEnvBuildSeq)}`);
     // 服务器信息
@@ -947,6 +953,15 @@ export class ProjectController {
       return res.json(ar);
     }
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
+
+    const projectGitDefaultPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default`;
+
+    const projectGitDefaultPathExist = fs.existsSync(projectGitDefaultPath);
+    if (!projectGitDefaultPathExist) {
+      ar.remind(ApiResultCode['1002']);
+      return res.json(ar);
+    }
+
     const shell = `
       cd ${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/default
       git pull

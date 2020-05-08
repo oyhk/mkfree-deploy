@@ -14,7 +14,6 @@ import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import routes from '@/routes';
 import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
 import PluginEurekaIndex from '@/pages/project/components/PluginEurekaIndex';
-import { useDispatch, useSelector } from '@@/plugin-dva/exports';
 
 
 const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
@@ -37,7 +36,7 @@ const expandedRowRender = (projectDto: ProjectDto, dispatch: Dispatch) => {
       render: (projectEnvServerList: ProjectEnvServerDto[]) => (
         <div>{projectEnvServerList ? projectEnvServerList.map((pes) => (
           <span className={styles.ipRow}
-                key={`${pes.id}_${pes.envId}_${pes.publishTime}`}>{momentFormat(pes.publishTime)}<br/></span>)) : ''}</div>
+                key={`${pes.id}_${pes.envId}_${pes?.publishTime}`}>{momentFormat(pes?.publishTime)}<br/></span>)) : ''}</div>
       ),
     },
     {

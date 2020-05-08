@@ -27,4 +27,4 @@ export const uuid = () => {
  * 时间格式化
  * @param date
  */
-export const momentFormat = (date: Date | string) => date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '';
+export const momentFormat = (date: Date | string | undefined) => date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '';
