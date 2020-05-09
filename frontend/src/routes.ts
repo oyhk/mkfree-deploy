@@ -1,6 +1,6 @@
 import * as querystring from 'querystring';
 
-const gateway = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '';
+const gateway = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '/';
 const pageRoot = '';
 export const HttpMethod = {
   get: 'get',
