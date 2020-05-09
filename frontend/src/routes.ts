@@ -1,6 +1,6 @@
 import * as querystring from 'querystring';
 
-const gateway = process.env?.SOCKET_SERVER ? process.env?.SOCKET_SERVER : 'http://localhost:5000';
+const gateway = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '';
 const pageRoot = '';
 export const HttpMethod = {
   get: 'get',
@@ -12,7 +12,7 @@ export default {
 
   // 页面路由
   pageRoutes: {
-    root: process.env?.SOCKET_SERVER ? process.env?.SOCKET_SERVER : '/',
+    root: '/',
     installIndex: pageRoot + '/install',
     projectIndex: pageRoot + '/project',
     projectEdit: pageRoot + '/project/edit/:id',
@@ -48,57 +48,57 @@ export default {
   apiRoutes: {
 
     systemInstall: {
-      url: gateway + '/api/systems/install',
+      url: gateway + 'api/systems/install',
       method: HttpMethod.post,
     },
     systemInstalled: {
-      url: gateway + '/api/systems/installed',
+      url: gateway + 'api/systems/installed',
       method: HttpMethod.get,
     },
 
-    projectPage: gateway + '/api/projects/page',
-    projectInfo: gateway + '/api/projects/info',
-    projectSave: gateway + '/api/projects/save',
-    projectUpdate: gateway + '/api/projects/update',
-    projectDeleted: gateway + '/api/projects/deleted',
-    projectBuild: gateway + '/api/projects/build',
-    projectSync: gateway + '/api/projects/sync',
-    projectInit: gateway + '/api/projects/init',
-    projectRefreshBranch: gateway + '/api/projects/refreshBranch',
+    projectPage: gateway + 'api/projects/page',
+    projectInfo: gateway + 'api/projects/info',
+    projectSave: gateway + 'api/projects/save',
+    projectUpdate: gateway + 'api/projects/update',
+    projectDeleted: gateway + 'api/projects/deleted',
+    projectBuild: gateway + 'api/projects/build',
+    projectSync: gateway + 'api/projects/sync',
+    projectInit: gateway + 'api/projects/init',
+    projectRefreshBranch: gateway + 'api/projects/refreshBranch',
 
-    envList: { url: gateway + '/api/envs/list', method: HttpMethod.get },
+    envList: { url: gateway + 'api/envs/list', method: HttpMethod.get },
 
-    serverList: gateway + '/api/servers/list',
+    serverList: gateway + 'api/servers/list',
 
-    projectEnvList: gateway + '/api/projectEnvs/list',
-    projectEnvInfo: gateway + '/api/projectEnvs/info',
-    projectEnvPluginInfo: gateway + '/api/projectEnvPlugins/info',
-    projectEnvLogList: gateway + '/api/projectEnvLogs/list',
-    projectEnvLogInfo: gateway + '/api/projectEnvLogs/info',
+    projectEnvList: gateway + 'api/projectEnvs/list',
+    projectEnvInfo: gateway + 'api/projectEnvs/info',
+    projectEnvPluginInfo: gateway + 'api/projectEnvPlugins/info',
+    projectEnvLogList: gateway + 'api/projectEnvLogs/list',
+    projectEnvLogInfo: gateway + 'api/projectEnvLogs/info',
 
-    userLogin: { url: gateway + '/api/users/login', method: HttpMethod.post },
-    userPage: gateway + '/api/users/page',
-    userSave: gateway + '/api/users/save',
-    userInfo: gateway + '/api/users/info',
+    userLogin: { url: gateway + 'api/users/login', method: HttpMethod.post },
+    userPage: gateway + 'api/users/page',
+    userSave: gateway + 'api/users/save',
+    userInfo: gateway + 'api/users/info',
     userDelete: {
-      url: gateway + '/api/users/delete',
+      url: gateway + 'api/users/delete',
       method: HttpMethod.delete,
     },
-    userUpdate: gateway + '/api/users/update',
+    userUpdate: gateway + 'api/users/update',
 
-    serverPage: { url: gateway + '/api/servers/page', method: HttpMethod.get },
-    serverUpdate: { url: gateway + '/api/servers/update', method: HttpMethod.put },
-    serverSave: { url: gateway + '/api/servers/save', method: HttpMethod.post },
-    serverInfo: { url: gateway + '/api/servers/info', method: HttpMethod.get },
-    serverDelete: { url: gateway + '/api/servers/delete', method: HttpMethod.delete },
+    serverPage: { url: gateway + 'api/servers/page', method: HttpMethod.get },
+    serverUpdate: { url: gateway + 'api/servers/update', method: HttpMethod.put },
+    serverSave: { url: gateway + 'api/servers/save', method: HttpMethod.post },
+    serverInfo: { url: gateway + 'api/servers/info', method: HttpMethod.get },
+    serverDelete: { url: gateway + 'api/servers/delete', method: HttpMethod.delete },
 
     envPage: (searchParams?: any) => {
-      return { url: `${gateway}/api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
+      return { url: `${gateway}api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
-    envUpdate: { url: gateway + '/api/envs/update', method: HttpMethod.put },
-    envSave: { url: gateway + '/api/envs/save', method: HttpMethod.post },
-    envInfo: { url: gateway + '/api/envs/info', method: HttpMethod.get },
-    envDelete: { url: gateway + '/api/envs/delete', method: HttpMethod.delete },
+    envUpdate: { url: gateway + 'api/envs/update', method: HttpMethod.put },
+    envSave: { url: gateway + 'api/envs/save', method: HttpMethod.post },
+    envInfo: { url: gateway + 'api/envs/info', method: HttpMethod.get },
+    envDelete: { url: gateway + 'api/envs/delete', method: HttpMethod.delete },
   },
 };
 
