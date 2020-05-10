@@ -333,10 +333,10 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                     label="选择同步服务器"
                     name={[projectEnvListField.name, 'syncServerId']}
                   >
-                    <Radio.Group buttonStyle="solid">
+                    <Radio.Group>
                       {
                         project?.serverList?.map((server) => {
-                          return <Radio.Button value={server.id} key={uuid()}>{server.name}-{server.ip}</Radio.Button>;
+                          return <Radio value={server.id} key={uuid()}>{server.name}-{server.ip}</Radio>;
                         })
                       }
                     </Radio.Group>
