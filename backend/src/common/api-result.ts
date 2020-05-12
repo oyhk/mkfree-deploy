@@ -5,6 +5,8 @@ export const ApiResultCode = {
   3: { code: 3, desc: '温馨提示：' },
 
   11: { code: 11, desc: '系统：未安装' },
+  12: { code: 12, desc: '系统：权限不足请联系超级管理员' },
+  107: { code: 107, desc: '用户：权限不足，请联系超级管理员' },
 
   101: { code: 101, desc: '用户：用户不存在' },
   102: { code: 102, desc: '用户：密码错误' },
@@ -12,7 +14,7 @@ export const ApiResultCode = {
   104: { code: 104, desc: '用户：accessToken 已过期，请重新登录' },
   105: { code: 105, desc: '用户：用户名已存在' },
   106: { code: 106, desc: '用户：超级管理员不允许删除' },
-  107: { code: 107, desc: '用户：权限不足，请联系超级管理员' },
+
 
   1001: { code: 1001, desc: '项目：请先初始化项目' },
   1002: { code: 1002, desc: '项目：构建环境目录不存在，请重新初始化项目' },

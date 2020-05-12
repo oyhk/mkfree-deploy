@@ -76,7 +76,7 @@ export class UserController {
     const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
     // 非管理员 无权限删除
     if (userAuth.roleType !== 0) {
-      ar.remind(ApiResultCode['107']);
+      ar.remind(ApiResultCode['12']);
       return res.json(ar);
     }
 
@@ -109,7 +109,7 @@ export class UserController {
 
     // 非管理员 并且 修改密码不是本人 无权限修改
     if (userAuth.roleType !== 0 && user.id !== userAuth.id) {
-      ar.remind(ApiResultCode['107']);
+      ar.remind(ApiResultCode['12']);
       return res.json(ar);
     }
 
@@ -132,7 +132,7 @@ export class UserController {
     const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
     // 非管理员 无权限删除
     if (userAuth.roleType !== 0) {
-      ar.remind(ApiResultCode['107']);
+      ar.remind(ApiResultCode['12']);
       return res.json(ar);
     }
 

@@ -8,7 +8,7 @@ export const Footer = <DefaultFooter
       {
         key: 'Mkfree Deploy',
         title: 'Mkfree Deploy',
-        href: 'https://gitee.com/381895649/mkfree-deploy',
+        href: 'https://gitee.com/oyhk/mkfree-deploy',
         blankTarget: true,
       },
     ]

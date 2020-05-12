@@ -10,7 +10,7 @@ import { PageResult } from '@/services/PageResult';
 import { Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ServerDto } from '@/services/dto/ServerDto';
-import {  USER_KEY } from '@/services/dto/UserDto';
+import { USER_KEY } from '@/services/dto/UserDto';
 import { momentFormat } from '@/utils/utils';
 
 export default () => {
@@ -45,11 +45,13 @@ export default () => {
   }), {
     manual: true,
     onSuccess: (data, params) => {
-      notification.success({
-        message: `用户：${params[0]?.ip}`,
-        description: '删除成功',
-      });
-      pageResult.run({ current: 1, pageSize: 10 });
+      if (data.result) {
+        notification.success({
+          message: `服务器：${params[0]?.ip}`,
+          description: '删除成功',
+        });
+        pageResult.run({ current: 1, pageSize: 10 });
+      }
     },
     refreshOnWindowFocus: false,
   });
@@ -75,10 +77,6 @@ export default () => {
     {
       title: 'ssh端口',
       dataIndex: 'sshPort',
-    },
-    {
-      title: '环境id',
-      dataIndex: 'envId',
     },
     {
       title: '环境名称',

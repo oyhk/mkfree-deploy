@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResult, ApiResultCode } from '../common/api-result';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +9,8 @@ import { Page } from '../common/page';
 import { ServerDto } from '../server/server.dto';
 import { UserDto } from '../user/user.dto';
 import { User, UserRoleType } from '../user/user.entity';
+import { UserAuth, UserAuthOperation } from '../user/user-auth';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller()
 export class EnvController {
@@ -16,6 +18,7 @@ export class EnvController {
   constructor(
     @InjectRepository(Env)
     private envRepository: Repository<Env>,
+    private jwtService: JwtService,
   ) {
   }
 
@@ -40,8 +43,16 @@ export class EnvController {
   }
 
   @Delete('/api/envs/delete')
-  async delete(@Body() dto: EnvDto, @Res() res: Response) {
+  async delete(@Body() dto: EnvDto,@Req() req, @Res() res: Response) {
     const ar = new ApiResult();
+
+    const accessToken = req.header(UserAuthOperation.accessTokenKey);
+    const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
+    // 非管理员 无权限删除
+    if (userAuth.roleType !== 0) {
+      ar.remind(ApiResultCode['12']);
+      return res.json(ar);
+    }
 
     const env = await this.envRepository.findOne(dto.id);
     if (!env) {

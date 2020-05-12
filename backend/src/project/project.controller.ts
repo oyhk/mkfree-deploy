@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ProjectDto } from './project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
@@ -24,6 +24,8 @@ import { ProjectEnvServer } from '../project-env-server/project-env-server.entit
 import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
 import { Plugin, PluginList, PluginType } from '../plugin/plugin.entity';
 import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entity';
+import { UserAuth, UserAuthOperation } from '../user/user-auth';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller()
 export class ProjectController {
@@ -55,6 +57,7 @@ export class ProjectController {
     private projectLogRepository: Repository<ProjectLog>,
     @InjectRepository(ProjectEnvLog)
     private projectEnvLogRepository: Repository<ProjectEnvLog>,
+    private jwtService: JwtService,
   ) {
   }
 
@@ -449,8 +452,15 @@ export class ProjectController {
 
   @Post('/api/projects/deleted')
   @Transaction()
-  async deleted(@Body() dto: ProjectDto, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+  async deleted(@Body() dto: ProjectDto,@Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
     const ar = new ApiResult();
+    const accessToken = req.header(UserAuthOperation.accessTokenKey);
+    const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
+    // 非管理员 无权限删除
+    if (userAuth.roleType !== 0) {
+      ar.remind(ApiResultCode['12']);
+      return res.json(ar);
+    }
 
     const project = await entityManager.findOne(Project, dto.id);
     console.log('project', project);

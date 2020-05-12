@@ -14,6 +14,7 @@ import { ProjectEnvLog } from '../project-env-log/project-env-log.entity';
 import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
 import { Plugin } from '../plugin/plugin.entity';
 import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
@@ -32,7 +33,7 @@ import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entit
       ProjectLog,
       ProjectEnvLog,
     ],
-  )],
+  ), JwtModule.register({ secret: 'hard!to-guess_secret' })],
   controllers: [ProjectController],
 })
 export class ProjectModule {

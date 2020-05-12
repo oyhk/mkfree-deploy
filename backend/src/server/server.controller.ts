@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { Server } from './server.entity';
 import { Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,9 @@ import { ServerDto } from './server.dto';
 import { ApiResult, ApiResultCode } from '../common/api-result';
 import { Page } from '../common/page';
 import { Env } from '../env/env.entity';
+import { EnvDto } from '../env/env.dto';
+import { UserAuth, UserAuthOperation } from '../user/user-auth';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller()
 export class ServerController {
@@ -15,6 +18,7 @@ export class ServerController {
     private serverRepository: Repository<Server>,
     @InjectRepository(Env)
     private envRepository: Repository<Env>,
+    private jwtService: JwtService,
   ) {
   }
 
@@ -62,6 +66,29 @@ export class ServerController {
     ar.result = page;
     return res.json(ar);
   }
+
+  @Delete('/api/servers/delete')
+  async delete(@Body() dto: EnvDto, @Req() req, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    const accessToken = req.header(UserAuthOperation.accessTokenKey);
+    const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
+    // 非管理员 无权限删除
+    if (userAuth.roleType !== 0) {
+      ar.remind(ApiResultCode['12']);
+      return res.json(ar);
+    }
+
+    const server = await this.serverRepository.findOne(dto.id);
+    if (!server) {
+      ar.remindRecordNotExist(Env.entityName, { id: dto.id });
+      return res.json(ar);
+    }
+    await this.serverRepository.delete(dto.id);
+
+    return res.json(ar);
+  }
+
 
   @Get('/api/servers/list')
   async list(@Query() dto: ServerDto, @Res() res: Response) {
