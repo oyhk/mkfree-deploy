@@ -121,7 +121,7 @@ export class UserController {
       user.roleType = dto.roleType;
     }
     await this.userRepository.save(user);
-    return res.json(new ApiResult());
+    return res.json(ar);
   }
 
   @Delete('/api/users/delete')
