@@ -18,7 +18,7 @@ export default () => {
   }), {
     manual: true,
     onSuccess: (apiResult, params) => {
-      if (apiResult.result) {
+      if (apiResult?.result) {
         localStorage.setItem(USER_KEY.ACCESS_TOKEN, apiResult.result.accessToken);
         localStorage.setItem(USER_KEY.USERNAME, apiResult.result.username);
         history.push(routes.pageRoutes.root);

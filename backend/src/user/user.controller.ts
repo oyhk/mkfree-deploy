@@ -5,7 +5,7 @@ import {
   Get, Inject,
   Post,
   Put,
-  Query,
+  Query, Req,
   Res,
   UseInterceptors,
 } from '@nestjs/common';
@@ -69,13 +69,21 @@ export class UserController {
   }
 
   @Post('/api/users/save')
-  async save(@Body() dto: UserDto, @Res() res: Response) {
-    const r = new ApiResult();
+  async save(@Body() dto: UserDto, @Req() req, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    const accessToken = req.header(UserAuthOperation.accessTokenKey);
+    const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
+    // 非管理员 无权限删除
+    if (userAuth.roleType !== 0) {
+      ar.remind(ApiResultCode['107']);
+      return res.json(ar);
+    }
 
     let user = await this.userRepository.findOne({ username: dto.username });
     if (user) {
-      r.remind(ApiResultCode['105']);
-      return res.json(r);
+      ar.remind(ApiResultCode['105']);
+      return res.json(ar);
     }
 
     user = new User();
@@ -84,16 +92,27 @@ export class UserController {
     user.passwordSalt = UUID();
     user.password = User.getMd5Password(user.passwordSalt, dto.password);
     user = await this.userRepository.save(user);
-    r.result = {
+    ar.result = {
       username: user.username,
     };
-    return res.json(r);
+    return res.json(ar);
   }
 
   @Put('/api/users/update')
-  async update(@Body() dto: UserDto, @Res() res: Response) {
+  async update(@Body() dto: UserDto, @Req() req, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    const accessToken = req.header(UserAuthOperation.accessTokenKey);
+    const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
+
     const user: User = await this.userRepository.findOne({ id: dto.id });
-    console.log(dto);
+
+    // 非管理员 并且 修改密码不是本人 无权限修改
+    if (userAuth.roleType !== 0 && user.id !== userAuth.id) {
+      ar.remind(ApiResultCode['107']);
+      return res.json(ar);
+    }
+
     if (dto.password) {
       user.passwordSalt = UUID();
       user.password = User.getMd5Password(user.passwordSalt, dto.password);
@@ -106,15 +125,23 @@ export class UserController {
   }
 
   @Delete('/api/users/delete')
-  async delete(@Body() dto: UserDto, @Res() res: Response) {
+  async delete(@Body() dto: UserDto, @Req() req, @Res() res: Response) {
     const ar = new ApiResult();
+
+    const accessToken = req.header(UserAuthOperation.accessTokenKey);
+    const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
+    // 非管理员 无权限删除
+    if (userAuth.roleType !== 0) {
+      ar.remind(ApiResultCode['107']);
+      return res.json(ar);
+    }
 
     const user = await this.userRepository.findOne(dto.id);
     if (!user) {
       ar.remindRecordNotExist(User.entityName, { id: dto.id });
       return res.json(ar);
     }
-    if(user.roleType === UserRoleType.superAdmin){
+    if (user.roleType === UserRoleType.superAdmin) {
       ar.remind(ApiResultCode['106']);
       return res.json(ar);
     }
@@ -140,6 +167,7 @@ export class UserController {
       return res.json(ar);
     }
     const accessToken = this.jwtService.sign({
+      id: user.id,
       username: user.username,
       roleType: user.roleType,
       permissionList: [],

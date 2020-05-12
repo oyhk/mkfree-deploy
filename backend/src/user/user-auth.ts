@@ -1,4 +1,5 @@
 export class UserAuth {
+  id:number;
   username: string;
   roleType: number;
   permissionList: [];
@@ -20,5 +21,6 @@ export class UserAuth {
  * 用户认证操作
  */
 export const UserAuthOperation = {
-  expiresIn: '7d', // 默认7天
+  expiresIn: '7d', // 默认7天,
+  accessTokenKey:'access_token', // access_token key
 };
