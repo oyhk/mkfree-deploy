@@ -65,6 +65,10 @@ export class ProjectController {
 
 
     const projectDtoList: ProjectDto[] = [];
+
+    const envList = await this.envRepository.find({isEnable:true});
+    const envIdList = envList.map(value => value.id);
+
     await this.projectRepository.createQueryBuilder('p')
       .skip(dto.pageNo - 1)
       .take(dto.pageSize)
@@ -78,7 +82,7 @@ export class ProjectController {
           // 项目环境
           const projectEnvDtoList: ProjectEnvDto[] = [];
           const projectEnvList = await this.projectEnvRepository.find({ projectId: project.id });
-          for (const projectEnv of projectEnvList.sort((a, b) => a.envSort - b.envSort)) {
+          for (const projectEnv of projectEnvList.filter(value => envIdList.includes(value.envId)).sort((a, b) => a.envSort - b.envSort)) {
             const projectEnvDto = { ...projectEnv } as ProjectEnvDto;
             // 项目环境服务器
             projectEnvDto.projectEnvServerList = await this.projectEnvServerRepository.find({
