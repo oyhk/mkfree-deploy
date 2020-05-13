@@ -7,6 +7,7 @@ import {
   CloudServerOutlined,
   DeploymentUnitOutlined,
   EnvironmentOutlined,
+  PushpinOutlined,
 } from '@ant-design/icons';
 import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
 import { Link, connect, history } from 'umi';
@@ -148,6 +149,34 @@ const BaseLayout: React.FC = props => {
                 },
               ],
             },
+            // 版本计划
+            {
+              icon: <PushpinOutlined />,
+              name: '版本计划',
+              key: 'plan',
+              path: routes.pageRoutes.planIndex,
+              children: [
+                // {
+                //   name: '项目编辑',
+                //   key: 'projectEdit',
+                //   path: routes.pageRoutes.projectEdit,
+                //   hideInMenu: true,
+                // },
+                {
+                  name: '版本计划创建',
+                  key: 'planCreate',
+                  path: routes.pageRoutes.planCreate,
+                  hideInMenu: true,
+                },
+                // {
+                //   name: '项目环境日志',
+                //   key: 'projectEnvLog',
+                //   path: routes.pageRoutes.projectEnvLogIndex,
+                //   hideInMenu: true,
+                // },
+              ],
+            },
+
           ]
         );
       }}

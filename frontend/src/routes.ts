@@ -15,6 +15,7 @@ export default {
     root: '/',
     installIndex: pageRoot + '/install',
     projectIndex: pageRoot + '/project',
+
     projectEdit: pageRoot + '/project/edit/:id',
     projectEditParams: (id: any) => pageRoot + `/project/edit/${id}`,
     projectCreate: pageRoot + '/project/create',
@@ -26,6 +27,10 @@ export default {
         value = pageRoot + `/project/${projectId}/env/${envId}/log/${seq}`;
       return value;
     },
+    // 版本计划
+    planIndex: pageRoot + '/plan',
+    planCreate: pageRoot + '/plan/create',
+
 
     userIndex: pageRoot + '/user',
     userCreate: pageRoot + '/user/create',
@@ -95,6 +100,12 @@ export default {
     envPage: (searchParams?: any) => {
       return { url: `${gateway}api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
+
+    planProjectList: (searchParams?: any) => {
+      return { url: `${gateway}api/plans/project-list?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
+    },
+
+
     envUpdate: { url: gateway + 'api/envs/update', method: HttpMethod.put },
     envSave: { url: gateway + 'api/envs/save', method: HttpMethod.post },
     envInfo: { url: gateway + 'api/envs/info', method: HttpMethod.get },

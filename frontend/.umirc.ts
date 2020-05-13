@@ -81,6 +81,30 @@ const config: IConfig = {
                 },
               ],
             },
+
+            // 版本计划模块
+            {
+              path: routes.pageRoutes.planIndex,
+              title: '版本计划',
+              routes: [
+                {
+                  title: '版本计划管理',
+                  path: routes.pageRoutes.planIndex,
+                  component: '@/pages/plan/PlanIndex',
+                },
+                // {
+                //   title: '项目编辑',
+                //   path: routes.pageRoutes.projectEdit,
+                //   component: '@/pages/project/ProjectEdit',
+                // },
+                {
+                  title: '版本计划创建',
+                  path: routes.pageRoutes.planCreate,
+                  component: '@/pages/plan/PlanCreate',
+                },
+              ],
+            },
+
             // 用户模块
             {
               path: routes.pageRoutes.userIndex,

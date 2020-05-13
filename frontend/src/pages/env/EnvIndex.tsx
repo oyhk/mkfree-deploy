@@ -27,7 +27,7 @@ export default () => {
       }),
       manual: false,
       paginated: true,
-      refreshOnWindowFocus:false
+      refreshOnWindowFocus: false,
     });
 
 
@@ -48,7 +48,7 @@ export default () => {
         paginatedResult.run({ current: 1, pageSize: 10 });
       }
     },
-    refreshOnWindowFocus:false
+    refreshOnWindowFocus: false,
   });
 
 

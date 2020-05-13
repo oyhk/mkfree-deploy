@@ -17,6 +17,7 @@ import { ProjectPluginModule } from './project-plugin/project-plugin.module';
 import { PluginModule } from './plugin/plugin.module';
 import { ProjectEnvPluginModule } from './project-dev-plugin/project-env-plugin.module';
 import { SystemModule } from './system-config/system.module';
+import { PlanModule } from './plan/plan.module';
 
 
 @Module({
@@ -44,6 +45,7 @@ import { SystemModule } from './system-config/system.module';
     ProjectCommandStepModule,
     SystemConfigModule,
     LogWebsocketModule,
+    PlanModule,
   ],
   providers: [],
   controllers: [AppController],
