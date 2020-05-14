@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
-import { Col, Layout, Menu, Row, Select, Tree } from 'antd';
+import { Col, Layout, Menu, Row, Select, Tree, Checkbox } from 'antd';
 import { useParams } from 'umi';
 import { history } from '@@/core/history';
 import routes from '@/routes';
@@ -15,8 +15,8 @@ export default () => {
 
   const [treeProjectList, setTreeProjectList] = useState();
 
-  const projectListUseRequest = useRequest<ApiResult<ProjectDto[]>>(() => routes.apiRoutes.planProjectList()
-    ,
+  useRequest<ApiResult<ProjectDto[]>>(
+    () => routes.apiRoutes.planProjectList(),
     {
       onSuccess: (apiResult, params) => {
         if (apiResult.result) {
@@ -26,7 +26,6 @@ export default () => {
             key: projectDto.id,
           })));
         }
-
       },
       manual: false,
       refreshOnWindowFocus: false,
@@ -39,22 +38,29 @@ export default () => {
     >
       <Layout>
         <Sider theme='light'
+               width='21%'
         >
-          <Row>
+          <Row style={{ paddingTop: '10px', paddingBottom: '10px' }}>
             <Tree
               checkable
               treeData={treeProjectList}
             />
           </Row>
         </Sider>
-        <Layout>
-          <Header style={{ padding: '0 20px', height: 'auto' }}>
-            header
-          </Header>
-          <Content>
-            content
-          </Content>
-        </Layout>
+        <Content style={{ padding: '10px 10px' }}>
+          <div>
+            <h2>基本信息</h2>
+            <Row>
+              <Checkbox.Group
+                options={['Apple', 'Pear', 'Orange']}
+                defaultValue={['Apple']}
+              />
+            </Row>
+          </div>
+          <div>
+            <h2>公共配置</h2>
+          </div>
+        </Content>
       </Layout>
     </PageHeaderWrapper>
   );

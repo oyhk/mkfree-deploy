@@ -54,7 +54,7 @@ const config: IConfig = {
               routes: [
                 // 项目模块
                 {
-                  title: '项目管理',
+                  title: '项目',
                   path: routes.pageRoutes.projectIndex,
                   component: '@/pages/project/ProjectIndex',
                 },
