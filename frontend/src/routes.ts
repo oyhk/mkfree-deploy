@@ -30,6 +30,8 @@ export default {
     // 版本计划
     planIndex: pageRoot + '/plan',
     planCreate: pageRoot + '/plan/create',
+    planEdit: pageRoot + '/plan/edit/:id',
+    planEditParams: (id: any) => pageRoot + `/plan/edit/${id}`,
 
 
     userIndex: pageRoot + '/user',
@@ -100,14 +102,16 @@ export default {
     envPage: (searchParams?: any) => {
       return { url: `${gateway}api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
-
+    planPage: (searchParams?: any) => {
+      return { url: `${gateway}api/plans/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
+    },
     planProjectList: (searchParams?: any) => {
       return { url: `${gateway}api/plans/project-list?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
     planSave: (payload: any) => {
       return { url: `${gateway}api/plans/save`, method: HttpMethod.post, data: payload };
     },
-
+    planDelete: (payload: any) => ({ url: gateway + 'api/envs/delete', method: HttpMethod.delete, data: payload }),
 
     envUpdate: { url: gateway + 'api/envs/update', method: HttpMethod.put },
     envSave: { url: gateway + 'api/envs/save', method: HttpMethod.post },

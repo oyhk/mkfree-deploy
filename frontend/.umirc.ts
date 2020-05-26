@@ -88,15 +88,15 @@ const config: IConfig = {
               title: '版本计划',
               routes: [
                 {
-                  title: '版本计划管理',
+                  title: '版本计划',
                   path: routes.pageRoutes.planIndex,
                   component: '@/pages/plan/PlanIndex',
                 },
-                // {
-                //   title: '项目编辑',
-                //   path: routes.pageRoutes.projectEdit,
-                //   component: '@/pages/project/ProjectEdit',
-                // },
+                {
+                  title: '版本计划编辑',
+                  path: routes.pageRoutes.planEdit,
+                  component: '@/pages/plan/PlanEdit',
+                },
                 {
                   title: '版本计划创建',
                   path: routes.pageRoutes.planCreate,
