@@ -218,7 +218,7 @@ const ProjectModel: ProjectModelType = {
 
 
     * deleted({ payload }, { call, put, select }) {
-      yield call(projectService.deleted, { payload: payload }, () => {
+      yield call(projectService.deleted, payload , () => {
         notification.success({
           message: `项目：${payload.name}`,
           description: '删除成功',
