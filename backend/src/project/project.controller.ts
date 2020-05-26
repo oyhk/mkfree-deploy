@@ -855,7 +855,6 @@ export class ProjectController {
     }
     const syncProjectEnvServer = await this.projectEnvServerRepository.findOne({
       isPublish: true,
-      envId:projectEnv.envId,
       serverId: projectEnv.syncServerId,
       projectId:project.id,
     });
