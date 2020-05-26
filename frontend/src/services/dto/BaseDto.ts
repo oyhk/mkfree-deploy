@@ -4,7 +4,7 @@
 export interface BaseDto {
   // eachKey
   key?:string;
-  id?: number;
+  id?: number|string;
   // 分页参数
   pageNo?:number;
   pageSize?:number;

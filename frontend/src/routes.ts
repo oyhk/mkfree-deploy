@@ -73,7 +73,7 @@ export default {
 
     envList: { url: gateway + 'api/envs/list', method: HttpMethod.get },
 
-    serverList: gateway + 'api/servers/list',
+    serverList: { url: gateway + 'api/servers/list', method: HttpMethod.get },
 
     projectEnvList: gateway + 'api/projectEnvs/list',
     projectEnvInfo: gateway + 'api/projectEnvs/info',
@@ -103,6 +103,9 @@ export default {
 
     planProjectList: (searchParams?: any) => {
       return { url: `${gateway}api/plans/project-list?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
+    },
+    planSave: (payload: any) => {
+      return { url: `${gateway}api/plans/save`, method: HttpMethod.post, data: payload };
     },
 
 

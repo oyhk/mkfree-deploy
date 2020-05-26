@@ -7,7 +7,7 @@ import { Footer } from '@/utils/ComponentUtils';
 import { useFormTable, useRequest } from '@umijs/hooks';
 import routes from '@/routes';
 import { history } from '@@/core/history';
-import {  USER_KEY } from '@/services/dto/UserDto';
+import { USER_KEY } from '@/services/dto/UserDto';
 
 export default () => {
 
@@ -21,6 +21,7 @@ export default () => {
       if (apiResult?.result) {
         localStorage.setItem(USER_KEY.ACCESS_TOKEN, apiResult.result.accessToken);
         localStorage.setItem(USER_KEY.USERNAME, apiResult.result.username);
+        localStorage.setItem(USER_KEY.USER_ID, apiResult.result.id);
         history.push(routes.pageRoutes.root);
       }
     },

@@ -15,4 +15,6 @@ export interface UserDto extends BaseDto {
 export const USER_KEY = {
   ACCESS_TOKEN: 'access_token', // 用户登录 access_token
   USERNAME: 'username', // 用户登录 username
+  USER_ID: 'user_id', // 用户登录 username
 };
+
