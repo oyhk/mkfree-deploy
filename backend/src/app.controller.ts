@@ -10,6 +10,7 @@ export class AppController {
   @Get([
     '/',
     '/project***',
+    '/plan***',
     '/user**',
     '/server**',
     '/env**',
