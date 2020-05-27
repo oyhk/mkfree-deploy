@@ -9,7 +9,8 @@ import { ApiResultCode } from '../common/api-result';
 export class PlanEnvProjectConfigServer extends BaseEntity {
 
   static entityName = 'PlanEnvProjectConfigServer';
-
+  @Column({ comment: '版本计划id' })
+  planId:number;
   @Column({ comment: '项目环境项目配置id' })
   planEnvProjectConfigId: number;
   @Column({ comment: '项目环境项目配置服务器id' })

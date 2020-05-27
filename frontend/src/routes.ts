@@ -108,8 +108,15 @@ export default {
     planProjectList: (searchParams?: any) => {
       return { url: `${gateway}api/plans/project-list?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
-    planSave: (payload: any) => {
+    planInfo: (searchParams?: any) => ({
+      url: `${gateway}api/plans/info?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
+    planSave: (payload?: any) => {
       return { url: `${gateway}api/plans/save`, method: HttpMethod.post, data: payload };
+    },
+    planUpdate: (payload?: any) => {
+      return { url: `${gateway}api/plans/update`, method: HttpMethod.put, data: payload };
     },
     planDelete: (payload: any) => ({ url: gateway + 'api/envs/delete', method: HttpMethod.delete, data: payload }),
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResult, ApiResultCode } from '../common/api-result';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,6 +19,7 @@ import { ServerDto } from '../server/server.dto';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { PlanEnvDto } from './plan-env.dto';
 import { PlanEnvProjectConfigDto } from './plan-env-project-config.dto';
+import { PlanScriptDto } from './plan-script.dto';
 
 @Controller()
 export class PlanController {
@@ -30,6 +31,8 @@ export class PlanController {
     private projectRepository: Repository<Project>,
     @InjectRepository(Plan)
     private planRepository: Repository<Plan>,
+    @InjectRepository(PlanScript)
+    private planScriptRepository: Repository<PlanScript>,
     @InjectRepository(PlanEnv)
     private planEnvRepository: Repository<PlanEnv>,
     @InjectRepository(PlanEnvProjectConfig)
@@ -50,6 +53,12 @@ export class PlanController {
   @Get('/api/plans/info')
   async info(@Query() dto: PlanDto, @Res() res: Response) {
     const ar = new ApiResult();
+    if (!dto.id) {
+      ar.param(ApiResultCode['2'], '版本计划：id 不能为空');
+      return res.json(ar);
+    }
+
+
     const plan = await this.planRepository.findOne(dto.id) as PlanDto;
     const planEnvList = await this.planEnvRepository.find({ planId: plan.id }) as PlanEnvDto[];
     for (const planEnvDto of planEnvList) {
@@ -72,6 +81,7 @@ export class PlanController {
       planEnvDto.planEnvProjectConfigList = planEnvProjectConfigList;
     }
     plan.planEnvList = planEnvList;
+    plan.planScriptList = await this.planScriptRepository.find({ planId: plan.id }) as PlanScriptDto[];
     ar.result = plan;
 
     return res.json(ar);
@@ -81,7 +91,7 @@ export class PlanController {
   async page(@Query() dto: PlanDto, @Res() res: Response) {
     const ar = new ApiResult();
     const page = new Page();
-    await this.planRepository.createQueryBuilder('s')
+    await this.planRepository.createQueryBuilder('s').orderBy('id','DESC')
       .skip(PlanDto.getOffset(PlanDto.getPageNo(dto.pageNo), ServerDto.getPageSize(dto.pageSize)))
       .take(PlanDto.getPageSize(dto.pageSize))
       .getManyAndCount()
@@ -104,51 +114,37 @@ export class PlanController {
     let plan = new Plan();
     plan.name = dto.name;
     plan = await entityManager.save(Plan, plan);
+    await this.insert(dto, plan, entityManager);
 
 
-    for (const planEnvDto of dto.planEnvList) {
+    return res.json(ar);
+  }
 
-      for (const planEnvProjectConfigDto of planEnvDto.planEnvProjectConfigList) {
-        let planEnvProjectConfig = { ...planEnvProjectConfigDto } as PlanEnvProjectConfig;
-
-        planEnvProjectConfig.planId = plan.id;
-        planEnvProjectConfig.planName = plan.name;
-        planEnvProjectConfig.planEnvId = planEnvDto.envId;
-        planEnvProjectConfig.planEnvName = planEnvDto.envName;
-        planEnvProjectConfig = await entityManager.save(PlanEnvProjectConfig, planEnvProjectConfig);
-
-        if (planEnvProjectConfigDto.isEnableCustomConfig) {
-          for (const grayServerId of planEnvProjectConfigDto.garyServerIdList) {
-            const planEnvProjectConfigServer = new PlanEnvProjectConfigServer();
-            planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
-            planEnvProjectConfigServer.serverId = grayServerId;
-            planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.gray.code;
-            await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
-          }
-
-          for (const releaseServerId of planEnvProjectConfigDto.releaseServerIdList) {
-            const planEnvProjectConfigServer = new PlanEnvProjectConfigServer();
-            planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
-            planEnvProjectConfigServer.serverId = releaseServerId;
-            planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.release.code;
-            await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
-          }
-        }
-      }
-
-      const planEnv = { ...planEnvDto } as PlanEnv;
-      planEnv.planId = plan.id;
-      planEnv.planName = plan.name;
-      await entityManager.save(PlanEnv, planEnv);
+  @Put('/api/plans/update')
+  @Transaction()
+  async update(@Body() dto: PlanDto, @Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+    const ar = new ApiResult();
+    if (!dto.id) {
+      ar.param(ApiResultCode['2'], '版本计划：id 不能为空');
+      return res.json(ar);
     }
-
-    for (const planScriptDto of dto.planScriptList) {
-      const planScript = { ...planScriptDto } as PlanScript;
-      planScript.planId = plan.id;
-      planScript.planName = plan.name;
-      await entityManager.save(PlanScript, planScript);
+    const plan = await entityManager.findOne(Plan, dto.id);
+    if (!plan) {
+      ar.remindRecordNotExist(Env.entityName, { id: dto.id });
+      return res.json(ar);
     }
+    // 删除 PlanEnvProjectConfigServer
+    await entityManager.delete(PlanEnvProjectConfigServer, { planId: plan.id });
+    // 删除 PlanEnvProjectConfig
+    await entityManager.delete(PlanEnvProjectConfig, { planId: plan.id });
+    // 删除 PlanEnv
+    await entityManager.delete(PlanEnv, { planId: plan.id });
+    // 删除 PlanScript
+    await entityManager.delete(PlanScript, { planId: plan.id });
 
+    await this.insert(dto, plan, entityManager);
+
+    await entityManager.update(Plan, plan.id, { name: dto.name });
 
     return res.json(ar);
   }
@@ -173,6 +169,56 @@ export class PlanController {
     await this.planRepository.delete(dto.id);
 
     return res.json(ar);
+  }
+
+  async insert(dto: PlanDto, plan: Plan, entityManager) {
+    for (const planEnvDto of dto.planEnvList) {
+
+      for (const planEnvProjectConfigDto of planEnvDto.planEnvProjectConfigList) {
+        let planEnvProjectConfig = { ...planEnvProjectConfigDto } as PlanEnvProjectConfig;
+
+        planEnvProjectConfig.planId = plan.id;
+        planEnvProjectConfig.planName = plan.name;
+        planEnvProjectConfig.planEnvId = planEnvDto.envId;
+        planEnvProjectConfig.planEnvName = planEnvDto.envName;
+        planEnvProjectConfig = await entityManager.save(PlanEnvProjectConfig, planEnvProjectConfig);
+
+        if (planEnvProjectConfigDto.isEnableCustomConfig) {
+          if (planEnvProjectConfigDto.garyServerIdList) {
+            for (const grayServerId of planEnvProjectConfigDto.garyServerIdList) {
+              const planEnvProjectConfigServer = new PlanEnvProjectConfigServer();
+              planEnvProjectConfigServer.planId = plan.id;
+              planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
+              planEnvProjectConfigServer.serverId = grayServerId;
+              planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.gray.code;
+              await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
+            }
+          }
+          if (planEnvProjectConfigDto.releaseServerIdList) {
+            for (const releaseServerId of planEnvProjectConfigDto?.releaseServerIdList) {
+              const planEnvProjectConfigServer = new PlanEnvProjectConfigServer();
+              planEnvProjectConfigServer.planId = plan.id;
+              planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
+              planEnvProjectConfigServer.serverId = releaseServerId;
+              planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.release.code;
+              await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
+            }
+          }
+        }
+      }
+
+      const planEnv = { ...planEnvDto } as PlanEnv;
+      planEnv.planId = plan.id;
+      planEnv.planName = plan.name;
+      await entityManager.save(PlanEnv, planEnv);
+    }
+
+    for (const planScriptDto of dto.planScriptList) {
+      const planScript = { ...planScriptDto } as PlanScript;
+      planScript.planId = plan.id;
+      planScript.planName = plan.name;
+      await entityManager.save(PlanScript, planScript);
+    }
   }
 
 

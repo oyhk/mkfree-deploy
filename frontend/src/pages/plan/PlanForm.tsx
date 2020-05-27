@@ -1,6 +1,19 @@
 import React, { useRef, useState } from 'react';
 import { uuid } from '@/utils/utils';
-import { Col, Layout, Menu, Row, Select, Tree, Checkbox, Form, Input, Button, Radio, Transfer, Switch } from 'antd';
+import {
+  Col,
+  Layout,
+  Row,
+  Select,
+  Tree,
+  Checkbox,
+  Form,
+  Input,
+  Button,
+  Radio,
+  Switch,
+  notification,
+} from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from '@umijs/hooks';
 import { ApiResult } from '@/services/ApiResult';
@@ -11,28 +24,29 @@ import { PlanEnvDto } from '@/services/dto/PlanEnvDto';
 import { ServerDto } from '@/services/dto/ServerDto';
 import { PlanEnvProjectConfigDto, PlanEnvProjectConfigType } from '@/services/dto/PlanEnvProjectConfigDto';
 import { ProjectDto } from '@/services/dto/ProjectDto';
-import { USER_KEY, UserDto } from '@/services/dto/UserDto';
+import { USER_KEY } from '@/services/dto/UserDto';
 import { PlanScriptDto } from '@/services/dto/PlanScriptDto';
+import { PageLoading } from '@ant-design/pro-layout';
+import { history } from '@@/core/history';
 
-const { Sider, Content, Header } = Layout;
-export default () => {
+const { Sider, Content } = Layout;
+export default (props: any) => {
 
   const [form] = Form.useForm();
-  const [plan] = useState<PlanDto>({ planEnvList: [], planScriptList: [] });
+  const [plan] = useState<PlanDto>(props.plan ? props.plan : { planEnvList: [], planScriptList: [] });
+
+
   const [selectEnvList, setSelectEnvList] = useState<EnvDto[]>([]);
   const [serverList, setServerList] = useState<ServerDto[]>([]);
 
   const [treeProjectList, setTreeProjectList] = useState();
   const treeProjectListRef = useRef();
 
-
-
   useRequest<ApiResult<ProjectDto[]>>(
     () => routes.apiRoutes.planProjectList(),
     {
       onSuccess: (apiResult, params) => {
         if (apiResult.result) {
-          // eslint-disable-next-line no-unused-expressions
           setTreeProjectList(apiResult.result?.map((projectDto: ProjectDto) => ({
             title: projectDto.name,
             key: projectDto.id,
@@ -42,12 +56,12 @@ export default () => {
       manual: false,
       refreshOnWindowFocus: false,
     });
+
   useRequest<ApiResult<EnvDto[]>>(
     () => routes.apiRoutes.envList,
     {
       onSuccess: (apiResult, params) => {
         if (apiResult.result) {
-          // eslint-disable-next-line no-unused-expressions
           setSelectEnvList(apiResult.result);
         }
       },
@@ -60,7 +74,6 @@ export default () => {
     {
       onSuccess: (apiResult, params) => {
         if (apiResult.result) {
-          // eslint-disable-next-line no-unused-expressions
           setServerList(apiResult.result);
         }
       },
@@ -70,18 +83,61 @@ export default () => {
 
 
   // form 表单提交
-  const formUseRequest = useRequest<ApiResult<ServerDto[]>>(
+  const formSaveUseRequest = useRequest<ApiResult<ServerDto[]>>(
     (payload) => routes.apiRoutes.planSave(payload),
     {
       onSuccess: (apiResult, params) => {
-        if (apiResult.result) {
-          // eslint-disable-next-line no-unused-expressions
-          setServerList(apiResult.result);
+
+        if (apiResult.code === 1) {
+          notification.success({
+            message: `版本计划：${params[0].name}`,
+            description: '添加成功',
+          });
+          history.replace(routes.pageRoutes.planIndex);
+        } else {
+          notification.error({
+            message: `请求错误 ${apiResult.code}: ${routes.apiRoutes.planSave().url}`,
+            description: apiResult.desc,
+          });
         }
       },
       manual: true,
       refreshOnWindowFocus: false,
     });
+
+  const formUpdateUseRequest = useRequest<ApiResult<ServerDto[]>>(
+    (payload) => routes.apiRoutes.planUpdate(payload),
+    {
+      onSuccess: (apiResult, params) => {
+
+        if (apiResult.code === 1) {
+          notification.success({
+            message: `版本计划：${params[0].name}`,
+            description: '修改成功',
+          });
+          history.replace(routes.pageRoutes.planIndex);
+        } else {
+          notification.error({
+            message: `请求错误 ${apiResult.code}: ${routes.apiRoutes.planUpdate().url}`,
+            description: apiResult.desc,
+          });
+        }
+      },
+      manual: true,
+      refreshOnWindowFocus: false,
+    });
+
+  if (serverList.length === 0) {
+    return <PageLoading/>;
+  }
+  if (treeProjectList.length === 0) {
+    return <PageLoading/>;
+  }
+  if (selectEnvList.length === 0) {
+    return <PageLoading/>;
+  }
+
+
   return (
     <Layout>
       <Sider theme='light'
@@ -91,6 +147,7 @@ export default () => {
           <Tree
             ref={treeProjectListRef}
             treeData={treeProjectList}
+            defaultSelectedKeys={(plan.planEnvList.length > 0 ? plan.planEnvList[0].planEnvProjectConfigList?.map((planEnvProjectConfig: PlanEnvProjectConfigDto) => planEnvProjectConfig.projectId) : []) as number[]}
             multiple={true}
             onSelect={(selectedKeys, e) => {
               console.log('e', e);
@@ -106,7 +163,7 @@ export default () => {
                         projectId: projectId as number,
                         projectName: e.node.title as string,
                         type: PlanEnvProjectConfigType.project.code,
-                        isEnableCustomConfig:false,
+                        isEnableCustomConfig: false,
                       });
                     }
                   });
@@ -130,15 +187,21 @@ export default () => {
       </Sider>
       <Content style={{ padding: '0px 10px' }}>
 
+
         <Form
           form={form}
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 16 }}
           layout="horizontal"
-          initialValues={plan}
+          initialValues={props.plan ? props.plan : plan}
           onFinish={(planDto) => {
             console.log('project submit payload : ', planDto);
-            formUseRequest.run(planDto);
+            if (plan.id) {
+              formUpdateUseRequest.run(planDto);
+            } else {
+              formSaveUseRequest.run(planDto);
+            }
+
           }}
         >
           {/*基本信息*/}
@@ -156,6 +219,11 @@ export default () => {
             <h2>相关脚本</h2>
             <Form.List name="planScriptList">
               {(fields, { add, remove }) => {
+
+                plan.planScriptList.forEach((planScript, planScriptIndex) => {
+                  fields[planScriptIndex].record = planScript;
+                });
+
                 return (
                   <div>
                     {
@@ -179,6 +247,7 @@ export default () => {
                               className="dynamic-delete-button"
                               onClick={() => {
                                 remove(planScriptListField.name);
+                                plan.planScriptList = form.getFieldValue('planScriptList');
                               }}
                             />
                           </Col>
@@ -190,7 +259,7 @@ export default () => {
                             color: 'rgba(0, 0, 0, 0.85)',
                           }}>添加者：</Col>
                           <Col xl={16} style={{ textAlign: 'left' }}>
-                            {localStorage.getItem(USER_KEY.USERNAME)}
+                            {planScriptListField.record.username}
                           </Col>
                         </Row>
                         <Form.Item
@@ -209,7 +278,6 @@ export default () => {
                                   onClick={() => {
                                     add();
                                     let planScriptList = form.getFieldValue('planScriptList') as PlanScriptDto[];
-                                    console.log(planScriptList);
                                     planScriptList = planScriptList.map((planScript: PlanScriptDto) => {
                                       if (planScript?.userId) {
                                         return planScript;
@@ -220,8 +288,8 @@ export default () => {
                                         username: localStorage.getItem(USER_KEY.USERNAME),
                                       };
                                     });
+                                    plan.planScriptList = planScriptList;
                                     form.setFieldsValue({ 'planScriptList': planScriptList });
-
                                   }}
                                   style={{ width: '100%' }}>
                             <PlusOutlined/> 添加一项
@@ -237,9 +305,12 @@ export default () => {
 
           <Form.List name="planEnvList">
             {(fields, { add, remove }) => {
-              plan.planEnvList.forEach((planEnv, planEnvIndex) => {
-                fields[planEnvIndex].record = planEnv;
-              });
+              if (fields.length === plan.planEnvList.length) {
+                // eslint-disable-next-line no-unused-expressions
+                plan.planEnvList?.forEach((planEnv, planEnvIndex) => {
+                  fields[planEnvIndex].record = planEnv;
+                });
+              }
               return (
                 <div>
                   <h2>选择环境</h2>
@@ -249,7 +320,7 @@ export default () => {
                     <Col xl={16}>
                       <Select mode="multiple"
                               style={{ minWidth: '100%' }}
-                              value={plan.planEnvList.map(planEnv => planEnv.envId)}
+                              value={plan?.planEnvList.map(planEnv => planEnv.envId)}
                               onSelect={(values, option) => {
                                 add();
 
@@ -270,11 +341,11 @@ export default () => {
 
                                 // 项目选择时，每个环境都要添加上，这里的代码比较容易出错，到时候看怎么优化
                                 // eslint-disable-next-line no-unused-expressions
-                                treeProjectListRef?.current?.state?.selectedKeys.forEach((projectId) => {
+                                treeProjectListRef.current?.state?.selectedKeys.forEach((projectId: any) => {
                                   plan.planEnvList.filter(value => value.envId === option?.type.id)[0].planEnvProjectConfigList.push({
                                     type: PlanEnvProjectConfigType.project.code,
-                                    projectId: treeProjectListRef?.current?.state.keyEntities[projectId].node.key,
-                                    projectName: treeProjectListRef?.current?.state.keyEntities[projectId].node.title,
+                                    projectId: treeProjectListRef.current?.state.keyEntities[projectId].node.key,
+                                    projectName: treeProjectListRef.current?.state.keyEntities[projectId].node.title,
                                     isEnableCustomConfig: false,
                                   });
 
@@ -289,7 +360,7 @@ export default () => {
                       >
                         {
                           selectEnvList?.map(envDto => <Select.Option
-                            disabled={plan.planEnvList.map(planEnv => planEnv.envId)?.indexOf(envDto.id as number) !== -1}
+                            disabled={plan?.planEnvList.map(planEnv => planEnv.envId)?.indexOf(envDto.id as number) !== -1}
                             value={envDto?.id as number}
                             key={envDto?.code}
                             type={envDto}>{envDto?.name}</Select.Option>)
@@ -335,9 +406,12 @@ export default () => {
                                           planEnvProjectConfigListField.record.projectId === 0 ? '' :
                                             <Col xl={12} style={{ textAlign: 'right' }}>
                                               <Switch checkedChildren="关闭自定义配置" unCheckedChildren="开启自定义配置"
-                                                      checked={plan.planEnvList[planEnvListIndex].planEnvProjectConfigList[planEnvProjectConfigListIndex].isEnableCustomConfig}
+                                                      checked={plan.planEnvList[planEnvListIndex]?.planEnvProjectConfigList[planEnvProjectConfigListIndex]?.isEnableCustomConfig}
                                                       onChange={(checked) => {
                                                         plan.planEnvList = form.getFieldValue('planEnvList');
+                                                        if (!plan.planEnvList) {
+                                                          plan.planEnvList = [];
+                                                        }
                                                         plan.planEnvList[planEnvListIndex].planEnvProjectConfigList[planEnvProjectConfigListIndex].isEnableCustomConfig = checked;
                                                         form.setFieldsValue({
                                                           'planEnvList': plan.planEnvList,
@@ -347,15 +421,17 @@ export default () => {
                                         }
                                       </Row>
                                       <div
-                                        style={{ display: plan.planEnvList[planEnvListIndex].planEnvProjectConfigList[planEnvProjectConfigListIndex].isEnableCustomConfig ? 'block' : 'none' }}
+                                        style={{ display: plan?.planEnvList[planEnvListIndex]?.planEnvProjectConfigList[planEnvProjectConfigListIndex]?.isEnableCustomConfig ? 'block' : 'none' }}
                                       >
                                         <Form.Item label="发布分支"
-                                                   name={[planEnvProjectConfigListField.name, 'publishBranch']}>
+                                                   name={[planEnvProjectConfigListField.name, 'publishBranch']}
+                                        >
                                           <Input/>
                                         </Form.Item>
                                         <Form.Item
                                           label="发布服务器"
                                           name={[planEnvProjectConfigListField.name, 'publishServerId']}
+
                                         >
                                           <Radio.Group>
                                             {
@@ -407,7 +483,8 @@ export default () => {
           </Form.List>
 
           <Form.Item label=' ' colon={false} style={{ marginTop: '10vh' }}>
-            <Button type="primary" htmlType="submit" block>
+            <Button type="primary" htmlType="submit" block
+                    loading={formUpdateUseRequest.loading || formSaveUseRequest.loading}>
               提交
             </Button>
           </Form.Item>
@@ -416,6 +493,5 @@ export default () => {
       </Content>
     </
       Layout>
-  )
-    ;
+  );
 }
