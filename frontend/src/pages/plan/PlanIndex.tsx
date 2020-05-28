@@ -62,10 +62,6 @@ export default () => {
       render: (record: PlanDto) => (
         <div>
           <Link to={`${routes.pageRoutes.planEditParams(record?.id)}`} type='primary'>编辑</Link>&nbsp;&nbsp;
-          <Button type="dashed" danger size='small'
-                  onClick={() => {
-                    deleteUseRequest.run({ id: record.id, name: record.name });
-                  }}>删除</Button>
         </div>
       )
       ,

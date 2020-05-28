@@ -324,8 +324,6 @@ export default (props: any) => {
                               onSelect={(values, option) => {
                                 add();
 
-                                plan.planEnvList = form.getFieldValue('planEnvList').filter((value: PlanEnvDto) => value !== undefined);
-
                                 // eslint-disable-next-line no-unused-expressions
                                 plan.planEnvList?.push({
                                   envId: option?.type?.id,
@@ -342,15 +340,15 @@ export default (props: any) => {
                                 // 项目选择时，每个环境都要添加上，这里的代码比较容易出错，到时候看怎么优化
                                 // eslint-disable-next-line no-unused-expressions
                                 treeProjectListRef.current?.state?.selectedKeys.forEach((projectId: any) => {
-                                  plan.planEnvList.filter(value => value.envId === option?.type.id)[0].planEnvProjectConfigList.push({
-                                    type: PlanEnvProjectConfigType.project.code,
-                                    projectId: treeProjectListRef.current?.state.keyEntities[projectId].node.key,
-                                    projectName: treeProjectListRef.current?.state.keyEntities[projectId].node.title,
-                                    isEnableCustomConfig: false,
-                                  });
-
+                                  if(projectId !== 0){
+                                    plan.planEnvList.filter(value => value.envId === option?.type.id)[0].planEnvProjectConfigList.push({
+                                      type: PlanEnvProjectConfigType.project.code,
+                                      projectId: treeProjectListRef.current?.state.keyEntities[projectId].node.key,
+                                      projectName: treeProjectListRef.current?.state.keyEntities[projectId].node.title,
+                                      isEnableCustomConfig: false,
+                                    });
+                                  }
                                 });
-
                                 // 使用setFieldsValue 替换整个字段初始化内容
                                 form.setFieldsValue({
                                   'planEnvList': plan.planEnvList,
@@ -488,10 +486,19 @@ export default (props: any) => {
               提交
             </Button>
           </Form.Item>
-
+          {
+            plan?.id ?
+              <Form.Item label=' ' colon={false} style={{ marginTop: '20vh' }}>
+                <Button type="danger" block onClick={() => {
+                }}>
+                  删除项目（谨慎操作）
+                </Button>
+              </Form.Item>
+              :
+              ''
+          }
         </Form>
       </Content>
-    </
-      Layout>
+    </Layout>
   );
 }
