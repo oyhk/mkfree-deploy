@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { Body, Controller, Delete, Get, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ApiResult, ApiResultCode } from '../common/api-result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
@@ -7,19 +7,22 @@ import { JwtService } from '@nestjs/jwt';
 import { Env } from '../env/env.entity';
 import { PlanDto } from './plan.dto';
 import { Project } from '../project/project.entity';
-import { UserDto } from '../user/user.dto';
+
 import { PlanEnvProjectConfig } from './plan-env-project-config.entity';
 import { Plan } from './plan.entity';
 import { PlanEnvProjectConfigServer, PlanEnvProjectConfigServerType } from './plan-env-project-config-server.entity';
 import { PlanEnv } from './plan-env.entity';
 import { PlanScript } from './plan-script.entity';
-import { EnvDto } from '../env/env.dto';
+
 import { Page } from '../common/page';
 import { ServerDto } from '../server/server.dto';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { PlanEnvDto } from './plan-env.dto';
 import { PlanEnvProjectConfigDto } from './plan-env-project-config.dto';
 import { PlanScriptDto } from './plan-script.dto';
+
+import * as https from 'https';
+import { PlanProjectSort } from './plan-project-sort.entity';
 
 @Controller()
 export class PlanController {
@@ -31,6 +34,8 @@ export class PlanController {
     private projectRepository: Repository<Project>,
     @InjectRepository(Plan)
     private planRepository: Repository<Plan>,
+    @InjectRepository(PlanProjectSort)
+    private planProjectSortRepository: Repository<PlanProjectSort>,
     @InjectRepository(PlanScript)
     private planScriptRepository: Repository<PlanScript>,
     @InjectRepository(PlanEnv)
@@ -41,6 +46,49 @@ export class PlanController {
     private planEnvProjectConfigServerRepository: Repository<PlanEnvProjectConfigServer>,
     private jwtService: JwtService,
   ) {
+  }
+
+  @Get('/api/plans/project-sort-list')
+  async projectSortList(@Query() dto: PlanDto, @Res() res: Response) {
+    const ar = new ApiResult();
+    const projectList = await this.projectRepository.find();
+    const projectSortList = await this.planProjectSortRepository.find();
+    const projectSortIdList = projectSortList.map(projectSort => projectSort.projectId);
+
+    for (const project of projectList) {
+
+    }
+
+
+    return res.json(ar);
+  }
+
+
+  @Get('/api/plans/gray-publish-first')
+  async grayPublishFirst(@Query() dto: PlanDto, @Res() res: Response) {
+    const ar = new ApiResult();
+
+    // 首次灰度发布
+    // 1. 先下线注册中心需要发布的所有项目
+    // 2. 按照项目发布顺序发布项目
+    // 3. 发布完成后，注册中心每个项目手动上线
+
+    const plan = await this.planRepository.findOne(dto.id);
+
+    // const clientRequest = http.request('https://api.yiwoaikeji.com/gateway/info', (clientResponse) => {
+    //   clientResponse.on('data',(chunk)=>{
+    //     console.log(chunk);
+    //   })
+    // });
+    // clientRequest.end();
+    const clientRequest = https.request('https://api.yiwoaikeji.com/gateway/info', (clientResponse) => {
+      clientResponse.setEncoding('utf8');
+      clientResponse.on('data', (chunk) => {
+        console.log(JSON.parse(chunk));
+      });
+    });
+    clientRequest.end();
+    return res.json(ar);
   }
 
   @Get('/api/plans/project-list')
@@ -90,15 +138,19 @@ export class PlanController {
   @Get('/api/plans/page')
   async page(@Query() dto: PlanDto, @Res() res: Response) {
     const ar = new ApiResult();
-    const page = new Page();
-    await this.planRepository.createQueryBuilder('s').orderBy('id','DESC')
+    const page = new Page<PlanDto>();
+    await this.planRepository.createQueryBuilder('s').orderBy('id', 'DESC')
       .skip(PlanDto.getOffset(PlanDto.getPageNo(dto.pageNo), ServerDto.getPageSize(dto.pageSize)))
       .take(PlanDto.getPageSize(dto.pageSize))
       .getManyAndCount()
       .then(value => {
-        page.data = value[0];
+        page.data = value[0] as PlanDto[];
         page.total = value[1];
       });
+    // 版本计划环境列表
+    for (const planDto of page.data) {
+      planDto.planEnvList = await this.planEnvRepository.find({ planId: planDto.id }) as PlanEnvDto[];
+    }
     page.pageNo = dto.pageNo;
     page.pageSize = dto.pageSize;
     // 分页总数，总记录数 / 页条数，当存在小数点，使用了 Math.ceil 直接网上取整数

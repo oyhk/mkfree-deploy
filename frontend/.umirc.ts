@@ -102,6 +102,11 @@ const config: IConfig = {
                   path: routes.pageRoutes.planCreate,
                   component: '@/pages/plan/PlanCreate',
                 },
+                {
+                  title: '版本计划项目排序配置',
+                  path: routes.pageRoutes.planProjectSort,
+                  component: '@/pages/plan/PlanProjectSort',
+                },
               ],
             },
 
@@ -168,6 +173,19 @@ const config: IConfig = {
                   path: routes.pageRoutes.envEdit,
                   title: '环境编辑',
                   component: '@/pages/env/EnvEdit',
+                },
+              ],
+            },
+
+            //插件模块
+            {
+              path: routes.pageRoutes.pluginEurekaIndex,
+              title: '插件',
+              routes: [
+                {
+                  path: routes.pageRoutes.pluginEurekaIndex,
+                  title: 'Eureka',
+                  component: '@/pages/plugin/eureka/EurekaIndex',
                 },
               ],
             },

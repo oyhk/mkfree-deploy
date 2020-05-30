@@ -29,6 +29,7 @@ export default {
     },
     // 版本计划
     planIndex: pageRoot + '/plan',
+    planProjectSort: pageRoot + '/plan/project-sort',
     planCreate: pageRoot + '/plan/create',
     planEdit: pageRoot + '/plan/edit/:id',
     planEditParams: (id: any) => pageRoot + `/plan/edit/${id}`,
@@ -49,6 +50,8 @@ export default {
     envCreate: pageRoot + '/env/create',
     envEdit: pageRoot + '/env/edit/:id',
     envEditParams: (id: any) => pageRoot + `/env/edit/${id}`,
+
+    pluginEurekaIndex: pageRoot + '/plugin/eureka',
 
   },
   // API

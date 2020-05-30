@@ -1,12 +1,12 @@
 import React from 'react';
 import routes from '@/routes';
 import { Link } from 'umi';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { EnvDto } from '@/services/dto/EnvDto';
-import { momentFormat } from '@/utils/utils';
-import { Button, notification } from 'antd';
+import { momentFormat, uuid } from '@/utils/utils';
+import { Button, notification, Table } from 'antd';
 import { PlanDto } from '@/services/dto/PlanDto';
 import { useRequest } from '@umijs/hooks';
 import { ApiResult } from '@/services/ApiResult';
@@ -21,6 +21,9 @@ export default () => {
     })
     ,
     {
+      onSuccess: (apiResult) => {
+        console.log(apiResult);
+      },
       formatResult: (res: any) => ({
         list: res?.result?.data,
         total: res?.result?.total,
@@ -35,6 +38,8 @@ export default () => {
     manual: true,
     onSuccess: (apiResult, params) => {
       if (apiResult) {
+
+
         notification.success({
           message: `版本计划：${params[0]?.name}`,
           description: '删除成功',
@@ -78,7 +83,36 @@ export default () => {
         dataSource={paginatedResult.data?.list}
         toolBarRender={() => [
           <Link to={routes.pageRoutes.planCreate}><PlusOutlined/> 添加版本计划</Link>,
+
+
         ]}
+        headerTitle={<div><Link to={routes.pageRoutes.planProjectSort}><DeploymentUnitOutlined/> 项目排序配置</Link></div>}
+        expandable={
+          {
+            expandedRowRender: (record) => {
+              return <Table
+                rowKey={uuid()}
+                columns={
+                  [
+                    { title: '环境名称', dataIndex: 'envName' },
+                    {
+                      title: 'DevOps', key: 'DevOps', render: () => {
+                        return <div key={uuid()}>
+                          <Button type='primary' size='small'>首次灰度发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+                          <Button type='primary' size='small'>灰度发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+                          <Button danger type='primary' size='small'>正式发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>;
+                      },
+                    },
+                  ]
+                }
+                dataSource={record.planEnvList}
+                pagination={false}
+                footer={() => <div/>}/>;
+            },
+            defaultExpandAllRows: true,
+          }
+        }
         pagination={{
           ...paginatedResult.pagination,
           onChange: (pageNo, pageSize) => {

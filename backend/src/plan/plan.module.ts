@@ -10,9 +10,10 @@ import { Plan } from './plan.entity';
 import { PlanEnv } from './plan-env.entity';
 import { PlanEnvProjectConfigServer } from './plan-env-project-config-server.entity';
 import { PlanScript } from './plan-script.entity';
+import { PlanProjectSort } from './plan-project-sort.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Env,Project,Plan,PlanEnv,PlanEnvProjectConfig,PlanEnvProjectConfigServer,PlanScript]), JwtModule.register({ secret: 'hard!to-guess_secret' })],
+  imports: [TypeOrmModule.forFeature([Env,Project,Plan,PlanProjectSort,PlanEnv,PlanEnvProjectConfig,PlanEnvProjectConfigServer,PlanScript]), JwtModule.register({ secret: 'hard!to-guess_secret' })],
   controllers: [PlanController],
 })
 export class PlanModule {

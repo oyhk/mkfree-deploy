@@ -8,6 +8,7 @@ import {
   DeploymentUnitOutlined,
   EnvironmentOutlined,
   PushpinOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
 import { Link, connect, history } from 'umi';
@@ -156,27 +157,34 @@ const BaseLayout: React.FC = props => {
               key: 'plan',
               path: routes.pageRoutes.planIndex,
               children: [
-                // {
-                //   name: '项目编辑',
-                //   key: 'projectEdit',
-                //   path: routes.pageRoutes.projectEdit,
-                //   hideInMenu: true,
-                // },
+                {
+                  name: '版本计划编辑',
+                  key: 'planEdit',
+                  path: routes.pageRoutes.planEdit,
+                  hideInMenu: true,
+                },
                 {
                   name: '版本计划创建',
                   key: 'planCreate',
                   path: routes.pageRoutes.planCreate,
                   hideInMenu: true,
                 },
-                // {
-                //   name: '项目环境日志',
-                //   key: 'projectEnvLog',
-                //   path: routes.pageRoutes.projectEnvLogIndex,
-                //   hideInMenu: true,
-                // },
               ],
             },
-
+            // 插件
+            {
+              icon: <AppstoreOutlined />,
+              name: '插件',
+              key: 'plugin',
+              children: [
+                {
+                  name: 'Eureka',
+                  key: 'pluginEureka',
+                  icon:'',
+                  path: routes.pageRoutes.pluginEurekaIndex,
+                },
+              ],
+            },
           ]
         );
       }}
