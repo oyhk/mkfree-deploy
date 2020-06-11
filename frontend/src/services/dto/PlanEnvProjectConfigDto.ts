@@ -19,6 +19,8 @@ export interface PlanEnvProjectConfigDto extends BaseDto {
   projectId?:number;
   // 项目名称
   projectName?:string;
+  // 项目排序
+  projectSort?:number;
   // 发布分支名
   publishBranch?: string;
   // 发布服务器id

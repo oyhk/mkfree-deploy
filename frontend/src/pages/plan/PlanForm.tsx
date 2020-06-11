@@ -28,6 +28,7 @@ import { USER_KEY } from '@/services/dto/UserDto';
 import { PlanScriptDto } from '@/services/dto/PlanScriptDto';
 import { PageLoading } from '@ant-design/pro-layout';
 import { history } from '@@/core/history';
+import { PlanProjectSortDto } from '@/services/dto/PlanProjectSortDto';
 
 const { Sider, Content } = Layout;
 export default (props: any) => {
@@ -42,14 +43,15 @@ export default (props: any) => {
   const [treeProjectList, setTreeProjectList] = useState();
   const treeProjectListRef = useRef();
 
-  useRequest<ApiResult<ProjectDto[]>>(
-    () => routes.apiRoutes.planProjectList(),
+  useRequest<ApiResult<PlanProjectSortDto[]>>(
+    () => routes.apiRoutes.planProjectSortList(),
     {
       onSuccess: (apiResult, params) => {
         if (apiResult.result) {
-          setTreeProjectList(apiResult.result?.map((projectDto: ProjectDto) => ({
-            title: projectDto.name,
-            key: projectDto.id,
+          setTreeProjectList(apiResult.result?.map((planProjectSortDto: PlanProjectSortDto) => ({
+            title: planProjectSortDto.projectName,
+            key: planProjectSortDto.projectId,
+            projectSort: planProjectSortDto.sort,
           })));
         }
       },
@@ -127,13 +129,13 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     });
 
-  if (serverList.length === 0) {
+  if (!serverList || serverList?.length === 0) {
     return <PageLoading/>;
   }
-  if (treeProjectList.length === 0) {
+  if (!treeProjectList || treeProjectList?.length === 0) {
     return <PageLoading/>;
   }
-  if (selectEnvList.length === 0) {
+  if (!selectEnvList || selectEnvList?.length === 0) {
     return <PageLoading/>;
   }
 
@@ -150,9 +152,9 @@ export default (props: any) => {
             defaultSelectedKeys={(plan.planEnvList.length > 0 ? plan.planEnvList[0].planEnvProjectConfigList?.map((planEnvProjectConfig: PlanEnvProjectConfigDto) => planEnvProjectConfig.projectId) : []) as number[]}
             multiple={true}
             onSelect={(selectedKeys, e) => {
-              console.log('e', e);
-
               plan.planEnvList = form.getFieldValue('planEnvList');
+
+              console.log('treeProjectList select change ', e.node);
 
               if (e.selected) {
                 selectedKeys.forEach((projectId) => {
@@ -162,6 +164,7 @@ export default (props: any) => {
                       planEnv.planEnvProjectConfigList.push({
                         projectId: projectId as number,
                         projectName: e.node.title as string,
+                        projectSort: e.node.projectSort,
                         type: PlanEnvProjectConfigType.project.code,
                         isEnableCustomConfig: false,
                       });
@@ -333,6 +336,7 @@ export default (props: any) => {
                                     projectName: PlanEnvProjectConfigType.common.desc,
                                     projectId: 0,
                                     isEnableCustomConfig: true,
+                                    projectSort: 0,
                                   }],
                                 } as PlanEnvDto);
 
@@ -340,11 +344,12 @@ export default (props: any) => {
                                 // 项目选择时，每个环境都要添加上，这里的代码比较容易出错，到时候看怎么优化
                                 // eslint-disable-next-line no-unused-expressions
                                 treeProjectListRef.current?.state?.selectedKeys.forEach((projectId: any) => {
-                                  if(projectId !== 0){
+                                  if (projectId !== 0) {
                                     plan.planEnvList.filter(value => value.envId === option?.type.id)[0].planEnvProjectConfigList.push({
                                       type: PlanEnvProjectConfigType.project.code,
                                       projectId: treeProjectListRef.current?.state.keyEntities[projectId].node.key,
                                       projectName: treeProjectListRef.current?.state.keyEntities[projectId].node.title,
+                                      projectSort: treeProjectListRef.current?.state.keyEntities[projectId].node.projectSort,
                                       isEnableCustomConfig: false,
                                     });
                                   }
@@ -491,7 +496,7 @@ export default (props: any) => {
               <Form.Item label=' ' colon={false} style={{ marginTop: '20vh' }}>
                 <Button type="danger" block onClick={() => {
                 }}>
-                  删除项目（谨慎操作）
+                  删除版本计划（谨慎操作）
                 </Button>
               </Form.Item>
               :

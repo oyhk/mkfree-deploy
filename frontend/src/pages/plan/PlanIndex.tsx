@@ -83,20 +83,17 @@ export default () => {
         dataSource={paginatedResult.data?.list}
         toolBarRender={() => [
           <Link to={routes.pageRoutes.planCreate}><PlusOutlined/> 添加版本计划</Link>,
-
-
         ]}
         headerTitle={<div><Link to={routes.pageRoutes.planProjectSort}><DeploymentUnitOutlined/> 项目排序配置</Link></div>}
         expandable={
           {
             expandedRowRender: (record) => {
-              return <Table
-                rowKey={uuid()}
+              return <Table rowKey={uuid()}
                 columns={
                   [
-                    { title: '环境名称', dataIndex: 'envName' },
+                    { title: '环境名称', key:'envName', dataIndex: 'envName' },
                     {
-                      title: 'DevOps', key: 'DevOps', render: () => {
+                      title: 'DevOps', key: 'DevOps', dataIndex:'DevOps',render: () => {
                         return <div key={uuid()}>
                           <Button type='primary' size='small'>首次灰度发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
                           <Button type='primary' size='small'>灰度发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;

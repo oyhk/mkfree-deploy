@@ -52,17 +52,44 @@ export class PlanController {
   async projectSortList(@Query() dto: PlanDto, @Res() res: Response) {
     const ar = new ApiResult();
     const projectList = await this.projectRepository.find();
+    const projectIdList = projectList.map(project => project.id);
     const projectSortList = await this.planProjectSortRepository.find();
     const projectSortIdList = projectSortList.map(projectSort => projectSort.projectId);
 
+    // 项目存在 而 版本计划项目排序不存在，需要把项目保存到版本计划项目排序中
     for (const project of projectList) {
-
+      if (projectSortIdList.indexOf(project.id) === -1) {
+        const planProjectSort = new PlanProjectSort();
+        planProjectSort.sort = 9999;
+        planProjectSort.projectId = project.id;
+        planProjectSort.projectName = project.name;
+        await this.planProjectSortRepository.save(planProjectSort);
+      }
     }
+
+    // 当版本计划项目排序存在 而 项目不存在，需要把版本计划项目排序删除
+    for (const projectSort of projectSortList) {
+      if (projectIdList.indexOf(projectSort.projectId) === -1) {
+        await this.planProjectSortRepository.delete(projectSort.id);
+      }
+    }
+
+
+    ar.result = await this.planProjectSortRepository.createQueryBuilder('pps').addOrderBy('sort', 'ASC').getMany();
 
 
     return res.json(ar);
   }
 
+  @Post('/api/plans/project-sort-setting')
+  @Transaction()
+  async projectSortSave(@Body() planProjectSortList: PlanProjectSort[], @Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+    const ar = new ApiResult();
+    for (const planProjectSort of planProjectSortList) {
+      await entityManager.update(PlanProjectSort, { projectId: planProjectSort.projectId }, { sort: planProjectSort.sort });
+    }
+    return res.json(ar);
+  }
 
   @Get('/api/plans/gray-publish-first')
   async grayPublishFirst(@Query() dto: PlanDto, @Res() res: Response) {
@@ -91,13 +118,6 @@ export class PlanController {
     return res.json(ar);
   }
 
-  @Get('/api/plans/project-list')
-  async list(@Query() dto: PlanDto, @Res() res: Response) {
-    const ar = new ApiResult();
-    ar.result = await this.projectRepository.createQueryBuilder('p').select(['p.id', 'p.name']).getMany();
-    return res.json(ar);
-  }
-
   @Get('/api/plans/info')
   async info(@Query() dto: PlanDto, @Res() res: Response) {
     const ar = new ApiResult();
@@ -110,10 +130,13 @@ export class PlanController {
     const plan = await this.planRepository.findOne(dto.id) as PlanDto;
     const planEnvList = await this.planEnvRepository.find({ planId: plan.id }) as PlanEnvDto[];
     for (const planEnvDto of planEnvList) {
-      const planEnvProjectConfigList = await this.planEnvProjectConfigRepository.find({
+
+
+
+      const planEnvProjectConfigList = await this.planEnvProjectConfigRepository.createQueryBuilder('pepc').where('planId = :planId and planEnvId = :planEnvId', {
         planId: plan.id,
         planEnvId: planEnvDto.envId,
-      }) as PlanEnvProjectConfigDto[];
+      }).addOrderBy('projectSort', 'ASC').getMany() as PlanEnvProjectConfigDto[];
 
       for (const planEnvProjectConfigDto of planEnvProjectConfigList) {
         planEnvProjectConfigDto.garyServerIdList = await this.planEnvProjectConfigServerRepository.find({

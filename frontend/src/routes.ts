@@ -108,9 +108,17 @@ export default {
     planPage: (searchParams?: any) => {
       return { url: `${gateway}api/plans/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
-    planProjectList: (searchParams?: any) => {
-      return { url: `${gateway}api/plans/project-list?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
+    planProjectSortList: (searchParams?: any) => {
+      return {
+        url: `${gateway}api/plans/project-sort-list?${querystring.stringify(searchParams)}`,
+        method: HttpMethod.get,
+      };
     },
+    planProjectSortSetting: (payload?: any) => ({
+      url: `${gateway}api/plans/project-sort-setting`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
     planInfo: (searchParams?: any) => ({
       url: `${gateway}api/plans/info?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
