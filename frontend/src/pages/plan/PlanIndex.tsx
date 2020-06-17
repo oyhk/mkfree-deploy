@@ -50,8 +50,9 @@ export default () => {
 
   return (
     <PageHeaderWrapper>
-      <Table
+      <ProTable
         loading={paginatedResult.loading}
+        search={false}
         columns={[
           {
             title: '名称',
@@ -68,7 +69,7 @@ export default () => {
           },
           {
             title: '操作',
-            dataIndex: '',
+            dataIndex: 'operations',
             render: (record: PlanDto) => (
               <div>
                 <Link to={`${routes.pageRoutes.planEditParams(record?.id)}`} type='primary'>编辑</Link>&nbsp;&nbsp;
@@ -86,9 +87,6 @@ export default () => {
         expandable={
           {
             expandedRowRender: (record) => {
-
-              console.log('record', record);
-
               return <Table
                 rowKey={uuid()}
                 columns={
