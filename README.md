@@ -8,7 +8,7 @@
 ### 技术栈（Typescript贯穿前后端）
 - 语言：Typescript、Less、Html、Shell、Sql、Nodejs
 - 前端： React、Dva、Umi、Ant-Design、Webpack
-- 后端：Nodejs
+- 后端：Nodejs、Nestjs、Typeorm
 - 数据库：Sqlite3
 
 ### 原理分析
@@ -24,14 +24,16 @@
 
 ## 快速开始
 
-### 环境要求
-- centos （版本越新越好）
-- ubuntu（版本越新越好）
-
+### 环境
+- 操作系统 
+    - Centos 或者 Ubuntu（版本越新越好）
+- 软件（不演示安装了，大家上网查咯）
+    - Git
+    - Nodejs（LTS版本）
+        - yarn 或者 cnpm（包管理工具）
 
 ### 安装
-- Git
-- Nodejs（LTS版本）
+
 
 ````bash
 git clone https://gitee.com/oyhk/mkfree-deploy.git
