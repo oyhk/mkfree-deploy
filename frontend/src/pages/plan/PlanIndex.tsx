@@ -2,7 +2,7 @@ import React from 'react';
 import routes from '@/routes';
 import { Link } from 'umi';
 import { PlusOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
+import ProTable, { ProColumns } from '@ant-design/pro-table/lib/Table';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { EnvDto } from '@/services/dto/EnvDto';
 import { momentFormat, uuid } from '@/utils/utils';
@@ -21,9 +21,6 @@ export default () => {
     })
     ,
     {
-      onSuccess: (apiResult) => {
-        console.log(apiResult);
-      },
       formatResult: (res: any) => ({
         list: res?.result?.data,
         total: res?.result?.total,
@@ -51,34 +48,35 @@ export default () => {
   });
 
 
-  const columns: ProColumns<PlanDto> = [
-    {
-      title: '名称',
-      dataIndex: 'name',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      render: (createdAt: Date) => <div>{momentFormat(createdAt)}</div>,
-    },
-    {
-      title: '操作',
-      dataIndex: '',
-      render: (record: PlanDto) => (
-        <div>
-          <Link to={`${routes.pageRoutes.planEditParams(record?.id)}`} type='primary'>编辑</Link>&nbsp;&nbsp;
-        </div>
-      )
-      ,
-    },
-  ];
-
   return (
     <PageHeaderWrapper>
-      <ProTable
-        search={false}
+      <Table
         loading={paginatedResult.loading}
-        columns={columns}
+        columns={[
+          {
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
+            render: (name: string, record: PlanDto) => <Link
+              to={routes.pageRoutes.planInfoParams(record.id)}>{name}</Link>,
+          },
+          {
+            title: '创建时间',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (createdAt: Date) => <div>{momentFormat(createdAt)}</div>,
+          },
+          {
+            title: '操作',
+            dataIndex: '',
+            render: (record: PlanDto) => (
+              <div>
+                <Link to={`${routes.pageRoutes.planEditParams(record?.id)}`} type='primary'>编辑</Link>&nbsp;&nbsp;
+              </div>
+            )
+            ,
+          },
+        ]}
         rowKey="id"
         dataSource={paginatedResult.data?.list}
         toolBarRender={() => [
@@ -88,16 +86,20 @@ export default () => {
         expandable={
           {
             expandedRowRender: (record) => {
-              return <Table rowKey={uuid()}
+
+              console.log('record', record);
+
+              return <Table
+                rowKey={uuid()}
                 columns={
                   [
-                    { title: '环境名称', key:'envName', dataIndex: 'envName' },
+                    { title: '环境名称', key: 'envName', dataIndex: 'envName' },
                     {
-                      title: 'DevOps', key: 'DevOps', dataIndex:'DevOps',render: () => {
-                        return <div key={uuid()}>
-                          <Button type='primary' size='small'>首次灰度发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-                          <Button type='primary' size='small'>灰度发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-                          <Button danger type='primary' size='small'>正式发布</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+                      title: 'DevOps', key: 'DevOps', dataIndex: 'DevOps', render: () => {
+                        return <div>
+                          <Button type='primary' size='small'>首次灰度发布</Button>&nbsp;&nbsp;
+                          <Button type='primary' size='small'>灰度发布</Button>&nbsp;&nbsp;
+                          <Button danger type='primary' size='small'>正式发布</Button>&nbsp;&nbsp;
                         </div>;
                       },
                     },

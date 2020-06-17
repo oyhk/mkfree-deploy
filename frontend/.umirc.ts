@@ -96,6 +96,10 @@ const config: IConfig = {
                   title: '版本计划编辑',
                   path: routes.pageRoutes.planEdit,
                   component: '@/pages/plan/PlanEdit',
+                },{
+                  title: '版本计划信息',
+                  path: routes.pageRoutes.planInfo,
+                  component: '@/pages/plan/PlanInfo',
                 },
                 {
                   title: '版本计划创建',

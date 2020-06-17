@@ -31,6 +31,8 @@ export default {
     planIndex: pageRoot + '/plan',
     planProjectSort: pageRoot + '/plan/project-sort',
     planCreate: pageRoot + '/plan/create',
+    planInfo: pageRoot + '/plan/:id',
+    planInfoParams: (id: any) => pageRoot + `/plan/${id}`,
     planEdit: pageRoot + '/plan/edit/:id',
     planEditParams: (id: any) => pageRoot + `/plan/edit/${id}`,
 

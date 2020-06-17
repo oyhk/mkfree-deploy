@@ -31,8 +31,9 @@ export class PlanEnvProjectConfig extends BaseEntity {
   @Column({nullable:true, comment: '发布分支名' })
   publishBranch: string;
   @Column({nullable:true, comment: '发布服务器id' })
-  publishServerId: string;
-
+  publishServerId: number;
+  @Column({nullable:true, comment: '发布服务器名称' })
+  publishServerName: string;
 
 }
 

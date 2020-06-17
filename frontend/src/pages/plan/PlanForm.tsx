@@ -23,7 +23,6 @@ import { PlanDto } from '@/services/dto/PlanDto';
 import { PlanEnvDto } from '@/services/dto/PlanEnvDto';
 import { ServerDto } from '@/services/dto/ServerDto';
 import { PlanEnvProjectConfigDto, PlanEnvProjectConfigType } from '@/services/dto/PlanEnvProjectConfigDto';
-import { ProjectDto } from '@/services/dto/ProjectDto';
 import { USER_KEY } from '@/services/dto/UserDto';
 import { PlanScriptDto } from '@/services/dto/PlanScriptDto';
 import { PageLoading } from '@ant-design/pro-layout';

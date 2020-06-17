@@ -23,6 +23,7 @@ import { PlanScriptDto } from './plan-script.dto';
 
 import * as https from 'https';
 import { PlanProjectSort } from './plan-project-sort.entity';
+import { Server } from '../server/server.entity';
 
 @Controller()
 export class PlanController {
@@ -30,6 +31,8 @@ export class PlanController {
   constructor(
     @InjectRepository(Env)
     private envRepository: Repository<Env>,
+    @InjectRepository(Env)
+    private serverRepository: Repository<Server>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
     @InjectRepository(Plan)
@@ -130,7 +133,6 @@ export class PlanController {
     const plan = await this.planRepository.findOne(dto.id) as PlanDto;
     const planEnvList = await this.planEnvRepository.find({ planId: plan.id }) as PlanEnvDto[];
     for (const planEnvDto of planEnvList) {
-
 
 
       const planEnvProjectConfigList = await this.planEnvProjectConfigRepository.createQueryBuilder('pepc').where('planId = :planId and planEnvId = :planEnvId', {
@@ -256,6 +258,12 @@ export class PlanController {
         planEnvProjectConfig.planName = plan.name;
         planEnvProjectConfig.planEnvId = planEnvDto.envId;
         planEnvProjectConfig.planEnvName = planEnvDto.envName;
+        if (planEnvProjectConfig.publishServerId) {
+
+          const server = await entityManager.findOne(Server, planEnvProjectConfig.publishServerId);
+          planEnvProjectConfig.publishServerName = server.name;
+        }
+
         planEnvProjectConfig = await entityManager.save(PlanEnvProjectConfig, planEnvProjectConfig);
 
         if (planEnvProjectConfigDto.isEnableCustomConfig) {
