@@ -56,11 +56,8 @@ export default () => {
     return <PageLoading/>;
   }
 
-  console.log('plan', plan);
-  console.log('(plan.planEnvList.length > 0 ? plan.planEnvList[0].planEnvProjectConfigList?.map((planEnvProjectConfig: PlanEnvProjectConfigDto) => planEnvProjectConfig.projectId) : []) as number[]', (plan.planEnvList.length > 0 ? plan.planEnvList[0].planEnvProjectConfigList?.map((planEnvProjectConfig: PlanEnvProjectConfigDto) => planEnvProjectConfig.projectId) : []) as number[]);
-
   return (
-    <PageHeaderWrapper>
+    <PageHeaderWrapper title={'版本计划信息'}>
       <Layout>
         <Sider theme='light'
                width='21%'

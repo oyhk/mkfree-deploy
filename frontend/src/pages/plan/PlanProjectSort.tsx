@@ -43,7 +43,7 @@ export default () => {
 
 
   return (
-    <PageHeaderWrapper>
+    <PageHeaderWrapper title={'版本计划项目排序配置'}>
       <Form
         initialValues={{ projectSortList: data?.result }}
         labelCol={{ span: 8 }}

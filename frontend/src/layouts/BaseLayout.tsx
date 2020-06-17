@@ -169,6 +169,18 @@ const BaseLayout: React.FC = props => {
                   path: routes.pageRoutes.planCreate,
                   hideInMenu: true,
                 },
+                {
+                  name: '版本计划信息',
+                  key: 'planInfo',
+                  path: routes.pageRoutes.planInfo,
+                  hideInMenu: true,
+                },
+                {
+                  name: '版本计划项目排序配置',
+                  key: 'planProjectSort',
+                  path: routes.pageRoutes.planProjectSort,
+                  hideInMenu: true,
+                },
               ],
             },
             // 插件
