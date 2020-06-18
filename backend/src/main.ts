@@ -3,8 +3,6 @@ import { AppModule } from './app.module';
 import { AuthInterceptor } from './auth-interceptor';
 import { JwtService } from '@nestjs/jwt';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { doc } from 'prettier';
-import join = doc.builders.join;
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -28,6 +26,7 @@ async function bootstrap(): Promise<void> {
   app.setViewEngine('hbs');
 
   await app.listen(5000);
+
 }
 
 bootstrap();

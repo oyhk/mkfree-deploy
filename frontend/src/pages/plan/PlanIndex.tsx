@@ -69,13 +69,9 @@ export default () => {
           },
           {
             title: '操作',
-            dataIndex: 'operations',
-            render: (record: PlanDto) => (
-              <div>
-                <Link to={`${routes.pageRoutes.planEditParams(record?.id)}`} type='primary'>编辑</Link>&nbsp;&nbsp;
-              </div>
-            )
-            ,
+            key: 'operations',
+            render: (record: PlanDto) => <div><Link to={`${routes.pageRoutes.planEditParams(record?.id)}`}
+                                                    type='primary'>编辑</Link>&nbsp;&nbsp;</div>,
           },
         ]}
         rowKey="id"

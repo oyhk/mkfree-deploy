@@ -268,7 +268,7 @@ export default (props: any) => {
                           label='内容'
                           name={[planScriptListField.name, 'text']}
                         >
-                          <Input.TextArea placeholder={`脚本内容`}/>
+                          <Input.TextArea placeholder={`脚本内容`} rows="10"/>
                         </Form.Item>
                       </div>)
                     }
