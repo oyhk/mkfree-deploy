@@ -43,7 +43,7 @@ export class EnvController {
   }
 
   @Delete('/api/envs/delete')
-  async delete(@Body() dto: EnvDto,@Req() req, @Res() res: Response) {
+  async delete(@Body() dto: EnvDto, @Req() req, @Res() res: Response) {
     const ar = new ApiResult();
 
     const accessToken = req.header(UserAuthOperation.accessTokenKey);
@@ -80,7 +80,7 @@ export class EnvController {
   @Get('/api/envs/list')
   async list(@Query() dto: EnvDto, @Res() res: Response) {
     const ar = new ApiResult();
-    const envList = await this.envRepository.find(dto);
+    const envList = await this.envRepository.find({ isEnable: dto.isEnable });
     ar.result = envList.sort((a, b) => a.sort - b.sort);
     return res.json(ar);
   }
