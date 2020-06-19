@@ -68,6 +68,8 @@ Nestjs安装后，把nest添加到环境变量中。
 #### 4、启动项目
 4.1、git clone 项目
 ````bash
+mkdir devops
+cd devops
 git clone https://gitee.com/oyhk/mkfree-deploy.git
 cd mkfree-deploy/backend
 ````
@@ -87,10 +89,27 @@ npm run build
 ````bash
 node dist/main.js
 ````
-启动后，系统会自动生成数据文件。
+启动后，系统会自动生成数据文件，node服务运行在5000端口上。
 
 ------
 ### 如何使用
 
-#### 访问链接： http://localhost:5000 ，自动跳转到系统安装页面
+#### 1、访问链接： http://localhost:5000 ，自动跳转到系统安装页面
 ![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-install.png)
+#### 2、输入相关信息安装系统
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-install3.png)
+#### 3、安装成功
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-install-success.png)
+#### 4、登录
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-login.png)
+#### 5、系统主界面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-welcome.png)
+
+### 如何部署（例如部署一个Java项目）
+- 环境管理
+    - 添加环境
+- 服务器管理
+    - 添加服务器
+- 项目
+    - 添加项目
+    - 部署项目
