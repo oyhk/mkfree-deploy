@@ -78,7 +78,10 @@ export default {
     projectInit: gateway + 'api/projects/init',
     projectRefreshBranch: gateway + 'api/projects/refreshBranch',
 
-    envList: { url: gateway + 'api/envs/list', method: HttpMethod.get },
+    envList: (searchParams?: any) => ({
+      url: `${gateway}api/envs/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
 
     serverList: { url: gateway + 'api/servers/list', method: HttpMethod.get },
 

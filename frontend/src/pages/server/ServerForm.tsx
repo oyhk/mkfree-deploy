@@ -57,13 +57,7 @@ export default (props: ServerPageProps) => {
       },
     });
 
-  const envResult = useRequest<ApiResult<EnvDto[]>>(() => ({
-    url: `${routes.apiRoutes.envList.url}`,
-    method: routes.apiRoutes.envList.method,
-    headers: {
-      access_token: localStorage.getItem(USER_KEY.ACCESS_TOKEN),
-    },
-  }), { manual: false });
+  const envResult = useRequest<ApiResult<EnvDto[]>>(routes.apiRoutes.envList(), { manual: false });
 
   if (!info?.id && props.edit) {
     return <PageLoading/>;

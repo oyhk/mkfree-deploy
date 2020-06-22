@@ -36,7 +36,6 @@ export default (props: any) => {
   const [plan] = useState<PlanDto>(props.plan ? props.plan : { planEnvList: [], planScriptList: [] });
 
 
-  const [selectEnvList, setSelectEnvList] = useState<EnvDto[]>();
   const [serverList, setServerList] = useState<ServerDto[]>();
 
   const [treeProjectList, setTreeProjectList] = useState();
@@ -59,17 +58,15 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     });
 
-  useRequest<ApiResult<EnvDto[]>>(
-    () => routes.apiRoutes.envList,
+  const selectEnvListUseRequest = useRequest<ApiResult<EnvDto[]>>(
+    routes.apiRoutes.envList(),
     {
-      onSuccess: (apiResult, params) => {
-        if (apiResult.result) {
-          setSelectEnvList(apiResult.result);
-        }
-      },
       manual: false,
       refreshOnWindowFocus: false,
     });
+
+  console.log('selectEnvListUseRequest.data', selectEnvListUseRequest.data);
+
   useRequest<ApiResult<ServerDto[]>>(
     () => routes.apiRoutes.serverList,
     {
@@ -133,7 +130,7 @@ export default (props: any) => {
   if (!treeProjectList) {
     return <PageLoading/>;
   }
-  if (!selectEnvList) {
+  if (!selectEnvListUseRequest.data) {
     return <PageLoading/>;
   }
 
@@ -359,7 +356,7 @@ export default (props: any) => {
                               }}
                       >
                         {
-                          selectEnvList?.map(envDto => <Select.Option
+                          selectEnvListUseRequest.data?.result?.map(envDto => <Select.Option
                             disabled={plan?.planEnvList.map(planEnv => planEnv.envId)?.indexOf(envDto.id as number) !== -1}
                             value={envDto?.id as number}
                             key={envDto?.code}
