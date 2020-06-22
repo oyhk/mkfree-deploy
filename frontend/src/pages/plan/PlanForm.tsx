@@ -36,11 +36,12 @@ export default (props: any) => {
   const [plan] = useState<PlanDto>(props.plan ? props.plan : { planEnvList: [], planScriptList: [] });
 
 
-  const [selectEnvList, setSelectEnvList] = useState<EnvDto[]>([]);
-  const [serverList, setServerList] = useState<ServerDto[]>([]);
+  const [selectEnvList, setSelectEnvList] = useState<EnvDto[]>();
+  const [serverList, setServerList] = useState<ServerDto[]>();
 
   const [treeProjectList, setTreeProjectList] = useState();
   const treeProjectListRef = useRef();
+
 
   useRequest<ApiResult<PlanProjectSortDto[]>>(
     () => routes.apiRoutes.planProjectSortList(),
@@ -69,7 +70,6 @@ export default (props: any) => {
       manual: false,
       refreshOnWindowFocus: false,
     });
-
   useRequest<ApiResult<ServerDto[]>>(
     () => routes.apiRoutes.serverList,
     {
@@ -81,7 +81,6 @@ export default (props: any) => {
       manual: false,
       refreshOnWindowFocus: false,
     });
-
 
   // form 表单提交
   const formSaveUseRequest = useRequest<ApiResult<ServerDto[]>>(
@@ -128,13 +127,13 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     });
 
-  if (!serverList || serverList?.length === 0) {
+  if (!serverList) {
     return <PageLoading/>;
   }
-  if (!treeProjectList || treeProjectList?.length === 0) {
+  if (!treeProjectList) {
     return <PageLoading/>;
   }
-  if (!selectEnvList || selectEnvList?.length === 0) {
+  if (!selectEnvList) {
     return <PageLoading/>;
   }
 
@@ -153,7 +152,6 @@ export default (props: any) => {
             onSelect={(selectedKeys, e) => {
               plan.planEnvList = form.getFieldValue('planEnvList');
 
-              console.log('treeProjectList select change ', e.node);
 
               if (e.selected) {
                 selectedKeys.forEach((projectId) => {

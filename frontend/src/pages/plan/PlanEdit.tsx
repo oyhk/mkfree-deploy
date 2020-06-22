@@ -15,6 +15,8 @@ export default () => {
   const [plan, setPlan] = useState<PlanDto>();
 
 
+  console.log(params);
+
   useRequest<ApiResult<PlanDto>>(
     () => routes.apiRoutes.planInfo(params),
     {

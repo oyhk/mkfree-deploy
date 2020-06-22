@@ -103,17 +103,16 @@ const config: IConfig = {
                   component: '@/pages/plan/PlanProjectSort',
                 },
                 {
+                  title: '版本计划创建',
+                  path: routes.pageRoutes.planCreate,
+                  component: '@/pages/plan/PlanCreate',
+                },
+                {
                   title: '版本计划信息',
                   path: routes.pageRoutes.planInfo,
                   component: '@/pages/plan/PlanInfo',
                   exact: true
                 },
-                {
-                  title: '版本计划创建',
-                  path: routes.pageRoutes.planCreate,
-                  component: '@/pages/plan/PlanCreate',
-                },
-
               ],
             },
 

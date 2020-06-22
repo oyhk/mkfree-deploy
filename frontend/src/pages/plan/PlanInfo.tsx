@@ -11,6 +11,7 @@ import { ApiResult } from '@/services/ApiResult';
 import { PlanProjectSortDto } from '@/services/dto/PlanProjectSortDto';
 import routes from '@/routes';
 import { PlanDto } from '@/services/dto/PlanDto';
+import { useParams } from 'umi';
 
 const { Sider, Content } = Layout;
 
@@ -36,8 +37,10 @@ export default () => {
       refreshOnWindowFocus: false,
     });
 
+  const pathParams = useParams();
+
   useRequest<ApiResult<PlanDto>>(
-    () => routes.apiRoutes.planInfo({ id: 1 }),
+    () => routes.apiRoutes.planInfo(pathParams),
     {
       onSuccess: (apiResult, params) => {
         if (apiResult.result) {
