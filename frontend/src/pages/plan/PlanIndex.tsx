@@ -84,7 +84,7 @@ export default () => {
           {
             expandedRowRender: (record) => {
               return <Table
-                rowKey={uuid()}
+                rowKey='id'
                 columns={
                   [
                     { title: '环境名称', key: 'envName', dataIndex: 'envName' },
