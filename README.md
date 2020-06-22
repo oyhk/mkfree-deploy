@@ -113,3 +113,28 @@ node dist/main.js
 - 项目
     - 添加项目
     - 部署项目
+
+#### 环境管理（通常来说项目都有多个环境，比如DEV、UAT、PRE、PROD）
+##### 管理页面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-env-manager.png)
+##### 创建页面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-env-new.png)
+##### 创建成功
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-env-new-success.png)
+
+#### 服务器管理（通常来说就是本地服务器或者云服务器）
+#### 管理页面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-server-manager.png)
+##### 创建页面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-server-new.png)
+##### 创建成功
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-server-new-success.png)
+
+#### 项目管理（通常来说就是需要部署到服务器上的项目）
+#### 管理页面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-project-manager.png)
+##### 创建页面
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-project-new1.png)
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-project-new2.png)
+##### 创建成功
+![image](https://gitee.com/oyhk/mkfree-deploy/raw/master/doc/images/mk-project-new-success.png)
