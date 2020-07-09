@@ -1,5 +1,5 @@
 import React  from 'react';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { useParams } from 'umi';
 import routes from '@/routes';

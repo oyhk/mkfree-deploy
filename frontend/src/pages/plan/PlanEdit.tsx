@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import PlanForm from '@/pages/plan/PlanForm';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
 import { PlanDto } from '@/services/dto/PlanDto';
 import routes from '@/routes';

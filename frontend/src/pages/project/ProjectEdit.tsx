@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { connect } from 'umi';
-import ProjectForm from '@/pages/project/components/ProjectFrom';
+import ProjectForm from '@/pages/project/ProjectFrom';
 import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 
 

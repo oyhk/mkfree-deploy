@@ -1,6 +1,6 @@
 import { Button, Form, Input, notification, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
 import {  USER_KEY, UserDto } from '@/services/dto/UserDto';
 import { history } from '@@/core/history';

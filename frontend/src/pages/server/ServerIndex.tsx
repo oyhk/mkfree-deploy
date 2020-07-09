@@ -4,7 +4,7 @@ import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { Link } from 'umi';
 import routes from '@/routes';
 import React from 'react';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
 import { PageResult } from '@/services/PageResult';
 import { Button, notification } from 'antd';

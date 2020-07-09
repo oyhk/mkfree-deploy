@@ -4,7 +4,7 @@ import styles from '@/pages/install/InstallIndex.less';
 import logo from '@/assets/logo.svg';
 import { Footer } from '@/utils/ComponentUtils';
 import routes from '@/routes';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { history } from '@@/core/history';
 
 export default () => {

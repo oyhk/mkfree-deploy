@@ -195,6 +195,12 @@ const BaseLayout: React.FC = props => {
                   icon:'',
                   path: routes.pageRoutes.pluginEurekaIndex,
                 },
+                {
+                  name: 'Eureka环境配置',
+                  key: 'pluginEurekaEnvSetting',
+                  path: routes.pageRoutes.pluginEurekaEnvSetting,
+                  hideInMenu: true,
+                },
               ],
             },
           ]

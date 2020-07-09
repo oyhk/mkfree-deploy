@@ -15,7 +15,7 @@ import {
   notification,
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
 import { EnvDto } from '@/services/dto/EnvDto';
 import routes from '@/routes';
@@ -64,8 +64,6 @@ export default (props: any) => {
       manual: false,
       refreshOnWindowFocus: false,
     });
-
-  console.log('selectEnvListUseRequest.data', selectEnvListUseRequest.data);
 
   useRequest<ApiResult<ServerDto[]>>(
     () => routes.apiRoutes.serverList,

@@ -81,8 +81,6 @@ export class EnvController {
   async list(@Query() dto: EnvDto, @Res() res: Response) {
     const ar = new ApiResult();
     const envList = await this.envRepository.find(dto);
-    console.log(envList);
-
     ar.result = envList.sort((a, b) => a.sort - b.sort);
     return res.json(ar);
   }

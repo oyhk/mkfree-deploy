@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useFormTable, useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 // @ts-ignore
 import ProTable, { ProColumns } from '@ant-design/pro-table';

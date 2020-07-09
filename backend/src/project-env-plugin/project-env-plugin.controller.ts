@@ -32,5 +32,16 @@ export class ProjectEnvPluginController {
     return res.json(ar);
   }
 
+  @Get('/api/projectEnvPlugins/list')
+  async list(@Query() dto: ProjectEnvPlugin, @Res() res: Response) {
+    const ar = new ApiResult();
+    const projectEnv = await this.projectEnvPluginRepository.find();
+    if (!projectEnv) {
+      ar.remindRecordNotExist(ProjectEnvPlugin.entityName, { projectId: dto.projectId, envId: dto.envId });
+      return res.json(ar);
+    }
+    ar.result = projectEnv;
+    return res.json(ar);
+  }
 
 }

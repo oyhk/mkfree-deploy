@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useFormTable, useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { useParams } from 'umi';
 import routes from '@/routes';

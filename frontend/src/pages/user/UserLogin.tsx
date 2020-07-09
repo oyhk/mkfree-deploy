@@ -4,7 +4,7 @@ import styles from '@/pages/user/UserLogin.less';
 import logo from '@/assets/logo.svg';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Footer } from '@/utils/ComponentUtils';
-import { useFormTable, useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import routes from '@/routes';
 import { history } from '@@/core/history';
 import { USER_KEY } from '@/services/dto/UserDto';

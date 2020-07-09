@@ -193,6 +193,16 @@ const config: IConfig = {
                   title: 'Eureka',
                   component: '@/pages/plugin/eureka/EurekaIndex',
                 },
+                {
+                  path: routes.pageRoutes.pluginEurekaEnvIndex,
+                  title: 'Eureka',
+                  component: '@/pages/plugin/eureka/EurekaEnvIndex',
+                },
+                {
+                  path: routes.pageRoutes.pluginEurekaEnvSetting,
+                  title: 'Eureka环境配置',
+                  component: '@/pages/plugin/eureka/EurekaEnvSetting',
+                },
               ],
             },
           ],

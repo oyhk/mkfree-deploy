@@ -53,7 +53,11 @@ export default {
     envEdit: pageRoot + '/env/edit/:id',
     envEditParams: (id: any) => pageRoot + `/env/edit/${id}`,
 
+    // 插件 Eureka
     pluginEurekaIndex: pageRoot + '/plugin/eureka',
+    pluginEurekaEnvIndex: pageRoot + '/plugin/eureka/envId/:id',
+    pluginEurekaEnvIndexParams: (envId: any)=> pageRoot + `/plugin/eureka/envId/${envId}`,
+    pluginEurekaEnvSetting: pageRoot + '/plugin/eureka/env-setting',
 
   },
   // API
@@ -67,16 +71,35 @@ export default {
       url: gateway + 'api/systems/installed',
       method: HttpMethod.get,
     },
-
-    projectPage: gateway + 'api/projects/page',
+    projectPage: (searchParams?: any) => ({
+      url: `${gateway}api/projects/page?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
     projectInfo: gateway + 'api/projects/info',
     projectSave: gateway + 'api/projects/save',
     projectUpdate: gateway + 'api/projects/update',
     projectDeleted: gateway + 'api/projects/deleted',
-    projectBuild: gateway + 'api/projects/build',
-    projectSync: gateway + 'api/projects/sync',
-    projectInit: gateway + 'api/projects/init',
-    projectRefreshBranch: gateway + 'api/projects/refreshBranch',
+    projectBuild: (payload?: any) => ({
+      url: `${gateway}api/projects/build`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
+    projectSync: (payload?: any) => ({
+      url: `${gateway}api/projects/sync`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
+    projectInit: (payload?: any) => ({
+      url: `${gateway}api/projects/init`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
+
+    projectRefreshBranch: (payload?: any) => ({
+      url: `${gateway}api/projects/refreshBranch`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
 
     envList: (searchParams?: any) => ({
       url: `${gateway}api/envs/list?${querystring.stringify(searchParams)}`,
@@ -87,7 +110,14 @@ export default {
 
     projectEnvList: gateway + 'api/projectEnvs/list',
     projectEnvInfo: gateway + 'api/projectEnvs/info',
-    projectEnvPluginInfo: gateway + 'api/projectEnvPlugins/info',
+    projectEnvPluginInfo: (searchParams?: any) => ({
+      url: `${gateway}api/projectEnvPlugins/info?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
+    projectEnvPluginList: (searchParams?: any) => ({
+      url: `${gateway}api/projectEnvPlugins/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
     projectEnvLogList: gateway + 'api/projectEnvLogs/list',
     projectEnvLogInfo: gateway + 'api/projectEnvLogs/info',
 
@@ -106,6 +136,21 @@ export default {
     serverSave: { url: gateway + 'api/servers/save', method: HttpMethod.post },
     serverInfo: { url: gateway + 'api/servers/info', method: HttpMethod.get },
     serverDelete: { url: gateway + 'api/servers/delete', method: HttpMethod.delete },
+
+    // 插件环境配置
+    pluginEnvSettingInfo: (searchParams?: any) => ({
+      url: `${gateway}api/pluginEnvSetting/info?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
+    pluginEnvSettingList: (searchParams?: any) => ({
+      url: `${gateway}api/pluginEnvSetting/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
+    pluginEnvSettingSave: (payload?: any) => ({
+      url: `${gateway}api/pluginEnvSetting/save`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
 
     envPage: (searchParams?: any) => {
       return { url: `${gateway}api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };

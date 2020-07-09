@@ -23,9 +23,9 @@ import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
 import { Plugin, PluginList, PluginType } from '../plugin/plugin.entity';
-import { ProjectEnvPlugin } from '../project-dev-plugin/project-env-plugin.entity';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
+import { ProjectEnvPlugin } from '../project-env-plugin/project-env-plugin.entity';
 
 @Controller()
 export class ProjectController {
