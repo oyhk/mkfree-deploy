@@ -15,6 +15,7 @@ export class AppController {
     '/server**',
     '/env**',
     '/install**',
+    '/plugin**',
   ])
   @Render('index')
   index() {
