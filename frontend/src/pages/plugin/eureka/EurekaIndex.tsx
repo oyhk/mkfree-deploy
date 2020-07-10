@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React  from 'react';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
-import { Link, history } from 'umi';
+import { Link } from 'umi';
 import routes from '@/routes';
 import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
 import { PluginEnvSettingDto } from '@/services/dto/PluginEnvSettingDto';
 import { SettingOutlined } from '@ant-design/icons/lib';
 
-export default () => {
+export default (props:any) => {
 
   const pluginEnvSettingUseRequest = useRequest<ApiResult<PluginEnvSettingDto[]>>(
     routes.apiRoutes.pluginEnvSettingList({ pluginName: 'Eureka' }),
@@ -34,9 +34,8 @@ export default () => {
   let defaultShowList = pluginEnvSettingUseRequest.data.result.filter(value => value.defaultShow);
   if (!defaultShowList || defaultShowList.length === 0) {
     defaultShowList = pluginEnvSettingUseRequest.data.result;
-    history.replace(routes.pageRoutes.pluginEurekaEnvIndexParams(defaultShowList[0].envId));
-    window.location.reload();
+    props.history.replace(routes.pageRoutes.pluginEurekaEnvIndexParams(defaultShowList[0].envId));
   }
 
-  return '';
+  return <PageLoading/>;
 }
