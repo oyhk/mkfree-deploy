@@ -7,7 +7,7 @@ export async function page(payload: ProjectDto) {
     url: `${routes.apiRoutes.projectPage({
       pageNo: 0,
       pageSize: 10000,
-    })}`,
+    }).url}`,
   });
 }
 
