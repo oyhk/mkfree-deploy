@@ -40,6 +40,7 @@ export default () => {
           });
         }
       },
+      fetchKey: (payload) => payload.id,
       manual: true,
       refreshOnWindowFocus: false,
     });
@@ -56,6 +57,7 @@ export default () => {
           });
         }
       },
+      fetchKey: (payload) => payload.id,
       manual: true,
       refreshOnWindowFocus: false,
     });
@@ -71,6 +73,7 @@ export default () => {
           });
         }
       },
+      fetchKey: (payload) => `${payload.id}${payload.projectEnvServerId}`,
       manual: true,
       refreshOnWindowFocus: false,
     });
@@ -86,6 +89,7 @@ export default () => {
           });
         }
       },
+      fetchKey: (payload) => `${payload.id}${payload.projectEnvServerId}`,
       manual: true,
       refreshOnWindowFocus: false,
     });
@@ -196,25 +200,35 @@ export default () => {
                           projectEnvServerList ? projectEnvServerList.map((pes) => (
                             <div className={styles.ipRow} key={uuid()}>
                               {
-                                pes.isPublish ? <Button type='primary' size='small' onClick={() => {
-
-                                  const payload = {
-                                    id: pes.projectId,
-                                    name: pes.projectName,
-                                    projectEnvServerId: pes.id,
-                                  };
-                                  console.log('build payload', payload);
-                                  buildUseRequest.run(payload);
-                                }}>发布</Button> : <Button danger size='small' onClick={() => {
-
-                                  const payload = {
-                                    id: pes.projectId,
-                                    name: pes.projectName,
-                                    projectEnvServerId: pes.id,
-                                  };
-                                  console.log('sync payload', payload);
-                                  syncUseRequest.run(payload);
-                                }}>从服务器同步</Button>
+                                pes.isPublish ?
+                                  <Button
+                                    type='primary'
+                                    size='small'
+                                    onClick={() => {
+                                      const payload = {
+                                        id: pes.projectId,
+                                        name: pes.projectName,
+                                        projectEnvServerId: pes.id,
+                                      };
+                                      console.log('build payload', payload);
+                                      buildUseRequest.run(payload);
+                                    }}
+                                    loading={buildUseRequest.fetches[`${pes.projectId}${pes.id}`]?.loading}
+                                  >发布</Button> :
+                                  <Button
+                                    danger
+                                    size='small'
+                                    onClick={() => {
+                                      const payload = {
+                                        id: pes.projectId,
+                                        name: pes.projectName,
+                                        projectEnvServerId: pes.id,
+                                      };
+                                      console.log('sync payload', payload);
+                                      syncUseRequest.run(payload);
+                                    }}
+                                    loading={syncUseRequest.fetches[`${pes.projectId}${pes.id}`]?.loading}
+                                  >从服务器同步</Button>
                               }
                             </div>
                           )) : <div/>
