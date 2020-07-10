@@ -35,6 +35,7 @@ export default () => {
   if (!defaultShowList || defaultShowList.length === 0) {
     defaultShowList = pluginEnvSettingUseRequest.data.result;
     history.replace(routes.pageRoutes.pluginEurekaEnvIndexParams(defaultShowList[0].envId));
+    window.location.reload();
   }
 
   return '';
