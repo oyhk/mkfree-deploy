@@ -1,41 +1,37 @@
-import React  from 'react';
-import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
-import { Link } from 'umi';
+import React from 'react';
+import { PageLoading } from '@ant-design/pro-layout';
 import routes from '@/routes';
 import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
 import { PluginEnvSettingDto } from '@/services/dto/PluginEnvSettingDto';
-import { SettingOutlined } from '@ant-design/icons/lib';
+import { notification } from 'antd';
 
-export default (props:any) => {
+export default (props: any) => {
 
-  const pluginEnvSettingUseRequest = useRequest<ApiResult<PluginEnvSettingDto[]>>(
+  useRequest<ApiResult<PluginEnvSettingDto[]>>(
     routes.apiRoutes.pluginEnvSettingList({ pluginName: 'Eureka' }),
     {
+      onSuccess: (ar) => {
+
+        if (!ar.result || ar.result.length === 0) {
+          props.history.replace(routes.pageRoutes.pluginEurekaEnvSetting);
+          return;
+        }
+        // 默认展示Eureka环境列表，当如果没有设置默认展示，则跳转到Eureka环境配置页面
+        let defaultShowList = ar.result.filter(value => value.defaultShow);
+        if (!defaultShowList || defaultShowList.length === 0) {
+          props.history.replace(routes.pageRoutes.pluginEurekaEnvSetting);
+          notification.warn({
+            message: `Eureka默认配置不存在`,
+            description: '请先设置Eureka环境配置',
+          });
+          return;
+        }
+        props.history.replace(routes.pageRoutes.pluginEurekaEnvIndexParams(defaultShowList[0].envId));
+      },
       manual: false,
       refreshOnWindowFocus: false,
     });
-
-
-  if (!pluginEnvSettingUseRequest.data) {
-    return <PageLoading/>;
-  }
-
-
-  if (!pluginEnvSettingUseRequest.data?.result || pluginEnvSettingUseRequest.data?.result.length === 0) {
-    return (
-      <PageHeaderWrapper>
-        没发现Eureka环境配置，去 <Link to={routes.pageRoutes.pluginEurekaEnvSetting}><SettingOutlined/> Eureka环境配置</Link>
-      </PageHeaderWrapper>
-    );
-  }
-
-
-  let defaultShowList = pluginEnvSettingUseRequest.data.result.filter(value => value.defaultShow);
-  if (!defaultShowList || defaultShowList.length === 0) {
-    defaultShowList = pluginEnvSettingUseRequest.data.result;
-    props.history.replace(routes.pageRoutes.pluginEurekaEnvIndexParams(defaultShowList[0].envId));
-  }
 
   return <PageLoading/>;
 }
