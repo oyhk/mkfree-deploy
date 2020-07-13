@@ -144,7 +144,7 @@ export default () => {
 
                         {
                           planEnvProjectConfig.isEnableCustomConfig ?
-                            <div>
+                            <div style={{ marginBottom: '24px' }}>
                               <Row>
                                 <Col xl={4} style={{
                                   textAlign: 'right',
@@ -153,13 +153,39 @@ export default () => {
                                 }}>发布分支：</Col>
                                 <Col xl={16}>{planEnvProjectConfig.publishBranch}</Col>
                               </Row>
-                              <Row style={{ marginBottom: '24px' }}>
+                              <Row>
                                 <Col xl={4} style={{
                                   textAlign: 'right',
                                   fontSize: '14px',
                                   color: 'rgba(0, 0, 0, 0.85)',
                                 }}>发布服务器：</Col>
                                 <Col xl={16}>{planEnvProjectConfig.publishServerName}</Col>
+                              </Row>
+                              <Row >
+                                <Col xl={4} style={{
+                                  textAlign: 'right',
+                                  fontSize: '14px',
+                                  color: 'rgba(0, 0, 0, 0.85)',
+                                }}>灰度版服务器：</Col>
+                                <Col xl={16}>
+                                  {
+                                    planEnvProjectConfig?.grayServerList?.map((planEnvProjectConfigServer) =>
+                                      <span style={{marginRight:'20px'}}>{planEnvProjectConfigServer?.serverName}</span>)
+                                  }
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col xl={4} style={{
+                                  textAlign: 'right',
+                                  fontSize: '14px',
+                                  color: 'rgba(0, 0, 0, 0.85)',
+                                }}>正式版服务器：</Col>
+                                <Col xl={16}>
+                                  {
+                                    planEnvProjectConfig?.releaseServerList?.map((planEnvProjectConfigServer) =>
+                                      <span style={{marginRight:'20px'}}>{planEnvProjectConfigServer?.serverName}</span>)
+                                  }
+                                </Col>
                               </Row>
                             </div>
                             :

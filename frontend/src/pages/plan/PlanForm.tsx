@@ -439,7 +439,7 @@ export default (props: any) => {
                                         </Form.Item>
                                         <Form.Item
                                           label="灰度版服务器"
-                                          name={[planEnvProjectConfigListField.name, 'garyServerIdList']}
+                                          name={[planEnvProjectConfigListField.name, 'grayServerIdList']}
                                         >
                                           <Checkbox.Group
                                             options={serverList.map(server => ({

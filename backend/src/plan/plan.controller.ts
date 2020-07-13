@@ -141,14 +141,24 @@ export class PlanController {
       }).addOrderBy('projectSort', 'ASC').getMany() as PlanEnvProjectConfigDto[];
 
       for (const planEnvProjectConfigDto of planEnvProjectConfigList) {
-        planEnvProjectConfigDto.garyServerIdList = await this.planEnvProjectConfigServerRepository.find({
+
+        const grayServerList = await this.planEnvProjectConfigServerRepository.find({
           planEnvProjectConfigId: planEnvProjectConfigDto.id,
           type: PlanEnvProjectConfigServerType.gray.code,
-        }).then((planEnvProjectConfigServerList) => planEnvProjectConfigServerList.map(planEnvProjectConfigServer => planEnvProjectConfigServer.serverId));
-        planEnvProjectConfigDto.releaseServerIdList = await this.planEnvProjectConfigServerRepository.find({
+        });
+        if (grayServerList) {
+          planEnvProjectConfigDto.grayServerList = grayServerList;
+          planEnvProjectConfigDto.grayServerIdList = grayServerList.map(planEnvProjectConfigServer => planEnvProjectConfigServer.serverId);
+        }
+
+        const releaseServerList = await this.planEnvProjectConfigServerRepository.find({
           planEnvProjectConfigId: planEnvProjectConfigDto.id,
           type: PlanEnvProjectConfigServerType.release.code,
-        }).then((planEnvProjectConfigServerList) => planEnvProjectConfigServerList.map(planEnvProjectConfigServer => planEnvProjectConfigServer.serverId));
+        });
+        if (releaseServerList) {
+          planEnvProjectConfigDto.releaseServerList = releaseServerList;
+          planEnvProjectConfigDto.releaseServerIdList = releaseServerList.map(planEnvProjectConfigServer => planEnvProjectConfigServer.serverId);
+        }
       }
 
       planEnvDto.planEnvProjectConfigList = planEnvProjectConfigList;
@@ -248,7 +258,7 @@ export class PlanController {
     return res.json(ar);
   }
 
-  async insert(dto: PlanDto, plan: Plan, entityManager) {
+  async insert(dto: PlanDto, plan: Plan, entityManager: EntityManager) {
     for (const planEnvDto of dto.planEnvList) {
 
       for (const planEnvProjectConfigDto of planEnvDto.planEnvProjectConfigList) {
@@ -267,12 +277,16 @@ export class PlanController {
         planEnvProjectConfig = await entityManager.save(PlanEnvProjectConfig, planEnvProjectConfig);
 
         if (planEnvProjectConfigDto.isEnableCustomConfig) {
-          if (planEnvProjectConfigDto.garyServerIdList) {
-            for (const grayServerId of planEnvProjectConfigDto.garyServerIdList) {
+          if (planEnvProjectConfigDto.grayServerIdList) {
+            for (const grayServerId of planEnvProjectConfigDto.grayServerIdList) {
+
+              const server = await entityManager.findOne(Server, grayServerId);
+
               const planEnvProjectConfigServer = new PlanEnvProjectConfigServer();
               planEnvProjectConfigServer.planId = plan.id;
               planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
               planEnvProjectConfigServer.serverId = grayServerId;
+              planEnvProjectConfigServer.serverName = server.name;
               planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.gray.code;
               await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
             }
@@ -280,9 +294,13 @@ export class PlanController {
           if (planEnvProjectConfigDto.releaseServerIdList) {
             for (const releaseServerId of planEnvProjectConfigDto?.releaseServerIdList) {
               const planEnvProjectConfigServer = new PlanEnvProjectConfigServer();
+
+              const server = await entityManager.findOne(Server, releaseServerId);
+
               planEnvProjectConfigServer.planId = plan.id;
               planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
               planEnvProjectConfigServer.serverId = releaseServerId;
+              planEnvProjectConfigServer.serverName = server.name;
               planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.release.code;
               await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
             }
