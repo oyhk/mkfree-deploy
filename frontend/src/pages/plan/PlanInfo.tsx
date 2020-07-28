@@ -169,8 +169,8 @@ export default () => {
                                 }}>灰度版服务器：</Col>
                                 <Col xl={16}>
                                   {
-                                    planEnvProjectConfig?.grayServerList?.map((planEnvProjectConfigServer) =>
-                                      <span style={{marginRight:'20px'}}>{planEnvProjectConfigServer?.serverName}</span>)
+                                    planEnvProjectConfig?.grayServerList?.map((planEnvProjectConfigServer,index) =>
+                                      <span style={{marginRight:'20px'}} key={`grayServerList_${index}`}>{planEnvProjectConfigServer?.serverName}</span>)
                                   }
                                 </Col>
                               </Row>
@@ -182,8 +182,8 @@ export default () => {
                                 }}>正式版服务器：</Col>
                                 <Col xl={16}>
                                   {
-                                    planEnvProjectConfig?.releaseServerList?.map((planEnvProjectConfigServer) =>
-                                      <span style={{marginRight:'20px'}}>{planEnvProjectConfigServer?.serverName}</span>)
+                                    planEnvProjectConfig?.releaseServerList?.map((planEnvProjectConfigServer,index) =>
+                                      <span style={{marginRight:'20px'}} key={`planEnvProjectConfigServer_${index}`}>{planEnvProjectConfigServer?.serverName}</span>)
                                   }
                                 </Col>
                               </Row>
