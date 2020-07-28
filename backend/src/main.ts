@@ -1,16 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AuthInterceptor } from './auth-interceptor';
 import { JwtService } from '@nestjs/jwt';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { AuthFilter } from './auth.filter';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['debug', 'log', 'error', 'warn', 'verbose'],
   });
+
   // 用户登录认证、权限检查
-  const jwtService = app.get<JwtService>(JwtService);
-  app.useGlobalInterceptors(new AuthInterceptor(jwtService));
+  app.useGlobalFilters(new AuthFilter());
+
   app.enableCors({
     origin: '*',
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],

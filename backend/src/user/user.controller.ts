@@ -18,7 +18,6 @@ import { v4 as UUID } from 'uuid';
 import { Response } from 'express';
 import { ApiResultCode, ApiResult } from '../common/api-result';
 import { JwtService } from '@nestjs/jwt';
-import { AuthInterceptor } from '../auth-interceptor';
 import { UserAuth, UserAuthOperation } from './user-auth';
 
 @Controller()

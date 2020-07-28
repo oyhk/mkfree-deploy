@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResult, ApiResultCode } from '../common/api-result';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +11,8 @@ import { UserDto } from '../user/user.dto';
 import { User, UserRoleType } from '../user/user.entity';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from '../auth.guard';
+import { AuthException } from '../common/auth.exception';
 
 @Controller()
 export class EnvController {
@@ -86,7 +88,9 @@ export class EnvController {
   }
 
   @Get('/api/envs/page')
+  @UseGuards(AuthGuard)
   async page(@Query() dto: EnvDto, @Res() res: Response) {
+
     const ar = new ApiResult();
     const page = new Page();
     await this.envRepository.createQueryBuilder('s')
