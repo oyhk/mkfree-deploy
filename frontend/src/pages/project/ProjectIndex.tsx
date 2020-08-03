@@ -25,6 +25,7 @@ export default () => {
     }),
     {
       manual: false,
+      pollingInterval: 5000,
       refreshOnWindowFocus: false,
     });
 

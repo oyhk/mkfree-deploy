@@ -7,12 +7,9 @@ import { Env } from './env.entity';
 import { EnvDto } from './env.dto';
 import { Page } from '../common/page';
 import { ServerDto } from '../server/server.dto';
-import { UserDto } from '../user/user.dto';
-import { User, UserRoleType } from '../user/user.entity';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '../auth.guard';
-import { AuthException } from '../common/auth.exception';
 
 @Controller()
 export class EnvController {
