@@ -12,7 +12,7 @@ export async function page(payload: ProjectDto) {
 }
 
 export async function info(payload: ProjectDto) {
-  return get({ url: `${routes.apiRoutes.projectInfo}?id=${payload.id}` });
+  return get({ url: `${routes.apiRoutes.projectInfo({id:payload.id}).url}}` });
 }
 
 export async function save(payload: ProjectDto, successCallback?: Function, failCallback?: Function) {

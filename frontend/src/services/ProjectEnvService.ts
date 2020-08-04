@@ -2,7 +2,7 @@ import { get, RequestOptions } from '@/utils/MKRequest';
 import routes from '@/routes';
 
 export async function list(options: RequestOptions) {
-  options.url = `${routes.apiRoutes.projectEnvList}?projectId=${options.payload.projectId}`;
+  options.url = `${routes.apiRoutes.projectEnvList({projectId:options.payload.projectId}).url}`;
   return get(options);
 }
 

@@ -4,25 +4,91 @@ import { connect, Link, history, useParams } from 'umi';
 import { MailOutlined, LoadingOutlined, FileOutlined } from '@ant-design/icons';
 import routes from '@/routes';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
-import { ProjectEnvLogModelState } from '@/pages/project/models/ProjectEnvLogModel';
 import { momentFormat } from '@/utils/utils';
+import { useRequest } from 'ahooks';
+import { ApiResult } from '@/services/ApiResult';
+import { EnvDto } from '@/services/dto/EnvDto';
+import { ProjectDto } from '@/services/dto/ProjectDto';
+import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
+import { ProjectEnvLogDto } from '@/services/dto/ProjectEnvLogDto';
+
 
 const { Sider, Content, Header } = Layout;
 
-export interface ProjectEnvLogPageProps {
-  projectEnvLog: ProjectEnvLogModelState;
-}
 
-interface ProjectEnvLogPageUrlParams {
-  projectId: string;
-  envId: string;
-  seq: string;
-}
+interface ProjectEnvLogUrlParams {
+  projectId: string,
+  envId: string,
+  seq: string,
+};
 
-const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
-  const state = props.projectEnvLog;
+export default (props: any) => {
 
-  const historyLogMenu = props.projectEnvLog?.historyLogList?.map((projectEnvLog) => {
+  const urlParams = useParams<ProjectEnvLogUrlParams>();
+
+  const projectInfoUseRequest = useRequest<ApiResult<ProjectDto>>(
+    routes.apiRoutes.projectInfo({ id: urlParams.projectId })
+    ,
+    {
+      ready: !!urlParams.projectId,
+      manual: false,
+      refreshOnWindowFocus: false,
+    });
+
+  const projectEnvListUseRequest = useRequest<ApiResult<ProjectEnvDto[]>>(
+    routes.apiRoutes.projectEnvList({ projectId: urlParams.projectId })
+    ,
+    {
+      ready: !!urlParams.projectId,
+      manual: false,
+      refreshOnWindowFocus: false,
+    });
+
+  const projectEnvLogListUseRequest = useRequest<ApiResult<ProjectEnvLogDto[]>>(
+    routes.apiRoutes.projectEnvLogList({ projectId: urlParams.projectId, envId: urlParams.envId })
+    ,
+    {
+      ready: !!urlParams.projectId && !!urlParams.envId,
+      onSuccess: (ar) => {
+        if (ar.result && !urlParams.seq) {
+          props.history.replace(routes.pageRoutes.projectEnvLogInfoParams(urlParams.projectId, urlParams.envId, ar.result[0].projectEnvLogSeq));
+          return;
+        }
+        return ar;
+      },
+      manual: false,
+      pollingWhenHidden:false,
+      pollingInterval: 1000,
+      refreshOnWindowFocus: false,
+    });
+
+
+  const projectEnvLogInfoUseRequest = useRequest<ApiResult<ProjectEnvLogDto>>(
+    routes.apiRoutes.projectEnvLogInfo({
+      projectId: urlParams.projectId,
+      envId: urlParams.envId,
+      projectEnvLogSeq: urlParams.seq,
+    })
+    ,
+    {
+      onSuccess: (ar) => {
+        // 如果日志已完成，那么停止轮训
+        if (ar?.result?.isFinish) {
+          projectEnvLogInfoUseRequest.cancel();
+        }
+        return ar;
+      },
+      ready: !!urlParams.projectId && !!urlParams.envId && !!urlParams.seq,
+      manual: false,
+      pollingWhenHidden:false,
+      pollingInterval: 1000,
+      refreshOnWindowFocus: false,
+    });
+
+
+  const buildingLogList = projectEnvLogListUseRequest.data?.result?.filter((projectEnvLog) => !projectEnvLog.isFinish);
+
+  const buildingLogMenu = buildingLogList?.map((projectEnvLog) => {
     return <Menu.Item key={projectEnvLog.projectEnvLogSeq}>
       <Link
         to={routes.pageRoutes.projectEnvLogInfoParams(projectEnvLog.projectId, projectEnvLog.envId, projectEnvLog.projectEnvLogSeq)}>
@@ -31,7 +97,8 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
     </Menu.Item>;
   });
 
-  const buildingLogMenu = props.projectEnvLog?.buildingLogList?.map((projectEnvLog) => {
+  const historyLogList = projectEnvLogListUseRequest.data?.result?.filter((projectEnvLog) => projectEnvLog.isFinish);
+  const historyLogMenu = historyLogList?.map((projectEnvLog) => {
     return <Menu.Item key={projectEnvLog.projectEnvLogSeq}>
       <Link
         to={routes.pageRoutes.projectEnvLogInfoParams(projectEnvLog.projectId, projectEnvLog.envId, projectEnvLog.projectEnvLogSeq)}>
@@ -39,17 +106,18 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
       </Link>
     </Menu.Item>;
   });
+
 
   return (
     <PageHeaderWrapper
-      title={`项目：${state.info?.projectName}`}
+      title={`项目：${projectInfoUseRequest.data?.result?.name}`}
     >
       <Layout>
         <Sider theme='light'
 
         >
           <Row justify={'center'} style={{ padding: '30px' }}>
-            <Select defaultValue={(useParams() as ProjectEnvLogPageUrlParams).envId} style={{ width: '120px' }}
+            <Select defaultValue={urlParams.envId} style={{ width: '120px' }}
                     onChange={(value, option) => {
                       // @ts-ignore
                       const projectEnvLogPageUrlParams = option?.prop as ProjectEnvLogPageUrlParams;
@@ -57,26 +125,26 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
                     }}
             >
               {
-                state?.projectEnvList?.map(projectEnv => <Select.Option key={projectEnv.id}
-                                                                        prop={{
-                                                                          projectId: projectEnv.projectId,
-                                                                          envId: projectEnv.envId,
-                                                                        }}
-                                                                        value={`${projectEnv?.envId}`}>{projectEnv.envName}</Select.Option>)
+                projectEnvListUseRequest.data?.result?.map(projectEnv => <Select.Option key={projectEnv.id}
+                                                                                        prop={{
+                                                                                          projectId: projectEnv.projectId,
+                                                                                          envId: projectEnv.envId,
+                                                                                        }}
+                                                                                        value={`${projectEnv?.envId}`}>{projectEnv.envName}</Select.Option>)
               }
             </Select>
           </Row>
           <Menu
             defaultOpenKeys={['building', 'history']}
-            defaultSelectedKeys={[(useParams() as ProjectEnvLogPageUrlParams).seq]}
+            defaultSelectedKeys={[urlParams.seq]}
             mode="inline"
             theme='light'
           >
             <Menu.SubMenu
               key="building"
               title={
-                props.projectEnvLog?.buildingLogList ?
-                  <div><LoadingOutlined/>正在构建（{props.projectEnvLog?.buildingLogList?.length} 个）</div> :
+                buildingLogList && buildingLogList.length > 0 ?
+                  <div><LoadingOutlined/>正在构建（{buildingLogList?.length} 个）</div> :
                   <div>正在构建（无）</div>
               }
             >
@@ -91,24 +159,24 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
           </Menu>
         </Sider>
         {
-          state?.info ?
+          projectEnvLogInfoUseRequest.data?.result ?
             <Layout>
-              <Header style={{ padding: '0 20px',height:'auto' }}>
+              <Header style={{ padding: '0 20px', height: 'auto' }}>
                 <Row>
-                  <Col sm={12}>时间：{momentFormat(state.info?.createdAt)}</Col>
-                  <Col sm={12}>类型：{state.info?.typeDesc}</Col>
+                  <Col sm={12}>时间：{momentFormat(projectEnvLogInfoUseRequest.data?.result?.createdAt)}</Col>
+                  <Col sm={12}>类型：{projectEnvLogInfoUseRequest.data?.result?.typeDesc}</Col>
 
                 </Row>
                 <Row>
-                  <Col sm={12}>服务器：{state.info?.serverIp}</Col>
-                  <Col sm={12}>版本：{state.info?.publishVersion}</Col>
+                  <Col sm={12}>服务器：{projectEnvLogInfoUseRequest.data?.result?.serverIp}</Col>
+                  <Col sm={12}>版本：{projectEnvLogInfoUseRequest.data?.result?.publishVersion}</Col>
                 </Row>
               </Header>
               <Content>
                 <div style={{ wordWrap: 'break-word', padding: '20px 20px 10px 20px' }}
-                     dangerouslySetInnerHTML={{ __html: state?.info?.text?.toString() }}/>
+                     dangerouslySetInnerHTML={{ __html: projectEnvLogInfoUseRequest.data?.result?.text?.toString() }}/>
                 {
-                  !state?.info?.isFinish
+                  !projectEnvLogInfoUseRequest.data?.result?.isFinish
                     ? <div style={{ padding: '0px 20px 10px 20px' }}>
                       <LoadingOutlined style={{ fontSize: '20px' }}/>
                     </div>
@@ -116,12 +184,12 @@ const ProjectEnvLogIndex: React.FC<ProjectEnvLogPageProps> = props => {
                 }
               </Content>
             </Layout>
-            : (!state?.info && !state.historyLogList) ?
+            : (!projectEnvLogInfoUseRequest.data?.result && !historyLogList) ?
             <div style={{ width: '100%', textAlign: 'center' }}>无构建日志</div> :
             <PageLoading/>
         }
       </Layout>
     </PageHeaderWrapper>
   );
-};
-export default connect(({ projectEnvLog }: ProjectEnvLogPageProps) => ({ projectEnvLog }))(ProjectEnvLogIndex);
+}
+

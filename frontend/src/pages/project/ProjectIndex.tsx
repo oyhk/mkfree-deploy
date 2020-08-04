@@ -26,6 +26,7 @@ export default () => {
     {
       manual: false,
       pollingInterval: 5000,
+      pollingWhenHidden:false,
       refreshOnWindowFocus: false,
     });
 

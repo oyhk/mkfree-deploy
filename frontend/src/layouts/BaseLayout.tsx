@@ -148,6 +148,12 @@ const BaseLayout: React.FC = props => {
                   path: routes.pageRoutes.projectEnvLogIndex,
                   hideInMenu: true,
                 },
+                {
+                  name: '项目环境日志',
+                  key: 'projectEnvLog',
+                  path: routes.pageRoutes.projectEnvLogInfo,
+                  hideInMenu: true,
+                },
               ],
             },
             // 版本计划

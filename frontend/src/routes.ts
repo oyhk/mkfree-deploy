@@ -56,7 +56,7 @@ export default {
     // 插件 Eureka
     pluginEurekaIndex: pageRoot + '/plugin/eureka',
     pluginEurekaEnvIndex: pageRoot + '/plugin/eureka/envId/:id',
-    pluginEurekaEnvIndexParams: (envId: any)=> pageRoot + `/plugin/eureka/envId/${envId}`,
+    pluginEurekaEnvIndexParams: (envId: any) => pageRoot + `/plugin/eureka/envId/${envId}`,
     pluginEurekaEnvSetting: pageRoot + '/plugin/eureka/env-setting',
 
   },
@@ -75,7 +75,10 @@ export default {
       url: `${gateway}api/projects/page?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
     }),
-    projectInfo: gateway + 'api/projects/info',
+    projectInfo: (searchParams?: any) => ({
+      url: `${gateway}api/projects/info?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
     projectSave: gateway + 'api/projects/save',
     projectUpdate: gateway + 'api/projects/update',
     projectDeleted: gateway + 'api/projects/deleted',
@@ -108,7 +111,7 @@ export default {
 
     serverList: { url: gateway + 'api/servers/list', method: HttpMethod.get },
 
-    projectEnvList: gateway + 'api/projectEnvs/list',
+    projectEnvList: (searchParams?: any) => ({ url: `${gateway}api/projectEnvs/list?${querystring.stringify(searchParams)}`, method: HttpMethod.get }),
     projectEnvInfo: gateway + 'api/projectEnvs/info',
     projectEnvPluginInfo: (searchParams?: any) => ({
       url: `${gateway}api/projectEnvPlugins/info?${querystring.stringify(searchParams)}`,
@@ -118,8 +121,8 @@ export default {
       url: `${gateway}api/projectEnvPlugins/list?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
     }),
-    projectEnvLogList: gateway + 'api/projectEnvLogs/list',
-    projectEnvLogInfo: gateway + 'api/projectEnvLogs/info',
+    projectEnvLogList:(searchParams?: any)=>({url: `${gateway}api/projectEnvLogs/list?${querystring.stringify(searchParams)}`}),
+    projectEnvLogInfo:(searchParams?: any)=>({url: `${gateway}api/projectEnvLogs/info?${querystring.stringify(searchParams)}`}),
 
     userLogin: { url: gateway + 'api/users/login', method: HttpMethod.post },
     userPage: gateway + 'api/users/page',
