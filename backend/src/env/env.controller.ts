@@ -9,7 +9,6 @@ import { Page } from '../common/page';
 import { ServerDto } from '../server/server.dto';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
-import { AuthGuard } from '../auth.guard';
 
 @Controller()
 export class EnvController {
@@ -85,7 +84,6 @@ export class EnvController {
   }
 
   @Get('/api/envs/page')
-  @UseGuards(AuthGuard)
   async page(@Query() dto: EnvDto, @Res() res: Response) {
 
     const ar = new ApiResult();

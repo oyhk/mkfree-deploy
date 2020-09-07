@@ -3,12 +3,14 @@ import { AppModule } from './app.module';
 import { JwtService } from '@nestjs/jwt';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AuthFilter } from './auth.filter';
+import { AuthGuard } from './auth.guard';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['debug', 'log', 'error', 'warn', 'verbose'],
   });
 
+  app.useGlobalGuards(new AuthGuard(app.get(JwtService)));
   // 用户登录认证、权限检查
   app.useGlobalFilters(new AuthFilter());
 
@@ -27,6 +29,7 @@ async function bootstrap(): Promise<void> {
   app.setViewEngine('hbs');
 
   await app.listen(5000);
+
 
 }
 
