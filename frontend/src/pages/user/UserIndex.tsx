@@ -31,8 +31,8 @@ export default () => {
     },
     {
       formatResult: (res: any) => ({
-        list: res.result.data,
-        total: res.result.total,
+        list: res?.result?.data,
+        total: res?.result?.total,
       }),
       manual: false,
       paginated: true,

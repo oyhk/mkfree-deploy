@@ -10,7 +10,6 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthException } from './common/auth.exception';
 
 
-@Injectable()
 export class AuthGuard implements CanActivate {
 
   constructor(private readonly jwtService: JwtService) {

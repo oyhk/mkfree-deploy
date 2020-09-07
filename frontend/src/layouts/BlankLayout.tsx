@@ -41,6 +41,7 @@ export default (props: any) => {
             ...options.headers,
           };
           return Request(options.url, options).then((res) => {
+
             if (res instanceof Response) {
               return undefined;
             }
