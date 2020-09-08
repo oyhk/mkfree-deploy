@@ -155,6 +155,8 @@ export default {
       data: payload,
     }),
 
+
+
     envPage: (searchParams?: any) => {
       return { url: `${gateway}api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
@@ -188,6 +190,22 @@ export default {
     envSave: { url: gateway + 'api/envs/save', method: HttpMethod.post },
     envInfo: { url: gateway + 'api/envs/info', method: HttpMethod.get },
     envDelete: { url: gateway + 'api/envs/delete', method: HttpMethod.delete },
+
+
+
+    // 插件 api
+    // Eureka
+    // Eureka 应用列表
+    pluginEurekaList: (searchParams?: any) => ({
+      url: `${gateway}api/plugin/eureka/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
+    // 修改应用状态
+    pluginEurekaStatus: (payload?: any) => ({
+      url: `${gateway}api/plugin/eureka/status`,
+      method: HttpMethod.put,
+      data: payload,
+    }),
   },
 };
 

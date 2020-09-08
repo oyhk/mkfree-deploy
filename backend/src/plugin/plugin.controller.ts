@@ -27,8 +27,6 @@ export class PluginController {
   async pluginEnvSettingSave(@Body() dto: PluginDto, @Res() res: Response) {
     const ar = new ApiResult();
 
-    console.log(dto);
-
     for (const pluginEnvSettingDto of dto.pluginEnvSettingList) {
       const dbPluginEnvSetting = await this.pluginEnvSettingRepository.findOne({
         envId: pluginEnvSettingDto.envId,

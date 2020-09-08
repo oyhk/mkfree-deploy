@@ -10,7 +10,7 @@ async function bootstrap(): Promise<void> {
     logger: ['debug', 'log', 'error', 'warn', 'verbose'],
   });
 
-  app.useGlobalGuards(new AuthGuard(app.get(JwtService)));
+  // app.useGlobalGuards(new AuthGuard(app.get(JwtService)));
   // 用户登录认证、权限检查
   app.useGlobalFilters(new AuthFilter());
 

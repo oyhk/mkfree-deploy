@@ -19,13 +19,6 @@ import { history } from '@@/core/history';
 export default () => {
 
   const envId = useParams<{ id: string }>().id;
-  const eurekaEnvSettingUseRequest = useRequest(
-    routes.apiRoutes.pluginEnvSettingInfo({ envId, pluginName: 'Eureka' })
-    ,
-    {
-      manual: false,
-      refreshOnWindowFocus: false,
-    });
 
   const envListUseRequest = useRequest<ApiResult<EnvDto[]>>(
     routes.apiRoutes.envList()
@@ -36,40 +29,22 @@ export default () => {
     });
 
   const eurekaListUseRequest = useRequest(
-    () => ({
-      url: `${eurekaEnvSettingUseRequest.data.result.eurekaUrl}/eureka/apps`,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        // Authorization: `Basic ${Base64.encode('username' + ':' + 'password')}`,
-        Authorization: `${eurekaEnvSettingUseRequest.data.result.eurekaAuthType} ${Base64.encode(`${eurekaEnvSettingUseRequest.data.result.eurekaUsername}:${eurekaEnvSettingUseRequest.data.result?.eurekaPassword}`)}`,
-      },
-      custom: true,
-    }),
+    routes.apiRoutes.pluginEurekaList({envId}),
     {
-      ready: !!eurekaEnvSettingUseRequest?.data?.result,
-      pollingInterval: 5000,
+      pollingInterval: 3000,
       manual: false,
       refreshOnWindowFocus: false,
     });
 
-  const eurekaStatusChangeUseRequest = useRequest(
-    (instance) => ({
-      url: `${eurekaEnvSettingUseRequest.data.result.eurekaUrl}/eureka/apps/${instance.app}/${instance.instanceId}/status?value=${instance.status}`,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `${eurekaEnvSettingUseRequest.data.result.eurekaAuthType} ${Base64.encode(`${eurekaEnvSettingUseRequest.data.result.eurekaUsername}:${eurekaEnvSettingUseRequest.data.result?.eurekaPassword}`)}`,
-      },
-      method: 'PUT',
-      custom: true,
-    }),
+  const eurekaStatusChangeUseRequest = useRequest((instance) => routes.apiRoutes.pluginEurekaStatus(instance),
     {
       onSuccess: (ar, params) => {
-        notification.success({
-          message: `修改项目状态，操作成功`,
-          description: 'Eureka 项目状态稍有延迟，系统将自动刷新状态，请稍等。',
-        });
+        if (ar) {
+          notification.success({
+            message: `修改项目状态，操作成功`,
+            description: 'Eureka 项目状态稍有延迟，系统将自动刷新状态，请稍等。',
+          });
+        }
         return ar;
       },
       fetchKey: instance => instance.instanceId,
@@ -86,7 +61,7 @@ export default () => {
     <ProTable
       rowKey='name'
       search={false}
-      dataSource={eurekaListUseRequest.data?.applications?.application as PluginEurekaApplication[]}
+      dataSource={eurekaListUseRequest.data?.result.applications?.application as PluginEurekaApplication[]}
       columns={[
         {
           title: '项目名称',
@@ -166,14 +141,14 @@ export default () => {
               <Select
                 style={{ width: 150 }}
                 defaultValue={envId}
-                onSelect={(value)=>{
+                onSelect={(value) => {
                   history.push(routes.pageRoutes.pluginEurekaEnvIndexParams(value));
                   window.location.reload();
                 }}
               >
                 {
                   envListUseRequest.data?.result?.map(env => <Select.Option key={env.id}
-                    value={env.id+''}>{env.name}</Select.Option>)
+                                                                            value={env.id + ''}>{env.name}</Select.Option>)
                 }
               </Select> :
               <PageLoading/>

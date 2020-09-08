@@ -17,6 +17,7 @@ import { PluginModule } from './plugin/plugin.module';
 import { SystemModule } from './system-config/system.module';
 import { PlanModule } from './plan/plan.module';
 import { ProjectEnvPluginModule } from './project-env-plugin/project-env-plugin.module';
+import { PluginEurekaModule } from './plugin-api/eureka/plugin-eureka.module';
 
 
 @Module({
@@ -44,6 +45,7 @@ import { ProjectEnvPluginModule } from './project-env-plugin/project-env-plugin.
     ProjectCommandStepModule,
     SystemConfigModule,
     PlanModule,
+    PluginEurekaModule
   ],
   providers: [],
   controllers: [AppController],
