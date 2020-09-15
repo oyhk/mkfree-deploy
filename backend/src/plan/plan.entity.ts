@@ -9,7 +9,9 @@ import { ApiResultCode } from '../common/api-result';
 export class Plan extends BaseEntity {
 
   static entityName = 'Plan';
-  @Column({ nullable: true, comment: '版本计划名称' })
+  @Column({ nullable: true, comment: '版本计划 名称' })
   name: string;
+  @Column({ nullable: true, comment: '版本计划 发布版本' })
+  publishVersion: string;
 
 }

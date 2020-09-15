@@ -112,6 +112,7 @@ export default () => {
                         eurekaStatusChangeUseRequest.run({
                           ...instance,
                           status: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
+                          envId:envId
                         });
                       }}
                     >下线</Button> :
@@ -122,6 +123,7 @@ export default () => {
                         eurekaStatusChangeUseRequest.run({
                           ...instance,
                           status: PluginEurekaApplicationInstanceStatus.UP,
+                          envId:envId
                         });
                       }}
                     >上线</Button>;

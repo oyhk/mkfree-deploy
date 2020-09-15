@@ -20,23 +20,26 @@ export class PlanEnvProjectConfig extends BaseEntity {
   planEnvName: string;
   @Column({ comment: '1（公共配置）、2（项目配置）' })
   type: number;
-  @Column({nullable:true, comment: '是否开启自定义配置' })
+  @Column({ nullable: true, comment: '是否开启自定义配置' })
   isEnableCustomConfig: boolean;
-  @Column({nullable:true, default: 0, comment: '项目id，当type为 1 时，projectId 为 0' })
+  @Column({ nullable: true, default: 0, comment: '项目id，当type为 1 时，projectId 为 0' })
   projectId: number;
-  @Column({nullable:true, comment: '项目名称' })
+  @Column({ nullable: true, comment: '项目名称' })
   projectName: string;
-  @Column({nullable:true, comment: '项目排序' })
-  projectSort:number;
-  @Column({nullable:true, comment: '发布分支名' })
+  @Column({ nullable: true, comment: '项目排序' })
+  projectSort: number;
+  @Column({ nullable: true, comment: '发布分支名' })
   publishBranch: string;
-  @Column({nullable:true, comment: '发布服务器id' })
+  @Column({ nullable: true, comment: '发布服务器id' })
   publishServerId: number;
-  @Column({nullable:true, comment: '发布服务器名称' })
+  @Column({ nullable: true, comment: '发布服务器名称' })
   publishServerName: string;
+  @Column({ nullable: true, comment: '注册中心系统名称' })
+  registerCenterName: string;
+  @Column({ nullable: true, comment: '注册中心应用名称，默认就是项目名称，可以自我配置' })
+  registerCenterAppInfo: string;
 
 }
-
 export const PlanEnvProjectConfigType = {
   common: {
     code: 1,

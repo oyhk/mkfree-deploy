@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpException, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiResult, ApiResultCode } from '../common/api-result';
+import { ApiResult, ApiResultCode, ARE } from '../common/api-result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Env } from './env.entity';
@@ -9,6 +9,7 @@ import { Page } from '../common/page';
 import { ServerDto } from '../server/server.dto';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
+import { ApiException } from '../common/api.exception';
 
 @Controller()
 export class EnvController {
@@ -76,7 +77,7 @@ export class EnvController {
   }
 
   @Get('/api/envs/list')
-  async list(@Query() dto: EnvDto, @Res() res: Response) {
+  async list(@Query() dto: EnvDto, @Req() req, @Res() res: Response) {
     const ar = new ApiResult();
     const envList = await this.envRepository.find(dto);
     ar.result = envList.sort((a, b) => a.sort - b.sort);

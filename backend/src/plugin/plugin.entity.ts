@@ -21,11 +21,14 @@ export const PluginType = {
   project: 1, // 项目插件
 };
 
+export const PluginEureka = {
+  name: 'Eureka',
+  type: PluginType.project,
+};
+
 export const PluginList = [
-  {
-    name: 'Eureka',
-    type: PluginType.project,
-  },
+  PluginEureka
+  ,
   /*{
     name: 'Nacos',
     type: PluginType.project,

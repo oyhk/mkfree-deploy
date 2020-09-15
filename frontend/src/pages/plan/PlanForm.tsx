@@ -41,6 +41,14 @@ export default (props: any) => {
   const [treeProjectList, setTreeProjectList] = useState();
   const treeProjectListRef = useRef();
 
+  // 插件列表
+  const pluginListUseResult = useRequest<ApiResult<any>>(
+    () => routes.apiRoutes.pluginList()
+    ,
+    {
+      manual: false,
+      refreshOnWindowFocus: false,
+    });
 
   useRequest<ApiResult<PlanProjectSortDto[]>>(
     () => routes.apiRoutes.planProjectSortList(),
@@ -461,6 +469,19 @@ export default (props: any) => {
                                             }))}
                                           />
 
+                                        </Form.Item>
+
+                                        <Form.Item
+                                          label="注册中心"
+                                          name={[planEnvProjectConfigListField.name, 'registerCenterName']}
+                                        >
+                                          <Radio.Group>
+                                            {
+                                              pluginListUseResult?.data?.result?.map((plugin:any) => {
+                                                return <Radio value={plugin.name} key={uuid()}>{plugin.name}</Radio>;
+                                              })
+                                            }
+                                          </Radio.Group>
                                         </Form.Item>
                                       </div>
                                     </div>)

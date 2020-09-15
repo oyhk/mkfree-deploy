@@ -17,6 +17,8 @@ export class PlanEnvProjectConfigServer extends BaseEntity {
   serverId: number;
   @Column({ nullable: true, comment: '项目环境项目配置服务器 名称' })
   serverName: string;
+  @Column({ nullable: true, comment: '项目环境项目配置服务器 ip' })
+  serverIp: string;
   @Column({ comment: '项目环境项目配置服务器类型，1 灰度服务器 2 正式服务器' })
   type: number;
 }

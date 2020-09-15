@@ -1,8 +1,25 @@
+/**
+ * ApiResult 用于API请求异常处理提示
+ */
+export class ARE {
+  code?: number;
+  desc?: string;
+
+
+  constructor(code?: number, desc?: string, descEx?: string) {
+    this.code = code;
+    this.desc = desc + descEx ? descEx : '';
+  }
+
+
+}
+
+
 export const ApiResultCode = {
-  0: { code: 0, desc: '失败' },
-  1: { code: 1, desc: '成功' },
-  2: { code: 2, desc: '参数提示：' },
-  3: { code: 3, desc: '温馨提示：' },
+  0: new ARE(0, '失败'),
+  1: new ARE(1, '成功'),
+  2: (descEx?: string) => new ARE(2, `参数提示：${descEx}`),
+  3: (descEx?: string) => new ARE(3, `温馨提示：${descEx}`),
 
   11: { code: 11, desc: '系统：未安装' },
   12: { code: 12, desc: '系统：权限不足请联系超级管理员' },
@@ -56,8 +73,8 @@ export class ApiResult<T> {
   }
 
   remindRecordNotExist(entityName: string, params) {
-    this.code = ApiResultCode['3'].code;
-    this.desc = `${ApiResultCode['3'].desc}${entityName} params: ${JSON.stringify(params)}，记录不存在。`;
+    this.code = ApiResultCode['3']().code;
+    this.desc = ApiResultCode['3'](`${entityName} params: ${JSON.stringify(params)}，记录不存在。`).desc;
   }
 
 }

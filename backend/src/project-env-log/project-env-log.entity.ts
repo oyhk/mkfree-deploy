@@ -22,12 +22,15 @@ export class ProjectEnvLog extends BaseEntity {
   isFinish: boolean;
   @Column({ nullable: true, comment: '发布版本' })
   publishVersion: string;
+  @Column({ nullable: true, comment: '发布时间' })
+  publishTime: Date;
   @Column({ nullable: true, comment: '服务器 id' })
   serverId:number;
   @Column({ nullable: true, comment: '服务器 ip' })
   serverIp:string;
   @Column({ nullable: true, comment: '服务器 名称' })
   serverName:string;
+
 }
 
 export const ProjectEnvLogType = {

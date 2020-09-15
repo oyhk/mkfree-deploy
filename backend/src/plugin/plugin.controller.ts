@@ -13,6 +13,7 @@ import { PluginEnvSetting } from './plugin-env-setting.entity';
 import { ProjectEnvPlugin } from '../project-env-plugin/project-env-plugin.entity';
 import { PluginEnvSettingDto } from './plugin-env-setting.dto';
 import { PluginDto } from './plugin.dto';
+import { PluginList } from './plugin.entity';
 
 @Controller()
 export class PluginController {
@@ -21,6 +22,13 @@ export class PluginController {
     @InjectRepository(PluginEnvSetting)
     private pluginEnvSettingRepository: Repository<PluginEnvSetting>,
   ) {
+  }
+
+  @Get('/api/plugin/list')
+  async list(@Query() dto: PluginEnvSetting, @Res() res: Response) {
+    const ar = new ApiResult();
+    ar.result = PluginList;
+    return res.json(ar);
   }
 
   @Post('/api/pluginEnvSetting/save')
@@ -56,7 +64,7 @@ export class PluginController {
   }
 
   @Get('/api/pluginEnvSetting/list')
-  async list(@Query() dto: PluginEnvSetting, @Res() res: Response) {
+  async pluginEnvSettingList(@Query() dto: PluginEnvSetting, @Res() res: Response) {
     const ar = new ApiResult();
     const pluginEnvSettingList = await this.pluginEnvSettingRepository.find({
       pluginName: dto.pluginName,

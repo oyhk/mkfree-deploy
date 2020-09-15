@@ -21,9 +21,17 @@ import { PlanEnvDto } from './plan-env.dto';
 import { PlanEnvProjectConfigDto } from './plan-env-project-config.dto';
 import { PlanScriptDto } from './plan-script.dto';
 
-import * as https from 'https';
 import { PlanProjectSort } from './plan-project-sort.entity';
 import { Server } from '../server/server.entity';
+import { PluginEureka } from '../plugin/plugin.entity';
+import { PluginEurekaService } from '../plugin-api/eureka/plugin-eureka.service';
+import { PluginEnvSetting } from '../plugin/plugin-env-setting.entity';
+import { PluginEurekaConfig } from '../plugin-api/eureka/plugin-eureka-config';
+import { PluginEurekaApplicationInstanceStatus } from '../plugin-api/eureka/plugin-eureka.dto';
+import { sleep } from '../common/utils';
+import { ProjectService } from '../project/project.service';
+import { ProjectEnvLog } from '../project-env-log/project-env-log.entity';
+import { ProjectEnv } from '../project-env/project-env.entity';
 
 @Controller()
 export class PlanController {
@@ -31,10 +39,12 @@ export class PlanController {
   constructor(
     @InjectRepository(Env)
     private envRepository: Repository<Env>,
-    @InjectRepository(Env)
+    @InjectRepository(Server)
     private serverRepository: Repository<Server>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
+    @InjectRepository(ProjectEnvLog)
+    private projectEnvLogRepository: Repository<ProjectEnvLog>,
     @InjectRepository(Plan)
     private planRepository: Repository<Plan>,
     @InjectRepository(PlanProjectSort)
@@ -47,7 +57,13 @@ export class PlanController {
     private planEnvProjectConfigRepository: Repository<PlanEnvProjectConfig>,
     @InjectRepository(PlanEnvProjectConfigServer)
     private planEnvProjectConfigServerRepository: Repository<PlanEnvProjectConfigServer>,
+    @InjectRepository(PluginEnvSetting)
+    private pluginEnvSettingRepository: Repository<PluginEnvSetting>,
+    @InjectRepository(ProjectEnv)
+    private projectEnvRepository: Repository<ProjectEnv>,
     private jwtService: JwtService,
+    private pluginEurekaService: PluginEurekaService,
+    private projectService: ProjectService,
   ) {
   }
 
@@ -94,30 +110,134 @@ export class PlanController {
     return res.json(ar);
   }
 
-  @Get('/api/plans/gray-publish-first')
-  async grayPublishFirst(@Query() dto: PlanDto, @Res() res: Response) {
+  /**
+   * 灰度发布
+   * @param dto
+   * @param res
+   */
+  @Post('/api/plans/gray-publish')
+  async grayPublish(@Body() dto: PlanDto, @Res() res: Response) {
     const ar = new ApiResult();
-
-    // 首次灰度发布
-    // 1. 先下线注册中心需要发布的所有项目
-    // 2. 按照项目发布顺序发布项目
-    // 3. 发布完成后，注册中心每个项目手动上线
+    if (!dto.id) {
+      ar.param(ApiResultCode['2'], '版本计划：id 不能为空');
+      return res.json(ar);
+    }
 
     const plan = await this.planRepository.findOne(dto.id);
 
-    // const clientRequest = http.request('https://api.yiwoaikeji.com/gateway/info', (clientResponse) => {
-    //   clientResponse.on('data',(chunk)=>{
-    //     console.log(chunk);
-    //   })
-    // });
-    // clientRequest.end();
-    const clientRequest = https.request('https://api.yiwoaikeji.com/gateway/info', (clientResponse) => {
-      clientResponse.setEncoding('utf8');
-      clientResponse.on('data', (chunk) => {
-        console.log(JSON.parse(chunk));
-      });
+    const commonPlanEnvProjectConfig = await this.planEnvProjectConfigRepository.findOne({
+      planId: plan.id,
+      planEnvId: dto.envId,
+      type: 1,
     });
-    clientRequest.end();
+
+    // 项目配置
+    const planEnvProjectConfigList = await this.planEnvProjectConfigRepository.find({
+      planId: plan.id,
+      planEnvId: dto.envId,
+      type: 2,
+    });
+
+
+    const pluginEnvSetting = await this.pluginEnvSettingRepository.findOne({
+      pluginName: PluginEureka.name,
+      envId: dto.envId,
+    });
+
+
+    const pluginEurekaConfig: PluginEurekaConfig = JSON.parse(pluginEnvSetting.config);
+
+
+    for (const planEnvProjectConfig of planEnvProjectConfigList) {
+      // 当开启自定义配置
+      if (planEnvProjectConfig.isEnableCustomConfig) {
+        const grayServerList = await this.planEnvProjectConfigServerRepository.find({
+          planId: plan.id,
+          type: 1,
+          planEnvProjectConfigId: planEnvProjectConfig.id,
+        });
+        console.log('grayServerList', grayServerList);
+      }
+      // 使用公共配置
+      else {
+
+        const grayServerList = await this.planEnvProjectConfigServerRepository.find({
+          planEnvProjectConfigId: commonPlanEnvProjectConfig.id,
+          type: 1,
+        });
+        const publishServerIpList = grayServerList.filter(value => value.serverId === commonPlanEnvProjectConfig.publishServerId).map(value => (value.serverIp));
+        console.log('publishServerIpList', publishServerIpList);
+        // 1.1 Eureka下线发布服务器
+        if (commonPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
+          while (true) {
+            console.log('planEnvProjectConfig', planEnvProjectConfig);
+            const app = await this.pluginEurekaService.app({ app: planEnvProjectConfig.projectName }, pluginEurekaConfig);
+            console.log('app', app);
+
+            const publishServerEurekaAppInstance = app.application.instance.filter(instance => publishServerIpList.indexOf(instance.ipAddr) != -1);
+            const upPublishServerEurekaAppInstance = publishServerEurekaAppInstance.filter(value => value.status === PluginEurekaApplicationInstanceStatus.UP);
+            // 当注册中心应用下线了结束下线处理
+            if (upPublishServerEurekaAppInstance.length === 0) {
+              break;
+            }
+            for (const upInstance of upPublishServerEurekaAppInstance) {
+              upInstance.status = PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE;
+              await this.pluginEurekaService.changeStatus(upInstance, pluginEurekaConfig);
+            }
+            await sleep(30000);
+          }
+        }
+        // 1.2 发布发布服务器项目
+        console.log('发布服务器应用下线完成，现在发布应用');
+        while (true) {
+          await this.projectService.build({
+            projectId: planEnvProjectConfig.projectId,
+            publicBranch: plan.name,
+            serverId: commonPlanEnvProjectConfig.publishServerId,
+            envId: dto.envId,
+          });
+
+          const projectEnv = await this.projectEnvRepository.findOne({
+            projectId: planEnvProjectConfig.projectId,
+            envId: dto.envId,
+          });
+
+
+          if (projectEnv.isFinish) {
+            break;
+          }
+          await sleep(30000);
+        }
+
+
+        // 1. 先下线注册中心需要发布的所有项目
+        // 发布服务器在注册中心里先下线，并且确认是否可以发布项目
+        // 当注册中心使用Eureka时
+        // if (commonPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
+        //   while (true) {
+        //     const app = await this.pluginEurekaService.app({ app: planEnvProjectConfig.projectName }, pluginEurekaConfig);
+        //     const grayServerIpList = grayServerList.map(value => (value.serverIp));
+        //     const publishServerEurekaAppInstance = app.application.instance.filter(instance => grayServerIpList.indexOf(instance.ipAddr) != -1);
+        //     const upPublishServerEurekaAppInstance = publishServerEurekaAppInstance.filter(value => value.status === PluginEurekaApplicationInstanceStatus.UP);
+        //     // 当注册中心应用
+        //     if (upPublishServerEurekaAppInstance.length === 0) {
+        //       break;
+        //     }
+        //     for (const upInstance of upPublishServerEurekaAppInstance) {
+        //       upInstance.status = PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE;
+        //       await this.pluginEurekaService.changeStatus(upInstance, pluginEurekaConfig);
+        //     }
+        //     await sleep(30000);
+        //   }
+        // }
+
+
+      }
+    }
+    // 2. 按照项目发布顺序发布项目
+
+
+    // 3. 发布完成后，注册中心每个项目手动上线
     return res.json(ar);
   }
 
@@ -200,6 +320,7 @@ export class PlanController {
     const ar = new ApiResult();
     let plan = new Plan();
     plan.name = dto.name;
+    plan.publishVersion = dto.publishVersion;
     plan = await entityManager.save(Plan, plan);
     await this.insert(dto, plan, entityManager);
 
@@ -269,7 +390,6 @@ export class PlanController {
         planEnvProjectConfig.planEnvId = planEnvDto.envId;
         planEnvProjectConfig.planEnvName = planEnvDto.envName;
         if (planEnvProjectConfig.publishServerId) {
-
           const server = await entityManager.findOne(Server, planEnvProjectConfig.publishServerId);
           planEnvProjectConfig.publishServerName = server.name;
         }
@@ -286,6 +406,7 @@ export class PlanController {
               planEnvProjectConfigServer.planId = plan.id;
               planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
               planEnvProjectConfigServer.serverId = grayServerId;
+              planEnvProjectConfigServer.serverIp = server.ip;
               planEnvProjectConfigServer.serverName = server.name;
               planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.gray.code;
               await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
@@ -301,8 +422,9 @@ export class PlanController {
               planEnvProjectConfigServer.planEnvProjectConfigId = planEnvProjectConfig.id;
               planEnvProjectConfigServer.serverId = releaseServerId;
               planEnvProjectConfigServer.serverName = server.name;
+              planEnvProjectConfigServer.serverIp = server.ip;
               planEnvProjectConfigServer.type = PlanEnvProjectConfigServerType.release.code;
-              await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
+              // await entityManager.save(PlanEnvProjectConfigServer, planEnvProjectConfigServer);
             }
           }
         }

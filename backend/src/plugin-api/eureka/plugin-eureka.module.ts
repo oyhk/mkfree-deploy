@@ -3,6 +3,7 @@ import { PluginEurekaController } from './plugin-eureka.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Plugin } from '../../plugin/plugin.entity';
 import { PluginEnvSetting } from '../../plugin/plugin-env-setting.entity';
+import { PluginEurekaService } from './plugin-eureka.service';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PluginEnvSetting } from '../../plugin/plugin-env-setting.entity';
     ),
     HttpModule
   ],
+  providers:[PluginEurekaService],
   controllers: [PluginEurekaController],
 })
 export class PluginEurekaModule {

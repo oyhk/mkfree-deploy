@@ -31,6 +31,8 @@ export default () => {
     });
 
 
+
+
   const deleteUseRequest = useRequest((payload) => routes.apiRoutes.planDelete(payload), {
     manual: true,
     onSuccess: (apiResult, params) => {
@@ -43,6 +45,14 @@ export default () => {
         });
         paginatedResult.run({ current: 1, pageSize: 10 });
       }
+    },
+    refreshOnWindowFocus: false,
+  });
+
+  const grayPublishUseRequest = useRequest((payload) => routes.apiRoutes.planGrayPublish(payload), {
+    manual: true,
+    onSuccess: (apiResult, params) => {
+
     },
     refreshOnWindowFocus: false,
   });
@@ -89,9 +99,13 @@ export default () => {
                   [
                     { title: '环境名称', key: 'envName', dataIndex: 'envName' },
                     {
-                      title: 'DevOps', key: 'DevOps', dataIndex: 'DevOps', render: () => {
+                      title: 'DevOps', key: 'DevOps', dataIndex: 'DevOps', render: (_, planEnv) => {
                         return <div>
-                          <Button type='primary' size='small'>首次灰度发布</Button>&nbsp;&nbsp;
+                          <Button type='primary' size='small'
+                                  onClick={() => {
+                                    grayPublishUseRequest.run({ id: planEnv.planId, envId: planEnv.envId });
+                                  }}
+                          >首次灰度发布</Button>&nbsp;&nbsp;
                           <Button type='primary' size='small'>灰度发布</Button>&nbsp;&nbsp;
                           <Button danger type='primary' size='small'>正式发布</Button>&nbsp;&nbsp;
                         </div>;

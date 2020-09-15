@@ -20,6 +20,8 @@ export class ProjectEnv extends BaseEntity {
   projectName: string;
   @Column({ nullable: true })
   publishBranch: string;
+  @Column({ nullable: true })
+  publishVersion: string;
   @Column({ nullable: true, default: false, comment: '是否可选分支发布，默认否' })
   isSelectBranch: boolean;
   @Column({ nullable: true })
@@ -30,4 +32,6 @@ export class ProjectEnv extends BaseEntity {
   syncServerName: string;
   @Column({ nullable: true, default: 0, comment: '构建序列' })
   buildSeq: number;
+  @Column({ nullable: true, default: false, comment: '是否构建中，0 未完成发布 1 已完成发布' })
+  isFinish: boolean;
 }

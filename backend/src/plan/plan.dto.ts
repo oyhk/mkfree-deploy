@@ -10,4 +10,7 @@ export class PlanDto extends Plan{
   // 版本脚本列表
   planScriptList: PlanScriptDto[];
 
+  // 环境id
+  envId:number;
+
 }

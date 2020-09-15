@@ -111,7 +111,10 @@ export default {
 
     serverList: { url: gateway + 'api/servers/list', method: HttpMethod.get },
 
-    projectEnvList: (searchParams?: any) => ({ url: `${gateway}api/projectEnvs/list?${querystring.stringify(searchParams)}`, method: HttpMethod.get }),
+    projectEnvList: (searchParams?: any) => ({
+      url: `${gateway}api/projectEnvs/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
     projectEnvInfo: gateway + 'api/projectEnvs/info',
     projectEnvPluginInfo: (searchParams?: any) => ({
       url: `${gateway}api/projectEnvPlugins/info?${querystring.stringify(searchParams)}`,
@@ -121,8 +124,8 @@ export default {
       url: `${gateway}api/projectEnvPlugins/list?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
     }),
-    projectEnvLogList:(searchParams?: any)=>({url: `${gateway}api/projectEnvLogs/list?${querystring.stringify(searchParams)}`}),
-    projectEnvLogInfo:(searchParams?: any)=>({url: `${gateway}api/projectEnvLogs/info?${querystring.stringify(searchParams)}`}),
+    projectEnvLogList: (searchParams?: any) => ({ url: `${gateway}api/projectEnvLogs/list?${querystring.stringify(searchParams)}` }),
+    projectEnvLogInfo: (searchParams?: any) => ({ url: `${gateway}api/projectEnvLogs/info?${querystring.stringify(searchParams)}` }),
 
     userLogin: { url: gateway + 'api/users/login', method: HttpMethod.post },
     userPage: gateway + 'api/users/page',
@@ -156,7 +159,6 @@ export default {
     }),
 
 
-
     envPage: (searchParams?: any) => {
       return { url: `${gateway}api/envs/page?${querystring.stringify(searchParams)}`, method: HttpMethod.get };
     },
@@ -186,14 +188,22 @@ export default {
     },
     planDelete: (payload: any) => ({ url: gateway + 'api/envs/delete', method: HttpMethod.delete, data: payload }),
 
+    planGrayPublish: (payload?: any) => {
+      return { url: `${gateway}api/plans/gray-publish`, method: HttpMethod.post, data: payload };
+    },
+
     envUpdate: { url: gateway + 'api/envs/update', method: HttpMethod.put },
     envSave: { url: gateway + 'api/envs/save', method: HttpMethod.post },
     envInfo: { url: gateway + 'api/envs/info', method: HttpMethod.get },
     envDelete: { url: gateway + 'api/envs/delete', method: HttpMethod.delete },
 
+    // 插件
+    pluginList: (searchParams?: any) => ({
+      url: `${gateway}api/plugin/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
 
-
-    // 插件 api
+    // 插件 第三方 api
     // Eureka
     // Eureka 应用列表
     pluginEurekaList: (searchParams?: any) => ({

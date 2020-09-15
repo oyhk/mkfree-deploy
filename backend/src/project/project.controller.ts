@@ -26,6 +26,8 @@ import { Plugin, PluginList, PluginType } from '../plugin/plugin.entity';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
 import { ProjectEnvPlugin } from '../project-env-plugin/project-env-plugin.entity';
+import { ApiException } from '../common/api.exception';
+import { ProjectService } from './project.service';
 
 @Controller()
 export class ProjectController {
@@ -58,6 +60,7 @@ export class ProjectController {
     @InjectRepository(ProjectEnvLog)
     private projectEnvLogRepository: Repository<ProjectEnvLog>,
     private jwtService: JwtService,
+    private projectService: ProjectService,
   ) {
   }
 
@@ -66,10 +69,9 @@ export class ProjectController {
     const r = new ApiResult();
     const p = new Page();
 
-
     const projectDtoList: ProjectDto[] = [];
 
-    const envList = await this.envRepository.find({isEnable:true});
+    const envList = await this.envRepository.find({ isEnable: true });
     const envIdList = envList.map(value => value.id);
 
     await this.projectRepository.createQueryBuilder('p')
@@ -228,9 +230,7 @@ export class ProjectController {
       for (const projectEnvDto of dto.projectEnvList) {
         const env = await this.envRepository.findOne({ id: projectEnvDto.envId });
         if (!env) {
-          ar.code = ApiResultCode['3'].code;
-          ar.desc = ApiResultCode['3'].desc + `id : ${projectEnvDto.envId} 环境不存在，请检查`;
-          throws(() => ar.desc, ar.desc);
+          throw new ApiException(ApiResultCode['3'](`id : ${projectEnvDto.envId} 环境不存在，请检查`));
         }
         projectEnvDto.projectId = project.id;
         projectEnvDto.projectName = project.name;
@@ -247,9 +247,7 @@ export class ProjectController {
 
     const ar = new ApiResult();
     if (!dto.id) {
-      ar.code = ApiResultCode['2'].code;
-      ar.desc = ApiResultCode['2'].desc + 'project id can be not null';
-      return res.json(ar);
+      throw new ApiException(ApiResultCode['2']('project id can be not null'));
     }
 
     const project = await entityManager.findOne(Project, dto.id);
@@ -452,7 +450,7 @@ export class ProjectController {
 
   @Post('/api/projects/deleted')
   @Transaction()
-  async deleted(@Body() dto: ProjectDto,@Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+  async deleted(@Body() dto: ProjectDto, @Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
     const ar = new ApiResult();
     const accessToken = req.header(UserAuthOperation.accessTokenKey);
     const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;
@@ -612,341 +610,12 @@ export class ProjectController {
   @Post('/api/projects/build')
   async build(@Body() dto: ProjectDto, @Res() res: Response) {
     const ar = new ApiResult();
-    const publishTime = new Date();
-    let publishBranch = dto.projectEnvServerPublishBranch;
-
-    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
-
-    const projectEnvServer = await this.projectEnvServerRepository.findOne(dto.projectEnvServerId);
-    if (!projectEnvServer) {
-      ar.remindRecordNotExist(ProjectEnvServer.entityName, dto.projectEnvServerId);
-      return res.json(ar);
-    }
-
-    const server = await this.serverRepository.findOne({ id: projectEnvServer.serverId });
-    if (!server) {
-      ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
-      return res.json(ar);
-    }
-
-    const project = await this.projectRepository.findOne(projectEnvServer.projectId);
-    if (!project) {
-      ar.remindRecordNotExist(Project.entityName, projectEnvServer.projectId);
-      return res.json(ar);
-    }
-    if (project.state !== 2) {
-      ar.remind(ApiResultCode['1001']);
-      return res.json(ar);
-    }
-
-
-    const projectEnv = await this.projectEnvRepository.findOne({
-      projectId: projectEnvServer.projectId,
-      envId: projectEnvServer.envId,
+    await this.projectService.build({
+      projectId: dto.id,
+      publicBranch: dto.projectEnvServerPublishBranch,
+      serverId: dto.projectEnvServerId,
+      envId: dto.projectEnvId,
     });
-    if (!projectEnv) {
-      ar.remindRecordNotExist(ProjectEnv.entityName, dto.projectEnvId);
-      return res.json(ar);
-    }
-    if (!publishBranch) {
-      publishBranch = projectEnv.publishBranch;
-    }
-    const publishBranchDirName = publishBranch?.replace('/', '_');
-
-    const env = await this.envRepository.findOne(projectEnv.envId);
-    if (!env) {
-      ar.remindRecordNotExist(Env.entityName, projectEnv.envId);
-      return res.json(ar);
-    }
-
-    const projectEnvBuildSeq = projectEnv.buildSeq + 1;
-
-    const projectEnvLog = await this.projectEnvLogRepository.save({
-      type: ProjectEnvLogType.build.code,
-      projectId: project.id,
-      projectName: project.name,
-      envId: env.id,
-      projectEnvId: projectEnv.id,
-      projectEnvLogSeq: projectEnvBuildSeq,
-      serverId: server.id,
-      serverName: server.name,
-      serverIp: server.ip,
-    } as ProjectEnvLog);
-
-
-    const buildProjectCommandStepList = await this.projectCommandStepRepository.find({
-      envId: projectEnv.envId,
-      projectId: project.id,
-      type: ProjectCommandStepType.build,
-    });
-
-    const buildAfterProjectCommandStepList = await this.projectCommandStepRepository.find({
-      envId: projectEnv.envId,
-      projectId: project.id,
-      type: ProjectCommandStepType.buildAfter,
-    });
-    const logPath = `${installPathSystemConfig.value}/logs/${project.name}`;
-    const projectEnvPath = `${installPathSystemConfig.value}${SystemConfigValues.jobPath}/${project.name}/${env.code}`;
-
-    const projectEnvPathExist = fs.existsSync(projectEnvPath);
-    if (!projectEnvPathExist) {
-      ar.remind(ApiResultCode['1002']);
-      return res.json(ar);
-    }
-    fs.mkdirSync(logPath, { recursive: true });
-    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(env.code, projectEnvBuildSeq)}`);
-    // 服务器信息
-    const sshUsername = server.sshUsername;
-    const sshPort = server.sshPort;
-    const ip = server.ip;
-
-    let shell = `
-      echo "Start of build project: ${project.name} ."
-      
-      # 1. Mkfree Deploy：cd 到项目中对应环境的git路径
-      echo "cd ${projectEnvPath}"
-      cd ${projectEnvPath};
-      
-      # 2. Mkfree Deploy：防止代码这里有人修改，先执行 git checkout .
-      echo "git checkout ."
-      git checkout .
-      
-      # 3. Mkfree Deploy：git pull 
-      echo "git pull"
-      git pull
-      
-      # 4. Mkfree Deploy：git checkout 分支名称
-      echo "git checkout ${publishBranch}"
-      git checkout ${publishBranch}
-      
-      # 5. Mkfree Deploy：git pull 分支名称
-      echo "git pull origin ${publishBranch}"
-      git pull origin ${publishBranch}
-      
-      # 6. Mkfree Deploy：获取git当前最新版本的版本号
-      gitVersion="$(git log -n 1)"
-      gitVersion=\$\{gitVersion:27:20\}
-      echo "git current version: $gitVersion"
-      echo "current version name: ${publishBranchDirName}_$gitVersion"
-      
-      # 7. Mkfree Deploy：执行构建命令
-    `;
-    for (const projectBuildStep of buildProjectCommandStepList) {
-      shell += `
-      echo "${projectBuildStep.step}"
-      ${projectBuildStep.step}
-      `;
-    }
-    const projectBuildPath = `${installPathSystemConfig.value}${SystemConfigValues.buildPath}/${project.name}`;
-    shell += `
-      # 8. Mkfree Deploy：需要上传文件，构建后cp到构建后目录，方便发布
-      echo "mkdir -p ${projectBuildPath}/${publishBranchDirName}_$gitVersion"
-      mkdir -p ${projectBuildPath}/${publishBranchDirName}_$gitVersion
-    `;
-    const projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: project.id });
-    for (const projectDeployFile of projectDeployFileList) {
-      shell += `
-      echo "cp -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${projectBuildPath}/${publishBranchDirName}_$gitVersion"
-      cp -r ${projectEnvPath}/${projectDeployFile.localFilePath} ${projectBuildPath}/${publishBranchDirName}_$gitVersion
-      `;
-    }
-
-    shell += `
-      # 9. 远程服务器: 创建标准目录结构
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} 'mkdir -p ${project.remotePath}/version'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "mkdir -p ${project.remotePath}/version"
-      # 10.  Mkfree Deploy：：上传版本文件
-      echo "scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version"
-      scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version
-      # 11. 远程服务器：创建当前版本软链接
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current"
-      # 12 远程服务器：执行构建后命令
-    `;
-    for (const projectBuildStep of buildAfterProjectCommandStepList) {
-      shell += `
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '${projectBuildStep.step}'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "${projectBuildStep.step}"
-      `;
-    }
-
-    shell += `
-      # 13. 结束项目构建
-      echo "End of build project: ${project.name} ."
-    `;
-
-    console.log('shell : ', shell);
-    const child = exec(shell);
-    child.stdout.on('data', async (data) => {
-      console.log(data);
-      await writeStream.write(data);
-    });
-    child.stderr.on('data', async (data) => {
-      console.log(data);
-      await writeStream.write(data);
-    });
-    child.stdout.on('end', async () => {
-      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
-      // 更新 projectEnvServer
-      const gitVersionShell = `
-        gitVersion="$(git log -n 1)"
-        gitVersion=\$\{gitVersion:27:20\}
-        echo $gitVersion
-      `;
-      exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
-        await this.projectEnvServerRepository.update(projectEnvServer.id, {
-          publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}`,
-          publishTime: publishTime,
-        });
-        await this.projectEnvLogRepository.update(projectEnvLog.id, {
-          isFinish: true,
-          publishVersion: `${publishBranchDirName}_${stdoutData.replace('\n', '')}`,
-        });
-      });
-
-    });
-    child.stderr.on('end', async () => {
-      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
-    });
-    return res.json(ar);
-  }
-
-  /**
-   * 项目同步
-   * @param dto
-   * @param res
-   */
-  @Post('/api/projects/sync')
-  async sync(@Body() dto: ProjectDto, @Res() res: Response) {
-    const ar = new ApiResult();
-
-    const publishTime = new Date();
-    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
-
-    const targetProjectEnvServer = await this.projectEnvServerRepository.findOne(dto.projectEnvServerId);
-    if (!targetProjectEnvServer) {
-      ar.remindRecordNotExist(ProjectEnvServer.entityName, dto.projectEnvServerId);
-      return res.json(ar);
-    }
-
-    const targetServer = await this.serverRepository.findOne({ id: targetProjectEnvServer.serverId });
-    if (!targetServer) {
-      ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
-      return res.json(ar);
-    }
-
-    const project = await this.projectRepository.findOne(targetProjectEnvServer.projectId);
-    if (!project) {
-      ar.remindRecordNotExist(Project.entityName, targetProjectEnvServer.projectId);
-      return res.json(ar);
-    }
-    if (project.state !== 2) {
-      ar.remind(ApiResultCode['1001']);
-      return res.json(ar);
-    }
-    const projectEnv = await this.projectEnvRepository.findOne({
-      projectId: targetProjectEnvServer.projectId,
-      envId: targetProjectEnvServer.envId,
-    });
-    if (!projectEnv) {
-      ar.remindRecordNotExist(ProjectEnv.entityName, dto.projectEnvId);
-      return res.json(ar);
-    }
-    const syncProjectEnvServer = await this.projectEnvServerRepository.findOne({
-      isPublish: true,
-      serverId: projectEnv.syncServerId,
-      projectId:project.id,
-    });
-    const syncServer = await this.serverRepository.findOne({ id: syncProjectEnvServer.serverId });
-    if (!syncServer) {
-      ar.remindRecordNotExist(Server.entityName, dto.projectEnvServerId);
-      return res.json(ar);
-    }
-
-
-    const env = await this.envRepository.findOne(projectEnv.envId);
-    if (!env) {
-      ar.remindRecordNotExist(Env.entityName, projectEnv.envId);
-      return res.json(ar);
-    }
-
-    const projectEnvBuildSeq = projectEnv.buildSeq + 1;
-
-    const projectEnvLog = await this.projectEnvLogRepository.save({
-      type: ProjectEnvLogType.sync.code,
-      projectId: project.id,
-      projectName: project.name,
-      envId: env.id,
-      projectEnvId: projectEnv.id,
-      projectEnvLogSeq: projectEnvBuildSeq,
-    } as ProjectEnvLog);
-
-    // 服务器信息
-    const targetServerSshUsername = targetServer.sshUsername;
-    const targetServerSshPort = targetServer.sshPort;
-    const targetServerIp = targetServer.ip;
-    let shell = `
-          # 1. 同步项目开始
-          echo "Start of sync project: ${project.name} ."
-          # 2. 指定服务器: 创建标准目录结构
-          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} 'mkdir -p ${project.remotePath}/version'"
-          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "mkdir -p ${project.remotePath}/version"
-          # 3.  远程同步服务器：：同步版本文件到指定服务器
-          echo "ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} 'scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version'"
-          ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} "scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version"
-          # 4. 远程服务器：创建当前版本软链接
-          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current'"
-          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current"
-          # 5. 远程服务器：执行同步后命令
-        `;
-    const syncProjectCommandStepList = await this.projectCommandStepRepository.find({
-      envId: projectEnv.envId,
-      projectId: project.id,
-      type: ProjectCommandStepType.sync,
-    });
-    for (const projectBuildStep of syncProjectCommandStepList) {
-      shell += `
-      echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '${projectBuildStep.step}'"
-      ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "${projectBuildStep.step}"
-      `;
-    }
-    shell += `
-      # 6. 结束项目构建
-      echo "End of sync project: ${project.name} ."
-    `;
-
-    const logPath = `${installPathSystemConfig.value}${SystemConfigValues.logPath}/${project.name}`;
-    fs.mkdirSync(logPath, { recursive: true });
-    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(env.code, projectEnvBuildSeq)}`);
-    const child = exec(shell);
-    child.stdout.on('data', async (data) => {
-      console.log(data);
-      await writeStream.write(data);
-    });
-    child.stderr.on('data', async (data) => {
-      console.log(data);
-      await writeStream.write(data);
-    });
-    child.stdout.on('end', async () => {
-      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
-      await this.projectEnvServerRepository.update(targetProjectEnvServer.id, {
-        publishVersion: syncProjectEnvServer.publishVersion,
-        publishTime: publishTime,
-      });
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
-    });
-    child.stderr.on('end', async () => {
-      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
-      await this.projectEnvServerRepository.update(targetProjectEnvServer.id, {
-        publishVersion: syncProjectEnvServer.publishVersion,
-        publishTime: publishTime,
-      });
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
-
-    });
-
-
     return res.json(ar);
   }
 
