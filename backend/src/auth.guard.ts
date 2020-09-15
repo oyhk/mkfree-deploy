@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
       '/api/systems/installed',
     ];
     // 不需要认证url
-    if (notAuthUrlList.includes(request.url)) {
+    if (notAuthUrlList.includes(request.url) && request.url.indexOf('/api') === -1) {
       return true;
     }
 
