@@ -6,9 +6,9 @@ export class ARE {
   desc?: string;
 
 
-  constructor(code?: number, desc?: string, descEx?: string) {
+  constructor(code?: number, desc?: string) {
     this.code = code;
-    this.desc = desc + descEx ? descEx : '';
+    this.desc = desc;
   }
 
 

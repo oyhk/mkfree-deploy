@@ -56,6 +56,10 @@ export class ProjectService {
   }
 
 
+  /**
+   * 项目构建
+   * @param dto
+   */
   async build(dto: { projectId: number, publicBranch: string, serverId: number, envId: number }) {
     const publishTime = new Date();
     let publishBranch = dto.publicBranch;
@@ -63,23 +67,24 @@ export class ProjectService {
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
     const projectEnvServer = await this.projectEnvServerRepository.findOne(dto.serverId);
+
     if (!projectEnvServer) {
-      throw new ApiException(ApiResultCode['3'](`${ProjectEnvServer.entityName} params:${dto.serverId}, record does not exist.`));
-    }
 
-    const server = await this.serverRepository.findOne({ id: dto.serverId });
+      throw new ApiException(ApiResultCode['3'](`${ProjectEnvServer.entityName} params serverId:${dto.serverId}, record does not exist.`));
+    }
+    const server = await this.serverRepository.findOne({ id: projectEnvServer.serverId });
+
     if (!server) {
-      throw new ApiException(ApiResultCode['3'](`${Server.entityName} params:${dto.serverId}, record does not exist.`));
+      throw new ApiException(ApiResultCode['3'](`${Server.entityName} params serverId:${dto.serverId}, record does not exist.`));
     }
-
     const project = await this.projectRepository.findOne(dto.projectId);
+
     if (!project) {
-      throw new ApiException(ApiResultCode['3'](`${Project.entityName} params:${dto.projectId}, record does not exist.`));
+      throw new ApiException(ApiResultCode['3'](`${Project.entityName} params projectId:${dto.projectId}, record does not exist.`));
     }
     if (project.state !== 2) {
       throw new ApiException(ApiResultCode['1001']);
     }
-
 
     const projectEnv = await this.projectEnvRepository.findOne({
       projectId: dto.projectId,
@@ -87,7 +92,7 @@ export class ProjectService {
     });
 
     if (!projectEnv) {
-      throw new ApiException(ApiResultCode['3'](`${ProjectEnv.entityName} params:${dto.envId}, record does not exist.`));
+      throw new ApiException(ApiResultCode['3'](`${ProjectEnv.entityName} params envId:${dto.envId}, record does not exist.`));
     }
     if (!publishBranch) {
       publishBranch = projectEnv.publishBranch;
@@ -100,7 +105,6 @@ export class ProjectService {
     }
 
     const projectEnvBuildSeq = projectEnv.buildSeq + 1;
-
 
     // 首先更新环境正在发布中
     await this.projectEnvRepository.update(projectEnv.id, { isFinish: false });
@@ -115,7 +119,7 @@ export class ProjectService {
       serverId: server.id,
       serverName: server.name,
       serverIp: server.ip,
-      isFinish: true,
+      isFinish: false,
       publishTime,
     } as ProjectEnvLog);
 
@@ -145,7 +149,8 @@ export class ProjectService {
     const sshPort = server.sshPort;
     const ip = server.ip;
 
-
+    // 修改项目环境服务器当前发布版本
+    await this.projectEnvServerRepository.update(projectEnvServer.id, { publishTime });
     // 更新 projectEnvServer
     const gitVersionShell = `
         gitVersion="$(git log -n 1)"
@@ -249,13 +254,19 @@ export class ProjectService {
     });
     child.stdout.on('end', async () => {
       // 修改项目环境当前发布版本
-      await this.projectEnvRepository.update(projectEnv.id, { isFinish: true });
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq, isFinish: true });
       // 修改项目环境日志发布版本
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, {
+        projectEnvLogSeq: projectEnvBuildSeq,
+        isFinish: true,
+      });
     });
     child.stderr.on('end', async () => {
-      await this.projectEnvRepository.update(projectEnv.id, { isFinish: true });
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq, isFinish: true });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, {
+        projectEnvLogSeq: projectEnvBuildSeq,
+        isFinish: true,
+      });
     });
   }
 }

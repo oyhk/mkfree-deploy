@@ -2,11 +2,12 @@ import { HttpException } from '@nestjs/common';
 import { ARE } from './api-result';
 
 export class ApiException extends HttpException {
-  are: any;
+  are: ARE;
 
-  constructor(are: ARE, descEx?: string) {
-    super(are.desc + descEx ? descEx : '', are.code);
+  constructor(are: ARE) {
+    super(JSON.stringify(are), 200);
     this.are = are;
+
   }
 
 }

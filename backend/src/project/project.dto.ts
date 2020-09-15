@@ -25,6 +25,10 @@ export class ProjectDto extends Project {
    */
   projectEnvId: number;
   /**
+   * 环境id
+   */
+  envId:number;
+  /**
    * 项目环境服务器id
    */
   projectEnvServerId: number;
@@ -38,4 +42,5 @@ export class ProjectDto extends Project {
    * 项目插件
    */
   projectPluginList: ProjectPlugin[];
+
 }

@@ -614,7 +614,7 @@ export class ProjectController {
       projectId: dto.id,
       publicBranch: dto.projectEnvServerPublishBranch,
       serverId: dto.projectEnvServerId,
-      envId: dto.projectEnvId,
+      envId: dto.envId,
     });
     return res.json(ar);
   }

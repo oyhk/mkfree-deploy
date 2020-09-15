@@ -25,7 +25,7 @@ export default () => {
     }),
     {
       manual: false,
-      pollingInterval: 5000,
+      pollingInterval: 3000,
       pollingWhenHidden:false,
       refreshOnWindowFocus: false,
     });
@@ -211,6 +211,7 @@ export default () => {
                                         id: pes.projectId,
                                         name: pes.projectName,
                                         projectEnvServerId: pes.id,
+                                        envId:pes.envId
                                       };
                                       console.log('build payload', payload);
                                       buildUseRequest.run(payload);
@@ -225,6 +226,7 @@ export default () => {
                                         id: pes.projectId,
                                         name: pes.projectName,
                                         projectEnvServerId: pes.id,
+                                        envId:pes.envId
                                       };
                                       console.log('sync payload', payload);
                                       syncUseRequest.run(payload);
