@@ -17,6 +17,11 @@ export interface ProjectDto extends BaseDto {
   moduleName?: string;
   state: number;
 
+  // 同步服务器id
+  syncServerId:number;
+  // 目标服务器id
+  targetServerId:number;
+
   projectDeployFileList?: ProjectDeployFileDto[];
   projectEnvList?: ProjectEnvDto[];
 

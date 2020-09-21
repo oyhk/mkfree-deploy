@@ -7,7 +7,6 @@ export class ApiFilter implements ExceptionFilter {
 
 
   catch(exception: ApiException, host: ArgumentsHost) {
-    console.log('exception.message',JSON.stringify(exception));
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();

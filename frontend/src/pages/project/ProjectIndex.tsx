@@ -26,7 +26,7 @@ export default () => {
     {
       manual: false,
       pollingInterval: 3000,
-      pollingWhenHidden:false,
+      pollingWhenHidden: false,
       refreshOnWindowFocus: false,
     });
 
@@ -150,6 +150,9 @@ export default () => {
         expandable={
           {
             expandedRowRender: (record) => {
+
+              console.log('record', record);
+
               const subDataSource: any[] = [];
               // eslint-disable-next-line no-unused-expressions
               record.projectEnvList?.forEach(projectEnvDto => {
@@ -160,7 +163,7 @@ export default () => {
                   ip: projectEnvDto.projectEnvServerList,
                   publishTime: projectEnvDto.projectEnvServerList,
                   publishVersion: projectEnvDto.projectEnvServerList,
-                  DevOps: projectEnvDto.projectEnvServerList,
+                  DevOps: projectEnvDto,
                   operations: projectEnvDto,
                 });
               });
@@ -196,49 +199,53 @@ export default () => {
                     title: 'DevOps',
                     dataIndex: 'DevOps',
                     key: 'DevOps',
-                    render: (projectEnvServerList: ProjectEnvServerDto[]) => (
-                      <div>
-                        {
-                          projectEnvServerList ? projectEnvServerList.map((pes) => (
-                            <div className={styles.ipRow} key={uuid()}>
-                              {
-                                pes.isPublish ?
-                                  <Button
-                                    type='primary'
-                                    size='small'
-                                    onClick={() => {
-                                      const payload = {
-                                        id: pes.projectId,
-                                        name: pes.projectName,
-                                        projectEnvServerId: pes.id,
-                                        envId:pes.envId
-                                      };
-                                      console.log('build payload', payload);
-                                      buildUseRequest.run(payload);
-                                    }}
-                                    loading={buildUseRequest.fetches[`${pes.projectId}${pes.id}`]?.loading}
-                                  >发布</Button> :
-                                  <Button
-                                    danger
-                                    size='small'
-                                    onClick={() => {
-                                      const payload = {
-                                        id: pes.projectId,
-                                        name: pes.projectName,
-                                        projectEnvServerId: pes.id,
-                                        envId:pes.envId
-                                      };
-                                      console.log('sync payload', payload);
-                                      syncUseRequest.run(payload);
-                                    }}
-                                    loading={syncUseRequest.fetches[`${pes.projectId}${pes.id}`]?.loading}
-                                  >从服务器同步</Button>
-                              }
-                            </div>
-                          )) : <div/>
-                        }
-                      </div>
-                    ),
+                    render: (projectEnv: ProjectEnvDto) => {
+                      console.log('projectEnv',projectEnv);
+                      return (
+                        <div>
+                          {
+                            projectEnv?.projectEnvServerList ? projectEnv?.projectEnvServerList.map((pes) => (
+                              <div className={styles.ipRow} key={uuid()}>
+                                {
+                                  pes.isPublish ?
+                                    <Button
+                                      type='primary'
+                                      size='small'
+                                      onClick={() => {
+                                        const payload = {
+                                          id: pes.projectId,
+                                          name: pes.projectName,
+                                          projectEnvServerId: pes.serverId,
+                                          envId: pes.envId,
+                                        };
+                                        console.log('build payload', payload);
+                                        buildUseRequest.run(payload);
+                                      }}
+                                      loading={buildUseRequest.fetches[`${pes.projectId}${pes.id}`]?.loading}
+                                    >发布</Button> :
+                                    <Button
+                                      danger
+                                      size='small'
+                                      onClick={() => {
+                                        const payload = {
+                                          id: pes.projectId,
+                                          name: pes.projectName,
+                                          projectEnvServerId: pes.serverId,
+                                          envId: pes.envId,
+                                          syncServerId: projectEnv.syncServerId,
+                                        };
+                                        console.log('sync payload', payload);
+                                        syncUseRequest.run(payload);
+                                      }}
+                                      loading={syncUseRequest.fetches[`${pes.projectId}${pes.id}`]?.loading}
+                                    >从服务器同步</Button>
+                                }
+                              </div>
+                            )) : <div/>
+                          }
+                        </div>
+                      );
+                    },
                   },
                   {
                     title: '操作',

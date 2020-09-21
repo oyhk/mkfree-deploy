@@ -620,6 +620,24 @@ export class ProjectController {
   }
 
   /**
+   * 项目同步
+   * @param dto
+   * @param res
+   */
+  @Post('/api/projects/sync')
+  async sync(@Body() dto: ProjectDto, @Res() res: Response) {
+    const ar = new ApiResult();
+    await this.projectService.sync({
+      projectId: dto.id,
+      publishBranch: dto.projectEnvServerPublishBranch,
+      syncServerId: dto.syncServerId,
+      targetServerId: dto.projectEnvServerId,
+      envId: dto.envId,
+    });
+    return res.json(ar);
+  }
+
+  /**
    * 项目刷新分支
    * @param dto
    * @param res

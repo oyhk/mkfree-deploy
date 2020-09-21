@@ -22,6 +22,10 @@ export class ProjectEnvServer extends BaseEntity {
   publishTime: Date;
   @Column({ nullable: true, comment: '发布版本' })
   publishVersion: string;
+  @Column({ nullable: true, comment: '上次发布版本' })
+  lastPublishVersion: string;
+  @Column({ default: 1, nullable: true, comment: '是否发布完成，1 是 0 否，默认：是' })
+  isFinish: boolean;
   @Column({ nullable: true, comment: '服务器 id' })
   serverId:number;
   @Column({ nullable: true, comment: '服务器 ip' })

@@ -25,6 +25,12 @@ export class ProjectDto extends Project {
    */
   projectEnvId: number;
   /**
+   * 同步服务器id
+   */
+  syncServerId:number;
+
+
+  /**
    * 环境id
    */
   envId:number;

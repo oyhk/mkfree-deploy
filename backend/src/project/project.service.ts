@@ -66,14 +66,21 @@ export class ProjectService {
 
     const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
 
-    const projectEnvServer = await this.projectEnvServerRepository.findOne(dto.serverId);
+    const projectEnvServer = await this.projectEnvServerRepository.findOne({
+      projectId: dto.projectId,
+      envId: dto.envId,
+      serverId: dto.serverId,
+    });
 
     if (!projectEnvServer) {
-
-      throw new ApiException(ApiResultCode['3'](`${ProjectEnvServer.entityName} params serverId:${dto.serverId}, record does not exist.`));
+      throw new ApiException(ApiResultCode['3'](`${ProjectEnvServer.entityName} params ${JSON.stringify({
+        projectId: dto.projectId,
+        envId: dto.envId,
+        serverId: dto.serverId,
+      })}, record does not exist.`));
     }
-    const server = await this.serverRepository.findOne({ id: projectEnvServer.serverId });
 
+    const server = await this.serverRepository.findOne({ id: projectEnvServer.serverId });
     if (!server) {
       throw new ApiException(ApiResultCode['3'](`${Server.entityName} params serverId:${dto.serverId}, record does not exist.`));
     }
@@ -149,9 +156,7 @@ export class ProjectService {
     const sshPort = server.sshPort;
     const ip = server.ip;
 
-    // 修改项目环境服务器当前发布版本
-    await this.projectEnvServerRepository.update(projectEnvServer.id, { publishTime });
-    // 更新 projectEnvServer
+    // 修改项目环境服务器当前发布版本信息
     const gitVersionShell = `
         gitVersion="$(git log -n 1)"
         gitVersion=\$\{gitVersion:27:20\}
@@ -159,12 +164,12 @@ export class ProjectService {
       `;
     exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
       const publishVersion = `${publishBranchDirName}_${stdoutData.replace('\n', '')}`;
-      // 修改项目环境当前发布版本
-      await this.projectEnvRepository.update(projectEnv.id, { publishVersion });
       // 修改项目环境服务器当前发布版本
-      await this.projectEnvServerRepository.update(projectEnvServer.id, { publishVersion });
-      // 修改项目环境日志发布版本
-      await this.projectEnvLogRepository.update(projectEnvLog.id, { publishVersion });
+      await this.projectEnvServerRepository.update(projectEnvServer.id, {
+        publishTime,
+        publishVersion,
+        isFinish: false,
+      });
     });
 
     let shell = `
@@ -242,14 +247,14 @@ export class ProjectService {
       echo "End of build project: ${project.name} ."
     `;
 
-    console.log('shell : ', shell);
+    // console.log('shell : ', shell);
     const child = exec(shell);
     child.stdout.on('data', async (data) => {
-      console.log(data);
+      // console.log(data);
       await writeStream.write(data);
     });
     child.stderr.on('data', async (data) => {
-      console.log(data);
+      // console.log(data);
       await writeStream.write(data);
     });
     child.stdout.on('end', async () => {
@@ -257,16 +262,185 @@ export class ProjectService {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq, isFinish: true });
       // 修改项目环境日志发布版本
       await this.projectEnvLogRepository.update(projectEnvLog.id, {
-        projectEnvLogSeq: projectEnvBuildSeq,
         isFinish: true,
+      });
+
+      const gitVersionShell = `
+        gitVersion="$(git log -n 1)"
+        gitVersion=\$\{gitVersion:27:20\}
+        echo $gitVersion
+      `;
+      exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
+        const publishVersion = `${publishBranchDirName}_${stdoutData.replace('\n', '')}`;
+        // 修改项目环境服务器当前发布版本
+        await this.projectEnvServerRepository.update(projectEnvServer.id, {
+          lastPublishVersion: publishVersion,
+          isFinish: true,
+        });
       });
     });
     child.stderr.on('end', async () => {
       await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq, isFinish: true });
       await this.projectEnvLogRepository.update(projectEnvLog.id, {
-        projectEnvLogSeq: projectEnvBuildSeq,
         isFinish: true,
       });
+      const gitVersionShell = `
+        gitVersion="$(git log -n 1)"
+        gitVersion=\$\{gitVersion:27:20\}
+        echo $gitVersion
+      `;
+      exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
+        const publishVersion = `${publishBranchDirName}_${stdoutData.replace('\n', '')}`;
+        // 修改项目环境服务器当前发布版本
+        await this.projectEnvServerRepository.update(projectEnvServer.id, {
+          lastPublishVersion: publishVersion,
+          isFinish: true,
+        });
+      });
+    });
+  }
+
+
+  /**
+   * 项目同步
+   * @param dto
+   */
+  async sync(dto: { projectId: number, publishBranch: string, syncServerId: number, targetServerId, envId: number }) {
+    const publishTime = new Date();
+    const installPathSystemConfig = await this.systemConfigRepository.findOne({ key: SystemConfigKeys.installPath });
+
+    const targetProjectEnvServer = await this.projectEnvServerRepository.findOne({
+      projectId: dto.projectId, envId: dto.envId, serverId: dto.targetServerId,
+    });
+    if (!targetProjectEnvServer) {
+      throw new ApiException(ApiResultCode['3'](`${ProjectEnvServer.entityName}, params ${JSON.stringify({
+        projectId: dto.projectId, envId: dto.envId, serverId: dto.targetServerId,
+      })}, record does not exist.`));
+    }
+
+    const targetServer = await this.serverRepository.findOne({ id: targetProjectEnvServer.serverId });
+    if (!targetServer) {
+      throw new ApiException(ApiResultCode['3'](`${Server.entityName}, params ${JSON.stringify({
+        serverId: dto.targetServerId,
+      })}, record does not exist.`));
+    }
+
+    const project = await this.projectRepository.findOne(targetProjectEnvServer.projectId);
+    if (!project) {
+      throw new ApiException(ApiResultCode['3'](`${Project.entityName}, params ${JSON.stringify({
+        projectId: targetProjectEnvServer.projectId,
+      })}, record does not exist.`));
+
+      throw new ApiException(ApiResultCode['3'](`${Project.entityName}, params ${JSON.stringify({
+        serverId: dto.targetServerId,
+      })}, record does not exist.`));
+    }
+    if (project.state !== 2) {
+      throw new ApiException(ApiResultCode['1001']);
+    }
+    const projectEnv = await this.projectEnvRepository.findOne({
+      projectId: targetProjectEnvServer.projectId,
+      envId: targetProjectEnvServer.envId,
+      syncServerId: dto.syncServerId,
+    });
+    if (!projectEnv) {
+      throw new ApiException(ApiResultCode['3'](`${ProjectEnv.entityName}, params ${JSON.stringify({
+        projectId: targetProjectEnvServer.projectId,
+        envId: targetProjectEnvServer.envId,
+        syncServerId: dto.syncServerId,
+      })}, record does not exist.`));
+    }
+    const syncProjectEnvServer = await this.projectEnvServerRepository.findOne({
+      isPublish: true,
+      serverId: projectEnv.syncServerId,
+      projectId: project.id,
+    });
+    const syncServer = await this.serverRepository.findOne({ id: syncProjectEnvServer.serverId });
+    if (!syncServer) {
+      throw new ApiException(ApiResultCode['3'](`${Server.entityName}, params ${JSON.stringify({ id: syncProjectEnvServer.serverId })}, record does not exist.`));
+    }
+
+    const env = await this.envRepository.findOne(projectEnv.envId);
+    if (!env) {
+      throw new ApiException(ApiResultCode['3'](`${Env.entityName}, params ${JSON.stringify({ id: projectEnv.envId })}, record does not exist.`));
+    }
+
+    const projectEnvBuildSeq = projectEnv.buildSeq + 1;
+
+    const projectEnvLog = await this.projectEnvLogRepository.save({
+      type: ProjectEnvLogType.sync.code,
+      projectId: project.id,
+      projectName: project.name,
+      envId: env.id,
+      projectEnvId: projectEnv.id,
+      projectEnvLogSeq: projectEnvBuildSeq,
+    } as ProjectEnvLog);
+
+    // 服务器信息
+    const targetServerSshUsername = targetServer.sshUsername;
+    const targetServerSshPort = targetServer.sshPort;
+    const targetServerIp = targetServer.ip;
+    let shell = `
+          # 1. 同步项目开始
+          echo "Start of sync project: ${project.name} ."`;
+    shell += `
+          # 2. 指定服务器: 创建标准目录结构
+          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} 'mkdir -p ${project.remotePath}/version'"
+          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "mkdir -p ${project.remotePath}/version"
+          # 3.  远程同步服务器：：同步版本文件到指定服务器
+          echo "ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} 'scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version'"
+          ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} "scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version"
+          # 4. 远程服务器：创建当前版本软链接
+          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current'"
+          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current"
+          # 5. 远程服务器：执行同步后命令
+        `;
+
+
+    const syncProjectCommandStepList = await this.projectCommandStepRepository.find({
+      envId: projectEnv.envId,
+      projectId: project.id,
+      type: ProjectCommandStepType.sync,
+    });
+    for (const projectBuildStep of syncProjectCommandStepList) {
+      shell += `
+      echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '${projectBuildStep.step}'"
+      ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "${projectBuildStep.step}"
+      `;
+    }
+    shell += `
+      # 6. 结束项目构建
+      echo "End of sync project: ${project.name} ."
+    `;
+
+    const logPath = `${installPathSystemConfig.value}${SystemConfigValues.logPath}/${project.name}`;
+    fs.mkdirSync(logPath, { recursive: true });
+    const writeStream = fs.createWriteStream(`${logPath}/${ProjectLogFileType.build(env.code, projectEnvBuildSeq)}`);
+    const child = exec(shell);
+    child.stdout.on('data', async (data) => {
+      await writeStream.write(data);
+    });
+    child.stderr.on('data', async (data) => {
+      await writeStream.write(data);
+    });
+    child.stdout.on('end', async () => {
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+      await this.projectEnvServerRepository.update(targetProjectEnvServer.id, {
+        publishVersion: syncProjectEnvServer.publishVersion,
+        publishTime: publishTime,
+        isFinish: true,
+      });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
+    });
+    child.stderr.on('end', async () => {
+      await this.projectEnvRepository.update(projectEnv.id, { buildSeq: projectEnvBuildSeq });
+      await this.projectEnvServerRepository.update(targetProjectEnvServer.id, {
+        publishVersion: syncProjectEnvServer.publishVersion,
+        publishTime: publishTime,
+        isFinish: true,
+      });
+      await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
+
     });
   }
 }
