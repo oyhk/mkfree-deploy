@@ -237,7 +237,7 @@ export class ProjectService {
     `;
     for (const projectBuildStep of buildAfterProjectCommandStepList) {
       shell += `
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '${projectBuildStep.step}'"
+      echo "ssh -p ${sshPort} ${sshUsegirname}@${ip} '${projectBuildStep.step}'"
       ssh -p ${sshPort} ${sshUsername}@${ip} "${projectBuildStep.step}"
       `;
     }
