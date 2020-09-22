@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import ProTable, { ProColumns } from '@ant-design/pro-table/lib/Table';
-import { Table, Button, notification, Modal } from 'antd';
+import React from 'react';
+import ProTable  from '@ant-design/pro-table/lib/Table';
+import { Table, Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'umi';
 import styles from '@/pages/project/project-index.less';

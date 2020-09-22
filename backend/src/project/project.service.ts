@@ -223,24 +223,24 @@ export class ProjectService {
       `;
     }
 
-    shell += `
-      # 9. 远程服务器: 创建标准目录结构
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} 'mkdir -p ${project.remotePath}/version'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "mkdir -p ${project.remotePath}/version"
-      # 10.  Mkfree Deploy：：上传版本文件
-      echo "scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version"
-      scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version
-      # 11. 远程服务器：创建当前版本软链接
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current"
-      # 12 远程服务器：执行构建后命令
-    `;
-    for (const projectBuildStep of buildAfterProjectCommandStepList) {
-      shell += `
-      echo "ssh -p ${sshPort} ${sshUsername}@${ip} '${projectBuildStep.step}'"
-      ssh -p ${sshPort} ${sshUsername}@${ip} "${projectBuildStep.step}"
-      `;
-    }
+    // shell += `
+    //   # 9. 远程服务器: 创建标准目录结构
+    //   echo "ssh -p ${sshPort} ${sshUsername}@${ip} 'mkdir -p ${project.remotePath}/version'"
+    //   ssh -p ${sshPort} ${sshUsername}@${ip} "mkdir -p ${project.remotePath}/version"
+    //   # 10.  Mkfree Deploy：：上传版本文件
+    //   echo "scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version"
+    //   scp -P ${sshPort} -r ${projectBuildPath}/${publishBranchDirName}_$gitVersion ${sshUsername}@${ip}:${project.remotePath}/version
+    //   # 11. 远程服务器：创建当前版本软链接
+    //   echo "ssh -p ${sshPort} ${sshUsername}@${ip} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current'"
+    //   ssh -p ${sshPort} ${sshUsername}@${ip} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${publishBranchDirName}_$gitVersion current"
+    //   # 12 远程服务器：执行构建后命令
+    // `;
+    // for (const projectBuildStep of buildAfterProjectCommandStepList) {
+    //   shell += `
+    //   echo "ssh -p ${sshPort} ${sshUsername}@${ip} '${projectBuildStep.step}'"
+    //   ssh -p ${sshPort} ${sshUsername}@${ip} "${projectBuildStep.step}"
+    //   `;
+    // }
 
     shell += `
       # 13. 结束项目构建
@@ -341,18 +341,16 @@ export class ProjectService {
     const projectEnv = await this.projectEnvRepository.findOne({
       projectId: targetProjectEnvServer.projectId,
       envId: targetProjectEnvServer.envId,
-      syncServerId: dto.syncServerId,
     });
     if (!projectEnv) {
       throw new ApiException(ApiResultCode['3'](`${ProjectEnv.entityName}, params ${JSON.stringify({
         projectId: targetProjectEnvServer.projectId,
         envId: targetProjectEnvServer.envId,
-        syncServerId: dto.syncServerId,
       })}, record does not exist.`));
     }
     const syncProjectEnvServer = await this.projectEnvServerRepository.findOne({
-      isPublish: true,
-      serverId: projectEnv.syncServerId,
+      envId: dto.envId,
+      serverId: dto.syncServerId,
       projectId: project.id,
     });
     const syncServer = await this.serverRepository.findOne({ id: syncProjectEnvServer.serverId });
@@ -383,18 +381,18 @@ export class ProjectService {
     let shell = `
           # 1. 同步项目开始
           echo "Start of sync project: ${project.name} ."`;
-    shell += `
-          # 2. 指定服务器: 创建标准目录结构
-          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} 'mkdir -p ${project.remotePath}/version'"
-          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "mkdir -p ${project.remotePath}/version"
-          # 3.  远程同步服务器：：同步版本文件到指定服务器
-          echo "ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} 'scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version'"
-          ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} "scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version"
-          # 4. 远程服务器：创建当前版本软链接
-          echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current'"
-          ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current"
-          # 5. 远程服务器：执行同步后命令
-        `;
+    // shell += `
+    //       # 2. 指定服务器: 创建标准目录结构
+    //       echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} 'mkdir -p ${project.remotePath}/version'"
+    //       ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "mkdir -p ${project.remotePath}/version"
+    //       # 3.  远程同步服务器：：同步版本文件到指定服务器
+    //       echo "ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} 'scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version'"
+    //       ssh -p ${syncServer.sshPort} ${syncServer.sshUsername}@${syncServer.ip} "scp  -P ${targetServerSshPort} -r ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} ${targetServerSshUsername}@${targetServerIp}:${project.remotePath}/version"
+    //       # 4. 远程服务器：创建当前版本软链接
+    //       echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current'"
+    //       ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "\n cd ${project.remotePath} \n ln -sf current \n rm -rf current \n ln -s ${project.remotePath}/version/${syncProjectEnvServer.publishVersion} current"
+    //       # 5. 远程服务器：执行同步后命令
+    //     `;
 
 
     const syncProjectCommandStepList = await this.projectCommandStepRepository.find({
@@ -402,12 +400,12 @@ export class ProjectService {
       projectId: project.id,
       type: ProjectCommandStepType.sync,
     });
-    for (const projectBuildStep of syncProjectCommandStepList) {
-      shell += `
-      echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '${projectBuildStep.step}'"
-      ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "${projectBuildStep.step}"
-      `;
-    }
+    // for (const projectBuildStep of syncProjectCommandStepList) {
+    //   shell += `
+    //   echo "ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} '${projectBuildStep.step}'"
+    //   ssh -p ${targetServerSshPort} ${targetServerSshUsername}@${targetServerIp} "${projectBuildStep.step}"
+    //   `;
+    // }
     shell += `
       # 6. 结束项目构建
       echo "End of sync project: ${project.name} ."

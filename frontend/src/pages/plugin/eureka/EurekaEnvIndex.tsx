@@ -10,7 +10,6 @@ import { SettingOutlined } from '@ant-design/icons/lib';
 import ProTable from '@ant-design/pro-table/lib/Table';
 import React from 'react';
 import { useRequest } from 'ahooks';
-import { Base64 } from 'js-base64';
 import { PageLoading } from '@ant-design/pro-layout';
 import { ApiResult } from '@/services/ApiResult';
 import { EnvDto } from '@/services/dto/EnvDto';
