@@ -10,10 +10,7 @@ const config: IConfig = {
   antd: {
     dark: false, // 开启暗色主题
   },
-  dva: {
-    immer: true,
-    hmr: false,
-  },
+  dva: false,
   dynamicImport: {
     loading: '@/component/PageLoading/index',
   },
@@ -111,7 +108,7 @@ const config: IConfig = {
                   title: '版本计划信息',
                   path: routes.pageRoutes.planInfo,
                   component: '@/pages/plan/PlanInfo',
-                  exact: true
+                  exact: true,
                 },
               ],
             },

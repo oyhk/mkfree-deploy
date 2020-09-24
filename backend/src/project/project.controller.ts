@@ -125,23 +125,40 @@ export class ProjectController {
       pluginIsEnable: true,
     });
 
+
     // 项目部署文件
     projectDto.projectDeployFileList = await this.projectDeployFileRepository.find({ projectId: dto.id });
+
+    const serverList = await this.serverRepository.find();
+
+    console.log('serverList', serverList);
 
     // 项目环境
     const projectEnvDtoList: ProjectEnvDto[] = [];
     const projectEnvList = await this.projectEnvRepository.find({ projectId: project.id });
     for (const projectEnv of projectEnvList.sort((a, b) => a.envSort - b.envSort)) {
       const projectEnvDto = { ...projectEnv } as ProjectEnvDto;
-      projectEnvDto.projectEnvServerList = [];
+
       // 项目环境服务器
-      const projectEnvServerList = await this.projectEnvServerRepository.find({
-        projectId: project.id,
-        envId: projectEnv.envId,
-      });
-      projectEnvServerList.forEach(projectEnvServer => {
-        projectEnvDto.projectEnvServerList.push({ ...projectEnvServer } as ProjectEnvServerDto);
-      });
+      projectEnvDto.projectEnvServerList = [];
+      for (const server of serverList) {
+        const dbProjectEnvServer = await this.projectEnvServerRepository.findOne({
+          projectId: project.id,
+          envId: projectEnv.envId,
+          serverId: server.id,
+        });
+        const projectEnvServer = new ProjectEnvServerDto();
+        projectEnvServer.serverId = server.id;
+        projectEnvServer.serverIp = server.ip;
+        projectEnvServer.serverName = server.name;
+        projectEnvServer.isSelectServerIp = false;
+        projectEnvServer.isPublish = false;
+        if(dbProjectEnvServer){
+          projectEnvServer.isSelectServerIp = true;
+          projectEnvServer.isPublish = dbProjectEnvServer.isPublish;
+        }
+        projectEnvDto.projectEnvServerList.push(projectEnvServer);
+      }
 
       // 项目构建命令
       projectEnvDto.projectCommandStepBuildList = await this.projectCommandStepRepository.find({

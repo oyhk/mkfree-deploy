@@ -79,8 +79,16 @@ export default {
       url: `${gateway}api/projects/info?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
     }),
-    projectSave: gateway + 'api/projects/save',
-    projectUpdate: gateway + 'api/projects/update',
+    projectSave: (payload?: any) => ({
+      url: `${gateway}api/projects/save`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
+    projectUpdate: (payload?: any) => ({
+      url: `${gateway}api/projects/update`,
+      method: HttpMethod.put,
+      data: payload,
+    }),
     projectDeleted: gateway + 'api/projects/deleted',
     projectBuild: (payload?: any) => ({
       url: `${gateway}api/projects/build`,
@@ -109,7 +117,10 @@ export default {
       method: HttpMethod.get,
     }),
 
-    serverList: { url: gateway + 'api/servers/list', method: HttpMethod.get },
+    serverList: () => ({
+      url: gateway + 'api/servers/list',
+      method: HttpMethod.get,
+    }),
 
     projectEnvList: (searchParams?: any) => ({
       url: `${gateway}api/projectEnvs/list?${querystring.stringify(searchParams)}`,

@@ -10,29 +10,90 @@ import {
   Radio,
   Row,
   Col,
-  Checkbox,
+  Checkbox, notification,
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { uuid } from '@/utils/utils';
 import { ServerDto } from '@/services/dto/ServerDto';
-import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import { PageLoading } from '@ant-design/pro-layout';
 import { ProjectEnvPluginDto } from '@/services/dto/ProjectEnvPluginDto';
+import { useRequest } from 'ahooks';
+import { ApiResult } from '@/services/ApiResult';
+import routes from '@/routes';
+import { EnvDto } from '@/services/dto/EnvDto';
+import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
+import { history } from '@@/core/history';
 
 const { Option } = Select;
 
-const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }) => {
+export default (props: any) => {
 
 
+  const envListUseRequest = useRequest<ApiResult<EnvDto[]>>(
+    () => routes.apiRoutes.envList({ isEnable: 1 }),
+    {
+      manual: false,
+      refreshOnWindowFocus: false,
+    },
+  );
+
+  const serverListUseRequest = useRequest<ApiResult<EnvDto[]>>(
+    () => routes.apiRoutes.serverList(),
+    {
+      manual: false,
+      refreshOnWindowFocus: false,
+    },
+  );
+
+  const projectSaveUseRequest = useRequest<ApiResult<any>>(
+    (payload) => routes.apiRoutes.projectSave(payload),
+    {
+      onSuccess: (ar, params) => {
+        if (ar.code === 1) {
+          notification.success({
+            message: `项目添加：${params[0].name}`,
+            description: '添加成功',
+          });
+          history.replace(routes.pageRoutes.projectIndex);
+        } else {
+          notification.error({
+            message: `请求错误 ${ar.code}: ${routes.apiRoutes.projectSave().url}`,
+            description: ar.desc,
+          });
+        }
+      },
+      manual: true,
+      refreshOnWindowFocus: false,
+    },
+  );
+
+  const projectUpdateUseRequest = useRequest<ApiResult<any>>(
+    (payload) => routes.apiRoutes.projectUpdate(payload),
+    {
+      onSuccess: (ar, params) => {
+        if (ar.code === 1) {
+          notification.success({
+            message: `项目修改：${params[0].name}`,
+            description: '修改成功',
+          });
+          history.replace(routes.pageRoutes.projectIndex);
+        } else {
+          notification.error({
+            message: `请求错误 ${ar.code}: ${routes.apiRoutes.projectUpdate().url}`,
+            description: ar.desc,
+          });
+        }
+      },
+      manual: true,
+      refreshOnWindowFocus: false,
+    },
+  );
   const [form] = Form.useForm();
-  const projectState = project?.project;
-  console.log('project info', projectState);
+  const projectState = props?.project;
   if (!projectState) {
     return <PageLoading/>;
   }
-  if (!dispatch) {
-    return <div/>;
-  }
+
   let branchList: string[] = [];
   if (projectState.branchList) {
     branchList = JSON.parse(projectState.branchList);
@@ -48,19 +109,14 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       initialValues={projectState}
       onFinish={(projectDto) => {
         console.log('project submit payload : ', projectDto);
-        if (projectDto.id && !isCreate) {
-          dispatch({
-            type: 'project/update',
-            payload: projectDto,
-          });
-        } else {
-          dispatch({
-            type: 'project/saved',
-            payload: projectDto,
-          });
+        // update
+        if (projectDto.id) {
+          projectUpdateUseRequest.run(projectDto);
         }
-
-
+        // save
+        else {
+          projectSaveUseRequest.run(projectDto);
+        }
       }}
     >
       <div>
@@ -81,40 +137,6 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
           <Input/>
         </Form.Item>
       </div>
-      {/*暂时不使用*/}
-      {/*      <div>
-        <h2>应用插件</h2>
-        <Form.List name="projectPluginList">
-          {(projectPluginListFields) => {
-            // 目前antd 不支持record字段，扩展一个record
-            projectPluginListFields.forEach((projectPluginField, projectPluginIndex) => {
-              projectPluginField.record = projectState.projectPluginList[projectPluginIndex];
-            });
-            return (
-              <div>
-                {projectPluginListFields.map((projectPluginField, index) => (
-                  <div key={`${projectPluginField.name}_${projectPluginField.key}`}>
-                    <Form.Item
-                      label={projectPluginField.record.pluginName}
-                      name={[projectPluginField.name, 'pluginIsEnable']}
-                      valuePropName='checked'
-                    >
-                      <Switch checkedChildren="关闭" unCheckedChildren="启用" onClick={(value) => {
-                        dispatch({
-                          type: 'project/projectFormPluginEnableChange',
-                          payload: {
-                            projectPlugin: projectPluginField.record,
-                          },
-                        });
-                      }}/>
-                    </Form.Item>
-                  </div>
-                ))}
-              </div>
-            );
-          }}
-        </Form.List>
-      </div> */}
       <div>
         <h2>部署文件</h2>
         <Form.List name="projectDeployFileList">
@@ -183,7 +205,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       {/* ----------------------------------------------------------------环境配置------------------------------------------------------------------------ */}
       <Form.List name='projectEnvList'>
         {(fields, { add, remove }) => {
-          projectState?.projectEnvList?.forEach((projectEnvDto, projectEnvDtoIndex) => {
+          projectState?.projectEnvList?.forEach((projectEnvDto: ProjectEnvDto, projectEnvDtoIndex: number) => {
             if (fields[projectEnvDtoIndex]) {
               fields[projectEnvDtoIndex].record = projectEnvDto;
             }
@@ -201,13 +223,17 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                 <Col xl={12}>
                   <Form.Item noStyle>
                     <Select mode="multiple"
-                            value={projectState?.projectEnvList?.map((env) => env.envId) as number[]}
+                            value={projectState?.projectEnvList?.map((projectEnvDto: ProjectEnvDto) => projectEnvDto.envId) as number[]}
                             style={{ minWidth: '100%' }}
                             onSelect={(envId, option) => {
                               // 这里一定要注意，一定要执行add()方法，不然会多一个Form.List的item
                               add();
 
-                              const projectEnvServerList = project?.serverList?.map((server: ServerDto) => {
+                              if (!projectState.projectEnvList) {
+                                projectState.projectEnvList = [];
+                              }
+
+                              const projectEnvServerList = serverListUseRequest?.data?.result?.map((server: ServerDto) => {
                                 return {
                                   envId: server.envId,
                                   envName: server.envName,
@@ -229,7 +255,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                             }}
                     >
 
-                      {project?.envList?.map((env, envIndex) => {
+                      {envListUseRequest?.data?.result?.map((env: EnvDto, envIndex) => {
                         return <Option value={env.id as number}
                                        disabled={selectedEnvIdList?.indexOf(env.id as number) !== -1}
                                        key={`env_${envIndex}`}>{env.name}</Option>;
@@ -251,11 +277,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                         onClick={() => {
                           remove(projectEnvListField.name);
                           // 同时删除projectState?.projectEnvList里的元素
-                          dispatch({
-                            type: 'project/editProjectEnvDel',
-                            payload: { envId: projectEnvListField?.record?.envId },
-                          });
-
+                          projectState.projectEnvList = projectState?.projectEnvList?.filter((value: ProjectEnvDto) => value.envId !== projectEnvListField?.record?.envId);
                         }}
                       />
                     </Col>
@@ -276,11 +298,8 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                       }
                     </Select>
                   </Form.Item>
-                  <Form.List
-                    name={[projectEnvListField.name, 'projectEnvServerList']}
-                  >
+                  <Form.List name={[projectEnvListField.name, 'projectEnvServerList']}>
                     {(fields) => {
-
                       // ant design Form.List 里暂无提供 record 字段，这里暂时扩展支持
                       fields?.forEach((projectEnvServerField, projectEnvServerListIndex) => {
                         projectEnvServerField.record = projectEnvListField?.record?.projectEnvServerList[projectEnvServerListIndex];
@@ -335,13 +354,13 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                   >
                     <Radio.Group>
                       {
-                        project?.serverList?.map((server) => {
+                        serverListUseRequest?.data?.result?.map((server: ServerDto) => {
                           return <Radio value={server.id} key={uuid()}>{server.name}-{server.ip}</Radio>;
                         })
                       }
                     </Radio.Group>
                   </Form.Item>
-                  {/* 构建命令 */}
+                  {/*构建命令*/}
                   <Form.List
                     name={[projectEnvListField.name, 'projectCommandStepBuildList']}
                   >
@@ -391,7 +410,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                         </div>);
                     }}
                   </Form.List>
-                  {/* 构建后命令 */}
+                  {/*构建后命令*/}
                   <Form.List
                     name={[projectEnvListField.name, 'projectCommandStepBuildAfterList']}
                   >
@@ -441,7 +460,7 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
                         </div>);
                     }}
                   </Form.List>
-                  {/* 同步后命令 */}
+                  {/*同步后命令*/}
                   <Form.List
                     name={[projectEnvListField.name, 'projectCommandStepSyncAfterList']}
                   >
@@ -499,7 +518,8 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       </Form.List>
       {/* ----------------------------------------------------------------环境配置------------------------------------------------------------------------ */}
       <Form.Item label=' ' colon={false} style={{ marginTop: '10vh' }}>
-        <Button type="primary" htmlType="submit" block>
+        <Button type="primary" htmlType="submit" block
+                loading={projectState?.id ? projectUpdateUseRequest.loading : projectSaveUseRequest.loading}>
           提交
         </Button>
       </Form.Item>
@@ -507,14 +527,14 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
       {
         projectState?.id ?
           <Form.Item label=' ' colon={false} style={{ marginTop: '20vh' }}>
-            <Button type="danger" block onClick={() => {
-              dispatch({
-                type: 'project/deleted',
-                payload: {
-                  id: projectState?.id,
-                  name: projectState?.name,
-                },
-              });
+            <Button danger block onClick={() => {
+              // dispatch({
+              //   type: 'project/deleted',
+              //   payload: {
+              //     id: projectState?.id,
+              //     name: projectState?.name,
+              //   },
+              // });
             }}>
               删除项目（谨慎操作）
             </Button>
@@ -525,4 +545,3 @@ const ProjectForm: React.FC<ProjectPageProps> = ({ project, isCreate, dispatch }
     </Form>
   );
 };
-export default ProjectForm;

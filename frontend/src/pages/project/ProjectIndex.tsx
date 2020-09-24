@@ -1,5 +1,5 @@
 import React from 'react';
-import ProTable  from '@ant-design/pro-table/lib/Table';
+import ProTable from '@ant-design/pro-table/lib/Table';
 import { Table, Button, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'umi';
@@ -110,7 +110,7 @@ export default () => {
             title: '项目名称',
             dataIndex: 'name',
             key: 'name',
-            render: (_, row: ProjectDto) =>
+            render: (_: any, row: ProjectDto) =>
               <Link to={routes.pageRoutes.projectEditParams(row.id)}
                     style={{ fontSize: '22px' }}>{row.name}</Link>
             ,
@@ -120,7 +120,7 @@ export default () => {
             dataIndex: 'action',
             key: 'action',
             align: 'right',
-            render: (_, row: ProjectDto) =>
+            render: (_: any, row: ProjectDto) =>
               <div className={styles.projectRowAction}>
                 <Link to={routes.pageRoutes.projectEditParams(row.id)}>编辑</Link>&nbsp;&nbsp;
                 <Button type='primary' size='small' onClick={() => {
@@ -150,9 +150,6 @@ export default () => {
         expandable={
           {
             expandedRowRender: (record) => {
-
-              console.log('record', record);
-
               const subDataSource: any[] = [];
               // eslint-disable-next-line no-unused-expressions
               record.projectEnvList?.forEach(projectEnvDto => {
@@ -200,7 +197,6 @@ export default () => {
                     dataIndex: 'DevOps',
                     key: 'DevOps',
                     render: (projectEnv: ProjectEnvDto) => {
-                      console.log('projectEnv',projectEnv);
                       return (
                         <div>
                           {
@@ -256,6 +252,15 @@ export default () => {
                         <Link
                           to={`${routes.pageRoutes.projectEnvLogInfoParams(projectEnvDto.projectId, projectEnvDto.envId)}`}
                           target='_blank'>查看日志</Link>&nbsp;&nbsp;
+                        <Button
+                          type='primary'
+                          size='small'
+                          onClick={() => {
+                            const payload = {};
+                            console.log('sync payload', payload);
+                            syncUseRequest.run(payload);
+                          }}
+                        >动态发布</Button>&nbsp;&nbsp;
                       </div>;
                     },
                   },
