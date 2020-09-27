@@ -30,16 +30,14 @@ import { history } from '@@/core/history';
 import { PlanProjectSortDto } from '@/services/dto/PlanProjectSortDto';
 
 const { Sider, Content } = Layout;
+
 export default (props: any) => {
 
   const [form] = Form.useForm();
-  const [plan] = useState<PlanDto>(props.plan ? props.plan : { planEnvList: [], planScriptList: [] });
 
+  const plan: PlanDto = props.plan;
 
-  const [serverList, setServerList] = useState<ServerDto[]>();
-
-  const [treeProjectList, setTreeProjectList] = useState();
-  const treeProjectListRef = useRef();
+  const checkBoxProjectListRef = useRef();
 
   // 插件列表
   const pluginListUseResult = useRequest<ApiResult<any>>(
@@ -50,18 +48,9 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     });
 
-  useRequest<ApiResult<PlanProjectSortDto[]>>(
+  const planProjectSortUseRequest = useRequest<ApiResult<PlanProjectSortDto[]>>(
     () => routes.apiRoutes.planProjectSortList(),
     {
-      onSuccess: (apiResult, params) => {
-        if (apiResult.result) {
-          setTreeProjectList(apiResult.result?.map((planProjectSortDto: PlanProjectSortDto) => ({
-            title: planProjectSortDto.projectName,
-            key: planProjectSortDto.projectId,
-            projectSort: planProjectSortDto.sort,
-          })));
-        }
-      },
       manual: false,
       refreshOnWindowFocus: false,
     });
@@ -73,14 +62,9 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     });
 
-  useRequest<ApiResult<ServerDto[]>>(
-    () => routes.apiRoutes.serverList,
+  const serverListUseRequest = useRequest<ApiResult<ServerDto[]>>(
+    () => routes.apiRoutes.serverList(),
     {
-      onSuccess: (apiResult, params) => {
-        if (apiResult.result) {
-          setServerList(apiResult.result);
-        }
-      },
       manual: false,
       refreshOnWindowFocus: false,
     });
@@ -130,15 +114,17 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     });
 
-  if (!serverList) {
+  if (!planProjectSortUseRequest?.data?.result) {
     return <PageLoading/>;
   }
-  if (!treeProjectList) {
+  if (!serverListUseRequest?.data?.result) {
     return <PageLoading/>;
   }
   if (!selectEnvListUseRequest.data) {
     return <PageLoading/>;
   }
+
+  const planProjectSortList = planProjectSortUseRequest.data.result;
 
 
   return (
@@ -146,47 +132,49 @@ export default (props: any) => {
       <Sider theme='light'
              width='21%'
       >
-        <Row style={{ paddingTop: '10px', paddingBottom: '10px' }}>
-          <Tree
-            ref={treeProjectListRef}
-            treeData={treeProjectList}
-            defaultSelectedKeys={(plan.planEnvList.length > 0 ? plan.planEnvList[0].planEnvProjectConfigList?.map((planEnvProjectConfig: PlanEnvProjectConfigDto) => planEnvProjectConfig.projectId) : []) as number[]}
-            multiple={true}
-            onSelect={(selectedKeys, e) => {
-              plan.planEnvList = form.getFieldValue('planEnvList');
-
-
-              if (e.selected) {
-                selectedKeys.forEach((projectId) => {
-                  plan.planEnvList.forEach((planEnv) => {
-                    const existProjectIdList = planEnv.planEnvProjectConfigList.map(planEnvProjectConfig => planEnvProjectConfig.projectId);
-                    if (existProjectIdList.indexOf(projectId as number) === -1) {
-                      planEnv.planEnvProjectConfigList.push({
-                        projectId: projectId as number,
-                        projectName: e.node.title as string,
-                        projectSort: e.node.projectSort,
-                        type: PlanEnvProjectConfigType.project.code,
-                        isEnableCustomConfig: false,
-                      });
-                    }
+        <Checkbox.Group
+          ref={checkBoxProjectListRef}
+          defaultValue={(plan.planEnvList.length > 0 ? plan.planEnvList[0].planEnvProjectConfigList?.map((planEnvProjectConfig: PlanEnvProjectConfigDto) => planEnvProjectConfig.projectId) : []) as number[]}
+          onChange={(selectedProjectIdList) => {
+            plan.planEnvList = form.getFieldValue('planEnvList');
+            selectedProjectIdList.forEach((projectId) => {
+              plan.planEnvList.forEach((planEnv) => {
+                const existProjectIdList = planEnv.planEnvProjectConfigList.map(planEnvProjectConfig => planEnvProjectConfig.projectId);
+                if (existProjectIdList.indexOf(projectId as number) === -1) {
+                  const planProjectSort = planProjectSortList.filter(value => value.projectId === projectId)[0];
+                  planEnv.planEnvProjectConfigList.push({
+                    projectId: projectId as number,
+                    projectName: planProjectSort.projectName,
+                    projectSort: planProjectSort.sort,
+                    type: PlanEnvProjectConfigType.project.code,
+                    isEnableCustomConfig: false,
                   });
-                });
-              } else {
-                plan.planEnvList.forEach((planEnv) => {
-                  // 0 是公共配置，所以要保留
-                  planEnv.planEnvProjectConfigList = planEnv.planEnvProjectConfigList.filter(value => (selectedKeys.indexOf(value.projectId as number) > -1) || value.projectId === 0);
-                });
-              }
-
-              // 使用setFieldsValue 替换整个字段初始化内容
-              form.setFieldsValue({
-                'planEnvList': plan.planEnvList,
+                }
               });
+            });
 
+            plan.planEnvList.forEach((planEnv) => {
+              // 0 是公共配置，所以要保留
+              planEnv.planEnvProjectConfigList = planEnv.planEnvProjectConfigList.filter(value => (selectedProjectIdList.indexOf(value.projectId as number) > -1) || value.projectId === 0);
+            });
 
-            }}
-          />
-        </Row>
+            // 使用setFieldsValue 替换整个字段初始化内容
+            form.setFieldsValue({
+              'planEnvList': plan.planEnvList,
+            });
+          }}
+        >
+          <Row style={{ padding: '10px' }}>
+            {
+              planProjectSortList?.map((planProjectSort) => (
+                <Col span={24} key={planProjectSort.id}>
+                  <Checkbox value={planProjectSort.projectId}>{planProjectSort.projectName}</Checkbox>
+                </Col>
+              ))
+            }
+          </Row>
+        </Checkbox.Group>
+
       </Sider>
       <Content style={{ padding: '0px 10px' }}>
 
@@ -342,14 +330,17 @@ export default (props: any) => {
 
 
                                 // 项目选择时，每个环境都要添加上，这里的代码比较容易出错，到时候看怎么优化
-                                // eslint-disable-next-line no-unused-expressions
-                                treeProjectListRef.current?.state?.selectedKeys.forEach((projectId: any) => {
+                                // @ts-ignore
+                                checkBoxProjectListRef.current?.state?.value.forEach((projectId: any) => {
                                   if (projectId !== 0) {
+
+                                    const planProjectSort = planProjectSortList.filter(value => value.projectId === projectId)[0];
+
                                     plan.planEnvList.filter(value => value.envId === option?.type.id)[0].planEnvProjectConfigList.push({
                                       type: PlanEnvProjectConfigType.project.code,
-                                      projectId: treeProjectListRef.current?.state.keyEntities[projectId].node.key,
-                                      projectName: treeProjectListRef.current?.state.keyEntities[projectId].node.title,
-                                      projectSort: treeProjectListRef.current?.state.keyEntities[projectId].node.projectSort,
+                                      projectId: planProjectSort.projectId,
+                                      projectName: planProjectSort.projectName,
+                                      projectSort: planProjectSort.sort,
                                       isEnableCustomConfig: false,
                                     });
                                   }
@@ -369,9 +360,10 @@ export default (props: any) => {
                             type={envDto}>{envDto?.name}</Select.Option>)
                         }
                       </Select>
+
+
                     </Col>
                   </Row>
-
                   {
                     fields.map((planEnvListField, planEnvListIndex) => (
                       <div key={`envListField_${planEnvListIndex}`}>
@@ -395,6 +387,7 @@ export default (props: any) => {
                           {(fields, { add, remove }) => {
                             const planEnvProjectConfigList: PlanEnvProjectConfigDto[] = form.getFieldValue(['planEnvList', planEnvListField.name, 'planEnvProjectConfigList']);
                             planEnvProjectConfigList.forEach((planEnvProjectConfig, planEnvProjectConfigIndex) => fields[planEnvProjectConfigIndex].record = planEnvProjectConfig);
+                            // @ts-ignore
                             return (
                               <div>
                                 {
@@ -438,7 +431,7 @@ export default (props: any) => {
                                         >
                                           <Radio.Group>
                                             {
-                                              serverList.map((server) => {
+                                              serverListUseRequest?.data?.result?.map((server) => {
                                                 return <Radio value={server.id}
                                                               key={uuid()}>{server.name}-{server.ip}</Radio>;
                                               })
@@ -450,7 +443,7 @@ export default (props: any) => {
                                           name={[planEnvProjectConfigListField.name, 'grayServerIdList']}
                                         >
                                           <Checkbox.Group
-                                            options={serverList.map(server => ({
+                                            options={serverListUseRequest?.data?.result?.map(server => ({
                                               label: `${server.name}-${server.ip}`,
                                               value: server.id as number,
                                             }))}
@@ -463,7 +456,7 @@ export default (props: any) => {
                                           name={[planEnvProjectConfigListField.name, 'releaseServerIdList']}
                                         >
                                           <Checkbox.Group
-                                            options={serverList.map(server => ({
+                                            options={serverListUseRequest?.data?.result?.map(server => ({
                                               label: `${server.name}-${server.ip}`,
                                               value: server.id as number,
                                             }))}
@@ -477,7 +470,7 @@ export default (props: any) => {
                                         >
                                           <Radio.Group>
                                             {
-                                              pluginListUseResult?.data?.result?.map((plugin:any) => {
+                                              pluginListUseResult?.data?.result?.map((plugin: any) => {
                                                 return <Radio value={plugin.name} key={uuid()}>{plugin.name}</Radio>;
                                               })
                                             }
@@ -507,7 +500,7 @@ export default (props: any) => {
           {
             plan?.id ?
               <Form.Item label=' ' colon={false} style={{ marginTop: '20vh' }}>
-                <Button type="danger" block onClick={() => {
+                <Button danger block onClick={() => {
                 }}>
                   删除版本计划（谨慎操作）
                 </Button>

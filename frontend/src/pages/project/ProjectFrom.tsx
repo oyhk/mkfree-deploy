@@ -88,6 +88,28 @@ export default (props: any) => {
       refreshOnWindowFocus: false,
     },
   );
+  const projectDeleteUseRequest = useRequest<ApiResult<any>>(
+    (payload) => routes.apiRoutes.projectDelete(payload),
+    {
+      onSuccess: (ar, params) => {
+        if (ar.code === 1) {
+          notification.success({
+            message: `项目删除：${params[0].name}`,
+            description: '删除成功',
+          });
+          history.replace(routes.pageRoutes.projectIndex);
+        } else {
+          notification.error({
+            message: `请求错误 ${ar.code}: ${routes.apiRoutes.projectDelete().url}`,
+            description: ar.desc,
+          });
+        }
+      },
+      manual: true,
+      refreshOnWindowFocus: false,
+    },
+  );
+
   const [form] = Form.useForm();
   const projectState = props?.project;
   if (!projectState) {
@@ -528,13 +550,7 @@ export default (props: any) => {
         projectState?.id ?
           <Form.Item label=' ' colon={false} style={{ marginTop: '20vh' }}>
             <Button danger block onClick={() => {
-              // dispatch({
-              //   type: 'project/deleted',
-              //   payload: {
-              //     id: projectState?.id,
-              //     name: projectState?.name,
-              //   },
-              // });
+              projectDeleteUseRequest.run({ id: projectState.id, name: projectState.name });
             }}>
               删除项目（谨慎操作）
             </Button>

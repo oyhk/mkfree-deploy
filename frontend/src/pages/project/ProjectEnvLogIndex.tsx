@@ -1,13 +1,12 @@
 import React from 'react';
 import { Col, Layout, Menu, Row, Select } from 'antd';
-import { connect, Link, history, useParams } from 'umi';
-import { MailOutlined, LoadingOutlined, FileOutlined } from '@ant-design/icons';
+import { Link, history, useParams } from 'umi';
+import { LoadingOutlined, FileOutlined } from '@ant-design/icons';
 import routes from '@/routes';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
 import { momentFormat } from '@/utils/utils';
 import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
-import { EnvDto } from '@/services/dto/EnvDto';
 import { ProjectDto } from '@/services/dto/ProjectDto';
 import { ProjectEnvDto } from '@/services/dto/ProjectEnvDto';
 import { ProjectEnvLogDto } from '@/services/dto/ProjectEnvLogDto';
@@ -161,7 +160,7 @@ export default (props: any) => {
         {
           projectEnvLogInfoUseRequest.data?.result ?
             <Layout>
-              <Header style={{ padding: '0 20px', height: 'auto' }}>
+              <Header style={{ padding: '0 20px', height: 'auto',backgroundColor:'#ffffff' }}>
                 <Row>
                   <Col sm={12}>时间：{momentFormat(projectEnvLogInfoUseRequest.data?.result?.createdAt)}</Col>
                   <Col sm={12}>类型：{projectEnvLogInfoUseRequest.data?.result?.typeDesc}</Col>

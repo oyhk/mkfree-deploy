@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ProTable from '@ant-design/pro-table/lib/Table';
-import { Table, Button, notification } from 'antd';
+import { Table, Button, notification, Modal } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'umi';
 import styles from '@/pages/project/project-index.less';
@@ -17,11 +17,13 @@ import { BaseDto } from '@/services/dto/BaseDto';
 
 export default () => {
 
+  const [dynamicPublish, setDynamicPublish] = useState<boolean>(false);
+
   // 分页数据
   const pageResultUseRequest = useRequest<ApiResult<PageResult<ProjectDto>>>(
     () => routes.apiRoutes.projectPage({
       pageNo: 0,
-      pageSize: 10000,
+      pageSize: 1,
     }),
     {
       manual: false,
@@ -258,7 +260,8 @@ export default () => {
                           onClick={() => {
                             const payload = {};
                             console.log('sync payload', payload);
-                            syncUseRequest.run(payload);
+
+                            setDynamicPublish(true);
                           }}
                         >动态发布</Button>&nbsp;&nbsp;
                       </div>;
@@ -277,6 +280,22 @@ export default () => {
           <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
         ]}
       />
+
+      <Modal
+        title="Basic Modal"
+        visible={dynamicPublish}
+        onOk={() => {
+          setDynamicPublish(false);
+        }}
+        onCancel={() => {
+          setDynamicPublish(false);
+        }}
+      >
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal>
+
     </PageHeaderWrapper>
   );
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ProjectDto } from './project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
@@ -465,9 +465,9 @@ export class ProjectController {
     await entityManager.save(ProjectEnv, projectEnvDto);
   }
 
-  @Post('/api/projects/deleted')
+  @Delete('/api/projects/delete')
   @Transaction()
-  async deleted(@Body() dto: ProjectDto, @Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
+  async delete(@Body() dto: ProjectDto, @Req() req, @Res() res: Response, @TransactionManager() entityManager: EntityManager) {
     const ar = new ApiResult();
     const accessToken = req.header(UserAuthOperation.accessTokenKey);
     const userAuth = this.jwtService.decode(accessToken.toString()) as UserAuth;

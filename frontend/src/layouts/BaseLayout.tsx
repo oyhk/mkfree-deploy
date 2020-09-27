@@ -1,17 +1,15 @@
 import React, { useEffect } from 'react';
 import {
   SmileOutlined,
-  TableOutlined,
   UserOutlined,
-  DownOutlined,
   CloudServerOutlined,
   DeploymentUnitOutlined,
   EnvironmentOutlined,
   PushpinOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-import ProLayout, { MenuDataItem, DefaultFooter, PageLoading } from '@ant-design/pro-layout';
-import { Link, connect, history } from 'umi';
+import ProLayout from '@ant-design/pro-layout';
+import { Link, history } from 'umi';
 import { HeaderViewProps } from '@ant-design/pro-layout/es/Header';
 import { Dropdown, Menu, Button } from 'antd';
 import routes from '@/routes';

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { UseRequestProvider } from 'ahooks';
-import Request from '@/utils/Request1';
+import Request from '@/utils/Request';
 import routes from '@/routes';
 import { ApiResult } from '@/services/ApiResult';
 import { notification } from 'antd';

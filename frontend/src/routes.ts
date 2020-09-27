@@ -89,7 +89,12 @@ export default {
       method: HttpMethod.put,
       data: payload,
     }),
-    projectDeleted: gateway + 'api/projects/deleted',
+    projectDelete: (payload?: any) => ({
+      url: `${gateway}api/projects/delete`,
+      method: HttpMethod.delete,
+      data: payload,
+    }),
+
     projectBuild: (payload?: any) => ({
       url: `${gateway}api/projects/build`,
       method: HttpMethod.post,
@@ -117,8 +122,8 @@ export default {
       method: HttpMethod.get,
     }),
 
-    serverList: () => ({
-      url: gateway + 'api/servers/list',
+    serverList: (searchParams?: any) => ({
+      url: `${gateway}api/servers/list?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
     }),
 
