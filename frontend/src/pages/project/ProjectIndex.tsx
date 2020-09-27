@@ -23,7 +23,7 @@ export default () => {
   const pageResultUseRequest = useRequest<ApiResult<PageResult<ProjectDto>>>(
     () => routes.apiRoutes.projectPage({
       pageNo: 0,
-      pageSize: 1,
+      pageSize: 1000,
     }),
     {
       manual: false,
