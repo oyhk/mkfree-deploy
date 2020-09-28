@@ -22,12 +22,16 @@ import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
-import { Plugin, PluginList, PluginType } from '../plugin/plugin.entity';
+import { Plugin, PluginEureka, PluginList, PluginType } from '../plugin/plugin.entity';
 import { UserAuth, UserAuthOperation } from '../user/user-auth';
 import { JwtService } from '@nestjs/jwt';
 import { ProjectEnvPlugin } from '../project-env-plugin/project-env-plugin.entity';
 import { ApiException } from '../common/api.exception';
 import { ProjectService } from './project.service';
+import { PlanDto } from '../plan/plan.dto';
+import { PluginEurekaConfig } from '../plugin-api/eureka/plugin-eureka-config';
+import { PluginEurekaApplicationInstanceStatus } from '../plugin-api/eureka/plugin-eureka.dto';
+import { PluginEnvSetting } from '../plugin/plugin-env-setting.entity';
 
 @Controller()
 export class ProjectController {
@@ -59,6 +63,8 @@ export class ProjectController {
     private projectLogRepository: Repository<ProjectLog>,
     @InjectRepository(ProjectEnvLog)
     private projectEnvLogRepository: Repository<ProjectEnvLog>,
+    @InjectRepository(PluginEnvSetting)
+    private pluginEnvSettingRepository: Repository<PluginEnvSetting>,
     private jwtService: JwtService,
     private projectService: ProjectService,
   ) {
@@ -153,7 +159,7 @@ export class ProjectController {
         projectEnvServer.serverName = server.name;
         projectEnvServer.isSelectServerIp = false;
         projectEnvServer.isPublish = false;
-        if(dbProjectEnvServer){
+        if (dbProjectEnvServer) {
           projectEnvServer.isSelectServerIp = true;
           projectEnvServer.isPublish = dbProjectEnvServer.isPublish;
         }
@@ -703,4 +709,97 @@ export class ProjectController {
 
     return res.json(ar);
   }
+
+
+  /**
+   * 动态部署
+   * @param dto
+   * @param res
+   */
+  @Post('/api/projects/dynamic-publish')
+  async dynamicPublish(@Body() dto: ProjectDto, @Res() res: Response) {
+    const ar = new ApiResult();
+    this.asyncDynamicPublish(dto);
+    return res.json(ar);
+  }
+
+  /**
+   * 动态部署异步发布
+   * @param dto
+   */
+  async asyncDynamicPublish(dto: ProjectDto) {
+    const project = await this.projectRepository.findOne(dto.id);
+
+    const projectEnv = await this.projectEnvRepository.findOne({ projectId: dto.id, envId: dto.envId });
+
+    const pluginEnvSetting = await this.pluginEnvSettingRepository.findOne({
+      pluginName: PluginEureka.name,
+      envId: dto.envId,
+    });
+    const pluginEurekaConfig: PluginEurekaConfig = JSON.parse(pluginEnvSetting.config);
+
+    console.log('项目灰度发布开始');
+
+
+    const serverList = dto.projectEnvServerList;
+
+
+    const publishServerIpList = [projectEnv.syncServerIp];
+    // 1.1 Eureka下线发布服务器
+    await this.projectService.projectAppChangeStatusInEureka({
+      projectName: project.name,
+      serverIpList: publishServerIpList,
+      pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
+    }, pluginEurekaConfig);
+    // 1.2 发布发布服务器项目
+    await this.projectService.projectBuild({
+      projectId: project.id,
+      projectName: project.name,
+      envId: dto.envId,
+      serverId: projectEnv.syncServerId,
+      serverName: projectEnv.syncServerName,
+      publishBranch: projectEnv.publishBranch,
+    });
+
+    // 1.3 上线发布项目到Eureka注册中心
+    await this.projectService.projectAppChangeStatusInEureka({
+      projectName: project.name,
+      serverIpList: publishServerIpList,
+      pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
+    }, pluginEurekaConfig);
+
+    // 1.4 Eureka 下线同步服务器项目
+    const syncServerList = serverList.filter(value => !value.isPublish && value.isSelectServerIp);
+    const syncServerIpList = syncServerList.map(value => (value.serverIp));
+    console.log('syncServerIpList', syncServerIpList);
+    await this.projectService.projectAppChangeStatusInEureka({
+      projectName: project.name,
+      serverIpList: syncServerIpList,
+      pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
+    }, pluginEurekaConfig);
+
+
+    // 1.5 从发布服务器同步到同步服务器中
+    for (const syncServer of syncServerList) {
+      await this.projectService.projectSync({
+        projectId: project.id,
+        envId: dto.envId,
+        syncServerId: projectEnv.syncServerId,
+        syncServerName: projectEnv.syncServerName,
+        targetServerId: syncServer.serverId,
+        targetServerName: syncServer.serverName,
+        publishBranch: projectEnv.publishBranch,
+      });
+    }
+
+    // 1.6 同步完成后，在Eureka中上线
+    await this.projectService.projectAppChangeStatusInEureka({
+      projectName: project.name,
+      serverIpList: syncServerIpList,
+      pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
+    }, pluginEurekaConfig);
+
+    console.log('项目动态发布完成');
+  }
+
 }

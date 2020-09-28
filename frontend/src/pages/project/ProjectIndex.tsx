@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProTable from '@ant-design/pro-table/lib/Table';
-import { Table, Button, notification, Modal } from 'antd';
+import { Table, Button, notification, Modal, Row, Col, Checkbox, Form, Switch, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'umi';
 import styles from '@/pages/project/project-index.less';
@@ -17,7 +17,11 @@ import { BaseDto } from '@/services/dto/BaseDto';
 
 export default () => {
 
-  const [dynamicPublish, setDynamicPublish] = useState<boolean>(false);
+  const [dynamicPublishProject, setDynamicPublishProject] = useState<{ visible: boolean, projectEnvServerList?: Array<ProjectEnvServerDto>, id?: number, name?: string, envId?: number, envName?: string }>({
+    visible: false,
+  });
+
+  const [dynamicPublishProjectForm] = Form.useForm();
 
   // 分页数据
   const pageResultUseRequest = useRequest<ApiResult<PageResult<ProjectDto>>>(
@@ -97,6 +101,48 @@ export default () => {
       manual: true,
       refreshOnWindowFocus: false,
     });
+
+  const projectEnvServerListUseRequest = useRequest<ApiResult<ProjectEnvServerDto[]>>(
+    (payload) => routes.apiRoutes.projectEnvServerList(payload),
+    {
+      onSuccess: (ar, params) => {
+
+        ar?.result?.forEach((pes: ProjectEnvServerDto) => {
+          pes.isSelectServerIp = pes.isPublish;
+        });
+        const dynamicPublishProjectTemp = {
+          id: params[0].projectId,
+          name: params[0].projectName,
+          envId: params[0].envId,
+          envName: params[0].envName,
+          visible: true,
+          projectEnvServerList: ar.result,
+        };
+        setDynamicPublishProject(dynamicPublishProjectTemp);
+        dynamicPublishProjectForm.setFieldsValue(dynamicPublishProjectTemp);
+        return ar;
+      },
+      fetchKey: (payload) => `${payload.projectId}${payload.envId}`,
+      manual: true,
+      refreshOnWindowFocus: false,
+    });
+
+  const dynamicPublishUseRequest = useRequest<ApiResult<BaseDto>>(
+    (payload) => routes.apiRoutes.projectDynamicPublish(payload),
+    {
+      onSuccess: (ar, params) => {
+        if (ar) {
+          notification.success({
+            message: `项目：${params[0].name}`,
+            description: '动态部署操作成功，请稍后...',
+          });
+          setDynamicPublishProject({ visible: false });
+        }
+      },
+      manual: true,
+      refreshOnWindowFocus: false,
+    });
+
 
   if (!pageResultUseRequest.data) {
     return <PageLoading/>;
@@ -257,11 +303,14 @@ export default () => {
                         <Button
                           type='primary'
                           size='small'
+                          loading={projectEnvServerListUseRequest.fetches[`${projectEnvDto.projectId}${projectEnvDto.envId}`]?.loading}
                           onClick={() => {
-                            const payload = {};
-                            console.log('sync payload', payload);
-
-                            setDynamicPublish(true);
+                            projectEnvServerListUseRequest.run({
+                              projectId: projectEnvDto.projectId,
+                              projectName: projectEnvDto.projectName,
+                              envId: projectEnvDto.envId,
+                              envName: projectEnvDto.envName,
+                            });
                           }}
                         >动态发布</Button>&nbsp;&nbsp;
                       </div>;
@@ -282,18 +331,75 @@ export default () => {
       />
 
       <Modal
-        title="Basic Modal"
-        visible={dynamicPublish}
+        title={`项目：${dynamicPublishProject.name} 环境：${dynamicPublishProject.envName} 动态部署`}
+        width={'80%'}
+        visible={dynamicPublishProject.visible}
+        footer={null}
         onOk={() => {
-          setDynamicPublish(false);
+          setDynamicPublishProject({ visible: false });
         }}
         onCancel={() => {
-          setDynamicPublish(false);
+          setDynamicPublishProject({ visible: false });
         }}
       >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+
+        <Form
+          form={dynamicPublishProjectForm}
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 16 }}
+          layout="horizontal"
+          onFinish={(payload) => {
+            console.log('project dynamic publish payload : ', payload);
+            dynamicPublishUseRequest.run(payload);
+          }}
+        >
+          <Form.Item name='id' hidden={true}>
+            <Input/>
+          </Form.Item>
+          <Form.Item name='name' hidden={true}>
+            <Input/>
+          </Form.Item>
+          <Form.Item name='envId' hidden={true}>
+            <Input/>
+          </Form.Item>
+          <Form.List name={'projectEnvServerList'}>
+            {
+              (fields) =>
+                <div>
+                  {fields.map((projectEnvServiceField, projectEnvServerListIndex) => {
+                    const projectEnvServer = dynamicPublishProjectForm.getFieldValue(['projectEnvServerList', projectEnvServiceField.name]);
+                    return (
+                      <Row style={{ lineHeight: '32px' }} key={uuid()}>
+                        {
+                          projectEnvServerListIndex === 0 ?
+                            <Col xl={4}
+                                 style={{ textAlign: 'right', color: 'rgba(0, 0, 0, 0.85)', fontSize: '14px' }}>
+                              选择服务器：
+                            </Col> : <Col xl={4}/>
+                        }
+                        <Col xl={16}>
+                          <Form.Item
+                            name={[projectEnvServiceField.name, 'isSelectServerIp']}
+                            valuePropName='checked'
+                          >
+                            <Checkbox
+                              disabled={projectEnvServer.isPublish}>
+                              {projectEnvServer.serverName}-{projectEnvServer.serverIp}{projectEnvServer.isPublish ?
+                              <span style={{ color: 'red' }}>（发布服务器）</span> : ''}</Checkbox>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    );
+                  })}
+                </div>
+            }
+          </Form.List>
+          <Form.Item label=' ' colon={false}>
+            <Button type="primary" htmlType="submit" block loading={dynamicPublishUseRequest.loading}>
+              提交任务
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
 
     </PageHeaderWrapper>

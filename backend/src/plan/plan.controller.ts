@@ -156,7 +156,6 @@ export class PlanController {
       // 当开启自定义配置
       console.log(`项目：${currentPlanEnvProjectConfig.projectName} ${currentPlanEnvProjectConfig.isEnableCustomConfig ? '使用自定义配置进行发布' : '使用公共配置进行发布'}`);
 
-
       const grayServerList = await this.planEnvProjectConfigServerRepository.find({
         planEnvProjectConfigId: currentPlanEnvProjectConfig.id,
         type: 1,
@@ -164,14 +163,14 @@ export class PlanController {
       const publishServerIpList = grayServerList.filter(value => value.serverId === currentPlanEnvProjectConfig.publishServerId).map(value => (value.serverIp));
       // 1.1 Eureka下线发布服务器
       if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
-        await this.projectAppChangeStatusInEureka({
+        await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: publishServerIpList,
           pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
         }, pluginEurekaConfig);
       }
       // 1.2 发布发布服务器项目
-      await this.projectBuild({
+      await this.projectService.projectBuild({
         projectId: planEnvProjectConfig.projectId,
         projectName: planEnvProjectConfig.projectName,
         envId: dto.envId,
@@ -182,7 +181,7 @@ export class PlanController {
 
       // 1.3 上线发布项目到Eureka注册中心
       if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
-        await this.projectAppChangeStatusInEureka({
+        await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: publishServerIpList,
           pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
@@ -191,7 +190,7 @@ export class PlanController {
 
       // 1.4 Eureka 下线同步服务器项目
       const syncServerIpList = grayServerList.filter(value => value.serverId !== currentPlanEnvProjectConfig.publishServerId).map(value => (value.serverIp));
-      await this.projectAppChangeStatusInEureka({
+      await this.projectService.projectAppChangeStatusInEureka({
         projectName: planEnvProjectConfig.projectName,
         serverIpList: syncServerIpList,
         pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
@@ -201,7 +200,7 @@ export class PlanController {
       // 1.5 从发布服务器同步到同步服务器中
       const graySyncServerList = grayServerList.filter(value => value.serverId !== currentPlanEnvProjectConfig.publishServerId);
       for (const graySyncServer of graySyncServerList) {
-        await this.projectSync({
+        await this.projectService.projectSync({
           projectId: planEnvProjectConfig.projectId,
           envId: dto.envId,
           syncServerId: currentPlanEnvProjectConfig.publishServerId,
@@ -214,7 +213,7 @@ export class PlanController {
 
       // 1.6 同步完成后，在Eureka中上线
       if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
-        await this.projectAppChangeStatusInEureka({
+        await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: syncServerIpList,
           pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
@@ -425,94 +424,6 @@ export class PlanController {
       planScript.planId = plan.id;
       planScript.planName = plan.name;
       await entityManager.save(PlanScript, planScript);
-    }
-  }
-
-  /**
-   * 改变项目在Eureka的状态
-   * @param dto
-   * @param pluginEurekaConfig
-   */
-  async projectAppChangeStatusInEureka(dto: { projectName: string, serverIpList: Array<string>, pluginEurekaApplicationInstanceStatus: string }, pluginEurekaConfig: PluginEurekaConfig) {
-    console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 开始`);
-    while (true) {
-      const app = await this.pluginEurekaService.app({ app: dto.projectName }, pluginEurekaConfig);
-      const publishServerEurekaAppInstance = app.application.instance.filter(instance => dto.serverIpList.indexOf(instance.ipAddr) != -1);
-      let status = PluginEurekaApplicationInstanceStatus.UP;
-      if (dto.pluginEurekaApplicationInstanceStatus === PluginEurekaApplicationInstanceStatus.UP) {
-        status = PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE;
-      }
-      const upPublishServerEurekaAppInstance = publishServerEurekaAppInstance.filter(value => value.status === status);
-      // 当需要改变的
-      if (upPublishServerEurekaAppInstance.length === 0) {
-        break;
-      }
-      for (const upInstance of upPublishServerEurekaAppInstance) {
-        upInstance.status = dto.pluginEurekaApplicationInstanceStatus;
-        await this.pluginEurekaService.changeStatus(upInstance, pluginEurekaConfig);
-      }
-      console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 中`);
-      await sleep(30000);
-    }
-    console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 完成`);
-  }
-
-  /**
-   * 发布项目
-   * @param dto
-   */
-  async projectBuild(dto: { projectId: number, projectName: string, envId: number, serverId: number, publishBranch: string, serverName?: string }) {
-    console.log(`项目：${dto.projectName}  在服务器 ${dto.serverName} 发布开始`);
-    let projectIsPublish = false;
-    while (true) {
-      const projectEnvServer = await this.projectEnvServerRepository.findOne({
-        projectId: dto.projectId,
-        envId: dto.envId,
-        serverId: dto.serverId,
-      });
-      if (!projectIsPublish && projectEnvServer.isFinish && (projectEnvServer.publishVersion === null || projectEnvServer.lastPublishVersion === null || projectEnvServer.publishVersion === projectEnvServer.lastPublishVersion)) {
-        await this.projectService.build({
-          projectId: dto.projectId,
-          publicBranch: dto.publishBranch,
-          serverId: dto.serverId,
-          envId: dto.envId,
-        });
-        projectIsPublish = true;
-      } else if (projectEnvServer.isFinish) {
-        console.log(`项目：${projectEnvServer.projectName} 在服务器 ${dto.serverName} 发布完成`);
-        break;
-      }
-      console.log(`项目：${projectEnvServer.projectName} 在服务器 ${dto.serverName} 发布进行中...`);
-      await sleep(30000);
-    }
-  }
-
-  async projectSync(dto: { projectId: number, envId: number, syncServerId: number, publishBranch: string, targetServerId: number, syncServerName?: string, targetServerName?: string }) {
-
-    let projectIsSync = false;
-    while (true) {
-      const projectEnvServer = await this.projectEnvServerRepository.findOne({
-        projectId: dto.projectId,
-        envId: dto.envId,
-        serverId: dto.targetServerId,
-      });
-
-      console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步到 ${dto.targetServerName} 开始`);
-      if (!projectIsSync && projectEnvServer.isFinish && (projectEnvServer.publishVersion === null || projectEnvServer.lastPublishVersion === null || projectEnvServer.publishVersion === projectEnvServer.lastPublishVersion)) {
-        await this.projectService.sync({
-          projectId: dto.projectId,
-          publishBranch: dto.publishBranch,
-          syncServerId: dto.syncServerId,
-          targetServerId: dto.targetServerId,
-          envId: dto.envId,
-        });
-        projectIsSync = true;
-      } else if (projectEnvServer.isFinish) {
-        console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步到 ${dto.targetServerName} 完成`);
-        break;
-      }
-      console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步 ${dto.targetServerName} 进行中...`);
-      await sleep(30000);
     }
   }
 }

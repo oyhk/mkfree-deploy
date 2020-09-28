@@ -2,14 +2,13 @@ import { SystemConfig, SystemConfigKeys, SystemConfigValues } from '../system-co
 import { ProjectEnvServer } from '../project-env-server/project-env-server.entity';
 import { Server } from '../server/server.entity';
 import { Project, ProjectLogFileType } from './project.entity';
-import { ApiResult, ApiResultCode } from '../common/api-result';
+import { ApiResultCode } from '../common/api-result';
 import { ProjectEnv } from '../project-env/project-env.entity';
 import { Env } from '../env/env.entity';
 import { ProjectEnvLog, ProjectEnvLogType } from '../project-env-log/project-env-log.entity';
 import { ProjectCommandStep, ProjectCommandStepType } from '../project-build-step/project-command-step.entity';
 import * as fs from 'fs';
 import { exec } from 'child_process';
-import { ProjectDto } from './project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -20,6 +19,10 @@ import { ProjectDeployFile } from '../project-deploy-file/project-deploy-file.en
 import { ProjectEnvPlugin } from '../project-env-plugin/project-env-plugin.entity';
 import { ProjectLog } from '../project-log/project-log.entity';
 import { ApiException } from '../common/api.exception';
+import { PluginEurekaConfig } from '../plugin-api/eureka/plugin-eureka-config';
+import { PluginEurekaApplicationInstanceStatus } from '../plugin-api/eureka/plugin-eureka.dto';
+import { sleep } from '../common/utils';
+import { PluginEurekaService } from '../plugin-api/eureka/plugin-eureka.service';
 
 @Injectable()
 export class ProjectService {
@@ -51,6 +54,7 @@ export class ProjectService {
     private projectLogRepository: Repository<ProjectLog>,
     @InjectRepository(ProjectEnvLog)
     private projectEnvLogRepository: Repository<ProjectEnvLog>,
+    private pluginEurekaService: PluginEurekaService,
     private jwtService: JwtService,
   ) {
   }
@@ -438,5 +442,98 @@ export class ProjectService {
       await this.projectEnvLogRepository.update(projectEnvLog.id, { isFinish: true });
 
     });
+  }
+
+  /**
+   * 改变项目在Eureka的状态
+   * @param dto
+   * @param pluginEurekaConfig
+   */
+  async projectAppChangeStatusInEureka(dto: { projectName: string, serverIpList: Array<string>, pluginEurekaApplicationInstanceStatus: string }, pluginEurekaConfig: PluginEurekaConfig) {
+    console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 开始`);
+    while (true) {
+      const app = await this.pluginEurekaService.app({ app: dto.projectName }, pluginEurekaConfig);
+      const publishServerEurekaAppInstance = app.application.instance.filter(instance => dto.serverIpList.indexOf(instance.ipAddr) != -1);
+      let status = PluginEurekaApplicationInstanceStatus.UP;
+      if (dto.pluginEurekaApplicationInstanceStatus === PluginEurekaApplicationInstanceStatus.UP) {
+        status = PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE;
+      }
+      const upPublishServerEurekaAppInstance = publishServerEurekaAppInstance.filter(value => value.status === status);
+      // 当需要改变的
+      if (upPublishServerEurekaAppInstance.length === 0) {
+        break;
+      }
+      for (const upInstance of upPublishServerEurekaAppInstance) {
+        upInstance.status = dto.pluginEurekaApplicationInstanceStatus;
+        await this.pluginEurekaService.changeStatus(upInstance, pluginEurekaConfig);
+      }
+      console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 中`);
+      await sleep(30000);
+    }
+    console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 完成`);
+  }
+
+  /**
+   * 发布项目
+   * @param dto
+   */
+  async projectBuild(dto: { projectId: number, projectName: string, envId: number, serverId: number, publishBranch: string, serverName?: string }) {
+    console.log(`项目：${dto.projectName}  在服务器 ${dto.serverName} 发布开始`);
+    let projectIsPublish = false;
+    while (true) {
+      const projectEnvServer = await this.projectEnvServerRepository.findOne({
+        projectId: dto.projectId,
+        envId: dto.envId,
+        serverId: dto.serverId,
+      });
+
+      // 是否允许发布，（未发布 且 发布已经完成 且 （当前版本 或者 最后版本为空 或者 两个版本一致））或者 上一次发布时间已经超过10分钟
+      const isAllowPublish = (!projectIsPublish && projectEnvServer.isFinish && (projectEnvServer.publishVersion === null || projectEnvServer.lastPublishVersion === null || projectEnvServer.publishVersion === projectEnvServer.lastPublishVersion))
+        || new Date().getTime() - projectEnvServer.publishTime.getTime() > 10 * 60 * 1000;
+
+      if (isAllowPublish) {
+        await this.build({
+          projectId: dto.projectId,
+          publicBranch: dto.publishBranch,
+          serverId: dto.serverId,
+          envId: dto.envId,
+        });
+        projectIsPublish = true;
+      } else if (projectEnvServer.isFinish) {
+        console.log(`项目：${projectEnvServer.projectName} 在服务器 ${dto.serverName} 发布完成`);
+        break;
+      }
+      console.log(`项目：${projectEnvServer.projectName} 在服务器 ${dto.serverName} 发布进行中...`);
+      await sleep(30000);
+    }
+  }
+
+  async projectSync(dto: { projectId: number, envId: number, syncServerId: number, publishBranch: string, targetServerId: number, syncServerName?: string, targetServerName?: string }) {
+
+    let projectIsSync = false;
+    while (true) {
+      const projectEnvServer = await this.projectEnvServerRepository.findOne({
+        projectId: dto.projectId,
+        envId: dto.envId,
+        serverId: dto.targetServerId,
+      });
+
+      console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步到 ${dto.targetServerName} 开始`);
+      if (!projectIsSync && projectEnvServer.isFinish && (projectEnvServer.publishVersion === null || projectEnvServer.lastPublishVersion === null || projectEnvServer.publishVersion === projectEnvServer.lastPublishVersion)) {
+        await this.sync({
+          projectId: dto.projectId,
+          publishBranch: dto.publishBranch,
+          syncServerId: dto.syncServerId,
+          targetServerId: dto.targetServerId,
+          envId: dto.envId,
+        });
+        projectIsSync = true;
+      } else if (projectEnvServer.isFinish) {
+        console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步到 ${dto.targetServerName} 完成`);
+        break;
+      }
+      console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步 ${dto.targetServerName} 进行中...`);
+      await sleep(30000);
+    }
   }
 }

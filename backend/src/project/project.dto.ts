@@ -4,6 +4,7 @@ import { Project } from './project.entity';
 import { ProjectEnvDto } from '../project-env/project-env.dto';
 import { ProjectCommandStep } from '../project-build-step/project-command-step.entity';
 import { ProjectPlugin } from '../project-plugin/project-plugin.entity';
+import { ProjectEnvServerDto } from '../project-env-server/project-env-server.dto';
 
 
 /**
@@ -27,13 +28,13 @@ export class ProjectDto extends Project {
   /**
    * 同步服务器id
    */
-  syncServerId:number;
+  syncServerId: number;
 
 
   /**
    * 环境id
    */
-  envId:number;
+  envId: number;
   /**
    * 项目环境服务器id
    */
@@ -48,5 +49,10 @@ export class ProjectDto extends Project {
    * 项目插件
    */
   projectPluginList: ProjectPlugin[];
+
+  /**
+   * 环境服务器列表
+   */
+  projectEnvServerList: ProjectEnvServerDto[];
 
 }

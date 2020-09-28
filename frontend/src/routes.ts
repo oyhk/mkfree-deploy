@@ -105,6 +105,13 @@ export default {
       method: HttpMethod.post,
       data: payload,
     }),
+
+    projectDynamicPublish: (payload?: any) => ({
+      url: `${gateway}api/projects/dynamic-publish`,
+      method: HttpMethod.post,
+      data: payload,
+    }),
+
     projectInit: (payload?: any) => ({
       url: `${gateway}api/projects/init`,
       method: HttpMethod.post,
@@ -131,6 +138,11 @@ export default {
       url: `${gateway}api/projectEnvs/list?${querystring.stringify(searchParams)}`,
       method: HttpMethod.get,
     }),
+    projectEnvServerList: (searchParams?: any) => ({
+      url: `${gateway}api/projectEnvServers/list?${querystring.stringify(searchParams)}`,
+      method: HttpMethod.get,
+    }),
+
     projectEnvInfo: gateway + 'api/projectEnvs/info',
     projectEnvPluginInfo: (searchParams?: any) => ({
       url: `${gateway}api/projectEnvPlugins/info?${querystring.stringify(searchParams)}`,

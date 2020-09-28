@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { ProjectController } from './project.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Project } from './project.entity';
@@ -16,6 +16,8 @@ import { Plugin } from '../plugin/plugin.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ProjectEnvPlugin } from '../project-env-plugin/project-env-plugin.entity';
 import { ProjectService } from './project.service';
+import { PluginEnvSetting } from '../plugin/plugin-env-setting.entity';
+import { PluginEurekaService } from '../plugin-api/eureka/plugin-eureka.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature(
@@ -33,9 +35,12 @@ import { ProjectService } from './project.service';
       SystemConfig,
       ProjectLog,
       ProjectEnvLog,
+      PluginEnvSetting,
     ],
-  ), JwtModule.register({ secret: 'hard!to-guess_secret' })],
-  providers:[ProjectService],
+  ),
+    JwtModule.register({ secret: 'hard!to-guess_secret' }),
+    HttpModule],
+  providers: [ProjectService, PluginEurekaService],
   controllers: [ProjectController],
 })
 export class ProjectModule {
