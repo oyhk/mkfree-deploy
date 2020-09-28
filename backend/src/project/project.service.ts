@@ -278,6 +278,7 @@ export class ProjectService {
         const publishVersion = `${publishBranchDirName}_${stdoutData.replace('\n', '')}`;
         // 修改项目环境服务器当前发布版本
         await this.projectEnvServerRepository.update(projectEnvServer.id, {
+          publishVersion: publishVersion,
           lastPublishVersion: publishVersion,
           isFinish: true,
         });
@@ -297,6 +298,7 @@ export class ProjectService {
         const publishVersion = `${publishBranchDirName}_${stdoutData.replace('\n', '')}`;
         // 修改项目环境服务器当前发布版本
         await this.projectEnvServerRepository.update(projectEnvServer.id, {
+          publishVersion: publishVersion,
           lastPublishVersion: publishVersion,
           isFinish: true,
         });
