@@ -768,19 +768,17 @@ export class ProjectController {
       pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
     }, pluginEurekaConfig);
 
-    // 1.4 Eureka 下线同步服务器项目
+    // 需要同步的服务器一台台执行
     const syncServerList = serverList.filter(value => !value.isPublish && value.isSelectServerIp);
-    const syncServerIpList = syncServerList.map(value => (value.serverIp));
-    console.log('syncServerIpList', syncServerIpList);
-    await this.projectService.projectAppChangeStatusInEureka({
-      projectName: project.name,
-      serverIpList: syncServerIpList,
-      pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
-    }, pluginEurekaConfig);
-
-
-    // 1.5 从发布服务器同步到同步服务器中
     for (const syncServer of syncServerList) {
+      // 1.4 Eureka 下线同步服务器项目
+      await this.projectService.projectAppChangeStatusInEureka({
+        projectName: project.name,
+        serverIpList: [syncServer.serverIp],
+        pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
+      }, pluginEurekaConfig);
+
+      // 1.5 从发布服务器同步到同步服务器中
       await this.projectService.projectSync({
         projectId: project.id,
         envId: dto.envId,
@@ -790,14 +788,16 @@ export class ProjectController {
         targetServerName: syncServer.serverName,
         publishBranch: projectEnv.publishBranch,
       });
+
+      // 1.6 同步完成后，在Eureka中上线
+      await this.projectService.projectAppChangeStatusInEureka({
+        projectName: project.name,
+        serverIpList: [syncServer.serverIp],
+        pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
+      }, pluginEurekaConfig);
     }
 
-    // 1.6 同步完成后，在Eureka中上线
-    await this.projectService.projectAppChangeStatusInEureka({
-      projectName: project.name,
-      serverIpList: syncServerIpList,
-      pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
-    }, pluginEurekaConfig);
+
 
     console.log('项目动态发布完成');
   }
