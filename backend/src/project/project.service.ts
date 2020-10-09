@@ -470,7 +470,7 @@ export class ProjectService {
         await this.pluginEurekaService.changeStatus(upInstance, pluginEurekaConfig);
       }
       console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 中`);
-      await sleep(30000);
+      await sleep(45000);
     }
     console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 完成`);
   }
