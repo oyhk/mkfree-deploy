@@ -174,6 +174,10 @@ export class ProjectService {
         publishVersion,
         isFinish: false,
       });
+      // 修改项目环境日志发布版本
+      await this.projectEnvLogRepository.update(projectEnvLog.id, {
+        publishVersion: publishVersion,
+      });
     });
 
     let shell = `
