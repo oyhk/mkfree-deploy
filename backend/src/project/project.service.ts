@@ -117,8 +117,10 @@ export class ProjectService {
 
     const projectEnvBuildSeq = projectEnv.buildSeq + 1;
 
-    // 首先更新环境正在发布中
+    // 更新环境正在发布中
     await this.projectEnvRepository.update(projectEnv.id, { isFinish: false });
+    // 更新环境服务器正在发布中
+    await this.projectEnvServerRepository.update(projectEnvServer.id, { isFinish: false });
 
     const projectEnvLog = await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.build.code,
@@ -159,26 +161,6 @@ export class ProjectService {
     const sshUsername = server.sshUsername;
     const sshPort = server.sshPort;
     const ip = server.ip;
-
-    // 修改项目环境服务器当前发布版本信息
-    const gitVersionShell = `
-        gitVersion="$(git log -n 1)"
-        gitVersion=\$\{gitVersion:27:20\}
-        echo $gitVersion
-      `;
-    exec(gitVersionShell, { cwd: projectEnvPath }, async (error, stdoutData, stderrData) => {
-      const publishVersion = `${publishBranchDirName}_${stdoutData.replace('\n', '')}`;
-      // 修改项目环境服务器当前发布版本
-      await this.projectEnvServerRepository.update(projectEnvServer.id, {
-        publishTime,
-        publishVersion,
-        isFinish: false,
-      });
-      // 修改项目环境日志发布版本
-      await this.projectEnvLogRepository.update(projectEnvLog.id, {
-        publishVersion: publishVersion,
-      });
-    });
 
     let shell = `
       echo "Start of build project: ${project.name} ."

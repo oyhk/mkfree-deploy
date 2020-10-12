@@ -143,7 +143,10 @@ export class PlanController {
       pluginName: PluginEureka.name,
       envId: dto.envId,
     });
-    const pluginEurekaConfig: PluginEurekaConfig = JSON.parse(pluginEnvSetting.config);
+    let pluginEurekaConfig: PluginEurekaConfig = null;
+    if (pluginEnvSetting.config) {
+      pluginEurekaConfig = JSON.parse(pluginEnvSetting.config);
+    }
 
     console.log('项目灰度发布开始');
 
@@ -162,7 +165,7 @@ export class PlanController {
       });
       const publishServerIpList = grayServerList.filter(value => value.serverId === currentPlanEnvProjectConfig.publishServerId).map(value => (value.serverIp));
       // 1.1 Eureka下线发布服务器
-      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name && pluginEurekaConfig) {
         await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: publishServerIpList,
@@ -180,7 +183,7 @@ export class PlanController {
       });
 
       // 1.3 上线发布项目到Eureka注册中心
-      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name  && pluginEurekaConfig ) {
         await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: publishServerIpList,
@@ -190,12 +193,13 @@ export class PlanController {
 
       // 1.4 Eureka 下线同步服务器项目
       const syncServerIpList = grayServerList.filter(value => value.serverId !== currentPlanEnvProjectConfig.publishServerId).map(value => (value.serverIp));
-      await this.projectService.projectAppChangeStatusInEureka({
-        projectName: planEnvProjectConfig.projectName,
-        serverIpList: syncServerIpList,
-        pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
-      }, pluginEurekaConfig);
-
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name  && pluginEurekaConfig ) {
+        await this.projectService.projectAppChangeStatusInEureka({
+          projectName: planEnvProjectConfig.projectName,
+          serverIpList: syncServerIpList,
+          pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.OUT_OF_SERVICE,
+        }, pluginEurekaConfig);
+      }
 
       // 1.5 从发布服务器同步到同步服务器中
       const graySyncServerList = grayServerList.filter(value => value.serverId !== currentPlanEnvProjectConfig.publishServerId);
@@ -212,7 +216,7 @@ export class PlanController {
       }
 
       // 1.6 同步完成后，在Eureka中上线
-      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name) {
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name  && pluginEurekaConfig ) {
         await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: syncServerIpList,
