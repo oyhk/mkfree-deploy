@@ -282,6 +282,10 @@ export class ProjectService {
           lastPublishVersion: publishVersion,
           isFinish: true,
         });
+        // 修改项目环境日志发布版本
+        await this.projectEnvLogRepository.update(projectEnvLog.id, {
+          publishVersion: publishVersion,
+        });
       });
     });
     child.stderr.on('end', async () => {
@@ -301,6 +305,10 @@ export class ProjectService {
           publishVersion: publishVersion,
           lastPublishVersion: publishVersion,
           isFinish: true,
+        });
+        // 修改项目环境日志发布版本
+        await this.projectEnvLogRepository.update(projectEnvLog.id, {
+          publishVersion: publishVersion,
         });
       });
     });
