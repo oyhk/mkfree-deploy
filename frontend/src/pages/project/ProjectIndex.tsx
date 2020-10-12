@@ -26,6 +26,7 @@ export default () => {
   // 分页数据
   const pageResultUseRequest = useRequest<ApiResult<PageResult<ProjectDto>>>(
     (params) => {
+      console.log(params);
       return routes.apiRoutes.projectPage({
         pageNo: params.current,
         pageSize: params.pageSize,
@@ -38,6 +39,7 @@ export default () => {
       pollingWhenHidden: false,
       refreshOnWindowFocus: false,
       paginated: true,
+      defaultPageSize: 50,
     });
 
 
