@@ -161,8 +161,8 @@ export default () => {
           <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
         ]}
         pagination={{
-          pageSize: 10,
-          defaultPageSize: 10,
+          pageSize: 50,
+          defaultPageSize: 50,
           current: 1,
           total: pageResultUseRequest.data.result.total,
           onChange: (current) => {
