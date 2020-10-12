@@ -378,6 +378,10 @@ export class ProjectService {
       envId: env.id,
       projectEnvId: projectEnv.id,
       projectEnvLogSeq: projectEnvBuildSeq,
+      publishVersion: syncProjectEnvServer.publishVersion,
+      serverId: targetServer.id,
+      serverName: targetServer.name,
+      serverIp: targetServer.ip,
     } as ProjectEnvLog);
 
     // 服务器信息
