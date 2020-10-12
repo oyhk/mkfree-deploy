@@ -338,6 +338,9 @@ export default (props: any) => {
                                   </Col> : <Col xl={4}/>
                               }
                               <Col xl={8}>
+                                <Form.Item name={[projectEnvServiceField.name, 'id']} hidden={true}>
+                                  <Input/>
+                                </Form.Item>
                                 <Form.Item
                                   name={[projectEnvServiceField.name, 'isSelectServerIp']}
                                   valuePropName='checked'

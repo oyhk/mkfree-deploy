@@ -158,12 +158,14 @@ export class ProjectController {
           serverId: server.id,
         });
         const projectEnvServer = new ProjectEnvServerDto();
+
         projectEnvServer.serverId = server.id;
         projectEnvServer.serverIp = server.ip;
         projectEnvServer.serverName = server.name;
         projectEnvServer.isSelectServerIp = false;
         projectEnvServer.isPublish = false;
         if (dbProjectEnvServer) {
+          projectEnvServer.id = dbProjectEnvServer.id;
           projectEnvServer.isSelectServerIp = true;
           projectEnvServer.isPublish = dbProjectEnvServer.isPublish;
         }
@@ -317,9 +319,12 @@ export class ProjectController {
             projectEnvDto.projectId = project.id;
             projectEnvDto.projectName = project.name;
 
+
+
             // 1. 删除所有子关联表数据
             // 删除环境服务器，过滤不需要删除的环境服务器
             const notDeleteProjectEnvServerIdList = projectEnvDto.projectEnvServerList.filter(projectEnvServer => projectEnvServer.isSelectServerIp && projectEnvServer.id).map(projectEnvServer => projectEnvServer.id);
+            console.log('notDeleteProjectEnvServerIdList',notDeleteProjectEnvServerIdList);
             await entityManager.connection.createQueryBuilder().delete().from(ProjectEnvServer)
               .where(
                 'id not in (:...projectEnvServerIdList) and projectId = :projectId and envId = :envId',

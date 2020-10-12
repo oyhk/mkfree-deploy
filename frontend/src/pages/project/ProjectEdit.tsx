@@ -1,14 +1,11 @@
 import React from 'react';
 import { PageHeaderWrapper, PageLoading } from '@ant-design/pro-layout';
-import { connect, useParams } from 'umi';
+import { useParams } from 'umi';
 import ProjectForm from '@/pages/project/ProjectFrom';
-import { ProjectPageProps } from '@/pages/project/ProjectPageProps';
 import { useRequest } from 'ahooks';
 import { ApiResult } from '@/services/ApiResult';
-import { PageResult } from '@/services/PageResult';
 import { ProjectDto } from '@/services/dto/ProjectDto';
 import routes from '@/routes';
-import { PlanDto } from '@/services/dto/PlanDto';
 
 
 export default () => {
