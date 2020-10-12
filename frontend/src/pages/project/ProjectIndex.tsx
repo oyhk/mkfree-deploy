@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProTable from '@ant-design/pro-table/lib/Table';
-import { Table, Button, notification, Modal, Row, Col, Checkbox, Form, Switch, Input } from 'antd';
+import { Table, Button, notification, Modal, Row, Col, Checkbox, Form, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'umi';
 import styles from '@/pages/project/project-index.less';
@@ -25,16 +25,21 @@ export default () => {
 
   // 分页数据
   const pageResultUseRequest = useRequest<ApiResult<PageResult<ProjectDto>>>(
-    () => routes.apiRoutes.projectPage({
-      pageNo: 0,
-      pageSize: 1000,
-    }),
+    (params) => {
+      return routes.apiRoutes.projectPage({
+        pageNo: params.current,
+        pageSize: params.pageSize,
+        name: params.filters?.name,
+      });
+    },
     {
       manual: false,
       pollingInterval: 3000,
       pollingWhenHidden: false,
       refreshOnWindowFocus: false,
+      paginated: true,
     });
+
 
   //刷新项目分支
   const refreshBranchUseRequest = useRequest<ApiResult<BaseDto>>(
@@ -152,6 +157,53 @@ export default () => {
     <PageHeaderWrapper
     >
       <ProTable<ProjectDto>
+        toolBarRender={() => [
+          <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
+        ]}
+        pagination={{
+          pageSize: 10,
+          defaultPageSize: 10,
+          current: 1,
+          total: pageResultUseRequest.data.result.total,
+          onChange: (current) => {
+            pageResultUseRequest.params[0].current = current > 1 ? (current - 1) * pageResultUseRequest.params[0].pageSize + 1 : 1;
+            pageResultUseRequest.run(pageResultUseRequest.params[0]);
+          },
+          onShowSizeChange: (current, pageSize) => {
+            pageResultUseRequest.params[0].current = current > 1 ? (current - 1) * pageResultUseRequest.params[0].pageSize + 1 : 1;
+            pageResultUseRequest.params[0].pageSize = pageSize;
+            pageResultUseRequest.run(pageResultUseRequest.params[0]);
+          },
+        }}
+        search={{
+          collapsed: false,
+          optionRender: ({ searchText, resetText }, { form }) => {
+            return [
+              <Button
+                type='primary'
+                key="searchText"
+                onClick={() => {
+                  pageResultUseRequest.params[0].current = 1;
+                  pageResultUseRequest.run({
+                    ...pageResultUseRequest.params[0],
+                    filters: { name: form?.getFieldValue('name') },
+                  });
+                }}
+              >
+                {searchText}
+              </Button>,
+              <Button
+                type='primary'
+                key="resetText"
+                onClick={() => {
+                  form?.resetFields();
+                }}
+              >
+                {resetText}
+              </Button>,
+            ];
+          },
+        }}
         rowKey='id'
         columns={[
           {
@@ -168,6 +220,7 @@ export default () => {
             dataIndex: 'action',
             key: 'action',
             align: 'right',
+            hideInSearch: true,
             render: (_: any, row: ProjectDto) =>
               <div className={styles.projectRowAction}>
                 <Link to={routes.pageRoutes.projectEditParams(row.id)}>编辑</Link>&nbsp;&nbsp;
@@ -194,7 +247,6 @@ export default () => {
           },
         ]}
         dataSource={pageResultUseRequest.data?.result?.data}
-        search={false}
         expandable={
           {
             expandedRowRender: (record) => {
@@ -324,10 +376,7 @@ export default () => {
             defaultExpandAllRows: true,
           }
         }
-        pagination={false}
-        toolBarRender={() => [
-          <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
-        ]}
+
       />
 
       <Modal

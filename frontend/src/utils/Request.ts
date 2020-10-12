@@ -6,7 +6,6 @@
  */
 import { extend, RequestOptionsInit } from 'umi-request';
 import { notification } from 'antd';
-import { RequestConfig } from '@@/plugin-request/request';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',

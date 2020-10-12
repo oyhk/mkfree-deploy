@@ -80,7 +80,11 @@ export class ProjectController {
     const envList = await this.envRepository.find({ isEnable: true });
     const envIdList = envList.map(value => value.id);
 
-    await this.projectRepository.createQueryBuilder('p')
+    const queryRunner = this.projectRepository.createQueryBuilder('p');
+    if (dto.name) {
+      queryRunner.andWhere('p.name like :name', { name: `%${dto.name}%` });
+    }
+    await queryRunner
       .skip(dto.pageNo - 1)
       .take(dto.pageSize)
       .getManyAndCount().then(async value => {
@@ -796,7 +800,6 @@ export class ProjectController {
         pluginEurekaApplicationInstanceStatus: PluginEurekaApplicationInstanceStatus.UP,
       }, pluginEurekaConfig);
     }
-
 
 
     console.log('项目动态发布完成');

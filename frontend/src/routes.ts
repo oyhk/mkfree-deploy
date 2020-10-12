@@ -15,6 +15,7 @@ export default {
     root: '/',
     installIndex: pageRoot + '/install',
     projectIndex: pageRoot + '/project',
+    projectIndexParams:(searchParams?: any)=> `${pageRoot}/project?${querystring.stringify(searchParams)}`,
 
     projectEdit: pageRoot + '/project/edit/:id',
     projectEditParams: (id: any) => pageRoot + `/project/edit/${id}`,
