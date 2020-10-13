@@ -56,7 +56,7 @@ export default (props: any) => {
         return ar;
       },
       manual: false,
-      pollingWhenHidden:false,
+      pollingWhenHidden: false,
       pollingInterval: 1000,
       refreshOnWindowFocus: false,
     });
@@ -79,7 +79,7 @@ export default (props: any) => {
       },
       ready: !!urlParams.projectId && !!urlParams.envId && !!urlParams.seq,
       manual: false,
-      pollingWhenHidden:false,
+      pollingWhenHidden: false,
       pollingInterval: 1000,
       refreshOnWindowFocus: false,
     });
@@ -88,21 +88,21 @@ export default (props: any) => {
   const buildingLogList = projectEnvLogListUseRequest.data?.result?.filter((projectEnvLog) => !projectEnvLog.isFinish);
 
   const buildingLogMenu = buildingLogList?.map((projectEnvLog) => {
-    return <Menu.Item key={projectEnvLog.projectEnvLogSeq}>
-      <Link
-        to={routes.pageRoutes.projectEnvLogInfoParams(projectEnvLog.projectId, projectEnvLog.envId, projectEnvLog.projectEnvLogSeq)}>
+    return <Menu.Item key={projectEnvLog.projectEnvLogSeq} title={`#${projectEnvLog.projectEnvLogSeq}`}>
+      <a
+        href={routes.pageRoutes.projectEnvLogInfoParams(projectEnvLog.projectId, projectEnvLog.envId, projectEnvLog.projectEnvLogSeq)}>
         #{projectEnvLog.projectEnvLogSeq}
-      </Link>
+      </a>
     </Menu.Item>;
   });
 
   const historyLogList = projectEnvLogListUseRequest.data?.result?.filter((projectEnvLog) => projectEnvLog.isFinish);
   const historyLogMenu = historyLogList?.map((projectEnvLog) => {
-    return <Menu.Item key={projectEnvLog.projectEnvLogSeq}>
-      <Link
-        to={routes.pageRoutes.projectEnvLogInfoParams(projectEnvLog.projectId, projectEnvLog.envId, projectEnvLog.projectEnvLogSeq)}>
+    return <Menu.Item key={projectEnvLog.projectEnvLogSeq} title={`#${projectEnvLog.projectEnvLogSeq}`}>
+      <a
+        href={routes.pageRoutes.projectEnvLogInfoParams(projectEnvLog.projectId, projectEnvLog.envId, projectEnvLog.projectEnvLogSeq)}>
         #{projectEnvLog.projectEnvLogSeq}
-      </Link>
+      </a>
     </Menu.Item>;
   });
 
@@ -160,7 +160,7 @@ export default (props: any) => {
         {
           projectEnvLogInfoUseRequest.data?.result ?
             <Layout>
-              <Header style={{ padding: '0 20px', height: 'auto',backgroundColor:'#ffffff' }}>
+              <Header style={{ padding: '0 20px', height: 'auto', backgroundColor: '#ffffff' }}>
                 <Row>
                   <Col sm={12}>时间：{momentFormat(projectEnvLogInfoUseRequest.data?.result?.createdAt)}</Col>
                   <Col sm={12}>类型：{projectEnvLogInfoUseRequest.data?.result?.typeDesc}</Col>
