@@ -120,7 +120,7 @@ export class ProjectService {
     // 更新环境正在发布中
     await this.projectEnvRepository.update(projectEnv.id, { isFinish: false });
     // 更新环境服务器正在发布中
-    await this.projectEnvServerRepository.update(projectEnvServer.id, { isFinish: false });
+    await this.projectEnvServerRepository.update(projectEnvServer.id, { publishTime, isFinish: false });
 
     const projectEnvLog = await this.projectEnvLogRepository.save({
       type: ProjectEnvLogType.build.code,
