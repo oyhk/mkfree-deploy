@@ -468,7 +468,7 @@ export class ProjectService {
         await this.pluginEurekaService.changeStatus(upInstance, pluginEurekaConfig);
       }
       console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 中`);
-      await sleep(45000);
+      await sleep(60000);
     }
     console.log(`项目：${dto.projectName} 在 Eureka 注册中心 ${dto.pluginEurekaApplicationInstanceStatus} 完成`);
   }
@@ -504,7 +504,7 @@ export class ProjectService {
         break;
       }
       console.log(`项目：${projectEnvServer.projectName} 在服务器 ${dto.serverName} 发布进行中...`);
-      await sleep(30000);
+      await sleep(60000);
     }
   }
 
@@ -533,7 +533,7 @@ export class ProjectService {
         break;
       }
       console.log(`项目：${projectEnvServer.projectName} 从服务器 ${dto.syncServerName} 同步 ${dto.targetServerName} 进行中...`);
-      await sleep(30000);
+      await sleep(60000);
     }
   }
 }
