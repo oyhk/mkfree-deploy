@@ -25,6 +25,7 @@ export default () => {
     visible: false,
   });
 
+  const [searchForm] = Form.useForm();
   const [dynamicPublishProjectForm] = Form.useForm();
 
   // 分页数据
@@ -161,6 +162,34 @@ export default () => {
   return (
     <PageHeaderWrapper
     >
+      <Form
+        form={searchForm}
+        layout="inline"
+        style={{ backgroundColor: '#ffffff', marginBottom: '1vh', padding: '10px' }}
+        onFinish={(value) => {
+          pageResultUseRequest.params[0].filters = value;
+          pageResultUseRequest.run(pageResultUseRequest.params[0]);
+        }}
+
+      >
+        <Form.Item label="项目名称" name="name">
+          <Input placeholder={'回车可触发搜索'}/>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            查询
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button onClick={() => {
+            searchForm.resetFields();
+            pageResultUseRequest.params[0].filters = undefined;
+            pageResultUseRequest.run(pageResultUseRequest.params[0]);
+          }}>
+            重置
+          </Button>
+        </Form.Item>
+      </Form>
       <ProTable<ProjectDto>
         toolBarRender={() => [
           <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
@@ -180,35 +209,7 @@ export default () => {
             pageResultUseRequest.run(pageResultUseRequest.params[0]);
           },
         }}
-        search={{
-          collapsed: false,
-          optionRender: ({ searchText, resetText }, { form }) => {
-            return [
-              <Button
-                type='primary'
-                key="searchText"
-                onClick={() => {
-                  pageResultUseRequest.params[0].current = 1;
-                  pageResultUseRequest.run({
-                    ...pageResultUseRequest.params[0],
-                    filters: { name: form?.getFieldValue('name') },
-                  });
-                }}
-              >
-                {searchText}
-              </Button>,
-              <Button
-                type='primary'
-                key="resetText"
-                onClick={() => {
-                  form?.resetFields();
-                }}
-              >
-                {resetText}
-              </Button>,
-            ];
-          },
-        }}
+        search={false}
         rowKey='id'
         columns={[
           {
