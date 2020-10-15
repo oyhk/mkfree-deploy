@@ -17,7 +17,9 @@ import { BaseDto } from '@/services/dto/BaseDto';
 
 export default () => {
 
-  const defaultPageSize = 10;
+
+  const defaultPageSize = process.env.NODE_ENV === 'development' ? 2 : 10;
+
 
   const [dynamicPublishProject, setDynamicPublishProject] = useState<{ visible: boolean, projectEnvServerList?: Array<ProjectEnvServerDto>, id?: number, name?: string, envId?: number, envName?: string }>({
     visible: false,
