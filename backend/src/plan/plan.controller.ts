@@ -126,6 +126,13 @@ export class PlanController {
       return res.json(ar);
     }
 
+
+    this.grayPublishGo(dto);
+
+    return res.json(ar);
+  }
+
+  async grayPublishGo(dto) {
     const plan = await this.planRepository.findOne(dto.id);
     const commonPlanEnvProjectConfig = await this.planEnvProjectConfigRepository.findOne({
       planId: plan.id,
@@ -183,7 +190,7 @@ export class PlanController {
       });
 
       // 1.3 上线发布项目到Eureka注册中心
-      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name  && pluginEurekaConfig ) {
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name && pluginEurekaConfig) {
         await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: publishServerIpList,
@@ -193,7 +200,7 @@ export class PlanController {
 
       // 1.4 Eureka 下线同步服务器项目
       const syncServerIpList = grayServerList.filter(value => value.serverId !== currentPlanEnvProjectConfig.publishServerId).map(value => (value.serverIp));
-      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name  && pluginEurekaConfig ) {
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name && pluginEurekaConfig) {
         await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: syncServerIpList,
@@ -216,7 +223,7 @@ export class PlanController {
       }
 
       // 1.6 同步完成后，在Eureka中上线
-      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name  && pluginEurekaConfig ) {
+      if (currentPlanEnvProjectConfig.registerCenterName === PluginEureka.name && pluginEurekaConfig) {
         await this.projectService.projectAppChangeStatusInEureka({
           projectName: planEnvProjectConfig.projectName,
           serverIpList: syncServerIpList,
@@ -225,7 +232,6 @@ export class PlanController {
       }
     }
     console.log('项目灰度发布完成');
-    return res.json(ar);
   }
 
   @Get('/api/plans/info')

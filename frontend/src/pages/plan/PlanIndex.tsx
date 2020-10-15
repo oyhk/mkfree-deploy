@@ -37,8 +37,6 @@ export default () => {
     manual: true,
     onSuccess: (apiResult, params) => {
       if (apiResult) {
-
-
         notification.success({
           message: `版本计划：${params[0]?.name}`,
           description: '删除成功',
@@ -52,7 +50,10 @@ export default () => {
   const grayPublishUseRequest = useRequest((payload) => routes.apiRoutes.planGrayPublish(payload), {
     manual: true,
     onSuccess: (apiResult, params) => {
-
+      notification.success({
+        message: `版本计划：首次灰度`,
+        description: '操作成功',
+      });
     },
     refreshOnWindowFocus: false,
   });
