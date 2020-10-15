@@ -17,6 +17,8 @@ import { BaseDto } from '@/services/dto/BaseDto';
 
 export default () => {
 
+  const defaultPageSize = 10;
+
   const [dynamicPublishProject, setDynamicPublishProject] = useState<{ visible: boolean, projectEnvServerList?: Array<ProjectEnvServerDto>, id?: number, name?: string, envId?: number, envName?: string }>({
     visible: false,
   });
@@ -38,7 +40,7 @@ export default () => {
       pollingWhenHidden: false,
       refreshOnWindowFocus: false,
       paginated: true,
-      defaultPageSize: 50,
+      defaultPageSize,
     });
 
 
@@ -162,9 +164,9 @@ export default () => {
           <Link to={routes.pageRoutes.projectCreate}><PlusOutlined/> 添加项目</Link>,
         ]}
         pagination={{
-          pageSize: 50,
-          defaultPageSize: 50,
-          current: 1,
+          position: ['topRight', 'bottomRight'],
+          defaultPageSize,
+          defaultCurrent: 1,
           total: pageResultUseRequest.data.result.total,
           onChange: (current) => {
             pageResultUseRequest.params[0].current = current > 1 ? (current - 1) * pageResultUseRequest.params[0].pageSize + 1 : 1;
